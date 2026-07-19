@@ -27,7 +27,7 @@ async def retell_webhook(request: Request):
 
     # For now: hardcode to Maison Lumière while we test the pipeline
     biz = supabase.table("businesses").select("id, name").eq(
-        "name", "Maison Lumière Restaurant"
+        "name", "Bella Hair Salon"
     ).limit(1).execute()
 
     if not biz.data:
