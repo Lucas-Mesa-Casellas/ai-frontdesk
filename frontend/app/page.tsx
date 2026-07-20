@@ -61,7 +61,7 @@ const T: Record<LangCode, {
 export default function Home() {
   const rootRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
-  const [lang, setLang] = useState<LangCode>("ES");
+  const [lang, setLang] = useState<LangCode>("EN");
   const t = T[lang];
   const [menuOpen, setMenuOpen] = useState(false);
   const mobileNavRef = useRef<HTMLDivElement>(null);
