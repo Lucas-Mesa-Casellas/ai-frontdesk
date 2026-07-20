@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
@@ -64,6 +64,8 @@ export default function Home() {
   const [lang, setLang] = useState<LangCode>("ES");
   const t = T[lang];
   const [menuOpen, setMenuOpen] = useState(false);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
+  const [navOpen, setNavOpen] = useState(false);
 
   // Close on outside click: check event.target against the lang wrapper directly,
   // rather than relying on stopPropagation ordering against React's event delegation
@@ -73,8 +75,13 @@ export default function Home() {
       if (langRef.current && !langRef.current.contains(e.target as Node)) {
         setMenuOpen(false);
       }
+      if (mobileNavRef.current && !mobileNavRef.current.contains(e.target as Node)) {
+        setNavOpen(false);
+      }
     };
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setMenuOpen(false); setNavOpen(false); }
+    };
     document.addEventListener("click", onDocClick);
     document.addEventListener("keydown", esc);
     return () => {
@@ -254,6 +261,26 @@ export default function Home() {
                     <svg className="mark" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg>
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div ref={mobileNavRef}>
+              <button
+                className="nav-toggle"
+                aria-expanded={navOpen}
+                aria-label="Menu"
+                onClick={() => setNavOpen((o) => !o)}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <line className="l1" x1="4" y1="7" x2="20" y2="7" />
+                  <line className="l2" x1="4" y1="12" x2="20" y2="12" />
+                  <line className="l3" x1="4" y1="17" x2="20" y2="17" />
+                </svg>
+              </button>
+              <div className={`mobile-nav${navOpen ? " open" : ""}`}>
+                <a href="#product" onClick={() => setNavOpen(false)}>{t.navProduct}</a>
+                <a href="#pricing" onClick={() => setNavOpen(false)}>{t.navPricing}</a>
+                <a href="#contact" onClick={() => setNavOpen(false)}>{t.navContact}</a>
               </div>
             </div>
           </div>
