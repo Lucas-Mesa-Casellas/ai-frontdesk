@@ -10,7 +10,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LMC Agents — Never miss another customer",
+  title: "LMC Agents",
   description:
     "LMC Agents answers every call, understands what the caller needs, and then completes the work that follows. Automatically, day and night.",
   icons: {
