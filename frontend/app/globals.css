@@ -1,23 +1,423 @@
 @import "tailwindcss";
 
-:root {
-  --background: #0B0E14;
-  --foreground: #F5F3EF;
+/* ============================================================
+   LMC AGENTS — HERO v3
+   Depth, glass, light. One typeface. Choreographed reveal.
+   ============================================================ */
+
+:root{
+  --bg:#08090C;
+  --bg-lift:#0D0F14;
+
+  --text:#FBFAF8;
+  --text-2:#B9BDC6;
+  --text-3:#7C828F;
+
+  --jade:#37E29B;
+  --jade-2:#12B981;
+  --jade-deep:#059669;
+  --amber:#FFC178;
+
+  --hair:rgba(255,255,255,.09);
+  --hair-2:rgba(255,255,255,.16);
+
+  --e-out:cubic-bezier(.22,.9,.24,1);
+  --maxw:1680px;
+  --maxw-hero:1280px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow-x:clip}
+/* React mounts one wrapper div inside body; it must carry the column flex
+   that `main{flex:1}` depends on, otherwise the hero pins to the top. */
+.app-shell{min-height:100vh;display:flex;flex-direction:column}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-inter),system-ui,-apple-system,sans-serif;
+  font-feature-settings:"cv11","ss01";
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  display:flex;flex-direction:column;
+  overflow-x:hidden;
+}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+::selection{background:var(--jade);color:#04140D}
+:focus-visible{outline:2px solid var(--jade);outline-offset:3px;border-radius:8px}
+:focus:not(:focus-visible){outline:none}
+
+/* ---------- environment: layered light ---------- */
+.env{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.env .beam{
+  position:absolute;top:-60vh;left:50%;transform:translateX(-50%);
+  width:150vw;height:110vh;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(120,140,180,.10), transparent 65%);
+  animation:beamDrift 30s ease-in-out infinite alternate;
+}
+.env .floor{
+  position:absolute;bottom:-55vh;left:50%;transform:translateX(-50%);
+  width:130vw;height:95vh;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18,185,129,.09), transparent 62%);
+  animation:floorDrift 38s ease-in-out infinite alternate;
+}
+/* aurora: two very slow, very faint veils. you should never consciously notice these. */
+.env .aur{position:absolute;border-radius:50%;filter:blur(70px);mix-blend-mode:screen}
+.env .aur-1{
+  top:-18vh;left:8vw;width:62vw;height:58vh;
+  background:radial-gradient(circle at 50% 50%, rgba(18,185,129,.13), transparent 66%);
+  animation:aurA 26s ease-in-out infinite alternate;
+}
+.env .aur-2{
+  top:2vh;right:2vw;width:54vw;height:52vh;
+  background:radial-gradient(circle at 50% 50%, rgba(96,132,190,.11), transparent 68%);
+  animation:aurB 34s ease-in-out infinite alternate;
+}
+@keyframes beamDrift{
+  from{transform:translateX(-50%) translate3d(-4.5vw,-1vh,0) scale(1)}
+  to  {transform:translateX(-50%) translate3d(4.5vw,2.5vh,0) scale(1.12)}
+}
+@keyframes floorDrift{
+  from{transform:translateX(-50%) translate3d(3.5vw,1vh,0) scale(1.08)}
+  to  {transform:translateX(-50%) translate3d(-3.5vw,-2vh,0) scale(1)}
+}
+@keyframes aurA{
+  0%  {transform:translate3d(-2vw,-1vh,0) scale(.96);opacity:.45}
+  50% {opacity:1}
+  100%{transform:translate3d(8vw,5vh,0) scale(1.18);opacity:.5}
+}
+@keyframes aurB{
+  0%  {transform:translate3d(2vw,0,0) scale(1.14);opacity:.4}
+  50% {opacity:.95}
+  100%{transform:translate3d(-7vw,4vh,0) scale(.98);opacity:.45}
+}
+.env .mesh{
+  position:absolute;inset:0;opacity:.45;
+  background-image:linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:72px 72px;
+  -webkit-mask-image:radial-gradient(ellipse 78% 62% at 50% 32%,#000 10%,transparent 72%);
+  mask-image:radial-gradient(ellipse 78% 62% at 50% 32%,#000 10%,transparent 72%);
+}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.22;mix-blend-mode:overlay}
+
+.wrap{position:relative;z-index:3;width:100%;max-width:var(--maxw);margin:0 auto;padding:0 34px}
+/* Nav spans the full --maxw so the logo sits far left and the language pill far right.
+   The hero content is deliberately NARROWER and centred, so the headline and the
+   console card stay visually close together instead of being flung to the edges. */
+main .wrap.hero{max-width:var(--maxw-hero)}
+
+/* ---------- reusable glass ---------- */
+.glass{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.062),rgba(255,255,255,.018));backdrop-filter:blur(20px) saturate(1.3);-webkit-backdrop-filter:blur(20px) saturate(1.3)}
+.glass::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
+  background:linear-gradient(180deg,rgba(255,255,255,.26),rgba(255,255,255,.06) 42%,rgba(255,255,255,.02));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+  pointer-events:none;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------- nav ---------- */
+nav{flex:none;padding:20px 0;position:relative;z-index:40}
+.nav-grid{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:24px}
+
+.logo{display:flex;align-items:center;gap:11px;white-space:nowrap;justify-self:start}
+/* ===== LOGO SLOT — replace inner <svg>, keep wrapper ===== */
+.logo-mark{
+  width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;
+  background:linear-gradient(155deg,var(--jade),var(--jade-deep));
+  box-shadow:0 0 0 1px rgba(55,226,155,.28),0 6px 18px -6px rgba(18,185,129,.65),inset 0 1px 0 rgba(255,255,255,.4);
+}
+.logo-mark svg{width:15px;height:15px;display:block}
+.logo-txt{font-size:17px;font-weight:600;letter-spacing:-.022em}
+
+.nav-links{display:flex;gap:4px;justify-self:center}
+.nav-links a{
+  font-size:15px;font-weight:450;color:var(--text-2);
+  padding:9px 17px;border-radius:10px;position:relative;
+  transition:color .22s var(--e-out),background .22s var(--e-out);
+}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.055)}
+
+.nav-right{display:flex;align-items:center;gap:11px;justify-self:end}
+/* language: dropdown so it scales to many locales, not a 3-item row */
+.lang{position:relative}
+.lang-btn{
+  display:flex;align-items:center;gap:7px;
+  font-size:13.5px;font-weight:500;color:var(--text-2);
+  padding:9px 13px;border-radius:999px;
+  border:1px solid var(--hair);background:rgba(255,255,255,.035);
+  transition:color .22s var(--e-out),background .22s var(--e-out),border-color .22s var(--e-out);
+}
+.lang-btn:hover{color:var(--text);background:rgba(255,255,255,.075);border-color:var(--hair-2)}
+.lang-btn .globe{width:15px;height:15px;stroke:currentColor;stroke-width:1.5;fill:none;flex:none}
+.lang-btn .chev{width:10px;height:10px;stroke:currentColor;stroke-width:1.8;fill:none;flex:none;transition:transform .28s var(--e-out)}
+.lang-btn[aria-expanded=true] .chev{transform:rotate(180deg)}
+
+.lang-menu{
+  position:absolute;top:calc(100% + 10px);right:0;min-width:184px;
+  max-height:290px;overflow-y:auto;overscroll-behavior:contain;
+  padding:6px;border-radius:16px;z-index:60;
+  background:linear-gradient(180deg,rgba(20,24,31,.97),rgba(13,16,21,.97));
+  border:1px solid var(--hair-2);
+  box-shadow:0 30px 60px -22px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.09);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;
+  transition:opacity .22s var(--e-out),transform .22s var(--e-out);
+}
+.lang-menu.open{opacity:1;transform:none;pointer-events:auto}
+.lang-menu button{
+  display:flex;align-items:center;gap:10px;width:100%;
+  padding:9px 11px;border-radius:10px;text-align:left;
+  font-size:14px;color:var(--text-2);
+  transition:background .18s var(--e-out),color .18s var(--e-out);
+}
+.lang-menu button:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.lang-menu button .code{
+  font-size:10.5px;font-weight:600;letter-spacing:.06em;color:var(--text-3);
+  border:1px solid var(--hair);border-radius:5px;padding:2px 5px;flex:none;min-width:30px;text-align:center;
+}
+.lang-menu button[aria-selected=true]{color:var(--text)}
+.lang-menu button[aria-selected=true] .code{color:var(--jade);border-color:rgba(55,226,155,.35);background:rgba(55,226,155,.1)}
+.lang-menu .mark{margin-left:auto;width:14px;height:14px;stroke:var(--jade);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.lang-menu button[aria-selected=true] .mark{opacity:1}
+.lang-menu::-webkit-scrollbar{width:8px}
+.lang-menu::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+
+/* nav CTA: primary path for new businesses */
+.btn-start{
+  position:relative;display:inline-flex;align-items:center;
+  font-size:14.5px;font-weight:600;letter-spacing:-.004em;color:#04140D;
+  padding:10px 20px;border-radius:999px;overflow:hidden;white-space:nowrap;
+  background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 8px 22px -8px rgba(18,185,129,.6);
+  transition:transform .26s var(--e-out),box-shadow .26s var(--e-out);
+}
+.btn-start::after{
+  content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:skewX(-18deg);transition:left .6s var(--e-out);
+}
+.btn-start:hover{transform:translateY(-1.5px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 14px 32px -10px rgba(18,185,129,.75)}
+.btn-start:hover::after{left:115%}
+
+/* login = real button now */
+.btn-login{
+  font-size:14.5px;font-weight:500;color:var(--text);white-space:nowrap;
+  padding:9px 20px;border-radius:999px;border:1px solid var(--hair-2);
+  background:rgba(255,255,255,.055);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+  transition:background .22s var(--e-out),border-color .22s var(--e-out),transform .22s var(--e-out);
+}
+.btn-login:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.28);transform:translateY(-1px)}
+
+/* ---------- hero shell ---------- */
+main{flex:1;display:flex;align-items:center;padding:8px 0 34px}
+.hero{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:clamp(30px,4vw,64px);align-items:center;width:100%}
+
+/* ---------- left: message ---------- */
+.badge{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:7px 15px 7px 11px;border-radius:999px;
+  font-size:12.5px;font-weight:500;letter-spacing:.01em;color:var(--text-2);
+  border:1px solid var(--hair);background:rgba(255,255,255,.04);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09);
+  margin-bottom:28px;
+}
+.badge .pip{position:relative;width:7px;height:7px;border-radius:50%;background:var(--jade);flex:none;box-shadow:0 0 10px rgba(55,226,155,.9)}
+.badge .pip::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid var(--jade);animation:ping 2.6s var(--e-out) infinite}
+@keyframes ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(3);opacity:0}}
+
+h1{
+  font-size:clamp(2.6rem,4.55vw,4rem);
+  line-height:1.0;letter-spacing:-.045em;font-weight:600;
+  margin-bottom:22px;
+}
+h1 .l{display:block;overflow:hidden;padding-bottom:.06em}
+h1 .l>span{display:block}
+.grad{
+  background:linear-gradient(96deg,var(--jade) 4%,#8BF0C6 52%,#CFF6E4 96%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
 }
 
-html, body {
-  height: 100%;
+.lede{max-width:41ch;font-size:clamp(15.5px,1.15vw,17px);line-height:1.62;color:var(--text-2)}
+
+.cta{display:flex;align-items:center;gap:14px;margin-top:32px;flex-wrap:wrap}
+.cta-slot{height:22px}
+
+/* primary — unmistakable */
+.btn-primary{
+  position:relative;display:inline-flex;align-items:center;gap:10px;
+  font-size:15.5px;font-weight:600;letter-spacing:-.005em;color:#04140D;
+  padding:15px 27px;border-radius:999px;overflow:hidden;
+  background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 10px 30px -8px rgba(18,185,129,.6),0 2px 8px -2px rgba(0,0,0,.6);
+  transition:transform .28s var(--e-out),box-shadow .28s var(--e-out);
+}
+.btn-primary::after{
+  content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  transform:skewX(-18deg);transition:left .65s var(--e-out);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 18px 42px -10px rgba(18,185,129,.75),0 2px 8px -2px rgba(0,0,0,.6)}
+.btn-primary:hover::after{left:115%}
+.btn-primary svg{width:16px;height:16px;flex:none}
+
+/* secondary — clearly visible, not gray-on-black */
+.btn-second{
+  display:inline-flex;align-items:center;gap:9px;
+  font-size:15.5px;font-weight:500;color:var(--text);
+  padding:15px 24px;border-radius:999px;
+  border:1px solid var(--hair-2);background:rgba(255,255,255,.05);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+  transition:background .24s var(--e-out),border-color .24s var(--e-out),transform .24s var(--e-out);
+}
+.btn-second:hover{background:rgba(255,255,255,.095);border-color:rgba(255,255,255,.3);transform:translateY(-1px)}
+.btn-second .a{transition:transform .3s var(--e-out)}
+.btn-second:hover .a{transform:translateX(4px)}
+
+/* ---------- right: the reveal ---------- */
+.stage{position:relative;display:flex;flex-direction:column;align-items:center;perspective:1400px}
+@media (min-width:1001px){
+  .stage{align-items:flex-end}
+}
+/* The aura lights the ORB, so it must sit on the orb's centre — not the stage's.
+   31% is the orb centre as a share of stage height (console + caption below it).
+   Holds to within ~3px at every breakpoint. */
+.aura{position:absolute;left:50%;top:31%;transform:translate(-50%,-50%);width:520px;height:520px;pointer-events:none;filter:blur(8px)}
+.aura>div{position:absolute;inset:0;border-radius:50%;opacity:0}
+.aura .a-warm{background:radial-gradient(circle,rgba(255,193,120,.30),transparent 62%)}
+.aura .a-jade{background:radial-gradient(circle,rgba(55,226,155,.34),transparent 62%)}
+.aura .a-bright{background:radial-gradient(circle,rgba(55,226,155,.52),transparent 58%)}
+
+.console{
+  position:relative;width:min(432px,100%);border-radius:26px;padding:32px 28px 26px;
+  box-shadow:0 50px 90px -40px rgba(0,0,0,.95),0 18px 40px -22px rgba(0,0,0,.8);
+  transform-style:preserve-3d;
+}
+
+/* orb */
+.orb{position:relative;width:172px;height:172px;margin:2px auto 26px}
+.orb-core{
+  position:absolute;left:50%;top:50%;width:78px;height:78px;margin:-39px 0 0 -39px;
+  border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 38% 32%,rgba(255,255,255,.16),rgba(255,255,255,.03) 55%,transparent 72%),
+             linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02));
+  border:1px solid var(--hair-2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 30px -12px rgba(0,0,0,.9);
+  backdrop-filter:blur(6px);
+}
+.orb-core svg{width:28px;height:28px;position:absolute;opacity:0}
+.icon-phone{stroke:var(--amber);stroke-width:1.7;fill:none}
+.icon-check{stroke:var(--jade);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.icon-check path{stroke-dasharray:30;stroke-dashoffset:30}
+
+/* beat 1 — ripples */
+.ripple{position:absolute;left:50%;top:50%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;border:1px solid rgba(255,193,120,.55);opacity:0}
+
+/* beat 2 — radial waveform */
+.radial{position:absolute;inset:0;opacity:0}
+.spoke{position:absolute;left:50%;top:50%;width:3px;height:52px;margin-left:-1.5px;transform-origin:50% 0}
+.spoke i{
+  position:absolute;top:100%;left:0;width:100%;height:26px;border-radius:3px;
+  background:linear-gradient(180deg,var(--jade),rgba(55,226,155,.25));
+  transform-origin:50% 0;transform:scaleY(.16);
+}
+
+/* readout */
+.readout{position:relative;height:64px;text-align:center}
+.line{position:absolute;inset:0;opacity:0}
+.line b{display:block;font-size:19.5px;font-weight:600;letter-spacing:-.02em;margin-bottom:6px}
+.line span{display:block;font-size:14px;color:var(--text-3)}
+.line .ok{color:var(--jade)}
+
+/* progress */
+.prog{display:flex;gap:7px;justify-content:center;margin-top:22px}
+.prog i{position:relative;width:34px;height:3px;border-radius:3px;background:rgba(255,255,255,.13);overflow:hidden}
+.prog i::after{content:"";position:absolute;inset:0;width:0;background:linear-gradient(90deg,var(--jade-2),var(--jade));border-radius:3px}
+
+/* floating chips */
+/* Chips must be positioned against the CARD, not the wider stage column, or their
+   percentage offsets are measured from the wrong box and the two sides drift apart. */
+.chips{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);
+       width:min(432px,100%);pointer-events:none}
+.chip{
+  position:absolute;display:flex;align-items:center;gap:9px;
+  padding:11px 15px;border-radius:14px;font-size:13.5px;font-weight:500;white-space:nowrap;
+  background:linear-gradient(180deg,rgba(22,26,34,.92),rgba(14,17,23,.92));
+  border:1px solid var(--hair-2);
+  box-shadow:0 20px 40px -18px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.1);
+  backdrop-filter:blur(14px);opacity:0;
+}
+.chip .tick{width:17px;height:17px;border-radius:50%;background:rgba(55,226,155,.16);display:grid;place-items:center;flex:none}
+.chip .tick svg{width:10px;height:10px;stroke:var(--jade);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.chip-1{top:7%;right:-7%}
+/* -20% clears the progress bar horizontally in all three languages.
+   French "Votre processus, exécuté" is the widest — check that one. */
+.chip-2{bottom:9%;left:-20%}
+/* Desktop: the card is pinned to the right of its column, so the chip box must be too.
+   This must come AFTER the base .chips rule — media queries add no specificity. */
+@media (min-width:1001px){
+  .chips{left:auto;right:0;transform:none}
+  /* Same reason as .chips: the stage is ~130px wider than the card, so left:50%
+     landed the glow 66px left of the orb. 216px = half the card's 432px. */
+  .aura{left:auto;right:216px;transform:translate(50%,-50%)}
+}
+
+/* steps caption */
+.caption{display:flex;align-items:center;gap:9px;margin-top:24px;font-size:13px;color:var(--text-3)}
+.caption b{font-weight:500;transition:color .5s var(--e-out)}
+.caption b.on{color:var(--text)}
+.caption em{width:16px;height:1px;background:var(--hair-2);font-style:normal}
+
+/* ---------- responsive ---------- */
+@media (max-height:800px){
+  main{padding:0 0 18px}
+  nav{padding:14px 0}
+  .badge{margin-bottom:20px}
+  h1{margin-bottom:16px}
+  .cta{margin-top:24px}
+  .orb{width:148px;height:148px;margin-bottom:20px}
+  .console{padding:26px 26px 22px}
+  .aura{width:440px;height:440px}
+}
+@media (max-width:1000px){
+  body{height:auto;min-height:100%}
+  .hero{grid-template-columns:1fr;gap:56px}
+  .nav-links{display:none}
+  .nav-grid{grid-template-columns:1fr auto}
+  main{padding:26px 0 64px}
+  .lede{max-width:52ch}
+  .chip-1{right:0}.chip-2{left:0}
+}
+@media (max-width:560px){
+  .wrap{padding:0 20px}
+  .cta{gap:10px}
+  .console{padding:24px 20px 20px;border-radius:22px}
+  .orb{width:132px;height:132px;margin-bottom:18px}
+  .aura{width:330px;height:330px}
+  .readout{height:58px}
+  .line b{font-size:17.5px}
+  .caption{font-size:11.5px;gap:6px}
+  .caption em{width:10px}
+  /* keep BOTH auth paths reachable on mobile; shed chrome instead of function */
+  .btn-login{padding:8px 12px;font-size:13.5px;border-color:transparent;background:transparent}
+  .btn-start{padding:9px 15px;font-size:13.5px}
+  .lang-btn{padding:8px 9px;font-size:12.5px;gap:5px}
+  .lang-btn .globe{width:14px;height:14px}
+  .lang-btn .chev{display:none}
+  .nav-right{gap:4px}
+  .logo-txt{font-size:15.5px}
+}
+/* narrowest phones: logo mark carries the brand, nothing functional is lost */
+@media (max-width:430px){
+  .logo-txt{display:none}
+  .wrap{padding:0 16px}
+  .btn-primary,.btn-second{padding:14px 20px;font-size:14.5px}
+  .chip{font-size:12px;padding:9px 12px}
+  .chip-1{top:0;right:-2%}.chip-2{bottom:6%;left:-2%}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.12s!important}
 }
