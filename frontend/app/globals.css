@@ -189,6 +189,39 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
   transition:background .22s var(--e-out),border-color .22s var(--e-out),transform .22s var(--e-out);
 }
 .btn-login:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.28);transform:translateY(-1px)}
+/* mobile menu toggle — hidden on desktop, shown only under 1000px */
+.nav-toggle{
+  display:none;width:38px;height:38px;border-radius:10px;flex:none;
+  align-items:center;justify-content:center;
+  border:1px solid var(--hair);background:rgba(255,255,255,.035);
+  transition:background .22s var(--e-out),border-color .22s var(--e-out);
+}
+.nav-toggle:hover{background:rgba(255,255,255,.075);border-color:var(--hair-2)}
+.nav-toggle svg{width:18px;height:18px}
+.nav-toggle line{stroke:var(--text);stroke-width:1.8;stroke-linecap:round}
+.nav-toggle .l1,.nav-toggle .l3{transition:transform .28s var(--e-out)}
+.nav-toggle .l2{transition:opacity .2s var(--e-out)}
+.nav-toggle[aria-expanded=true] .l1{transform:translateY(5px) rotate(45deg)}
+.nav-toggle[aria-expanded=true] .l3{transform:translateY(-5px) rotate(-45deg)}
+.nav-toggle[aria-expanded=true] .l2{opacity:0}
+
+.mobile-nav{
+  position:absolute;top:calc(100% + 8px);left:16px;right:16px;
+  border-radius:18px;padding:8px;z-index:55;
+  background:linear-gradient(180deg,rgba(20,24,31,.97),rgba(13,16,21,.97));
+  border:1px solid var(--hair-2);
+  box-shadow:0 30px 60px -22px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.09);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;
+  transition:opacity .22s var(--e-out),transform .22s var(--e-out);
+}
+.mobile-nav.open{opacity:1;transform:none;pointer-events:auto}
+.mobile-nav a{
+  display:block;padding:13px 16px;border-radius:12px;
+  font-size:15.5px;font-weight:500;color:var(--text-2);
+  transition:background .18s var(--e-out),color .18s var(--e-out);
+}
+.mobile-nav a:hover{background:rgba(255,255,255,.07);color:var(--text)}
 
 main{flex:1;display:flex;align-items:center;padding:8px 0 34px}
 .hero{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:clamp(30px,4vw,64px);align-items:center;width:100%}
@@ -353,6 +386,7 @@ h1 .l>span{display:block}
   body{height:auto;min-height:100%}
   .hero{grid-template-columns:1fr;gap:56px}
   .nav-links{display:none}
+  .nav-toggle{display:flex}
   .nav-grid{grid-template-columns:1fr auto}
   main{padding:26px 0 64px}
   .lede{max-width:52ch}
