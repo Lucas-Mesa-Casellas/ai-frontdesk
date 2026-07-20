@@ -411,7 +411,6 @@ h1 .l>span{display:block}
   .logo-txt{font-size:15.5px}
 }
 @media (max-width:430px){
-  .logo-txt{display:none}
   .wrap{padding:0 16px}
   .btn-primary,.btn-second{padding:14px 20px;font-size:14.5px}
   .chip{font-size:12px;padding:9px 12px}
