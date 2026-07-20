@@ -354,7 +354,9 @@ h1 .l>span{display:block}
 .chip .tick svg{width:10px;height:10px;stroke:var(--jade);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .chip-1{top:7%;right:-7%}
 /* -20% clears the progress bar horizontally in all three languages.
-   French "Votre processus, exécuté" is the widest — check that one. */
+   French "Votre processus, exécuté" is the widest — check that one.
+   Vertical position uses a fixed px value, not %, because % of card height
+   collapses on small screens and stops clearing the text above it. */
 .chip-2{bottom:9%;left:-20%}
 /* Desktop: the card is pinned to the right of its column, so the chip box must be too.
    This must come AFTER the base .chips rule — media queries add no specificity. */
