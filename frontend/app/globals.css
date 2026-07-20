@@ -1,26 +1,17 @@
 @import "tailwindcss";
 
-/* ============================================================
-   LMC AGENTS — HERO v3
-   Depth, glass, light. One typeface. Choreographed reveal.
-   ============================================================ */
-
 :root{
   --bg:#08090C;
   --bg-lift:#0D0F14;
-
   --text:#FBFAF8;
   --text-2:#B9BDC6;
   --text-3:#7C828F;
-
   --jade:#37E29B;
   --jade-2:#12B981;
   --jade-deep:#059669;
   --amber:#FFC178;
-
   --hair:rgba(255,255,255,.09);
   --hair-2:rgba(255,255,255,.16);
-
   --e-out:cubic-bezier(.22,.9,.24,1);
   --maxw:1680px;
   --maxw-hero:1280px;
@@ -311,6 +302,11 @@ h1 .l>span{display:block}
 .prog i{position:relative;width:34px;height:3px;border-radius:3px;background:rgba(255,255,255,.13);overflow:hidden}
 .prog i::after{content:"";position:absolute;inset:0;width:0;background:linear-gradient(90deg,var(--jade-2),var(--jade));border-radius:3px}
 
+/* floating chips — BOTH anchored to the top corners now, mirrored.
+   The top of the card only ever has the orb (centred), so both corners
+   are permanently clear of text at every screen size and every language.
+   This replaces the old bottom-left position, which kept colliding with
+   the readout subtitle once card height changed with viewport width. */
 .chips{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);
        width:min(432px,100%);pointer-events:none}
 .chip{
@@ -324,7 +320,7 @@ h1 .l>span{display:block}
 .chip .tick{width:17px;height:17px;border-radius:50%;background:rgba(55,226,155,.16);display:grid;place-items:center;flex:none}
 .chip .tick svg{width:10px;height:10px;stroke:var(--jade);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .chip-1{top:7%;right:-7%}
-.chip-2{bottom:9%;left:-20%}
+.chip-2{top:7%;left:-7%}
 @media (min-width:1001px){
   .chips{left:auto;right:0;transform:none}
   .aura{left:auto;right:216px;transform:translate(50%,-50%)}
@@ -360,7 +356,7 @@ h1 .l>span{display:block}
   .nav-grid{grid-template-columns:1fr auto}
   main{padding:26px 0 64px}
   .lede{max-width:52ch}
-  .chip-1{right:0}.chip-2{left:0;bottom:-6px}
+  .chip-1{right:0}.chip-2{left:0}
 }
 @media (max-width:560px){
   .wrap{padding:0 20px}
@@ -385,7 +381,7 @@ h1 .l>span{display:block}
   .wrap{padding:0 16px}
   .btn-primary,.btn-second{padding:14px 20px;font-size:14.5px}
   .chip{font-size:12px;padding:9px 12px}
-  .chip-1{top:0;right:-2%}.chip-2{bottom:-6px;left:-2%}
+  .chip-1{top:0;right:-2%}.chip-2{top:0;left:-2%}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition-duration:.12s!important}
