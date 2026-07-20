@@ -366,7 +366,7 @@ h1 .l>span{display:block}
 }
 
 /* steps caption */
-.caption{display:flex;align-items:center;gap:9px;margin-top:24px;font-size:13px;color:var(--text-3)}
+.caption{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:24px;font-size:13px;color:var(--text-3);width:min(432px,100%)}
 .caption b{font-weight:500;transition:color .5s var(--e-out)}
 .caption b.on{color:var(--text)}
 .caption em{width:16px;height:1px;background:var(--hair-2);font-style:normal}
