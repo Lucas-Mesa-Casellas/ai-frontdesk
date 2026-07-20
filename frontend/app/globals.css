@@ -366,10 +366,20 @@ h1 .l>span{display:block}
 }
 
 /* steps caption */
-.caption{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:24px;font-size:13px;color:var(--text-3);width:min(432px,100%)}
-.caption b{font-weight:500;transition:color .5s var(--e-out)}
+/* Positioned like .aura: absolute, centred on the CARD's true centre — not matched
+   to its width. This lets the row size to its own content (no forced wrap) while
+   still landing dead-centre under the card, in any language. */
+.caption{
+  position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  margin-top:24px;display:flex;align-items:center;justify-content:center;gap:9px;
+  font-size:13px;color:var(--text-3);white-space:nowrap;
+}
+.caption b{font-weight:500;transition:color .5s var(--e-out);white-space:nowrap}
 .caption b.on{color:var(--text)}
-.caption em{width:16px;height:1px;background:var(--hair-2);font-style:normal}
+.caption em{width:16px;height:1px;background:var(--hair-2);font-style:normal;flex:none}
+@media (min-width:1001px){
+  .caption{left:auto;right:216px;transform:translateX(50%)}
+}
 
 /* ---------- responsive ---------- */
 @media (max-height:800px){
