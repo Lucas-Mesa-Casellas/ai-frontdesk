@@ -13,9 +13,11 @@ def notify_owner(business: dict, extracted, call_id: str) -> None:
         print(f"[notify_owner] no notification_email for business {business.get('id')}, skipping")
         return
 
-    subject = f"Nueva solicitud — {extracted.caller_name or 'Llamada sin nombre'}"
+    subject = f"Nueva solicitud — {business.get('name')} — {extracted.caller_name or 'Sin nombre'}"
 
     html = f"""
+    <html lang="es">
+    <body>
     <h2>Nueva solicitud — {business.get('name')}</h2>
     <p><strong>Cliente:</strong> {extracted.caller_name or '—'}</p>
     <p><strong>Teléfono:</strong> {extracted.caller_phone or '—'}</p>
@@ -25,7 +27,9 @@ def notify_owner(business: dict, extracted, call_id: str) -> None:
     <p><strong>Resumen:</strong> {extracted.summary or '—'}</p>
     <p><strong>Urgencia:</strong> {extracted.urgency or '—'}</p>
     <hr>
-    <p style="color:#888;font-size:12px;">Call ID: {call_id}</p>
+    <p style="color:#888;font-size:12px;">ID de llamada: {call_id}</p>
+    </body>
+    </html>
     """
 
     try:
