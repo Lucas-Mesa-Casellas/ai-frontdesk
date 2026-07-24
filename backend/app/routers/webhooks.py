@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from datetime import datetime, timezone
-
 from app.services.ai import extract_call_data
+from app.services.notify import notify_owner
 from app.db.supabase_client import get_supabase_admin
 
 router = APIRouter()
@@ -10,7 +10,6 @@ router = APIRouter()
 @router.post("/webhooks/retell")
 async def retell_webhook(request: Request):
     payload = await request.json()
-
     event = payload.get("event")
 
     # We only care about the moment a call ends
@@ -19,16 +18,15 @@ async def retell_webhook(request: Request):
 
     call_data = payload.get("call", {})
     transcript = call_data.get("transcript", "")
-
     if not transcript:
         return {"status": "no_transcript"}
 
     supabase = get_supabase_admin()
 
-    # For now: hardcode to Maison Lumière while we test the pipeline
-    biz = supabase.table("businesses").select("id, name").eq(
-        "name", "Bella Hair Salon"
-    ).limit(1).execute()
+    # For now: hardcode to Bella Hair Salon while we test the pipeline
+    biz = supabase.table("businesses").select(
+        "id, name, notification_email"
+    ).eq("name", "Bella Hair Salon").limit(1).execute()
 
     if not biz.data:
         return {"status": "error", "detail": "business not found"}
@@ -39,7 +37,6 @@ async def retell_webhook(request: Request):
     extracted, raw_payload = extract_call_data(transcript)
 
     now = datetime.now(timezone.utc).isoformat()
-
     call_record = {
         "business_id": business["id"],
         "source": "retell",
@@ -63,5 +60,8 @@ async def retell_webhook(request: Request):
     }
 
     result = supabase.table("calls").insert(call_record).execute()
+    call_id = result.data[0]["id"]
 
-    return {"status": "success", "call_id": result.data[0]["id"]}
+    notify_owner(business, extracted, call_id)
+
+    return {"status": "success", "call_id": call_id}
