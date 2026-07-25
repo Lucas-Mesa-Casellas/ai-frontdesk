@@ -481,7 +481,11 @@ h1{text-wrap:balance}
 html,body{height:auto;min-height:100%}
 
 /* the hero owns exactly one screen, minus the fixed nav above it */
-.app-shell{min-height:100svh;padding-top:var(--nav-h)}
+.app-shell{
+  min-height:100svh;padding-top:var(--nav-h);
+  justify-content:center;      /* centre the hero explicitly ... */
+}
+main{flex:0 0 auto;width:100%} /* ... instead of relying on flex:1 stretching */
 
 /* .caption is absolute at top:100% and hangs ~44px below the stage box,
    so flex centring alone leaves the hero looking top-heavy. This pays
@@ -554,8 +558,8 @@ nav.stuck{
 .sec{
   position:relative;z-index:3;
   min-height:100svh;display:flex;flex-direction:column;justify-content:center;
-  padding:calc(var(--sp-sec) + var(--nav-h)) 0 var(--sp-sec);
-  scroll-margin-top:0;
+  padding:var(--sp-sec) 0;
+  scroll-margin-top:calc(var(--nav-h) + 10px);
 }
 .sec-head{margin-bottom:var(--sp-head)}
 .sec-head.mid{text-align:center}
@@ -564,7 +568,7 @@ nav.stuck{
 /* min-height on both = zero vertical shift when the language changes */
 .sec-h{
   font-size:clamp(2.15rem,3.7vw,3.15rem);line-height:1.04;
-  letter-spacing:-.05em;font-weight:600;max-width:17ch;
+  letter-spacing:-.05em;font-weight:600;max-width:20ch;
   min-height:2.08em;text-wrap:balance;
 }
 .sec-head.mid .sec-h{max-width:none;margin-inline:auto}
@@ -573,7 +577,7 @@ nav.stuck{
 .sec-head.mid .sec-h{min-height:1.04em}
 .sec-head.mid .sec-sub{min-height:1.6em}
 .sec-sub{
-  margin-top:18px;max-width:46ch;min-height:3.2em;
+  margin-top:16px;max-width:58ch;min-height:1.6em;
   font-size:clamp(15px,1.05vw,16.5px);line-height:1.6;color:var(--text-2);
   text-wrap:pretty;
 }
@@ -592,7 +596,7 @@ nav.stuck{
 /* ---------- offer banner (above the cards) ---------- */
 .offer{
   display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
-  margin-bottom:20px;padding:13px 22px;border-radius:var(--r-pill);
+  margin-bottom:18px;padding:13px 22px;border-radius:var(--r-pill);
   background:linear-gradient(180deg,rgba(18,185,129,.075),rgba(18,185,129,.028));
   border:1px solid rgba(55,226,155,.2);
   width:fit-content;margin-inline:auto;
@@ -636,17 +640,17 @@ nav.stuck{
   padding:4px 11px;border-radius:var(--r-pill);white-space:nowrap;
   background:rgba(55,226,155,.1);border:1px solid rgba(55,226,155,.22);
 }
-.tier-fig{margin-top:20px;display:flex;align-items:baseline;gap:6px}
+.tier-fig{margin-top:18px;display:flex;align-items:baseline;gap:6px}
 .tier-fig b{font-size:clamp(2.05rem,2.7vw,2.6rem);font-weight:600;letter-spacing:-.055em;line-height:1}
 .tier-fig span{font-size:13.5px;color:var(--text-3)}
 .tier-vol{margin-top:14px;display:flex;align-items:baseline;gap:7px}
 .tier-vol b{font-size:17.5px;font-weight:600;letter-spacing:-.03em;color:var(--jade)}
 .tier-vol span{font-size:13.5px;color:var(--text-2)}
 .tier-over{margin-top:8px;font-size:12.5px;color:var(--text-3)}
-.tier-rule{height:1px;margin:22px 0 18px;background:var(--hair)}
+.tier-rule{height:1px;margin:18px 0 15px;background:var(--hair)}
 .tier-on .tier-rule{background:rgba(55,226,155,.16)}
 .tier-inh{font-size:12.5px;color:var(--text-3);margin-bottom:14px;letter-spacing:-.004em}
-.tier-f{list-style:none;display:flex;flex-direction:column;gap:11px;flex:1;min-height:9.6em}
+.tier-f{list-style:none;display:flex;flex-direction:column;gap:10px;flex:1;min-height:9.4em}
 .tier-f li{display:flex;gap:10px;align-items:flex-start;
   font-size:13.5px;line-height:1.42;color:var(--text-2);letter-spacing:-.008em}
 .tier-f .ck{
@@ -661,7 +665,7 @@ nav.stuck{
   color:var(--text-3);border:1px solid var(--hair);border-radius:5px;
   padding:1px 5px;margin-left:7px;white-space:nowrap;vertical-align:1px;
 }
-.tier-note{margin-top:22px;font-size:12px;color:var(--text-3);text-align:center}
+
 
 /* ---------- contact ---------- */
 .cta-col{width:100%;max-width:540px;margin:0 auto}
