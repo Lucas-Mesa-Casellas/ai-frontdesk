@@ -734,7 +734,7 @@ nav.stuck{
    Height queries compress the rhythm before anything overflows.
    ============================================================ */
 @media (max-height:960px){
-  :root{--sp-sec:clamp(64px,7vh,90px);--sp-head:clamp(28px,3.2vw,42px)}
+  :root{--sp-sec:clamp(56px,6.4vh,80px);--sp-head:clamp(24px,2.8vw,36px)}
   .sec-h{font-size:clamp(1.95rem,3.2vw,2.6rem)}
   .sec-sub{margin-top:15px;font-size:15px;min-height:3em}
   .tier{padding:26px 24px 24px}
@@ -746,19 +746,28 @@ nav.stuck{
   .fld{margin-bottom:13px}
   .fld textarea{min-height:76px}
 }
-@media (max-height:840px){
-  :root{--nav-h:72px;--sp-sec:clamp(52px,5.6vh,72px);--sp-head:clamp(22px,2.6vw,32px)}
+@media (max-height:940px){
+  :root{--nav-h:72px;--sp-sec:clamp(40px,4.6vh,60px);--sp-head:clamp(18px,2.2vw,28px)}
   .sec-h{font-size:clamp(1.8rem,2.8vw,2.25rem);min-height:2.06em}
-  .sec-tag{margin-bottom:14px}
-  .offer{margin-bottom:16px;padding:11px 20px}
-  .tier{padding:22px 22px 20px}
-  .tier-fig b{font-size:1.95rem}
-  .tier-f{gap:8.5px;min-height:8.8em}
-  .tier-f li{font-size:12.5px}
-  .tier-rule{margin:15px 0 13px}
-  .cta-card{padding:24px 26px 22px}
-  .fld textarea{min-height:66px}
-  .fld{margin-bottom:11px}
+  .sec-tag{margin-bottom:12px}
+  .sec-sub{margin-top:10px}
+  .offer{margin-bottom:14px;padding:10px 18px}
+  .tier{padding:20px 20px 18px}
+  .tier-top{min-height:20px}
+  .tier-fig{margin-top:14px}
+  .tier-fig b{font-size:1.9rem}
+  .tier-vol{margin-top:11px}
+  .tier-f{gap:7.5px;min-height:8.4em}
+  .tier-f li{font-size:12.5px;line-height:1.32}
+  .tier-rule{margin:13px 0 11px}
+  .tier-inh{margin-bottom:11px}
+  .cta-card{padding:22px 26px 18px}
+  .fld{margin-bottom:10px}
+  .fld label{margin-bottom:6px}
+  .fld input,.fld textarea{padding:11px 14px}
+  .fld textarea{min-height:56px}
+  .send{padding:13px 26px;margin-top:6px}
+  .card-foot{margin-top:14px;padding-top:12px}
 }
 @media (max-width:1000px){
   .sec{min-height:0;padding:clamp(72px,9vh,96px) 0}
