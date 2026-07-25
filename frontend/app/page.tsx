@@ -643,10 +643,8 @@ export default function Home() {
 
       <section className="sec" id="pricing">
         <div className="wrap">
-          <div className="sec-head">
+          <div className="sec-head mid tag-only">
             <div className="sec-tag up">{t.pTag}</div>
-            <h2 className="sec-h"><span className="msk"><span>{t.pH}</span></span></h2>
-            <p className="sec-sub up d1">{t.pSub}</p>
           </div>
 
           <div className="offer up d1">
@@ -683,6 +681,7 @@ export default function Home() {
             ))}
           </div>
 
+          <p className="tier-note up d4">{t.pSub}</p>
         </div>
       </section>
 
