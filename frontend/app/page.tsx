@@ -538,21 +538,24 @@ export default function Home() {
       </nav>
 
       <div ref={rootRef} className="app-shell" id="product">
-      <div className="env" aria-hidden="true">
-        <div className="beam" />
-        <div className="floor" />
-        <div className="aur aur-1" />
-        <div className="aur aur-2" />
-        <div className="mesh" />
-      </div>
-      <svg className="grain" aria-hidden="true">
-        <filter id="gn">
-          <feTurbulence type="fractalNoise" baseFrequency=".82" numOctaves="3" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#gn)" opacity=".32" />
-      </svg>
-        {/* ===== HERO — structure unchanged ===== */}
+        <div className="env" aria-hidden="true">
+          <div className="beam" />
+          <div className="floor" />
+          <div className="aur aur-1" />
+          <div className="aur aur-2" />
+          <div className="mesh" />
+        </div>
+        <svg className="grain" aria-hidden="true">
+          <filter id="gn">
+            <feTurbulence type="fractalNoise" baseFrequency=".82" numOctaves="3" stitchTiles="stitch" />
+            <feColorMatrix type="saturate" values="0" />
+          </filter>
+          <rect width="100%" height="100%" filter="url(#gn)" opacity=".32" />
+        </svg>
+
+        {/* ===== HERO — restored inside <main>, which the CSS depends on
+             (main .wrap.hero caps it at 1280px instead of the site-wide 1680px) ===== */}
+        <main>
         <div className="wrap hero">
           <div className="copy">
             <div className="badge"><span className="pip" />{t.badge}</div>
@@ -628,6 +631,8 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        </main>
 
         <div className={`cue${cueGone ? " gone" : ""}`} aria-hidden="true">
           <span className="cue-t">{t.cue}</span>
