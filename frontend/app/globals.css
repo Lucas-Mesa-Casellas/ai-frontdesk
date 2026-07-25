@@ -432,7 +432,7 @@ h1 .l>span{display:block}
   --r-lg:18px;
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
-  --sp-top:30px;    /* space above the section tag — was up to 132px */
+  --sp-top:18px;    /* space above the section tag — was up to 132px, then 30px */
   --sp-bottom:64px; /* space below the last card/form */
   --sp-head:22px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
@@ -564,6 +564,10 @@ nav.stuck{
 }
 .sec-head{margin-bottom:var(--sp-head)}
 /* tag -> heading -> subtitle rhythm, tightened */
+/* Pricing's head is now just the centred tag (no heading) — the next
+   element should sit close, the same way Contact's tag sits close to
+   its own heading. */
+.sec-head.tag-only{margin-bottom:14px}
 .sec-head.mid{text-align:center}
 .sec-tag{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
   color:var(--jade);margin-bottom:10px}
@@ -612,6 +616,7 @@ nav.stuck{
 
 /* ---------- pricing cards (design locked from v5) ---------- */
 .tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+.tier-note{margin-top:24px;text-align:center;font-size:12.5px;color:var(--text-3)}
 .tier{
   position:relative;display:flex;flex-direction:column;
   padding:32px 28px 28px;border-radius:var(--r-xl);
