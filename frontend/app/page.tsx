@@ -39,7 +39,7 @@ type Dict = {
   oK: string; oB: (n: number) => string;
   tName: [string, string, string]; tPin: string; tMo: string; tCalls: string;
   tOver: string; tOverSuf: string; tInh: (n: string) => string; soon: string;
-  feats: [Feat[], Feat[], Feat[]]; pNote: string;
+  feats: [Feat[], Feat[], Feat[]];
   cTag: string; cH: string; cSub: string;
   fName: string; fBiz: string; fEmail: string; fPhone: string;
   fMsg: string; fMsgPh: string;
@@ -66,7 +66,7 @@ const T: Record<LangCode, Dict> = {
     c0: "Incoming call", c1: "AI understands", c2: "Action taken", cue: "Scroll",
 
     pTag: "Pricing", pH: "Pricing that scales with you.",
-    pSub: "Start where you are today and move up whenever you need to.",
+    pSub: "Estimates based on an average three-minute call.",
     oK: "Setup and configuration", oB: (n) => `Free for the next ${n} clients`,
     tName: ["Starter", "Standard", "Scale"],
     tPin: "Most chosen", tMo: "/month", tCalls: "calls a month",
@@ -88,7 +88,6 @@ const T: Record<LangCode, Dict> = {
        { t: "Review request after the visit", soon: true },
        { t: "Live transfer to your team when it matters", soon: true }],
     ],
-    pNote: "Call estimates based on an average three-minute call.",
 
     cTag: "Contact", cH: "Let's talk.",
     cSub: "Leave your details and we'll get back to you within 24 hours.",
@@ -116,7 +115,7 @@ const T: Record<LangCode, Dict> = {
     c0: "Llamada entrante", c1: "La IA entiende", c2: "Acción ejecutada", cue: "Baja",
 
     pTag: "Precios", pH: "Precios que crecen contigo.",
-    pSub: "Empieza donde estás hoy y sube de plan cuando lo necesites.",
+    pSub: "Estimado sobre llamadas de tres minutos de media.",
     oK: "Configuración inicial", oB: (n) => `Gratis para los próximos ${n} clientes`,
     tName: ["Inicial", "Estándar", "Amplio"],
     tPin: "El más elegido", tMo: "/mes", tCalls: "llamadas al mes",
@@ -138,7 +137,6 @@ const T: Record<LangCode, Dict> = {
        { t: "Petición de reseña tras la visita", soon: true },
        { t: "Transferencia a tu equipo cuando hace falta", soon: true }],
     ],
-    pNote: "Estimación basada en llamadas de tres minutos de media.",
 
     cTag: "Contacto", cH: "Hablemos.",
     cSub: "Déjanos tus datos y te contactamos en menos de 24 horas.",
@@ -166,7 +164,7 @@ const T: Record<LangCode, Dict> = {
     c0: "Appel entrant", c1: "L'IA comprend", c2: "Action exécutée", cue: "Défiler",
 
     pTag: "Tarifs", pH: "Des tarifs qui évoluent avec vous.",
-    pSub: "Commencez là où vous en êtes et changez de formule quand vous le souhaitez.",
+    pSub: "Estimé sur un appel moyen de trois minutes.",
     oK: "Mise en place et configuration", oB: (n) => `Offerte pour les ${n} prochains clients`,
     tName: ["Essentiel", "Standard", "Étendu"],
     tPin: "Le plus choisi", tMo: "/mois", tCalls: "appels par mois",
@@ -188,7 +186,6 @@ const T: Record<LangCode, Dict> = {
        { t: "Demande d'avis après la visite", soon: true },
        { t: "Transfert vers votre équipe si nécessaire", soon: true }],
     ],
-    pNote: "Estimation basée sur un appel moyen de trois minutes.",
 
     cTag: "Contact", cH: "Parlons-en.",
     cSub: "Laissez vos coordonnées, nous revenons vers vous sous 24 heures.",
@@ -455,7 +452,7 @@ export default function Home() {
     <>
       <nav className={stuck ? "stuck" : undefined}>
         <div className="wrap nav-grid">
-            <a href="#top" className="logo" aria-label="LMC Agents home">
+            <a href="#product" className="logo" aria-label="LMC Agents home">
               {/* ===== LOGO ===== */}
               <span className="logo-mark">
                 <svg viewBox="0 0 24 24" aria-hidden="true" fill="none">
@@ -540,7 +537,7 @@ export default function Home() {
           </div>
       </nav>
 
-      <div ref={rootRef} className="app-shell">
+      <div ref={rootRef} className="app-shell" id="product">
       <div className="env" aria-hidden="true">
         <div className="beam" />
         <div className="floor" />
@@ -681,7 +678,6 @@ export default function Home() {
             ))}
           </div>
 
-          <p className="tier-note up d4">{t.pNote}</p>
         </div>
       </section>
 
