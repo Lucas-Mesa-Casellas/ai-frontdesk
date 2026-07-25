@@ -427,13 +427,14 @@ h1 .l>span{display:block}
    ============================================================ */
 
 :root{
-  --nav-h:84px;   /* fixed nav occupies this much; the hero is padded past it */
+  --nav-h:68px;   /* fixed nav's real rendered height; used to offset content under it */
   --r-xl:26px;    /* panels & cards — matches the hero console */
   --r-lg:18px;
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
-  --sp-sec:clamp(88px,10vh,132px);
-  --sp-head:clamp(38px,4.4vw,60px);
+  --sp-top:30px;    /* space above the section tag — was up to 132px */
+  --sp-bottom:64px; /* space below the last card/form */
+  --sp-head:22px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
 
 /* ---------- FIX: the line through the paragraph ----------
@@ -558,13 +559,14 @@ nav.stuck{
 .sec{
   position:relative;z-index:3;
   min-height:100svh;display:flex;flex-direction:column;justify-content:center;
-  padding:var(--sp-sec) 0;
-  scroll-margin-top:calc(var(--nav-h) + 10px);
+  padding:var(--sp-top) 0 var(--sp-bottom);
+  scroll-margin-top:calc(var(--nav-h) + 8px);
 }
 .sec-head{margin-bottom:var(--sp-head)}
+/* tag -> heading -> subtitle rhythm, tightened */
 .sec-head.mid{text-align:center}
 .sec-tag{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--jade);margin-bottom:20px}
+  color:var(--jade);margin-bottom:10px}
 /* min-height on both = zero vertical shift when the language changes */
 .sec-h{
   font-size:clamp(2.15rem,3.7vw,3.15rem);line-height:1.04;
@@ -577,7 +579,7 @@ nav.stuck{
 .sec-head.mid .sec-h{min-height:1.04em}
 .sec-head.mid .sec-sub{min-height:1.6em}
 .sec-sub{
-  margin-top:16px;max-width:58ch;min-height:1.6em;
+  margin-top:8px;max-width:58ch;min-height:1.6em;
   font-size:clamp(15px,1.05vw,16.5px);line-height:1.6;color:var(--text-2);
   text-wrap:pretty;
 }
@@ -596,7 +598,7 @@ nav.stuck{
 /* ---------- offer banner (above the cards) ---------- */
 .offer{
   display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
-  margin-bottom:18px;padding:13px 22px;border-radius:var(--r-pill);
+  margin-bottom:16px;padding:11px 20px;border-radius:var(--r-pill);
   background:linear-gradient(180deg,rgba(18,185,129,.075),rgba(18,185,129,.028));
   border:1px solid rgba(55,226,155,.2);
   width:fit-content;margin-inline:auto;
@@ -733,41 +735,17 @@ nav.stuck{
    RESPONSIVE — every section fits one screen
    Height queries compress the rhythm before anything overflows.
    ============================================================ */
-@media (max-height:960px){
-  :root{--sp-sec:clamp(56px,6.4vh,80px);--sp-head:clamp(24px,2.8vw,36px)}
-  .sec-h{font-size:clamp(1.95rem,3.2vw,2.6rem)}
-  .sec-sub{margin-top:15px;font-size:15px;min-height:3em}
-  .tier{padding:26px 24px 24px}
-  .tier-fig{margin-top:17px}
-  .tier-rule{margin:18px 0 15px}
-  .tier-f{gap:9.5px;min-height:9.2em}
-  .tier-f li{font-size:13px}
-  .cta-card{padding:28px 28px 24px}
-  .fld{margin-bottom:13px}
-  .fld textarea{min-height:76px}
-}
-@media (max-height:940px){
-  :root{--nav-h:72px;--sp-sec:clamp(40px,4.6vh,60px);--sp-head:clamp(18px,2.2vw,28px)}
-  .sec-h{font-size:clamp(1.8rem,2.8vw,2.25rem);min-height:2.06em}
-  .sec-tag{margin-bottom:12px}
-  .sec-sub{margin-top:10px}
-  .offer{margin-bottom:14px;padding:10px 18px}
-  .tier{padding:20px 20px 18px}
-  .tier-top{min-height:20px}
-  .tier-fig{margin-top:14px}
-  .tier-fig b{font-size:1.9rem}
-  .tier-vol{margin-top:11px}
-  .tier-f{gap:7.5px;min-height:8.4em}
-  .tier-f li{font-size:12.5px;line-height:1.32}
-  .tier-rule{margin:13px 0 11px}
-  .tier-inh{margin-bottom:11px}
-  .cta-card{padding:22px 26px 18px}
-  .fld{margin-bottom:10px}
-  .fld label{margin-bottom:6px}
-  .fld input,.fld textarea{padding:11px 14px}
-  .fld textarea{min-height:56px}
-  .send{padding:13px 26px;margin-top:6px}
-  .card-foot{margin-top:14px;padding-top:12px}
+@media (max-height:760px){
+  :root{--nav-h:60px;--sp-top:18px;--sp-bottom:40px;--sp-head:14px}
+  .sec-h{font-size:clamp(1.7rem,2.6vw,2.1rem);min-height:1.9em}
+  .tier{padding:18px 18px 16px}
+  .tier-fig{margin-top:10px}
+  .tier-f{gap:6px;min-height:7.6em}
+  .tier-f li{font-size:12px;line-height:1.28}
+  .tier-rule{margin:10px 0 9px}
+  .cta-card{padding:18px 22px 16px}
+  .fld{margin-bottom:8px}
+  .fld textarea{min-height:48px}
 }
 @media (max-width:1000px){
   .sec{min-height:0;padding:clamp(72px,9vh,96px) 0}
