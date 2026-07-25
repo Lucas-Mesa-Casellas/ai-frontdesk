@@ -223,7 +223,7 @@ export default function Home() {
   const [menuList, setMenuList] = useState<LangCode[]>(ORDER);
   const [menuOpen, setMenuOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  const [showFnav, setShowFnav] = useState(false);
+  const [stuck, setStuck] = useState(false);
   const [cueGone, setCueGone] = useState(false);
   const [sendState, setSendState] = useState<SendState>("idle");
 
@@ -265,7 +265,7 @@ export default function Home() {
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
-      setShowFnav(y > window.innerHeight * 0.72);
+      setStuck(y > 24);
       setCueGone(y > 40);
     };
     onScroll();
@@ -453,29 +453,8 @@ export default function Home() {
 
   return (
     <>
-      <div className={`fnav${showFnav ? " show" : ""}`}>
-        <a href="#pricing" className="fnav-hide">{t.navPricing}</a>
-        <a href="#contact" className="fnav-hide">{t.navContact}</a>
-        <a href="#contact" className="fnav-cta">{t.navStart}</a>
-      </div>
-
-      <div ref={rootRef} className="app-shell">
-      <div className="env" aria-hidden="true">
-        <div className="beam" />
-        <div className="floor" />
-        <div className="aur aur-1" />
-        <div className="aur aur-2" />
-        <div className="mesh" />
-      </div>
-      <svg className="grain" aria-hidden="true">
-        <filter id="gn">
-          <feTurbulence type="fractalNoise" baseFrequency=".82" numOctaves="3" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
-        <rect width="100%" height="100%" filter="url(#gn)" opacity=".32" />
-      </svg>
-        <nav>
-          <div className="wrap nav-grid">
+      <nav className={stuck ? "stuck" : undefined}>
+        <div className="wrap nav-grid">
             <a href="#top" className="logo" aria-label="LMC Agents home">
               {/* ===== LOGO ===== */}
               <span className="logo-mark">
@@ -559,8 +538,23 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </nav>
+      </nav>
 
+      <div ref={rootRef} className="app-shell">
+      <div className="env" aria-hidden="true">
+        <div className="beam" />
+        <div className="floor" />
+        <div className="aur aur-1" />
+        <div className="aur aur-2" />
+        <div className="mesh" />
+      </div>
+      <svg className="grain" aria-hidden="true">
+        <filter id="gn">
+          <feTurbulence type="fractalNoise" baseFrequency=".82" numOctaves="3" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#gn)" opacity=".32" />
+      </svg>
         {/* ===== HERO — structure unchanged ===== */}
         <div className="wrap hero">
           <div className="copy">
@@ -738,19 +732,18 @@ export default function Home() {
                     {sendState === "sending" ? t.cSending : sendState === "sent" ? t.cSent : t.cSend}
                   </span>
                 </button>
+
+                <div className="card-foot">
+                  <span>© 2026 LMC Agents</span>
+                  <span className="foot-dot" />
+                  <span className="foot-eu"><Globe />{t.cTrust}</span>
+                </div>
               </form>
             </div>
           </div>
         </div>
       </section>
 
-      <footer className="foot">
-        <div className="wrap foot-in">
-          <span>© 2026 LMC Agents</span>
-          <span className="foot-dot" />
-          <span className="foot-eu"><Globe />{t.cTrust}</span>
-        </div>
-      </footer>
     </>
   );
 }
