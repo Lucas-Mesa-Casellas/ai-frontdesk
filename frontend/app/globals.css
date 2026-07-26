@@ -432,10 +432,9 @@ h1 .l>span{display:block}
   --r-lg:18px;
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
-  --sp-top:28px;    /* now applies 1:1 to the visible gap — the old 10px
-                        value was compensating for the centering bug above,
-                        and would look too tight once that bug was fixed */
-  --sp-bottom:40px; /* space below the last card/form */
+  --sp-top:32px;    /* now that .sec centers again, symmetric top/bottom
+                        gives the cleanest balanced feel, like the hero */
+  --sp-bottom:32px;
   --sp-head:22px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
 
@@ -559,15 +558,20 @@ nav.stuck{
 
 /* ---------- section shell ---------- */
 .sec{
-  /* FIX: this used to be min-height:100svh + justify-content:center.
-     Since pricing/contact content is shorter than one viewport, that
-     centered the (100svh − content) slack HALF above, half below —
-     so every padding cut here only ever moved the visible top gap by
-     half as much. Every earlier "still too much space" report was
-     this: the section was being vertically centered in a box taller
-     than its content, undoing the compression. Plain block flow
-     makes the top gap equal to --sp-top exactly, no viewport math. */
+  /* Both min-height:100svh and plain block flow have been tried here.
+     Block flow (no forced height) fixed an earlier bug where centering
+     was splitting every padding cut in half — correct at the time,
+     because content genuinely overflowed one screen back then.
+     Several rounds of trimming since have made the content comfortably
+     shorter than one viewport (~530px vs 700-900px+ available), so the
+     ORIGINAL problem no longer applies, and centering is now what's
+     needed: it makes each section fill exactly one screen like the
+     hero, and stops the next section's tag from bleeding into view
+     early. min-height is a floor, not a cap — if content ever exceeds
+     it on some edge case, the box just grows to fit (nothing clips),
+     so this is safe in both directions. */
   position:relative;z-index:3;
+  min-height:100svh;display:flex;flex-direction:column;justify-content:center;
   padding:var(--sp-top) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
@@ -750,7 +754,7 @@ nav.stuck{
    Height queries compress the rhythm before anything overflows.
    ============================================================ */
 @media (max-height:760px){
-  :root{--nav-h:60px;--sp-top:18px;--sp-bottom:40px;--sp-head:14px}
+  :root{--nav-h:60px;--sp-top:18px;--sp-bottom:18px;--sp-head:14px}
   .sec-h{font-size:clamp(1.7rem,2.6vw,2.1rem);min-height:1.9em}
   .tier{padding:18px 18px 16px}
   .tier-fig{margin-top:10px}
