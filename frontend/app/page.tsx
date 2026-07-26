@@ -19,7 +19,7 @@ const ORDER: LangCode[] = ["EN", "ES", "FR"];
 const SHOW_SOON = true;
 const SPOTS_LEFT = 5;
 
-const TIER_CTA_STYLE = ["outline", "solid", "quiet"];
+const TIER_CTA_STYLE = ["outline", "solid", "outline"];
 
 const TIERS = [
   { price: "99€", calls: 50, over: "1,40€", on: false },
@@ -73,7 +73,7 @@ const T: Record<LangCode, Dict> = {
     oK: "Setup and configuration", oB: (n) => `Free for the next ${n} clients`,
     tName: ["Starter", "Standard", "Scale"],
     tPin: "Most chosen", tMo: "/month", tCalls: "calls a month",
-    tCta: ["Get started", "Get started", "Contact sales"], soonGroup: "Coming next quarter",
+    tCta: ["Get started", "Get started", "Get started"], soonGroup: "Coming next quarter",
     tOver: "then", tOverSuf: "per extra call",
     tInh: (n) => `Everything in ${n}, plus`, soon: "Soon",
     feats: [
@@ -123,7 +123,7 @@ const T: Record<LangCode, Dict> = {
     oK: "Configuración inicial", oB: (n) => `Gratis para los próximos ${n} clientes`,
     tName: ["Inicial", "Estándar", "Amplio"],
     tPin: "El más elegido", tMo: "/mes", tCalls: "llamadas al mes",
-    tCta: ["Empezar", "Empezar", "Hablar con ventas"], soonGroup: "Próximo trimestre",
+    tCta: ["Empezar", "Empezar", "Empezar"], soonGroup: "Próximo trimestre",
     tOver: "luego", tOverSuf: "por llamada extra",
     tInh: (n) => `Todo lo de ${n}, y además`, soon: "Pronto",
     feats: [
@@ -173,7 +173,7 @@ const T: Record<LangCode, Dict> = {
     oK: "Mise en place et configuration", oB: (n) => `Offerte pour les ${n} prochains clients`,
     tName: ["Essentiel", "Standard", "Étendu"],
     tPin: "Le plus choisi", tMo: "/mois", tCalls: "appels par mois",
-    tCta: ["Commencer", "Commencer", "Parler aux ventes"], soonGroup: "Le trimestre prochain",
+    tCta: ["Commencer", "Commencer", "Commencer"], soonGroup: "Le trimestre prochain",
     tOver: "puis", tOverSuf: "par appel supplémentaire",
     tInh: (n) => `Tout de ${n}, et en plus`, soon: "Bientôt",
     feats: [
