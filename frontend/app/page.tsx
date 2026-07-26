@@ -33,6 +33,7 @@ type Dict = {
   navProduct: string; navPricing: string; navContact: string;
   navLogin: string; navStart: string; langName: string;
   badge: string; h1a: string; h1bPre: string; h1bWord: string; lede: string;
+  heroCta: string; heroCta2: string;
   consoleAria: string;
   r0b: string; r0s: string; r1b: string; r1s: string;
   outcomes: [string, string][];
@@ -56,6 +57,7 @@ const T: Record<LangCode, Dict> = {
     badge: "AI receptionist · Multilingual",
     h1a: "Never miss", h1bPre: "another ", h1bWord: "customer",
     lede: "LMC Agents answers every call, understands what the caller actually needs, handles what comes next, and then tells you exactly what happened. Day and night.",
+    heroCta: "Request a demo", heroCta2: "See pricing",
     consoleAria: "A call comes in, the AI understands it, and the right action is taken.",
     r0b: "Incoming call", r0s: "··· ··· ··· 214",
     r1b: "Understanding the request", r1s: "Intent, details and context captured",
@@ -106,6 +108,7 @@ const T: Record<LangCode, Dict> = {
     badge: "Recepcionista IA · Multilingüe",
     h1a: "Nunca pierdas", h1bPre: "a otro ", h1bWord: "cliente",
     lede: "LMC Agents contesta cada llamada, entiende lo que necesita de verdad quien llama, se encarga de lo que viene después y luego te cuenta exactamente qué ha pasado. De día y de noche.",
+    heroCta: "Solicitar una demo", heroCta2: "Ver precios",
     consoleAria: "Entra una llamada, la IA la entiende, y se ejecuta la acción correcta.",
     r0b: "Llamada entrante", r0s: "··· ··· ··· 214",
     r1b: "Entendiendo la solicitud", r1s: "Intención, datos y contexto capturados",
@@ -156,6 +159,7 @@ const T: Record<LangCode, Dict> = {
     badge: "Réceptionniste IA · Multilingue",
     h1a: "Ne manquez plus", h1bPre: "un seul ", h1bWord: "client",
     lede: "LMC Agents répond à chaque appel, comprend ce dont l'appelant a réellement besoin, gère la suite et vous dit ensuite exactement ce qui s'est passé. Jour et nuit.",
+    heroCta: "Demander une démo", heroCta2: "Voir les tarifs",
     consoleAria: "Un appel arrive, l'IA le comprend, et la bonne action est exécutée.",
     r0b: "Appel entrant", r0s: "··· ··· ··· 214",
     r1b: "Compréhension de la demande", r1s: "Intention, détails et contexte capturés",
@@ -581,7 +585,20 @@ export default function Home() {
             <p className="lede">{t.lede}</p>
 
             {/* CTA slot: intentionally empty until we have a demo worth showing. */}
-            <div className="cta-slot" aria-hidden="true" />
+            <div className="cta-slot" aria-hidden="true">
+              {/*
+                No demo exists yet — leave commented until one does.
+                Uncomment this block, remove aria-hidden above, and it's live:
+
+                <a className="btn-primary" href="#contact">
+                  {t.heroCta}
+                  <svg className="ar" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </a>
+                <a className="btn-ghost" href="#pricing">{t.heroCta2}</a>
+              */}
+            </div>
           </div>
 
           <div className="stage">
@@ -731,7 +748,7 @@ export default function Home() {
                   </div>
                   <div className="fld">
                     <label htmlFor="f-phone">{t.fPhone}</label>
-                    <input id="f-phone" name="phone" type="tel" required autoComplete="tel" placeholder="+34 600 000 000" />
+                    <input id="f-phone" name="phone" type="tel" required autoComplete="tel" />
                   </div>
                 </div>
                 <div className="fld">
