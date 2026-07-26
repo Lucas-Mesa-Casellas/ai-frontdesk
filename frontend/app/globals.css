@@ -433,7 +433,7 @@ h1 .l>span{display:block}
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
   --sp-top:10px;    /* space above the section tag — was up to 132px, then 30px, then 18px */
-  --sp-bottom:56px; /* space below the last card/form */
+  --sp-bottom:40px; /* space below the last card/form */
   --sp-head:22px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
 
@@ -616,10 +616,10 @@ nav.stuck{
 
 /* ---------- pricing cards (design locked from v5) ---------- */
 .tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
-.tier-note{margin-top:24px;text-align:center;font-size:12.5px;color:var(--text-3)}
+.tier-note{margin-top:14px;text-align:center;font-size:12.5px;color:var(--text-3)}
 .tier{
   position:relative;display:flex;flex-direction:column;
-  padding:32px 28px 28px;border-radius:var(--r-xl);
+  padding:24px 24px 22px;border-radius:var(--r-xl);
   background:linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.014));
   border:1px solid var(--hair);
   box-shadow:0 34px 70px -40px rgba(0,0,0,.9);
@@ -647,17 +647,17 @@ nav.stuck{
   padding:4px 11px;border-radius:var(--r-pill);white-space:nowrap;
   background:rgba(55,226,155,.1);border:1px solid rgba(55,226,155,.22);
 }
-.tier-fig{margin-top:18px;display:flex;align-items:baseline;gap:6px}
+.tier-fig{margin-top:12px;display:flex;align-items:baseline;gap:6px}
 .tier-fig b{font-size:clamp(2.05rem,2.7vw,2.6rem);font-weight:600;letter-spacing:-.055em;line-height:1}
 .tier-fig span{font-size:13.5px;color:var(--text-3)}
-.tier-vol{margin-top:14px;display:flex;align-items:baseline;gap:7px}
+.tier-vol{margin-top:9px;display:flex;align-items:baseline;gap:7px}
 .tier-vol b{font-size:17.5px;font-weight:600;letter-spacing:-.03em;color:var(--jade)}
 .tier-vol span{font-size:13.5px;color:var(--text-2)}
 .tier-over{margin-top:8px;font-size:12.5px;color:var(--text-3)}
-.tier-rule{height:1px;margin:18px 0 15px;background:var(--hair)}
+.tier-rule{height:1px;margin:12px 0 10px;background:var(--hair)}
 .tier-on .tier-rule{background:rgba(55,226,155,.16)}
 .tier-inh{font-size:12.5px;color:var(--text-3);margin-bottom:14px;letter-spacing:-.004em}
-.tier-f{list-style:none;display:flex;flex-direction:column;gap:10px;flex:1;min-height:9.4em}
+.tier-f{list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;min-height:8.4em}
 .tier-f li{display:flex;gap:10px;align-items:flex-start;
   font-size:13.5px;line-height:1.42;color:var(--text-2);letter-spacing:-.008em}
 .tier-f .ck{
@@ -677,12 +677,12 @@ nav.stuck{
 /* ---------- contact ---------- */
 .cta-col{width:100%;max-width:540px;margin:0 auto}
 .cta-card{
-  border-radius:var(--r-xl);padding:32px 32px 26px;
+  border-radius:var(--r-xl);padding:26px 30px 22px;
   background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
   border:1px solid var(--hair);
   box-shadow:0 46px 96px -46px rgba(0,0,0,.95);
 }
-.fld{margin-bottom:15px}
+.fld{margin-bottom:12px}
 .fld label{display:block;font-size:12.5px;font-weight:500;color:var(--text-3);
   margin-bottom:8px;transition:color .24s var(--e-out)}
 .fld:focus-within label{color:var(--text-2)}
@@ -815,7 +815,7 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 
 .tier-cta{
   display:flex;align-items:center;justify-content:center;gap:8px;
-  margin-top:18px;padding:11px 18px;border-radius:11px;
+  margin-top:13px;padding:9px 18px;border-radius:11px;
   font-size:14px;font-weight:600;letter-spacing:-.008em;
   transition:transform .22s var(--e-out),background .22s var(--e-out),
              border-color .22s var(--e-out),box-shadow .22s var(--e-out),filter .22s var(--e-out);
@@ -871,3 +871,27 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .page-foot .foot-eu svg{width:11px;height:11px;stroke:var(--text-3);stroke-width:1.7;fill:none;flex:none}
 
 @media (max-width:560px){.send{width:100%}}
+
+/* ---- hero CTA: styled and ready, JSX commented out until the demo exists ----
+   Dormant — nothing renders these until app/page.tsx uncomments the block
+   in .cta-slot. Kept here so uncommenting is a one-line change, not a
+   redesign. */
+.btn-primary{
+  position:relative;display:inline-flex;align-items:center;gap:9px;overflow:hidden;
+  font-size:15px;font-weight:600;letter-spacing:-.01em;color:#04140D;
+  padding:13px 24px;border-radius:12px;
+  background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 30px -14px rgba(18,185,129,.7);
+  transition:transform .24s var(--e-out),box-shadow .24s var(--e-out);
+}
+.btn-primary:hover{transform:translateY(-2px) scale(1.015);
+  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 20px 42px -16px rgba(18,185,129,.85)}
+.btn-primary .ar{transition:transform .28s var(--e-out)}
+.btn-primary:hover .ar{transform:translateX(3px)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:15px;font-weight:500;color:var(--text-2);
+  padding:13px 20px;border-radius:12px;border:1px solid var(--hair-2);
+  transition:color .22s var(--e-out),border-color .22s var(--e-out),background .22s var(--e-out);
+}
+.btn-ghost:hover{color:var(--text);border-color:rgba(55,226,155,.4);background:rgba(55,226,155,.06)}
