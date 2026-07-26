@@ -775,3 +775,99 @@ nav.stuck{
   .tier:hover{transform:none}
   .send:hover:not(:disabled){transform:none}
 }
+
+/* ============================================================
+   Demo A — locked
+   Hero deliberately excluded: no CTA buttons (no demo exists yet)
+   and the console keeps its original progress dots, because the
+   captured-data rows left a large empty area during beats 1-2.
+   ============================================================ */
+
+/* ---- nav: anchored, active section, primary CTA ---- */
+nav{border-bottom:1px solid rgba(255,255,255,.04)}
+.nav-links a{position:relative;opacity:.62;transition:opacity .22s var(--e-out),color .22s var(--e-out)}
+.nav-links a:hover{opacity:1}
+.nav-links a.active{opacity:1;color:var(--text)}
+.nav-links a.active::after{
+  content:"";position:absolute;left:12px;right:12px;bottom:2px;height:1.5px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--jade),transparent);
+}
+.btn-login{
+  background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
+  border-color:transparent;color:#04140D;font-weight:600;
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 8px 22px -12px rgba(18,185,129,.75);
+}
+.btn-login:hover{filter:brightness(1.06);transform:translateY(-1px)}
+
+/* ---- hero glow contained so it stops bleeding into the headline ---- */
+.aura{--aura-mask:radial-gradient(ellipse 62% 58% at 50% 62%,#000 30%,transparent 78%)}
+.aura .a-warm,.aura .a-jade,.aura .a-bright{
+  -webkit-mask-image:var(--aura-mask);mask-image:var(--aura-mask);
+}
+
+/* ---- pricing ---- */
+.tier{border:1px solid rgba(255,255,255,.06)}
+.tier:not(.tier-on):hover{border-color:rgba(255,255,255,.13)}
+.tier-fig b{font-variant-numeric:tabular-nums}
+.tier-cur{font-size:.62em;font-weight:500;margin-left:1px;vertical-align:baseline}
+.tier-vol b{font-variant-numeric:tabular-nums}
+.tier-over{margin-top:4px;opacity:.8}
+
+.tier-cta{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:18px;padding:11px 18px;border-radius:11px;
+  font-size:14px;font-weight:600;letter-spacing:-.008em;
+  transition:transform .22s var(--e-out),background .22s var(--e-out),
+             border-color .22s var(--e-out),box-shadow .22s var(--e-out),filter .22s var(--e-out);
+}
+.tier-cta.solid{
+  color:#04140D;background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 10px 24px -14px rgba(18,185,129,.8);
+}
+.tier-cta.solid:hover{transform:translateY(-1.5px);box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 16px 32px -14px rgba(18,185,129,.9)}
+.tier-cta.outline{color:var(--jade);border:1px solid rgba(55,226,155,.32);background:rgba(55,226,155,.05)}
+.tier-cta.outline:hover{background:rgba(55,226,155,.11);border-color:rgba(55,226,155,.5);transform:translateY(-1.5px)}
+.tier-cta.quiet{color:var(--text);border:1px solid var(--hair-2)}
+.tier-cta.quiet:hover{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.05);transform:translateY(-1.5px)}
+
+/* upcoming features grouped under one header instead of a badge per row */
+.tier-f li.soon-head{
+  display:flex;align-items:center;gap:9px;margin:14px 0 3px;
+  font-size:10.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);
+}
+.tier-f li.soon-head::after{content:"";flex:1;height:1px;background:var(--hair)}
+.soon-pill{
+  padding:2px 8px;border-radius:999px;border:1px solid var(--hair-2);
+  color:var(--text-3);letter-spacing:.06em;font-size:9.5px;
+}
+.tier-f li.is-soon{color:var(--text-3)}
+.tier-f li.is-soon .ck{background:rgba(255,255,255,.05)}
+.tier-f li.is-soon .ck svg{stroke:var(--text-3)}
+
+/* ---- contact ---- */
+.fld input,.fld textarea{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.022)}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--text-3);opacity:.62}
+.fld input:hover,.fld textarea:hover{border-color:rgba(255,255,255,.15)}
+.fld input:focus,.fld textarea:focus{border-color:rgba(55,226,155,.5);box-shadow:0 0 0 3px rgba(18,185,129,.12)}
+
+.send{width:auto;min-width:190px;margin:14px auto 0;border-radius:12px;padding:14px 34px}
+.send.busy{opacity:.85}
+.send .spin{
+  width:15px;height:15px;border-radius:50%;flex:none;
+  border:2px solid rgba(4,20,13,.25);border-top-color:#04140D;
+  display:none;animation:spin .7s linear infinite;
+}
+.send.busy .spin{display:block}
+.send.busy .ico{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.page-foot{
+  position:relative;z-index:3;margin-top:48px;
+  display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--text-3);
+}
+.page-foot .foot-dot{width:3px;height:3px;border-radius:50%;background:var(--hair-2);flex:none}
+.page-foot .foot-eu{display:inline-flex;align-items:center;gap:6px}
+.page-foot .foot-eu svg{width:11px;height:11px;stroke:var(--text-3);stroke-width:1.7;fill:none;flex:none}
+
+@media (max-width:560px){.send{width:100%}}
