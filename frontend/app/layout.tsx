@@ -12,7 +12,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "LMC Agents",
   description:
-    "LMC Agents answers every call, understands what the caller needs, and then completes the work that follows. Automatically, day and night.",
+    "LMC Agents answers every call, understands what the caller actually needs, handles what comes next, and then tells you exactly what happened. Day and night.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
