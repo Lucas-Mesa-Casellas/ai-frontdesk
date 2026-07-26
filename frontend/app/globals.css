@@ -574,7 +574,7 @@ nav.stuck{
      so this is safe in both directions. */
   position:relative;z-index:3;
   min-height:100svh;display:flex;flex-direction:column;justify-content:flex-start;
-  padding:calc(var(--nav-h) + var(--sp-top) + -2vh) 0 var(--sp-bottom);
+  padding:calc(var(--nav-h) + var(--sp-top) + -4vh) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
 .sec-head{margin-bottom:var(--sp-head)}
