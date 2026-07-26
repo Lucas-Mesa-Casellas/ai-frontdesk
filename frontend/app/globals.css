@@ -432,7 +432,9 @@ h1 .l>span{display:block}
   --r-lg:18px;
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
-  --sp-top:10px;    /* space above the section tag — was up to 132px, then 30px, then 18px */
+  --sp-top:28px;    /* now applies 1:1 to the visible gap — the old 10px
+                        value was compensating for the centering bug above,
+                        and would look too tight once that bug was fixed */
   --sp-bottom:40px; /* space below the last card/form */
   --sp-head:22px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
@@ -557,8 +559,15 @@ nav.stuck{
 
 /* ---------- section shell ---------- */
 .sec{
+  /* FIX: this used to be min-height:100svh + justify-content:center.
+     Since pricing/contact content is shorter than one viewport, that
+     centered the (100svh − content) slack HALF above, half below —
+     so every padding cut here only ever moved the visible top gap by
+     half as much. Every earlier "still too much space" report was
+     this: the section was being vertically centered in a box taller
+     than its content, undoing the compression. Plain block flow
+     makes the top gap equal to --sp-top exactly, no viewport math. */
   position:relative;z-index:3;
-  min-height:100svh;display:flex;flex-direction:column;justify-content:center;
   padding:var(--sp-top) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
