@@ -432,9 +432,11 @@ h1 .l>span{display:block}
   --r-lg:18px;
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
-  --sp-top:32px;    /* now that .sec centers again, symmetric top/bottom
-                        gives the cleanest balanced feel, like the hero */
-  --sp-bottom:32px;
+  --sp-top:12px;    /* biased smaller than --sp-bottom so centering leaves
+                        more room below the content than above it — a
+                        symmetric 32/32 split put half the slack ABOVE
+                        the tag, which read as "too low" */
+  --sp-bottom:52px;
   --sp-head:22px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
 
