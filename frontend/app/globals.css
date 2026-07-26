@@ -432,12 +432,12 @@ h1 .l>span{display:block}
   --r-lg:18px;
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
-  --sp-top:12px;    /* biased smaller than --sp-bottom so centering leaves
+  --sp-top:6px;    /* biased smaller than --sp-bottom so centering leaves
                         more room below the content than above it — a
                         symmetric 32/32 split put half the slack ABOVE
                         the tag, which read as "too low" */
-  --sp-bottom:52px;
-  --sp-head:22px;   /* tag -> heading -> subtitle -> content, was up to 60px */
+  --sp-bottom:28px;
+  --sp-head:16px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
 
 /* ---------- FIX: the line through the paragraph ----------
@@ -494,7 +494,7 @@ main{flex:0 0 auto;width:100%} /* ... instead of relying on flex:1 stretching */
 /* .caption is absolute at top:100% and hangs ~44px below the stage box,
    so flex centring alone leaves the hero looking top-heavy. This pays
    that overhang back and centres it optically. */
-main{padding-bottom:76px}
+main{padding-bottom:24px}
 
 /* Hero balance. At >=1400px the 1280px cap already centres the hero with
    generous margins — untouched. Between 1001 and 1400px the viewport is
@@ -573,8 +573,8 @@ nav.stuck{
      it on some edge case, the box just grows to fit (nothing clips),
      so this is safe in both directions. */
   position:relative;z-index:3;
-  min-height:100svh;display:flex;flex-direction:column;justify-content:center;
-  padding:var(--sp-top) 0 var(--sp-bottom);
+  min-height:100svh;display:flex;flex-direction:column;justify-content:flex-start;
+  padding:calc(var(--nav-h) + var(--sp-top) + 5vh) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
 .sec-head{margin-bottom:var(--sp-head)}
@@ -756,7 +756,7 @@ nav.stuck{
    Height queries compress the rhythm before anything overflows.
    ============================================================ */
 @media (max-height:760px){
-  :root{--nav-h:60px;--sp-top:18px;--sp-bottom:18px;--sp-head:14px}
+  :root{--nav-h:60px;--sp-top:6px;--sp-bottom:14px;--sp-head:10px}
   .sec-h{font-size:clamp(1.7rem,2.6vw,2.1rem);min-height:1.9em}
   .tier{padding:18px 18px 16px}
   .tier-fig{margin-top:10px}
@@ -768,7 +768,7 @@ nav.stuck{
   .fld textarea{min-height:48px}
 }
 @media (max-width:1000px){
-  .sec{min-height:0;padding:clamp(72px,9vh,96px) 0}
+  .sec{min-height:0;padding:clamp(72px,9vh,96px) 0;justify-content:center}
   main{padding-bottom:64px}
   .sec-h,.sec-sub{min-height:0}
   .tiers{grid-template-columns:1fr;gap:14px}
