@@ -715,8 +715,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-
-          <p className="tier-note up d4">{t.pSub}</p>
         </div>
       </section>
 
