@@ -432,8 +432,8 @@ h1 .l>span{display:block}
   --r-lg:18px;
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
-  --sp-top:18px;    /* space above the section tag — was up to 132px, then 30px */
-  --sp-bottom:64px; /* space below the last card/form */
+  --sp-top:10px;    /* space above the section tag — was up to 132px, then 30px, then 18px */
+  --sp-bottom:56px; /* space below the last card/form */
   --sp-head:22px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
 
@@ -567,7 +567,7 @@ nav.stuck{
 /* Pricing's head is now just the centred tag (no heading) — the next
    element should sit close, the same way Contact's tag sits close to
    its own heading. */
-.sec-head.tag-only{margin-bottom:14px}
+.sec-head.tag-only{margin-bottom:10px}
 .sec-head.mid{text-align:center}
 .sec-tag{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
   color:var(--jade);margin-bottom:10px}
