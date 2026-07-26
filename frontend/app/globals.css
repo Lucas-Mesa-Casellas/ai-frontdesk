@@ -582,7 +582,7 @@ nav.stuck{
 /* Pricing's head is now just the centred tag (no heading) — the next
    element should sit close, the same way Contact's tag sits close to
    its own heading. */
-.sec-head.tag-only{margin-bottom:16px}
+.sec-head.tag-only{margin-bottom:20px}
 .sec-head.mid{text-align:center}
 .sec-tag{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
   color:var(--jade);margin-bottom:10px}
@@ -617,7 +617,7 @@ nav.stuck{
 /* ---------- offer banner (above the cards) ---------- */
 .offer{
   display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
-  margin-bottom:24px;padding:11px 20px;border-radius:var(--r-pill);
+  margin-bottom:14px;padding:11px 20px;border-radius:var(--r-pill);
   background:linear-gradient(180deg,rgba(18,185,129,.075),rgba(18,185,129,.028));
   border:1px solid rgba(55,226,155,.2);
   width:fit-content;margin-inline:auto;
