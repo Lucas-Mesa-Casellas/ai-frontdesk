@@ -19,6 +19,8 @@ const ORDER: LangCode[] = ["EN", "ES", "FR"];
 const SHOW_SOON = true;
 const SPOTS_LEFT = 5;
 
+const TIER_CTA_STYLE = ["outline", "solid", "quiet"];
+
 const TIERS = [
   { price: "99€", calls: 50, over: "1,40€", on: false },
   { price: "199€", calls: 150, over: "1,20€", on: true },
@@ -39,6 +41,7 @@ type Dict = {
   oK: string; oB: (n: number) => string;
   tName: [string, string, string]; tPin: string; tMo: string; tCalls: string;
   tOver: string; tOverSuf: string; tInh: (n: string) => string; soon: string;
+  tCta: [string, string, string]; soonGroup: string;
   feats: [Feat[], Feat[], Feat[]];
   cTag: string; cH: string; cSub: string;
   fName: string; fBiz: string; fEmail: string; fPhone: string;
@@ -70,6 +73,7 @@ const T: Record<LangCode, Dict> = {
     oK: "Setup and configuration", oB: (n) => `Free for the next ${n} clients`,
     tName: ["Starter", "Standard", "Scale"],
     tPin: "Most chosen", tMo: "/month", tCalls: "calls a month",
+    tCta: ["Get started", "Get started", "Contact sales"], soonGroup: "Coming next quarter",
     tOver: "then", tOverSuf: "per extra call",
     tInh: (n) => `Everything in ${n}, plus`, soon: "Soon",
     feats: [
@@ -119,6 +123,7 @@ const T: Record<LangCode, Dict> = {
     oK: "Configuración inicial", oB: (n) => `Gratis para los próximos ${n} clientes`,
     tName: ["Inicial", "Estándar", "Amplio"],
     tPin: "El más elegido", tMo: "/mes", tCalls: "llamadas al mes",
+    tCta: ["Empezar", "Empezar", "Hablar con ventas"], soonGroup: "Próximo trimestre",
     tOver: "luego", tOverSuf: "por llamada extra",
     tInh: (n) => `Todo lo de ${n}, y además`, soon: "Pronto",
     feats: [
@@ -168,6 +173,7 @@ const T: Record<LangCode, Dict> = {
     oK: "Mise en place et configuration", oB: (n) => `Offerte pour les ${n} prochains clients`,
     tName: ["Essentiel", "Standard", "Étendu"],
     tPin: "Le plus choisi", tMo: "/mois", tCalls: "appels par mois",
+    tCta: ["Commencer", "Commencer", "Parler aux ventes"], soonGroup: "Le trimestre prochain",
     tOver: "puis", tOverSuf: "par appel supplémentaire",
     tInh: (n) => `Tout de ${n}, et en plus`, soon: "Bientôt",
     feats: [
@@ -221,6 +227,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [stuck, setStuck] = useState(false);
+  const [activeSec, setActiveSec] = useState("product");
   const [cueGone, setCueGone] = useState(false);
   const [sendState, setSendState] = useState<SendState>("idle");
 
@@ -264,6 +271,12 @@ export default function Home() {
       const y = window.scrollY;
       setStuck(y > 24);
       setCueGone(y > 40);
+      let active = "product";
+      for (const id of ["product", "pricing", "contact"]) {
+        const el = document.getElementById(id);
+        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.4) active = id;
+      }
+      setActiveSec(active);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -466,9 +479,9 @@ export default function Home() {
             </a>
 
             <div className="nav-links">
-              <a href="#product">{t.navProduct}</a>
-              <a href="#pricing">{t.navPricing}</a>
-              <a href="#contact">{t.navContact}</a>
+              <a href="#product" className={activeSec === "product" ? "active" : undefined}>{t.navProduct}</a>
+              <a href="#pricing" className={activeSec === "pricing" ? "active" : undefined}>{t.navPricing}</a>
+              <a href="#contact" className={activeSec === "contact" ? "active" : undefined}>{t.navContact}</a>
             </div>
 
             <div className="nav-right">
@@ -661,20 +674,25 @@ export default function Home() {
                   <span className="tier-name">{t.tName[i]}</span>
                   {x.on && <span className="tier-pin">{t.tPin}</span>}
                 </div>
-                <div className="tier-fig"><b>{x.price}</b><span>{t.tMo}</span></div>
+                <div className="tier-fig">
+                  <b>{x.price}<span className="tier-cur">€</span></b><span>{t.tMo}</span>
+                </div>
                 <div className="tier-vol"><b>{x.calls}</b><span>{t.tCalls}</span></div>
                 <div className="tier-over">{t.tOver} {x.over} {t.tOverSuf}</div>
+                <a className={`tier-cta ${TIER_CTA_STYLE[i]}`} href="#contact">{t.tCta[i]}</a>
                 <div className="tier-rule" />
                 {i > 0 && <div className="tier-inh">{t.tInh(t.tName[i - 1])}</div>}
                 <ul className="tier-f">
-                  {t.feats[i].map((f) => (
-                    <li key={f.t}>
-                      <Ck />
-                      <span>
-                        {f.t}
-                        {f.soon && SHOW_SOON && <span className="soon">{t.soon}</span>}
-                      </span>
+                  {t.feats[i].filter((f) => !f.soon).map((f) => (
+                    <li key={f.t}><Ck /><span>{f.t}</span></li>
+                  ))}
+                  {SHOW_SOON && t.feats[i].some((f) => f.soon) && (
+                    <li className="soon-head" aria-hidden="true">
+                      {t.soonGroup}<span className="soon-pill">{t.soon}</span>
                     </li>
+                  )}
+                  {t.feats[i].filter((f) => f.soon).map((f) => (
+                    <li key={f.t} className="is-soon"><Ck /><span>{f.t}</span></li>
                   ))}
                 </ul>
               </div>
@@ -721,10 +739,11 @@ export default function Home() {
                   <textarea id="f-msg" name="message" placeholder={t.fMsgPh} />
                 </div>
                 <button
-                  className={`send${sendState === "sent" ? " ok" : ""}`}
+                  className={`send${sendState === "sent" ? " ok" : ""}${sendState === "sending" ? " busy" : ""}`}
                   type="submit"
                   disabled={sendState !== "idle"}
                 >
+                  <span className="spin" aria-hidden="true" />
                   <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M4 12.5 9.5 18 20 6.5" />
                   </svg>
@@ -732,14 +751,14 @@ export default function Home() {
                     {sendState === "sending" ? t.cSending : sendState === "sent" ? t.cSent : t.cSend}
                   </span>
                 </button>
-
-                <div className="card-foot">
-                  <span>© 2026 LMC Agents</span>
-                  <span className="foot-dot" />
-                  <span className="foot-eu"><Globe />{t.cTrust}</span>
-                </div>
               </form>
             </div>
+          </div>
+
+          <div className="page-foot">
+            <span>© 2026 LMC Agents</span>
+            <span className="foot-dot" />
+            <span className="foot-eu"><Globe />{t.cTrust}</span>
           </div>
         </div>
       </section>
