@@ -84,7 +84,7 @@ export default function LoginPage() {
                   <circle cx="12" cy="12" r="9" />
                   <path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18" />
                 </svg>
-                <span>{lang}</span>
+                <span>{lang.toUpperCase()}</span>
                 <svg className="chev" viewBox="0 0 12 12" aria-hidden="true">
                   <path d="M2.5 4.5 6 8l3.5-3.5" />
                 </svg>
@@ -92,7 +92,7 @@ export default function LoginPage() {
               <div className={`lang-menu${menuOpen ? " open" : ""}`} role="listbox" aria-label="Language">
                 {LANGS.map((c) => (
                   <button key={c} data-l={c} role="option" aria-selected={lang === c} onClick={() => pickLang(c)}>
-                    <span className="code">{c}</span>
+                    <span className="code">{c.toUpperCase()}</span>
                     {DASH_T[c].langName}
                     <svg className="mark" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg>
                   </button>
