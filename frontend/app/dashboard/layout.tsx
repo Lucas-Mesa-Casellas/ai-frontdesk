@@ -42,12 +42,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em" }}>LMC Agents</span>
         </div>
 
-        <nav style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 2 }}>
+        <div role="navigation" aria-label="Dashboard" style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 2 }}>
           <NavLink href="/dashboard"><IconOverview width={17} height={17} />{t.navOverview}</NavLink>
           <NavLink href="/dashboard/calls"><IconPhone width={17} height={17} />{t.navCalls}</NavLink>
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
-        </nav>
+        </div>
 
         <div style={{ padding: 14, borderTop: "1px solid var(--hair)" }}>
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
@@ -74,7 +74,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </div>
       </aside>
 
-      <main style={{ flex: 1, marginLeft: 248 }}>{children}</main>
+      <div role="main" style={{ flex: 1, marginLeft: 248 }}>{children}</div>
 
       <style>{`
         .nav-link:hover { background: rgba(255,255,255,.055); color: var(--text); }
