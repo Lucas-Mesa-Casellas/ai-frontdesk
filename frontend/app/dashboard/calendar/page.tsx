@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase-server";
+import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import ConfirmButton from "@/components/ConfirmButton";
@@ -10,13 +10,9 @@ type Booking = {
 };
 
 export default async function CalendarPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
-
-  const { data: business } = await supabase
-    .from("businesses").select("id").eq("owner_id", user!.id).single();
 
   const { data: bookings } = await supabase
     .from("bookings").select("*").eq("business_id", business?.id)
