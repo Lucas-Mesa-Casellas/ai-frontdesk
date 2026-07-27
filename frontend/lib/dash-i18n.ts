@@ -70,7 +70,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     setBizInfo: "Business information", setBizName: "Business name",
     setEmail: "Notification email", setPhone: "Phone number",
     setSave: "Save changes", setSaved: "Saved.",
-    setDanger: "Danger zone", setDangerSub: "This action is irreversible.", setSignOut: "Sign out",
+    setDanger: "Account", setDangerSub: "You can log back in anytime with your email.", setSignOut: "Sign out",
 
     statusNew: "new", statusReview: "needs review", statusRequested: "requested",
     langName: "English",
@@ -112,7 +112,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     setBizInfo: "Información del negocio", setBizName: "Nombre del negocio",
     setEmail: "Email de notificación", setPhone: "Teléfono",
     setSave: "Guardar cambios", setSaved: "Guardado.",
-    setDanger: "Zona de peligro", setDangerSub: "Esta acción es irreversible.", setSignOut: "Cerrar sesión",
+    setDanger: "Cuenta", setDangerSub: "Puedes volver a entrar cuando quieras con tu email.", setSignOut: "Cerrar sesión",
 
     statusNew: "nueva", statusReview: "revisar", statusRequested: "solicitada",
     langName: "Español",
@@ -154,7 +154,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     setBizInfo: "Informations de l'entreprise", setBizName: "Nom de l'entreprise",
     setEmail: "Email de notification", setPhone: "Téléphone",
     setSave: "Enregistrer", setSaved: "Enregistré.",
-    setDanger: "Zone dangereuse", setDangerSub: "Cette action est irréversible.", setSignOut: "Déconnexion",
+    setDanger: "Compte", setDangerSub: "Vous pouvez vous reconnecter à tout moment avec votre email.", setSignOut: "Déconnexion",
 
     statusNew: "nouveau", statusReview: "à vérifier", statusRequested: "demandée",
     langName: "Français",
