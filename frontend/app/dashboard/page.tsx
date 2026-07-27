@@ -1,31 +1,31 @@
-import { createClient } from "@/lib/supabase-server";
+import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
 import { IconPhone, IconCalendar } from "@/components/icons";
 
 export default async function OverviewPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
 
-  const { data: business } = await supabase
-    .from("businesses").select("id").eq("owner_id", user!.id).single();
   const businessId = business?.id;
 
-  const { count: totalCalls } = await supabase
-    .from("calls").select("*", { count: "exact", head: true }).eq("business_id", businessId);
-  const { count: pendingBookings } = await supabase
-    .from("bookings").select("*", { count: "exact", head: true })
-    .eq("business_id", businessId).eq("status", "pending");
-  const { data: recentCalls } = await supabase
-    .from("calls").select("*").eq("business_id", businessId)
-    .order("created_at", { ascending: false }).limit(5);
-  const { data: upcoming } = await supabase
-    .from("bookings").select("*").eq("business_id", businessId)
-    .in("status", ["pending", "confirmed"])
-    .order("created_at", { ascending: false }).limit(4);
+  const [
+    { count: totalCalls },
+    { count: pendingBookings },
+    { data: recentCalls },
+    { data: upcoming },
+  ] = await Promise.all([
+    supabase.from("calls").select("*", { count: "exact", head: true }).eq("business_id", businessId),
+    supabase.from("bookings").select("*", { count: "exact", head: true })
+      .eq("business_id", businessId).eq("status", "pending"),
+    supabase.from("calls").select("*").eq("business_id", businessId)
+      .order("created_at", { ascending: false }).limit(5),
+    supabase.from("bookings").select("*").eq("business_id", businessId)
+      .in("status", ["pending", "confirmed"])
+      .order("created_at", { ascending: false }).limit(4),
+  ]);
 
   const conv = totalCalls ? Math.round(((pendingBookings || 0) / totalCalls) * 100) : 0;
 
