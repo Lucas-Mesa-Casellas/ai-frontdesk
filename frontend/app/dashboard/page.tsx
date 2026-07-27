@@ -1,161 +1,96 @@
 import { getAuthedBusiness } from "@/lib/dashboard-data";
+import { createClient } from "@/lib/supabase-server";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
-import Link from "next/link";
-import { IconPhone, IconCalendar } from "@/components/icons";
+import { redirect } from "next/navigation";
 
-export default async function OverviewPage() {
-  const { supabase, business } = await getAuthedBusiness();
+export default async function SettingsPage({
+  searchParams,
+}: { searchParams: Promise<{ updated?: string }> }) {
+  const { business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
+  const { updated } = await searchParams;
 
-  const businessId = business?.id;
+  async function updateSettings(formData: FormData) {
+    "use server";
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    await supabase
+      .from("businesses")
+      .update({
+        notification_email: formData.get("notification_email"),
+        phone_number: formData.get("phone_number"),
+      })
+      .eq("owner_id", user!.id);
+    redirect("/dashboard/settings?updated=true");
+  }
 
-  const [
-    { count: totalCalls },
-    { count: pendingBookings },
-    { data: recentCalls },
-    { data: upcoming },
-  ] = await Promise.all([
-    supabase.from("calls").select("*", { count: "exact", head: true }).eq("business_id", businessId),
-    supabase.from("bookings").select("*", { count: "exact", head: true })
-      .eq("business_id", businessId).eq("status", "pending"),
-    supabase.from("calls").select("*").eq("business_id", businessId)
-      .order("created_at", { ascending: false }).limit(5),
-    supabase.from("bookings").select("*").eq("business_id", businessId)
-      .in("status", ["pending", "confirmed"])
-      .order("created_at", { ascending: false }).limit(4),
-  ]);
+  async function signOut() {
+    "use server";
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+    redirect("/login");
+  }
 
-  const conv = totalCalls ? Math.round(((pendingBookings || 0) / totalCalls) * 100) : 0;
+  const field: React.CSSProperties = {
+    width: "100%", fontSize: 14, color: "var(--text)",
+    background: "rgba(255,255,255,.028)", border: "1px solid var(--hair-2)",
+    borderRadius: 11, padding: "11px 13px",
+  };
+  const label: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-3)", marginBottom: 7 };
 
   return (
-    <div style={{ padding: 40, maxWidth: 1080 }}>
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.ovTitle}</h1>
-        <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.ovSub}</p>
+    <div style={{ padding: 40, maxWidth: 560 }}>
+      <div style={{ marginBottom: 26 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.setTitle}</h1>
+        <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.setSub}</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 28 }}>
-        <StatCard label={t.statCalls} value={totalCalls || 0} />
-        <StatCard label={t.statBookings} value={pendingBookings || 0} highlight />
-        <StatCard label={t.statConv} value={`${conv}%`} sub={t.statConvGoal} />
+      <div style={{ background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)", borderRadius: 18, padding: 22, marginBottom: 16 }}>
+        <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>{t.setBizInfo}</h2>
+        <form action={updateSettings} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <label style={label}>{t.setBizName}</label>
+            <input defaultValue={business?.name} disabled style={{ ...field, opacity: 0.5 }} />
+          </div>
+          <div>
+            <label style={label}>{t.setEmail}</label>
+            <input type="email" name="notification_email" defaultValue={business?.notification_email} style={field} />
+          </div>
+          <div>
+            <label style={label}>{t.setPhone}</label>
+            <input type="tel" name="phone_number" defaultValue={business?.phone_number} style={field} />
+          </div>
+          <button
+            type="submit"
+            style={{
+              alignSelf: "flex-start", padding: "10px 22px", borderRadius: 11, border: "none",
+              fontSize: 13.5, fontWeight: 600, color: "#04140D", cursor: "pointer",
+              background: "linear-gradient(180deg,#5CEBAF,var(--jade-2))",
+            }}
+          >
+            {t.setSave}
+          </button>
+          {updated === "true" && <p style={{ fontSize: 13, color: "var(--jade)" }}>{t.setSaved}</p>}
+        </form>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-        <Panel title={t.recentCalls} link="/dashboard/calls" linkLabel={t.viewAll}>
-          {!recentCalls?.length ? (
-            <Empty text={t.noCalls} />
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {recentCalls.map((c) => (
-                <Link key={c.id} href={`/dashboard/calls/${c.id}`} style={row}>
-                  <IconIn><IconPhone width={13} height={13} /></IconIn>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                      <p style={rowTitle}>{c.caller_name || t.unknown}</p>
-                      <span style={rowTime}>
-                        {new Date(c.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
-                    <p style={rowSub}>{c.summary || t.noSummary}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </Panel>
-
-        <Panel title={t.upcoming} link="/dashboard/calendar" linkLabel={t.viewAll}>
-          {!upcoming?.length ? (
-            <Empty text={t.noUpcoming} />
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {upcoming.map((b) => (
-                <div key={b.id} style={row}>
-                  <IconIn><IconCalendar width={13} height={13} /></IconIn>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={rowTitle}>{b.customer_name || t.unknown}</p>
-                    <p style={rowSub}>{b.notes || t.noDateSet}</p>
-                  </div>
-                  <StatusPill status={b.status} t={t} />
-                </div>
-              ))}
-            </div>
-          )}
-        </Panel>
+      <div style={{ background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)", borderRadius: 18, padding: 22 }}>
+        <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t.setDanger}</h2>
+        <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 14 }}>{t.setDangerSub}</p>
+        <form action={signOut}>
+          <button
+            type="submit"
+            style={{
+              padding: "9px 18px", borderRadius: 11, fontSize: 13, color: "var(--text-2)",
+              border: "1px solid var(--hair-2)", background: "transparent", cursor: "pointer",
+            }}
+          >
+            {t.setSignOut}
+          </button>
+        </form>
       </div>
     </div>
-  );
-}
-
-const row: React.CSSProperties = {
-  display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
-  borderRadius: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.04)",
-  textDecoration: "none", color: "inherit",
-};
-const rowTitle: React.CSSProperties = { fontSize: 13.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
-const rowSub: React.CSSProperties = { fontSize: 12, color: "var(--text-3)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
-const rowTime: React.CSSProperties = { fontSize: 11.5, color: "var(--text-3)", flex: "none" };
-
-function IconIn({ children }: { children: React.ReactNode }) {
-  return (
-    <span style={{
-      width: 28, height: 28, borderRadius: "50%", flex: "none",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      background: "rgba(55,226,155,.12)", color: "var(--jade)",
-    }}>
-      {children}
-    </span>
-  );
-}
-
-function Empty({ text }: { text: string }) {
-  return <p style={{ color: "var(--text-3)", fontSize: 13 }}>{text}</p>;
-}
-
-function Panel({ title, link, linkLabel, children }: { title: string; link: string; linkLabel: string; children: React.ReactNode }) {
-  return (
-    <div style={{
-      background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)",
-      borderRadius: 18, padding: 20,
-    }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
-        <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>
-          {title}
-        </h2>
-        <Link href={link} style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none" }}>{linkLabel}</Link>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function StatCard({ label, value, sub, highlight }: { label: string; value: string | number; sub?: string; highlight?: boolean }) {
-  return (
-    <div style={{
-      padding: 18, borderRadius: 16,
-      border: `1px solid ${highlight ? "rgba(55,226,155,.26)" : "var(--hair)"}`,
-      background: highlight
-        ? "linear-gradient(180deg,rgba(18,185,129,.09),rgba(255,255,255,.016) 58%)"
-        : "rgba(255,255,255,.032)",
-    }}>
-      <p style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4 }}>{value}</p>
-      <p style={{ fontSize: 12, color: "var(--text-3)" }}>{label}{sub ? ` · ${sub}` : ""}</p>
-    </div>
-  );
-}
-
-function StatusPill({ status, t }: { status: string; t: typeof DASH_T.en }) {
-  const isConfirmed = status === "confirmed";
-  return (
-    <span style={{
-      fontSize: 11, padding: "4px 10px", borderRadius: 999, flex: "none",
-      border: `1px solid ${isConfirmed ? "rgba(55,226,155,.28)" : "var(--hair-2)"}`,
-      color: isConfirmed ? "var(--jade)" : "#FFC178",
-      background: isConfirmed ? "rgba(55,226,155,.1)" : "transparent",
-    }}>
-      {isConfirmed ? t.calConfirmed_ : t.calPending}
-    </span>
   );
 }
