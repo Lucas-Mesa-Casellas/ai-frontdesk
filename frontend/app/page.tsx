@@ -552,7 +552,6 @@ export default function Home() {
                   <a href="#product" onClick={() => setNavOpen(false)}>{t.navProduct}</a>
                   <a href="#pricing" onClick={() => setNavOpen(false)}>{t.navPricing}</a>
                   <a href="#contact" onClick={() => setNavOpen(false)}>{t.navContact}</a>
-                  <a href="/login" onClick={() => setNavOpen(false)}>{t.navLogin}</a>
                 </div>
               </div>
             </div>
