@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { DASH_T } from "@/lib/dash-i18n";
 import type { Locale } from "@/lib/locale";
 
 type Status = "idle" | "sending" | "sent" | "err";
+const LANGS: Locale[] = ["en", "es", "fr"];
 
 export default function LoginPage() {
   const [lang, setLang] = useState<Locale>("en");
@@ -13,11 +14,28 @@ export default function LoginPage() {
   const [status, setStatus] = useState<Status>("idle");
   const t = DASH_T[lang];
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const m = document.cookie.match(/(?:^|; )lmc_locale=([^;]+)/);
     const v = m?.[1];
     if (v === "en" || v === "es" || v === "fr") setLang(v);
   }, []);
+
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener("click", onDoc);
+    return () => document.removeEventListener("click", onDoc);
+  }, []);
+
+  function pickLang(code: Locale) {
+    setLang(code);
+    document.cookie = `lmc_locale=${code};path=/;max-age=31536000`;
+    setMenuOpen(false);
+  }
 
   const expired =
     typeof window !== "undefined" &&
@@ -38,47 +56,59 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: "100svh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px" }}>
-      <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-        <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18,185,129,.08), transparent 65%)" }} />
-      </div>
-
-      <div style={{ position: "relative", width: "100%", maxWidth: 400 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 40 }}>
-          <a href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-            <span style={{
-              width: 30, height: 30, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
-              background: "linear-gradient(155deg,var(--jade),var(--jade-deep))",
-            }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+    <>
+      <nav>
+        <div className="wrap nav-grid">
+          <a href="/" className="logo" aria-label="LMC Agents home">
+            <span className="logo-mark">
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none">
                 <path d="M17.6 5.6a9 9 0 1 0 2.2 3.6" stroke="#04140D" strokeWidth="2.8" strokeLinecap="round" />
                 <circle cx="18.6" cy="5.4" r="2.85" fill="#04140D" />
               </svg>
             </span>
-            <span style={{ color: "var(--text)", fontSize: 15, fontWeight: 600, letterSpacing: "-0.01em" }}>LMC Agents</span>
+            <span className="logo-txt">LMC Agents</span>
           </a>
-          <div style={{ display: "flex", gap: 3 }}>
-            {(["en", "es", "fr"] as Locale[]).map((l) => (
+
+          <div />
+
+          <div className="nav-right">
+            <div className="lang" ref={langRef}>
               <button
-                key={l}
-                onClick={() => {
-                  setLang(l);
-                  document.cookie = `lmc_locale=${l};path=/;max-age=31536000`;
-                }}
-                style={{
-                  fontSize: 11.5, fontWeight: 600, letterSpacing: "0.04em",
-                  padding: "5px 9px", borderRadius: 7,
-                  border: "1px solid var(--hair)",
-                  color: lang === l ? "var(--jade)" : "var(--text-3)",
-                  background: lang === l ? "rgba(55,226,155,.1)" : "transparent",
-                  cursor: "pointer",
-                }}
+                className="lang-btn"
+                aria-expanded={menuOpen}
+                aria-haspopup="listbox"
+                aria-label="Change language"
+                onClick={() => setMenuOpen((o) => !o)}
               >
-                {l.toUpperCase()}
+                <svg className="globe" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18" />
+                </svg>
+                <span>{lang}</span>
+                <svg className="chev" viewBox="0 0 12 12" aria-hidden="true">
+                  <path d="M2.5 4.5 6 8l3.5-3.5" />
+                </svg>
               </button>
-            ))}
+              <div className={`lang-menu${menuOpen ? " open" : ""}`} role="listbox" aria-label="Language">
+                {LANGS.map((c) => (
+                  <button key={c} data-l={c} role="option" aria-selected={lang === c} onClick={() => pickLang(c)}>
+                    <span className="code">{c}</span>
+                    {DASH_T[c].langName}
+                    <svg className="mark" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
+      </nav>
+
+      <div style={{ minHeight: "100svh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px" }}>
+        <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
+          <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18,185,129,.08), transparent 65%)" }} />
+        </div>
+
+        <div style={{ position: "relative", width: "100%", maxWidth: 400 }}>
 
         {status === "sent" ? (
           <div style={{ textAlign: "center" }}>
@@ -143,5 +173,6 @@ export default function LoginPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
