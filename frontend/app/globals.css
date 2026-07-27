@@ -740,6 +740,8 @@ nav.stuck{
 }
 .send.ok{cursor:default}
 .send.ok .ico{opacity:1;transform:scale(1);width:16px}
+.send.err{background:#B3261E;box-shadow:none}
+.send.err:hover:not(:disabled){box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 20px 42px -15px rgba(179,38,30,.6)}
 
 /* ---------- footer ---------- */
 .card-foot{
