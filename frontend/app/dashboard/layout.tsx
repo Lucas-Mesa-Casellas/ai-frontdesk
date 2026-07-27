@@ -48,33 +48,33 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
         </div>
+      </aside>
 
-        <div style={{ padding: 14, borderTop: "1px solid var(--hair)" }}>
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: 10 }}>
-            <LangSwitcher current={locale} path="/dashboard" />
-          </div>
+      <div role="main" style={{ flex: 1, marginLeft: 248 }}>
+        <div style={{
+          display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 14,
+          padding: "14px 28px", borderBottom: "1px solid var(--hair)",
+        }}>
+          <LangSwitcher current={locale} path="/dashboard" />
           <div style={{
-            display: "flex", alignItems: "center", gap: 10, padding: "9px 11px",
-            borderRadius: 12, background: "rgba(255,255,255,.035)",
+            display: "flex", alignItems: "center", gap: 10, padding: "7px 12px 7px 7px",
+            borderRadius: 999, background: "rgba(255,255,255,.035)", border: "1px solid var(--hair)",
           }}>
             <span style={{
-              width: 30, height: 30, borderRadius: "50%", flex: "none",
+              width: 26, height: 26, borderRadius: "50%", flex: "none",
               display: "flex", alignItems: "center", justifyContent: "center",
               background: "linear-gradient(155deg,var(--jade),var(--jade-deep))",
-              color: "#04140D", fontSize: 12, fontWeight: 700,
+              color: "#04140D", fontSize: 11.5, fontWeight: 700,
             }}>
               {initial}
             </span>
-            <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                {business?.name || user.email}
-              </p>
-            </div>
+            <p style={{ fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 160 }}>
+              {business?.name || user.email}
+            </p>
           </div>
         </div>
-      </aside>
-
-      <div role="main" style={{ flex: 1, marginLeft: 248 }}>{children}</div>
+        {children}
+      </div>
 
       <style>{`
         .nav-link:hover { background: rgba(255,255,255,.055); color: var(--text); }
