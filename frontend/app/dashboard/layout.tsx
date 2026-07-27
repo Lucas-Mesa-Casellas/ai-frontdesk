@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase-server";
+import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
@@ -8,18 +8,11 @@ import LangSwitcher from "@/components/LangSwitcher";
 import { IconOverview, IconPhone, IconCalendar, IconGear } from "@/components/icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { user, business } = await getAuthedBusiness();
   if (!user) redirect("/login");
 
   const locale = await getLocale();
   const t = DASH_T[locale];
-
-  const { data: business } = await supabase
-    .from("businesses")
-    .select("name")
-    .eq("owner_id", user.id)
-    .single();
 
   const initial = business?.name?.[0] || user.email?.[0]?.toUpperCase() || "U";
 
