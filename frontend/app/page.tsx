@@ -100,7 +100,7 @@ const T: Record<LangCode, Dict> = {
     fName: "Your name", fBiz: "Business", fEmail: "Email", fPhone: "Phone",
     fMsg: "Message",
     fMsgPh: "Tell us a little about your business and how you handle the phone today.",
-    cSend: "Send", cSending: "Sending…", cSent: "Sent", cError: "Couldn't send — try again", cTrust: "Built in Europe",
+    cSend: "Send", cSending: "Sending…", cSent: "Sent", cError: "Couldn't send, try again", cTrust: "Built in Europe",
   },
   ES: {
     navProduct: "Producto", navPricing: "Precios", navContact: "Contacto",
@@ -151,7 +151,7 @@ const T: Record<LangCode, Dict> = {
     fName: "Tu nombre", fBiz: "Negocio", fEmail: "Email", fPhone: "Teléfono",
     fMsg: "Mensaje",
     fMsgPh: "Cuéntanos un poco sobre tu negocio y cómo atiendes el teléfono hoy.",
-    cSend: "Enviar", cSending: "Enviando…", cSent: "Enviado", cError: "No se pudo enviar — inténtalo de nuevo", cTrust: "Hecho en Europa",
+    cSend: "Enviar", cSending: "Enviando…", cSent: "Enviado", cError: "No se pudo enviar, inténtalo de nuevo", cTrust: "Hecho en Europa",
   },
   FR: {
     navProduct: "Produit", navPricing: "Tarifs", navContact: "Contact",
@@ -202,7 +202,7 @@ const T: Record<LangCode, Dict> = {
     fName: "Votre nom", fBiz: "Établissement", fEmail: "Email", fPhone: "Téléphone",
     fMsg: "Message",
     fMsgPh: "Parlez-nous de votre activité et de la façon dont vous gérez le téléphone aujourd'hui.",
-    cSend: "Envoyer", cSending: "Envoi…", cSent: "Envoyé", cError: "Échec de l'envoi — réessayez", cTrust: "Conçu en Europe",
+    cSend: "Envoyer", cSending: "Envoi…", cSent: "Envoyé", cError: "Échec de l'envoi, réessayez", cTrust: "Conçu en Europe",
   },
 };
 
