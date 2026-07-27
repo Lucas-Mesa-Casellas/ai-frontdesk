@@ -36,7 +36,7 @@ export const DASH_T: Record<Locale, DashDict> = {
   en: {
     navOverview: "Overview", navCalls: "Calls", navCalendar: "Calendar", navSettings: "Settings",
     navSignOut: "Sign out",
-    loginTitle: "Client access", loginSub: "Enter the email your account is under. We'll send you a secure link — no password to remember.",
+    loginTitle: "Client access", loginSub: "Enter the email your account is under. We'll send you a secure link, no password to remember.",
     loginLabel: "Email", loginPh: "you@business.com",
     loginCta: "Send me the link", loginSending: "Sending…",
     loginErr: "We couldn't send the link. Check the address and try again.",
