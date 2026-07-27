@@ -39,7 +39,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginTitle: "Client access", loginSub: "Enter the email your account is under. We'll send you a secure link, no password to remember.",
     loginLabel: "Email", loginPh: "you@business.com",
     loginCta: "Send me the link", loginSending: "Sending…",
-    loginErr: "We couldn't send the link. Check the address and try again.",
+    loginErr: "That email isn't linked to a client account. Double-check it or contact us.",
     loginSentTitle: "Check your inbox",
     loginSentSub: (email) => `We've sent a secure sign-in link to ${email}. It works once and expires shortly.`,
     loginBack: "Back to lmcagents.app",
@@ -62,7 +62,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     calTitle: "Calendar", calSub: "Booking requests captured by your AI.",
     calEmptyTitle: "No bookings", calEmptySub: "Booking requests captured by your AI will appear here.",
-    calPending: "Requested — not confirmed", calConfirmed: "Confirmed",
+    calPending: "Requested, not confirmed", calConfirmed: "Confirmed",
     calConfirm: "Confirm", calConfirming: "Confirming…", calConfirmed_: "Confirmed",
     calNoDate: "No date given", people: (n) => `${n} ${n === 1 ? "person" : "people"}`,
 
@@ -78,10 +78,10 @@ export const DASH_T: Record<Locale, DashDict> = {
   es: {
     navOverview: "Resumen", navCalls: "Llamadas", navCalendar: "Calendario", navSettings: "Ajustes",
     navSignOut: "Cerrar sesión",
-    loginTitle: "Acceso clientes", loginSub: "Introduce el email de tu cuenta. Te enviamos un enlace seguro — sin contraseña que recordar.",
+    loginTitle: "Acceso clientes", loginSub: "Introduce el email de tu cuenta. Te enviamos un enlace seguro, sin contraseña que recordar.",
     loginLabel: "Email", loginPh: "tu@negocio.com",
     loginCta: "Enviarme el enlace", loginSending: "Enviando…",
-    loginErr: "No hemos podido enviar el enlace. Revisa la dirección e inténtalo de nuevo.",
+    loginErr: "Ese email no está vinculado a ninguna cuenta de cliente. Compruébalo o contáctanos.",
     loginSentTitle: "Revisa tu correo",
     loginSentSub: (email) => `Te hemos enviado un enlace de acceso seguro a ${email}. Funciona una sola vez y caduca pronto.`,
     loginBack: "Volver a lmcagents.app",
@@ -104,7 +104,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     calTitle: "Calendario", calSub: "Solicitudes de cita recogidas por tu IA.",
     calEmptyTitle: "Sin reservas", calEmptySub: "Las solicitudes de cita recogidas por tu IA aparecerán aquí.",
-    calPending: "Solicitado — sin confirmar", calConfirmed: "Confirmado",
+    calPending: "Solicitado, sin confirmar", calConfirmed: "Confirmado",
     calConfirm: "Confirmar", calConfirming: "Confirmando…", calConfirmed_: "Confirmado",
     calNoDate: "Sin fecha indicada", people: (n) => `${n} ${n === 1 ? "persona" : "personas"}`,
 
@@ -120,10 +120,10 @@ export const DASH_T: Record<Locale, DashDict> = {
   fr: {
     navOverview: "Aperçu", navCalls: "Appels", navCalendar: "Calendrier", navSettings: "Paramètres",
     navSignOut: "Déconnexion",
-    loginTitle: "Espace client", loginSub: "Saisissez l'email de votre compte. Nous vous envoyons un lien sécurisé — aucun mot de passe à retenir.",
+    loginTitle: "Espace client", loginSub: "Saisissez l'email de votre compte. Nous vous envoyons un lien sécurisé, aucun mot de passe à retenir.",
     loginLabel: "Email", loginPh: "vous@entreprise.com",
     loginCta: "M'envoyer le lien", loginSending: "Envoi…",
-    loginErr: "Impossible d'envoyer le lien. Vérifiez l'adresse et réessayez.",
+    loginErr: "Cet email n'est associé à aucun compte client. Vérifiez-le ou contactez-nous.",
     loginSentTitle: "Consultez votre boîte mail",
     loginSentSub: (email) => `Nous avons envoyé un lien de connexion sécurisé à ${email}. Il fonctionne une fois et expire rapidement.`,
     loginBack: "Retour à lmcagents.app",
@@ -146,7 +146,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     calTitle: "Calendrier", calSub: "Demandes de rendez-vous enregistrées par votre IA.",
     calEmptyTitle: "Aucun rendez-vous", calEmptySub: "Les demandes enregistrées par votre IA apparaîtront ici.",
-    calPending: "Demandé — non confirmé", calConfirmed: "Confirmé",
+    calPending: "Demandé, non confirmé", calConfirmed: "Confirmé",
     calConfirm: "Confirmer", calConfirming: "Confirmation…", calConfirmed_: "Confirmé",
     calNoDate: "Aucune date indiquée", people: (n) => `${n} ${n === 1 ? "personne" : "personnes"}`,
 
