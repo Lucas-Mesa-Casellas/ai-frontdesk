@@ -47,7 +47,7 @@ type Dict = {
   cTag: string; cH: string; cSub: string;
   fName: string; fBiz: string; fEmail: string; fPhone: string;
   fMsg: string; fMsgPh: string;
-  cSend: string; cSending: string; cSent: string; cTrust: string;
+  cSend: string; cSending: string; cSent: string; cError: string; cTrust: string;
 };
 
 const T: Record<LangCode, Dict> = {
@@ -100,7 +100,7 @@ const T: Record<LangCode, Dict> = {
     fName: "Your name", fBiz: "Business", fEmail: "Email", fPhone: "Phone",
     fMsg: "Message",
     fMsgPh: "Tell us a little about your business and how you handle the phone today.",
-    cSend: "Send", cSending: "Sending…", cSent: "Sent", cTrust: "Built in Europe",
+    cSend: "Send", cSending: "Sending…", cSent: "Sent", cError: "Couldn't send — try again", cTrust: "Built in Europe",
   },
   ES: {
     navProduct: "Producto", navPricing: "Precios", navContact: "Contacto",
@@ -151,7 +151,7 @@ const T: Record<LangCode, Dict> = {
     fName: "Tu nombre", fBiz: "Negocio", fEmail: "Email", fPhone: "Teléfono",
     fMsg: "Mensaje",
     fMsgPh: "Cuéntanos un poco sobre tu negocio y cómo atiendes el teléfono hoy.",
-    cSend: "Enviar", cSending: "Enviando…", cSent: "Enviado", cTrust: "Hecho en Europa",
+    cSend: "Enviar", cSending: "Enviando…", cSent: "Enviado", cError: "No se pudo enviar — inténtalo de nuevo", cTrust: "Hecho en Europa",
   },
   FR: {
     navProduct: "Produit", navPricing: "Tarifs", navContact: "Contact",
@@ -202,7 +202,7 @@ const T: Record<LangCode, Dict> = {
     fName: "Votre nom", fBiz: "Établissement", fEmail: "Email", fPhone: "Téléphone",
     fMsg: "Message",
     fMsgPh: "Parlez-nous de votre activité et de la façon dont vous gérez le téléphone aujourd'hui.",
-    cSend: "Envoyer", cSending: "Envoi…", cSent: "Envoyé", cTrust: "Conçu en Europe",
+    cSend: "Envoyer", cSending: "Envoi…", cSent: "Envoyé", cError: "Échec de l'envoi — réessayez", cTrust: "Conçu en Europe",
   },
 };
 
@@ -218,7 +218,7 @@ const Globe = () => (
   </svg>
 );
 
-type SendState = "idle" | "sending" | "sent";
+type SendState = "idle" | "sending" | "sent" | "error";
 
 export default function Home() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -452,17 +452,22 @@ export default function Home() {
     const payload = Object.fromEntries(new FormData(form).entries());
     setSendState("sending");
     try {
-      await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ kind: "signup", lang, ...payload }),
       });
-    } catch {
-      /* the button still confirms; the lead is not lost on a transient error */
+      if (!res.ok) throw new Error(`contact route responded ${res.status}`);
+      setSendState("sent");
+      form.reset();
+      setTimeout(() => setSendState("idle"), 4200);
+    } catch (err) {
+      // Do NOT reset the form here — the visitor's input must survive a
+      // failed send so they can just hit Send again instead of retyping.
+      console.error("[contact] submit failed", err);
+      setSendState("error");
+      setTimeout(() => setSendState("idle"), 4200);
     }
-    setSendState("sent");
-    form.reset();
-    setTimeout(() => setSendState("idle"), 4200);
   }
 
   return (
@@ -754,16 +759,19 @@ export default function Home() {
                   <textarea id="f-msg" name="message" placeholder={t.fMsgPh} />
                 </div>
                 <button
-                  className={`send${sendState === "sent" ? " ok" : ""}${sendState === "sending" ? " busy" : ""}`}
+                  className={`send${sendState === "sent" ? " ok" : ""}${sendState === "sending" ? " busy" : ""}${sendState === "error" ? " err" : ""}`}
                   type="submit"
-                  disabled={sendState !== "idle"}
+                  disabled={sendState === "sending"}
                 >
                   <span className="spin" aria-hidden="true" />
                   <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M4 12.5 9.5 18 20 6.5" />
                   </svg>
                   <span>
-                    {sendState === "sending" ? t.cSending : sendState === "sent" ? t.cSent : t.cSend}
+                    {sendState === "sending" ? t.cSending
+                      : sendState === "sent" ? t.cSent
+                      : sendState === "error" ? t.cError
+                      : t.cSend}
                   </span>
                 </button>
               </form>
