@@ -48,7 +48,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 14,
           padding: "14px 28px", borderBottom: "1px solid var(--hair)",
         }}>
-          <LangSwitcher current={locale} path="/dashboard" />
+          <LangSwitcher current={locale} />
           <div style={{
             display: "flex", alignItems: "center", gap: 10, padding: "7px 12px 7px 7px",
             borderRadius: 999, background: "rgba(255,255,255,.035)", border: "1px solid var(--hair)",
