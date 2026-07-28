@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { setDashLocale } from "@/lib/dash-actions";
 import type { Locale } from "@/lib/locale";
 import { IconGlobe } from "./icons";
 
-const LANGS: { code: Locale; name: string }[] = [
-  { code: "en", name: "English" },
-  { code: "es", name: "Español" },
-  { code: "fr", name: "Français" },
-];
+const ORDER: Locale[] = ["en", "es", "fr"];
+const NAMES: Record<Locale, string> = { en: "English", es: "Español", fr: "Français" };
 
-export default function LangSwitcher({ current, path }: { current: Locale; path: string }) {
+export default function LangSwitcher({ current }: { current: Locale }) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [menuList, setMenuList] = useState<Locale[]>(ORDER);
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
@@ -23,50 +24,75 @@ export default function LangSwitcher({ current, path }: { current: Locale; path:
     return () => document.removeEventListener("click", onDoc);
   }, []);
 
+  async function pickLang(code: Locale) {
+    const want: Locale[] = [code, ...ORDER.filter((c) => c !== code)];
+    const menu = menuRef.current;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const fd = new FormData();
+    fd.set("locale", code);
+    fd.set("path", pathname);
+
+    if (!menu || reduce || want.join() === menuList.join()) {
+      setMenuList(want);
+      setOpen(false);
+      await setDashLocale(fd);
+      return;
+    }
+
+    const items = Array.from(menu.children) as HTMLElement[];
+    const first = new Map(items.map((el) => [el.dataset.l as string, el.getBoundingClientRect().top]));
+    setMenuList(want);
+
+    requestAnimationFrame(() => {
+      const now = Array.from(menu.children) as HTMLElement[];
+      now.forEach((el) => {
+        const prev = first.get(el.dataset.l as string);
+        if (prev === undefined) return;
+        const delta = prev - el.getBoundingClientRect().top;
+        if (!delta) return;
+        el.classList.remove("flip");
+        el.style.transform = `translateY(${delta}px)`;
+      });
+      requestAnimationFrame(() => {
+        now.forEach((el) => { el.classList.add("flip"); el.style.transform = ""; });
+      });
+      setTimeout(() => setOpen(false), 470);
+    });
+
+    await setDashLocale(fd);
+  }
+
   return (
-    <div ref={ref} style={{ position: "relative" }}>
+    <div ref={ref} className="lang">
       <button
+        className="lang-btn"
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        aria-label="Change language"
         onClick={() => setOpen((o) => !o)}
-        style={{
-          display: "flex", alignItems: "center", gap: 6,
-          fontSize: 12.5, fontWeight: 500, color: "var(--text-2)",
-          padding: "7px 11px", borderRadius: 999,
-          border: "1px solid var(--hair)", background: "rgba(255,255,255,.03)",
-          cursor: "pointer",
-        }}
       >
-        <IconGlobe width={13} height={13} />
-        {current.toUpperCase()}
+        <IconGlobe width={13} height={13} className="globe" />
+        <span>{current.toUpperCase()}</span>
+        <svg className="chev" viewBox="0 0 12 12" aria-hidden="true">
+          <path d="M2.5 4.5 6 8l3.5-3.5" />
+        </svg>
       </button>
-      {open && (
-        <div
-          style={{
-            position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 50,
-            background: "rgba(16,19,25,.97)", border: "1px solid var(--hair-2)",
-            borderRadius: 12, padding: 6, minWidth: 140,
-            boxShadow: "0 24px 50px -20px rgba(0,0,0,.8)",
-          }}
-        >
-          {LANGS.map((l) => (
-            <form key={l.code} action={setDashLocale} onSubmit={() => setOpen(false)}>
-              <input type="hidden" name="locale" value={l.code} />
-              <input type="hidden" name="path" value={path} />
-              <button
-                type="submit"
-                style={{
-                  display: "flex", alignItems: "center", gap: 8, width: "100%",
-                  padding: "8px 10px", borderRadius: 8, fontSize: 13.5,
-                  color: current === l.code ? "var(--jade)" : "var(--text-2)",
-                  background: current === l.code ? "rgba(55,226,155,.08)" : "transparent",
-                  border: "none", cursor: "pointer", textAlign: "left",
-                }}
-              >
-                {l.name}
-              </button>
-            </form>
-          ))}
-        </div>
-      )}
+      <div ref={menuRef} className={`lang-menu${open ? " open" : ""}`} role="listbox" aria-label="Language">
+        {menuList.map((code) => (
+          <button
+            key={code}
+            data-l={code}
+            role="option"
+            aria-selected={current === code}
+            onClick={() => pickLang(code)}
+          >
+            <span className="code">{code.toUpperCase()}</span>
+            {NAMES[code]}
+            <svg className="mark" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
