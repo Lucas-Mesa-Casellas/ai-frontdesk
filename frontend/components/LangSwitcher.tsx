@@ -12,7 +12,7 @@ const NAMES: Record<Locale, string> = { en: "English", es: "Español", fr: "Fran
 export default function LangSwitcher({ current }: { current: Locale }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [menuList, setMenuList] = useState<Locale[]>(ORDER);
+  const [menuList, setMenuList] = useState<Locale[]>(() => [current, ...ORDER.filter((c) => c !== current)]);
   const ref = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
