@@ -39,7 +39,15 @@ def _find_business(supabase, call_data: dict):
 
 @router.post("/webhooks/retell")
 async def retell_webhook(request: Request):
-    payload = await request.json()
+    raw_body = await request.body()
+    signature = request.headers.get("x-retell-signature")
+    settings = get_settings()
+
+    if not verify_retell_signature(raw_body, signature, settings.retell_api_key):
+        print("[webhook] rejected: invalid or missing x-retell-signature")
+        raise HTTPException(status_code=401, detail="invalid signature")
+
+    payload = json.loads(raw_body)
     event = payload.get("event")
 
     # We only care about the moment a call ends
