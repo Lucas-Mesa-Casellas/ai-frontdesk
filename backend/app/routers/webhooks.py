@@ -1,8 +1,11 @@
-from fastapi import APIRouter, Request
+import json
+from fastapi import APIRouter, Request, HTTPException
 from datetime import datetime, timezone
 from app.services.ai import extract_call_data
 from app.services.notify import notify_owner
+from app.services.retell_security import verify_retell_signature
 from app.db.supabase_client import get_supabase_admin
+from app.config import get_settings
 
 router = APIRouter()
 
