@@ -80,14 +80,14 @@ export default async function SettingsPage({
       </div>
 
       <div style={{ background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)", borderRadius: 18, padding: 22 }}>
-        <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: "#FF8A7A" }}>{t.setDanger}</h2>
+        <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t.setDanger}</h2>
         <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 14 }}>{t.setDangerSub}</p>
         <form action={signOut}>
           <button
             type="submit"
             style={{
-              padding: "9px 18px", borderRadius: 11, fontSize: 13, color: "#FF8A7A",
-              border: "1px solid rgba(255,138,122,.3)", background: "transparent", cursor: "pointer",
+              padding: "9px 18px", borderRadius: 11, fontSize: 13, color: "var(--text-2)",
+              border: "1px solid var(--hair-2)", background: "transparent", cursor: "pointer",
             }}
           >
             {t.setSignOut}
