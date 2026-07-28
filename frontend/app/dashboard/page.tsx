@@ -48,7 +48,7 @@ export default async function SettingsPage({
       </div>
 
       <div style={{ background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)", borderRadius: 18, padding: 22, marginBottom: 16 }}>
-        <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>{t.setBizInfo}</h2>
+        <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t.setDanger}</h2>
         <form action={updateSettings} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <div>
             <label style={label}>{t.setBizName}</label>
