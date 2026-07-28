@@ -308,6 +308,7 @@ export default function Home() {
   /* language menu — selected first, then canonical order, animated with FLIP */
   function pickLang(code: LangCode) {
     setLang(code);
+    document.cookie = `lmc_locale=${code.toLowerCase()};path=/;max-age=31536000`;
     const want: LangCode[] = [code, ...ORDER.filter((c) => c !== code)];
     const menu = menuRef.current;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
