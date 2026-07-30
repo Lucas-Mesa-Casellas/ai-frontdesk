@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 import LangSwitcher from "@/components/LangSwitcher";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import NavLink from "@/components/NavLink";
-import { IconOverview, IconPhone, IconCalendar, IconGear, IconArrowLeft } from "@/components/icons";
+import { IconOverview, IconPhone, IconCalendar, IconGear } from "@/components/icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, business } = await getAuthedBusiness();
