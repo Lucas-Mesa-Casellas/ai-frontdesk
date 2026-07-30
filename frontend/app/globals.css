@@ -582,7 +582,7 @@ nav.stuck{
 /* Pricing's head is now just the centred tag (no heading) — the next
    element should sit close, the same way Contact's tag sits close to
    its own heading. */
-.sec-head.tag-only{margin-bottom:72px}
+.sec-head.tag-only{margin-bottom:74px}
 .sec-head.mid{text-align:center}
 .sec-tag{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
   color:var(--jade);margin-bottom:10px}
