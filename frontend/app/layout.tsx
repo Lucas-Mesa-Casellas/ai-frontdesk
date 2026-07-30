@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { getLocale } from "@/lib/locale";
 import "./globals.css";
 
 const inter = Inter({
@@ -10,9 +11,23 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LMC Agents",
+  metadataBase: new URL("https://lmcagents.app"),
+  title: "LMC Agents — AI Phone Receptionist",
   description:
     "LMC Agents answers every call, understands what the caller actually needs, handles what comes next, and then tells you exactly what happened. Day and night.",
+  openGraph: {
+    title: "LMC Agents — AI Phone Receptionist",
+    description:
+      "LMC Agents answers every call, understands what the caller actually needs, handles what comes next, and then tells you exactly what happened.",
+    url: "https://lmcagents.app",
+    siteName: "LMC Agents",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LMC Agents — AI Phone Receptionist",
+    description: "Answers every call, in Spanish, English or French — day and night.",
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -24,11 +39,13 @@ export const metadata: Metadata = {
   manifest: "/site.webmanifest",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
+
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang={locale} className={inter.variable}>
       <body>{children}</body>
     </html>
   );
