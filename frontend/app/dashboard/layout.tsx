@@ -20,34 +20,17 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", display: "flex" }}>
       <DashboardSidebar>
-        <div style={{ padding: "22px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{
-              width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
-              background: "linear-gradient(155deg,var(--jade),var(--jade-deep))",
-            }}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                <path d="M17.6 5.6a9 9 0 1 0 2.2 3.6" stroke="#04140D" strokeWidth="2.8" strokeLinecap="round" />
-                <circle cx="18.6" cy="5.4" r="2.85" fill="#04140D" />
-              </svg>
-            </span>
-            <span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em" }}>LMC Agents</span>
-          </div>
-          <a href="/"
-            aria-label="Back to website"
-            style={{
-              display: "flex", alignItems: "center", gap: 6,
-              padding: "6px 10px", borderRadius: 8, color: "var(--text-3)",
-              border: "1px solid var(--hair)", background: "rgba(255,255,255,.03)",
-              fontSize: 12, fontWeight: 500, textDecoration: "none", flex: "none",
-            }}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 11.5 12 4l9 7.5" />
-              <path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9" />
+        <div style={{ padding: "22px 20px", display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{
+            width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
+            background: "linear-gradient(155deg,var(--jade),var(--jade-deep))",
+          }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+              <path d="M17.6 5.6a9 9 0 1 0 2.2 3.6" stroke="#04140D" strokeWidth="2.8" strokeLinecap="round" />
+              <circle cx="18.6" cy="5.4" r="2.85" fill="#04140D" />
             </svg>
-            Home
-          </a>
+          </span>
+          <span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em" }}>LMC Agents</span>
         </div>
 
         <div role="navigation" aria-label="Dashboard" style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 2 }}>
@@ -55,6 +38,21 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <NavLink href="/dashboard/calls"><IconPhone width={17} height={17} />{t.navCalls}</NavLink>
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
+          
+            href="/"
+            className="nav-link"
+            style={{
+              display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
+              marginTop: 8, paddingTop: 18, borderTop: "1px solid var(--hair)",
+              borderRadius: 10, fontSize: 13.5, fontWeight: 500, textDecoration: "none",
+            }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 11.5 12 4l9 7.5" />
+              <path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9" />
+            </svg>
+            Home
+          </a>
         </div>
       </DashboardSidebar>
 
