@@ -626,7 +626,7 @@ nav.stuck{
   box-shadow:0 0 9px rgba(55,226,155,.85);animation:offerPulse 2.8s var(--e-out) infinite}
 @keyframes offerPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .offer-k{font-size:13.5px;font-weight:500;color:var(--text)}
-.offer-v{font-size:13.5px;color:var(--text-3)}
+.offer-v{font-size:16px;font-weight:700;color:var(--jade)}
 .offer-b{font-size:13.5px;font-weight:600;color:var(--jade)}
 
 /* ---------- pricing cards (design locked from v5) ---------- */
