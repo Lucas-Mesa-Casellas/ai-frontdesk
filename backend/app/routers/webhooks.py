@@ -105,7 +105,7 @@ async def retell_webhook(request: Request):
 
     # A booking request only exists once the agent actually captured one —
     # not every call is a booking (some are questions, messages, etc).
-    if extracted.extraction_complete and extracted.intent == "book_reservation":
+    if extracted.extraction_complete and extracted.intent == "book_appointment":
         booking_record = {
             "business_id": business["id"],
             "call_id": call_id,
