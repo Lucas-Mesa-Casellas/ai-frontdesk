@@ -23,7 +23,7 @@ const TIER_CTA_STYLE = ["outline", "solid", "outline"];
 
 const TIERS = [
   { price: "99€", calls: 50, over: "1,40€", on: false },
-  { price: "199€", calls: 150, over: "1,20€", on: true },
+  { price: "199€", calls: 150, over: "1,20€", on: false },
   { price: "399€", calls: 400, over: "0,95€", on: false },
 ];
 
@@ -686,7 +686,6 @@ export default function Home() {
             <span className="offer-dot" />
             <span className="offer-k">{t.oK}</span>
             <span className="offer-v">390€</span>
-            <span className="offer-b">{t.oB(SPOTS_LEFT)}</span>
           </div>
 
           <div className="tiers">
