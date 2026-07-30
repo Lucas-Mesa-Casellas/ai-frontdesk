@@ -684,7 +684,6 @@ export default function Home() {
           <div className="sec-head mid">
             <div className="sec-tag up">{t.pTag}</div>
             <h2 className="sec-h"><span className="msk"><span>{t.pH}</span></span></h2>
-            <p className="sec-sub up d1">{t.pSub}</p>
           </div>
 
           <div className="offer up d1">
