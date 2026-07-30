@@ -626,7 +626,7 @@ nav.stuck{
   box-shadow:0 0 9px rgba(55,226,155,.85);animation:offerPulse 2.8s var(--e-out) infinite}
 @keyframes offerPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .offer-k{font-size:13.5px;font-weight:500;color:var(--text)}
-.offer-v{font-size:13.5px;color:var(--text-3);text-decoration:line-through}
+.offer-v{font-size:13.5px;color:var(--text-3)}
 .offer-b{font-size:13.5px;font-weight:600;color:var(--jade)}
 
 /* ---------- pricing cards (design locked from v5) ---------- */
@@ -879,7 +879,7 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .page-foot{
-  position:relative;z-index:3;margin-top:48px;
+  position:relative;z-index:3;margin-top:24px;
   display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
   font-size:12.5px;color:var(--text-3);
 }
