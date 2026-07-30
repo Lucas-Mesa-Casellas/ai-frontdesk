@@ -2,10 +2,10 @@ import { redirect } from "next/navigation";
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
-import Link from "next/link";
 import { ReactNode } from "react";
 import LangSwitcher from "@/components/LangSwitcher";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import NavLink from "@/components/NavLink";
 import { IconOverview, IconPhone, IconCalendar, IconGear, IconArrowLeft } from "@/components/icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
@@ -82,7 +82,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       </div>
 
       <style>{`
+        .nav-link { color: var(--text-2); }
         .nav-link:hover { background: rgba(255,255,255,.055); color: var(--text); }
+        .nav-link.active { background: rgba(55,226,155,.1); color: var(--jade); }
         .dash-main { margin-left: 248px; }
         .dash-aside {
           width: 248px; border-right: 1px solid var(--hair); background: rgba(255,255,255,.018);
@@ -109,21 +111,5 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         }
       `}</style>
     </div>
-  );
-}
-
-function NavLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="nav-link"
-      style={{
-        display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
-        borderRadius: 10, color: "var(--text-2)", fontSize: 13.5, fontWeight: 500,
-        textDecoration: "none", transition: "background .2s var(--e-out), color .2s var(--e-out)",
-      }}
-    >
-      {children}
-    </Link>
   );
 }
