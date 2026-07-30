@@ -5,6 +5,7 @@ import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
 import { ReactNode } from "react";
 import LangSwitcher from "@/components/LangSwitcher";
+import DashboardSidebar from "@/components/DashboardSidebar";
 import { IconOverview, IconPhone, IconCalendar, IconGear } from "@/components/icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
