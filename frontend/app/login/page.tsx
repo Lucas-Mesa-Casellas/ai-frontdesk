@@ -69,7 +69,7 @@ export default function LoginPage() {
             <span className="logo-txt">LMC Agents</span>
           </a>
 
-          <div />
+          <div className="nav-links" />
 
           <div className="nav-right">
             <div className="lang" ref={langRef}>
