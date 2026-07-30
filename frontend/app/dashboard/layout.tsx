@@ -34,7 +34,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             <span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em" }}>LMC Agents</span>
           </div>
           
-            href="/"
+            <a href="/"
             aria-label="Back to website"
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
