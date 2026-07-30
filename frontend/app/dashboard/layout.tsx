@@ -37,14 +37,19 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             <a href="/"
             aria-label="Back to website"
             style={{
-              display: "flex", alignItems: "center", justifyContent: "center",
-              width: 28, height: 28, borderRadius: 8, color: "var(--text-3)",
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "6px 10px", borderRadius: 8, color: "var(--text-3)",
               border: "1px solid var(--hair)", background: "rgba(255,255,255,.03)",
-              flex: "none",
+              fontSize: 12, fontWeight: 500, textDecoration: "none", flex: "none",
             }}
           >
-            <IconArrowLeft width={14} height={14} />
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 11.5 12 4l9 7.5" />
+              <path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9" />
+            </svg>
+            Home
           </a>
+        </div>
         </div>
 
         <div role="navigation" aria-label="Dashboard" style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 2 }}>
