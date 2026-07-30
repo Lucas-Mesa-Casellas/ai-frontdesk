@@ -19,13 +19,17 @@ export default async function SettingsPage({
     "use server";
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    await supabase
+    const { data, error } = await supabase
       .from("businesses")
       .update({
         notification_email: formData.get("notification_email"),
         phone_number: formData.get("phone_number"),
       })
-      .eq("owner_id", user!.id);
+      .eq("owner_id", user!.id)
+      .select();
+    if (error || !data || data.length === 0) {
+      redirect("/dashboard/settings?updated=false");
+    }
     redirect("/dashboard/settings?updated=true");
   }
 
