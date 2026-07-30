@@ -39,7 +39,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
           
-            href="/"
+            <a href="/"
             className="nav-link"
             style={{
               display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
