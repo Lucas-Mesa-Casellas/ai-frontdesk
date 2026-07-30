@@ -87,8 +87,8 @@ export default async function SettingsPage({
             <button
               type="submit"
               style={{
-                padding: "9px 18px", borderRadius: 11, fontSize: 13, color: "var(--text-2)",
-                border: "1px solid var(--hair-2)", background: "transparent", cursor: "pointer",
+                padding: "9px 18px", borderRadius: 11, fontSize: 13, color: "#E5877B",
+                border: "1px solid rgba(239,68,68,.28)", background: "rgba(239,68,68,.06)", cursor: "pointer",
               }}
             >
               {t.setSignOut}
