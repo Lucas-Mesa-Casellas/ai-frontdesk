@@ -638,7 +638,7 @@ nav.stuck{
   background:linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.014));
   border:1px solid var(--hair);
   box-shadow:0 34px 70px -40px rgba(0,0,0,.9);
-  transition:transform .4s var(--e-out),border-color .4s var(--e-out),box-shadow .4s var(--e-out),background .4s var(--e-out);
+  transition:opacity .9s var(--e-out),transform .4s var(--e-out),border-color .4s var(--e-out),box-shadow .4s var(--e-out),background .4s var(--e-out);
 }
 .tier:hover{
   transform:translateY(-4px);border-color:var(--hair-2);
