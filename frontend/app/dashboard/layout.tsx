@@ -33,8 +33,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             </span>
             <span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em" }}>LMC Agents</span>
           </div>
-          
-            <a href="/"
+          <a href="/"
             aria-label="Back to website"
             style={{
               display: "flex", alignItems: "center", gap: 6,
@@ -49,7 +48,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             </svg>
             Home
           </a>
-        </div>
         </div>
 
         <div role="navigation" aria-label="Dashboard" style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 2 }}>
