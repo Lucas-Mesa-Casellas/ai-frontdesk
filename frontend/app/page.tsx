@@ -19,7 +19,7 @@ const ORDER: LangCode[] = ["EN", "ES", "FR"];
 const SHOW_SOON = true;
 const SPOTS_LEFT = 5;
 
-const TIER_CTA_STYLE = ["outline", "solid", "outline"];
+const TIER_CTA_STYLE = ["outline", "outline", "outline"];
 
 const TIERS = [
   { price: "99€", calls: 50, over: "1,40€", on: false },
@@ -82,17 +82,18 @@ const T: Record<LangCode, Dict> = {
       [{ t: "Answers 24/7, nights and weekends" },
        { t: "Spanish, English and French" },
        { t: "Answers questions from your knowledge base" },
-       { t: "Captures every request in full" },
-       { t: "Emailed to you the moment a call ends" },
-       { t: "Several callers answered at once" }],
-      [{ t: "Writes bookings straight to your calendar", soon: true },
-       { t: "SMS confirmation to the caller", soon: true },
-       { t: "Recordings and transcripts of every call", soon: true },
-       { t: "Monthly performance report", soon: true }],
-      [{ t: "Reminder calls 24h before the appointment", soon: true },
-       { t: "No-show follow-up and waitlist fill", soon: true },
-       { t: "Review request after the visit", soon: true },
-       { t: "Live transfer to your team when it matters", soon: true }],
+       { t: "Captures booking requests straight to your dashboard" },
+       { t: "Several callers answered at the same time" }],
+      [{ t: "Answers 24/7, nights and weekends" },
+       { t: "Spanish, English and French" },
+       { t: "Answers questions from your knowledge base" },
+       { t: "Captures booking requests straight to your dashboard" },
+       { t: "Several callers answered at the same time" }],
+      [{ t: "Answers 24/7, nights and weekends" },
+       { t: "Spanish, English and French" },
+       { t: "Answers questions from your knowledge base" },
+       { t: "Captures booking requests straight to your dashboard" },
+       { t: "Several callers answered at the same time" }],
     ],
 
     cTag: "Contact", cH: "Let's talk.",
@@ -133,17 +134,18 @@ const T: Record<LangCode, Dict> = {
       [{ t: "Atiende 24/7, noches y fines de semana" },
        { t: "Español, inglés y francés" },
        { t: "Responde con tu base de conocimiento" },
-       { t: "Recoge cada solicitud al completo" },
-       { t: "Te llega por email al terminar la llamada" },
+       { t: "Recoge las solicitudes de reserva en tu panel" },
        { t: "Varias llamadas atendidas a la vez" }],
-      [{ t: "Escribe las citas directamente en tu calendario", soon: true },
-       { t: "SMS de confirmación al cliente", soon: true },
-       { t: "Grabaciones y transcripciones de cada llamada", soon: true },
-       { t: "Informe mensual de rendimiento", soon: true }],
-      [{ t: "Llamadas de recordatorio 24h antes", soon: true },
-       { t: "Recuperación de ausencias y lista de espera", soon: true },
-       { t: "Petición de reseña tras la visita", soon: true },
-       { t: "Transferencia a tu equipo cuando hace falta", soon: true }],
+      [{ t: "Atiende 24/7, noches y fines de semana" },
+       { t: "Español, inglés y francés" },
+       { t: "Responde con tu base de conocimiento" },
+       { t: "Recoge las solicitudes de reserva en tu panel" },
+       { t: "Varias llamadas atendidas a la vez" }],
+      [{ t: "Atiende 24/7, noches y fines de semana" },
+       { t: "Español, inglés y francés" },
+       { t: "Responde con tu base de conocimiento" },
+       { t: "Recoge las solicitudes de reserva en tu panel" },
+       { t: "Varias llamadas atendidas a la vez" }],
     ],
 
     cTag: "Contacto", cH: "Hablemos.",
@@ -184,17 +186,18 @@ const T: Record<LangCode, Dict> = {
       [{ t: "Répond 24/7, nuits et week-ends compris" },
        { t: "Espagnol, anglais et français" },
        { t: "Répond depuis votre base de connaissances" },
-       { t: "Enregistre chaque demande en entier" },
-       { t: "Email dès la fin de l'appel" },
+       { t: "Réservations envoyées dans votre tableau de bord" },
        { t: "Plusieurs appels pris en même temps" }],
-      [{ t: "Écrit les rendez-vous dans votre agenda", soon: true },
-       { t: "SMS de confirmation à l'appelant", soon: true },
-       { t: "Enregistrements et transcriptions", soon: true },
-       { t: "Rapport de performance mensuel", soon: true }],
-      [{ t: "Appels de rappel 24h avant", soon: true },
-       { t: "Relance des absences et liste d'attente", soon: true },
-       { t: "Demande d'avis après la visite", soon: true },
-       { t: "Transfert vers votre équipe si nécessaire", soon: true }],
+      [{ t: "Répond 24/7, nuits et week-ends compris" },
+       { t: "Espagnol, anglais et français" },
+       { t: "Répond depuis votre base de connaissances" },
+       { t: "Réservations envoyées dans votre tableau de bord" },
+       { t: "Plusieurs appels pris en même temps" }],
+      [{ t: "Répond 24/7, nuits et week-ends compris" },
+       { t: "Espagnol, anglais et français" },
+       { t: "Répond depuis votre base de connaissances" },
+       { t: "Réservations envoyées dans votre tableau de bord" },
+       { t: "Plusieurs appels pris en même temps" }],
     ],
 
     cTag: "Contact", cH: "Parlons-en.",
@@ -702,7 +705,6 @@ export default function Home() {
                 <div className="tier-over">{t.tOver} {x.over} {t.tOverSuf}</div>
                 <a className={`tier-cta ${TIER_CTA_STYLE[i]}`} href="#contact">{t.tCta[i]}</a>
                 <div className="tier-rule" />
-                {i > 0 && <div className="tier-inh">{t.tInh(t.tName[i - 1])}</div>}
                 <ul className="tier-f">
                   {t.feats[i].filter((f) => !f.soon).map((f) => (
                     <li key={f.t}><Ck /><span>{f.t}</span></li>
