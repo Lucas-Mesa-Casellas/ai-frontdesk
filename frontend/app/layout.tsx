@@ -12,11 +12,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://lmcagents.app"),
-  title: "LMC Agents — AI Phone Receptionist",
+  title: "LMC Agents",
   description:
     "LMC Agents answers every call, understands what the caller actually needs, handles what comes next, and then tells you exactly what happened. Day and night.",
   openGraph: {
-    title: "LMC Agents — AI Phone Receptionist",
+    title: "LMC Agents",
     description:
       "LMC Agents answers every call, understands what the caller actually needs, handles what comes next, and then tells you exactly what happened.",
     url: "https://lmcagents.app",
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "LMC Agents — AI Phone Receptionist",
+    title: "LMC Agents",
     description: "Answers every call, in Spanish, English or French — day and night.",
   },
   icons: {
