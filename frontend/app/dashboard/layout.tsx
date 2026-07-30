@@ -19,9 +19,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", display: "flex" }}>
-      <aside style={{
+      <DashboardSidebar>
+      <aside className="dash-aside" style={{
         width: 248, borderRight: "1px solid var(--hair)", background: "rgba(255,255,255,.018)",
-        display: "flex", flexDirection: "column", position: "fixed", height: "100%", zIndex: 20,
+        display: "flex", flexDirection: "column", position: "fixed", height: "100%", zIndex: 35,
       }}>
         <div style={{ padding: "22px 20px", display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{
@@ -41,10 +42,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <NavLink href="/dashboard/calls"><IconPhone width={17} height={17} />{t.navCalls}</NavLink>
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
-        </div>
-      </aside>
+        </aside>
+      </DashboardSidebar>
 
-      <div role="main" style={{ flex: 1, marginLeft: 248 }}>
+      <div role="main" className="dash-main" style={{ flex: 1 }}>
         <div style={{
           display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 14,
           padding: "14px 28px", borderBottom: "1px solid var(--hair)",
@@ -72,6 +73,26 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
       <style>{`
         .nav-link:hover { background: rgba(255,255,255,.055); color: var(--text); }
+        .dash-main { margin-left: 248px; }
+        .dash-aside { transition: transform .3s var(--e-out); }
+        .sidebar-toggle { display: none; }
+        .sidebar-scrim { display: none; }
+        @media (max-width: 1000px) {
+          .dash-aside { transform: translateX(-100%); box-shadow: 24px 0 48px -24px rgba(0,0,0,.55); }
+          .dash-aside.open { transform: translateX(0); }
+          .dash-main { margin-left: 0; }
+          .sidebar-toggle {
+            display: flex; align-items: center; justify-content: center;
+            position: fixed; top: 14px; left: 14px; z-index: 40;
+            width: 34px; height: 34px; border-radius: 10px;
+            background: rgba(255,255,255,.06); border: 1px solid var(--hair);
+            color: var(--text);
+          }
+          .sidebar-scrim {
+            display: block; position: fixed; inset: 0; z-index: 25;
+            background: rgba(0,0,0,.5);
+          }
+        }
       `}</style>
     </div>
   );
