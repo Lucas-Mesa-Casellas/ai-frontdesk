@@ -78,7 +78,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         .sidebar-toggle { display: none; }
         .sidebar-scrim { display: none; }
         @media (max-width: 1000px) {
-          .dash-aside { transform: translateX(-100%); box-shadow: 24px 0 48px -24px rgba(0,0,0,.55); }
+          .dash-aside { transform: translateX(-100%); box-shadow: 24px 0 48px -24px rgba(0,0,0,.55); background: var(--bg); }
           .dash-aside.open { transform: translateX(0); }
           .dash-main { margin-left: 0; }
           .sidebar-toggle {
