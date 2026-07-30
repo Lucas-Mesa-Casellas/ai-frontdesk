@@ -20,11 +20,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", display: "flex" }}>
       <DashboardSidebar>
-      <aside className="dash-aside" style={{
-        width: 248, borderRight: "1px solid var(--hair)", background: "rgba(255,255,255,.018)",
-        display: "flex", flexDirection: "column", position: "fixed", height: "100%", zIndex: 35,
-      }}>
-        <div style={{ padding: "22px 20px", display: "flex", alignItems: "center", gap: 10 }}>
+        <a href="/" style={{ padding: "22px 20px", display: "flex", alignItems: "center", gap: 10, textDecoration: "none", color: "inherit" }}>
           <span style={{
             width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
             background: "linear-gradient(155deg,var(--jade),var(--jade-deep))",
@@ -35,7 +31,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             </svg>
           </span>
           <span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em" }}>LMC Agents</span>
-        </div>
+        </a>
 
         <div role="navigation" aria-label="Dashboard" style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 2 }}>
           <NavLink href="/dashboard"><IconOverview width={17} height={17} />{t.navOverview}</NavLink>
@@ -43,7 +39,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
         </div>
-        </aside>
       </DashboardSidebar>
 
       <div role="main" className="dash-main" style={{ flex: 1 }}>
@@ -75,7 +70,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       <style>{`
         .nav-link:hover { background: rgba(255,255,255,.055); color: var(--text); }
         .dash-main { margin-left: 248px; }
-        .dash-aside { transition: transform .3s var(--e-out); }
+        .dash-aside {
+          width: 248px; border-right: 1px solid var(--hair); background: rgba(255,255,255,.018);
+          display: flex; flex-direction: column; position: fixed; height: 100%; z-index: 35;
+          transition: transform .3s var(--e-out);
+        }
         .sidebar-toggle { display: none; }
         .sidebar-scrim { display: none; }
         @media (max-width: 1000px) {
