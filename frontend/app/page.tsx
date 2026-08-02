@@ -38,7 +38,7 @@ type Dict = {
   r0b: string; r0s: string; r1b: string; r1s: string;
   outcomes: [string, string][];
   chip1: string; chip2: string; c0: string; c1: string; c2: string; cue: string;
-  pTag: string; pH: string; pSub: string;
+  pTag: string; pH: string;
   oK: string; oB: (n: number) => string;
   tName: [string, string, string]; tPin: string; tMo: string; tCalls: string;
   tOver: string; tOverSuf: string; tInh: (n: string) => string; soon: string;
@@ -71,7 +71,6 @@ const T: Record<LangCode, Dict> = {
     c0: "Incoming call", c1: "AI understands", c2: "Action taken", cue: "Scroll",
 
     pTag: "Pricing", pH: "Pricing that scales with you.",
-    pSub: "Estimates based on an average three-minute call.",
     oK: "Setup and configuration", oB: (n) => `Free for the next ${n} clients`,
     tName: ["Starter", "Standard", "Scale"],
     tPin: "Most chosen", tMo: "/month", tCalls: "calls a month",
@@ -123,7 +122,6 @@ const T: Record<LangCode, Dict> = {
     c0: "Llamada entrante", c1: "La IA entiende", c2: "Acción ejecutada", cue: "Desliza",
 
     pTag: "Precios", pH: "Precios que crecen contigo.",
-    pSub: "Estimado sobre llamadas de tres minutos de media.",
     oK: "Configuración inicial", oB: (n) => `Gratis para los próximos ${n} clientes`,
     tName: ["Inicial", "Estándar", "Amplio"],
     tPin: "El más elegido", tMo: "/mes", tCalls: "llamadas al mes",
@@ -175,7 +173,6 @@ const T: Record<LangCode, Dict> = {
     c0: "Appel entrant", c1: "L'IA comprend", c2: "Action exécutée", cue: "Défiler",
 
     pTag: "Tarifs", pH: "Des tarifs qui évoluent avec vous.",
-    pSub: "Estimé sur un appel moyen de trois minutes.",
     oK: "Mise en place et configuration", oB: (n) => `Offerte pour les ${n} prochains clients`,
     tName: ["Essentiel", "Standard", "Étendu"],
     tPin: "Le plus choisi", tMo: "/mois", tCalls: "appels par mois",
