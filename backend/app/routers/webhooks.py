@@ -97,7 +97,7 @@ async def retell_webhook(request: Request):
         "notes": extracted.notes,
         "raw_payload": raw_payload,
         "ai_extracted_at": now,
-        "status": "reservation_requested" if extracted.extraction_complete else "needs_review",
+        "status": "request_captured" if extracted.extraction_complete else "needs_review",
     }
 
     result = supabase.table("calls").insert(call_record).execute()
