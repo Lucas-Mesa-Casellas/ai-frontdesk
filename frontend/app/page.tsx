@@ -72,7 +72,7 @@ const T: Record<LangCode, Dict> = {
 
     pTag: "Pricing", pH: "Pricing that scales with you.",
     oK: "Setup and configuration", oB: (n) => `Free for the next ${n} clients`,
-    tName: ["Starter", "Standard", "Scale"],
+    tName: ["Starter", "Pro", "Premium"],
     tPin: "Most chosen", tMo: "/month", tCalls: "calls a month",
     tCta: ["Get started", "Get started", "Get started"], soonGroup: "Coming next quarter",
     tOver: "then", tOverSuf: "per extra call",
@@ -123,7 +123,7 @@ const T: Record<LangCode, Dict> = {
 
     pTag: "Precios", pH: "Precios que crecen contigo.",
     oK: "Configuración inicial", oB: (n) => `Gratis para los próximos ${n} clientes`,
-    tName: ["Inicial", "Estándar", "Amplio"],
+    tName: ["Básico", "Pro", "Premium"],
     tPin: "El más elegido", tMo: "/mes", tCalls: "llamadas al mes",
     tCta: ["Empezar", "Empezar", "Empezar"], soonGroup: "Próximo trimestre",
     tOver: "luego", tOverSuf: "por llamada extra",
@@ -174,7 +174,7 @@ const T: Record<LangCode, Dict> = {
 
     pTag: "Tarifs", pH: "Des tarifs qui évoluent avec vous.",
     oK: "Mise en place et configuration", oB: (n) => `Offerte pour les ${n} prochains clients`,
-    tName: ["Essentiel", "Standard", "Étendu"],
+    tName: ["Essentiel", "Pro", "Premium"],
     tPin: "Le plus choisi", tMo: "/mois", tCalls: "appels par mois",
     tCta: ["Commencer", "Commencer", "Commencer"], soonGroup: "Prochain trimestre",
     tOver: "puis", tOverSuf: "par appel supplémentaire",
