@@ -9,7 +9,7 @@ const inter = Inter({
   variable: "--font-inter",
   display: "swap",
 }); 
-
+ 
 export const metadata: Metadata = {
   metadataBase: new URL("https://lmcagents.app"),
   title: "LMC Agents",
