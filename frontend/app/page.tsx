@@ -198,8 +198,6 @@ const T: Record<LangCode, Dict> = {
     ],
 
     cTag: "Contact", cH: "Parlons-en.",
-
-    cTag: "Contact", cH: "Parlons-en.",
     cSub: "Laissez vos coordonnées, nous vous recontactons sous 24 heures.",
     fName: "Votre nom", fBiz: "Entreprise", fEmail: "Email", fPhone: "Téléphone",
     fMsg: "Message",
