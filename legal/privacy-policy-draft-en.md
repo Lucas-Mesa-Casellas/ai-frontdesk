@@ -1,0 +1,15 @@
+legal/privacy-policy-draft-en.md
+legal/privacy-policy-draft-es.md
+legal/privacy-policy-draft-fr.md
+legal/terms-of-service-draft-en.md
+legal/terms-of-service-draft-es.md
+legal/terms-of-service-draft-fr.md
+legal/cookie-policy-draft-en.md
+legal/cookie-policy-draft-es.md
+legal/cookie-policy-draft-fr.md
+legal/dpa-template-draft-en.md
+legal/dpa-template-draft-es.md
+legal/dpa-template-draft-fr.md
+legal/pilot-agreement-draft-en.md
+legal/pilot-agreement-draft-es.md
+legal/pilot-agreement-draft-fr.md
