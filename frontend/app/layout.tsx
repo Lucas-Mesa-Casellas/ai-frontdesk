@@ -14,11 +14,11 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://lmcagents.app"),
   title: "LMC Agents",
   description:
-    "LMC Agents answers every call, understands what the caller actually needs, handles what comes next, and then tells you exactly what happened. Day and night.",
+    "LMC Agents answers every call, understands what the caller needs, acts on it, then tells you what happened. Day and night.",
   openGraph: {
     title: "LMC Agents",
     description:
-      "LMC Agents answers every call, understands what the caller actually needs, handles what comes next, and then tells you exactly what happened.",
+      "LMC Agents answers every call, understands what the caller needs, acts on it, then tells you what happened.",
     url: "https://lmcagents.app",
     siteName: "LMC Agents",
     type: "website",
