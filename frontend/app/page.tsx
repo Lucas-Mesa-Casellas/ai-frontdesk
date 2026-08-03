@@ -195,6 +195,9 @@ const T: Record<LangCode, Dict> = {
        { t: "Répond aux questions sur votre entreprise" },
        { t: "Vos demandes de réservation arrivent dans votre tableau de bord" },
        { t: "Plusieurs appels pris en même temps" }],
+    ],
+
+    cTag: "Contact", cH: "Parlons-en.",
 
     cTag: "Contact", cH: "Parlons-en.",
     cSub: "Laissez vos coordonnées, nous vous recontactons sous 24 heures.",
