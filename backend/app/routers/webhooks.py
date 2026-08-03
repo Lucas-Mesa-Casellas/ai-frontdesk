@@ -6,6 +6,7 @@ from app.services.notify import notify_owner
 from app.services.retell_security import verify_retell_signature
 from app.db.supabase_client import get_supabase_admin
 from app.config import get_settings
+from app.limiter import limiter
 
 router = APIRouter()
 
@@ -38,6 +39,7 @@ def _find_business(supabase, call_data: dict):
 
 
 @router.post("/webhooks/retell")
+@limiter.limit("120/minute")
 async def retell_webhook(request: Request):
     raw_body = await request.body()
     signature = request.headers.get("x-retell-signature")
