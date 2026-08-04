@@ -10,6 +10,10 @@ from app.limiter import limiter
 
 router = APIRouter()
 
+# Disconnection reasons meaning the call never actually connected to a real
+# conversation (per Retell's documented disconnection_reason values).
+FAILED_DISCONNECTION_REASONS = {"dial_failed", "dial_no_answer", "dial_busy"}
+MIN_MEANINGFUL_CALL_DURATION_MS = 5000
 
 def _find_business(supabase, call_data: dict):
     """Look up the business a call belongs to.
@@ -57,6 +61,21 @@ async def retell_webhook(request: Request):
         return {"status": "ignored", "event": event}
 
     call_data = payload.get("call", {})
+
+    # Filter out calls that never really connected or were too short to be
+    # a real interaction, so they don't burn margin or count against the
+    # client's call quota (confirmed gap, Master Paper v9 §4).
+    disconnection_reason = call_data.get("disconnection_reason")
+    if disconnection_reason in FAILED_DISCONNECTION_REASONS:
+        return {"status": "filtered", "reason": disconnection_reason}
+
+    start_ts = call_data.get("start_timestamp")
+    end_ts = call_data.get("end_timestamp")
+    if start_ts is not None and end_ts is not None:
+        duration_ms = end_ts - start_ts
+        if duration_ms < MIN_MEANINGFUL_CALL_DURATION_MS:
+            return {"status": "filtered", "reason": "too_short", "duration_ms": duration_ms}
+
     transcript = call_data.get("transcript", "")
     if not transcript:
         return {"status": "no_transcript"}
