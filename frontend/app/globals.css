@@ -433,11 +433,8 @@ h1 .l>span{display:block}
   --r-lg:18px;
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
-  --sp-top:6px;    /* biased smaller than --sp-bottom so centering leaves
-                        more room below the content than above it — a
-                        symmetric 32/32 split put half the slack ABOVE
-                        the tag, which read as "too low" */
-  --sp-bottom:28px;
+  --sp-top:96px;
+  --sp-bottom:96px;
   --sp-head:16px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
 
@@ -571,7 +568,7 @@ nav.stuck{
      section's padding-top — identical every time, by construction. */
   position:relative;z-index:3;
   display:flex;flex-direction:column;justify-content:flex-start;
-  padding:calc(var(--nav-h) + var(--sp-top) + -4vh) 0 var(--sp-bottom);
+  padding:calc(var(--nav-h) + var(--sp-top)) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
 .sec-head{margin-bottom:var(--sp-head)}
@@ -755,7 +752,7 @@ nav.stuck{
    Height queries compress the rhythm before anything overflows.
    ============================================================ */
 @media (max-height:760px){
-  :root{--nav-h:60px;--sp-top:6px;--sp-bottom:14px;--sp-head:10px}
+  :root{--nav-h:60px;--sp-top:56px;--sp-bottom:56px;--sp-head:10px}
   .sec-h{font-size:clamp(1.7rem,2.6vw,2.1rem);min-height:1.9em}
   .tier{padding:18px 18px 16px}
   .tier-fig{margin-top:10px}
