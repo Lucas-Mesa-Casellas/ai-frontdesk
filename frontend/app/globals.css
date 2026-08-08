@@ -561,20 +561,16 @@ nav.stuck{
 
 /* ---------- section shell ---------- */
 .sec{
-  /* Both min-height:100svh and plain block flow have been tried here.
-     Block flow (no forced height) fixed an earlier bug where centering
-     was splitting every padding cut in half — correct at the time,
-     because content genuinely overflowed one screen back then.
-     Several rounds of trimming since have made the content comfortably
-     shorter than one viewport (~530px vs 700-900px+ available), so the
-     ORIGINAL problem no longer applies, and centering is now what's
-     needed: it makes each section fill exactly one screen like the
-     hero, and stops the next section's tag from bleeding into view
-     early. min-height is a floor, not a cap — if content ever exceeds
-     it on some edge case, the box just grows to fit (nothing clips),
-     so this is safe in both directions. */
+  /* No forced min-height here on purpose. When every section was forced
+     to fill min-height:100svh, sections with less content (Contact) got
+     stretched with extra blank space at the bottom to reach full-screen
+     height, while denser sections (Pricing) didn't — that's what made
+     the gaps between sections look uneven. Letting height come purely
+     from content + the fixed padding below makes the visual gap between
+     any two sections just: this section's padding-bottom + the next
+     section's padding-top — identical every time, by construction. */
   position:relative;z-index:3;
-  min-height:100svh;display:flex;flex-direction:column;justify-content:flex-start;
+  display:flex;flex-direction:column;justify-content:flex-start;
   padding:calc(var(--nav-h) + var(--sp-top) + -4vh) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
