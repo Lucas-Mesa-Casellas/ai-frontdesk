@@ -567,6 +567,12 @@ export default function Home() {
           <div className="aur aur-1" />
           <div className="aur aur-2" />
           <div className="mesh" />
+          <div className="spark spark-1" />
+          <div className="spark spark-2" />
+          <div className="spark spark-3" />
+          <div className="spark spark-4" />
+          <div className="spark spark-5" />
+          <div className="spark spark-6" />
         </div>
         <svg className="grain" aria-hidden="true">
           <filter id="gn">
