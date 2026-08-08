@@ -86,16 +86,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   background-size:72px 72px;
   -webkit-mask-image:radial-gradient(ellipse 78% 62% at 50% 32%,#000 10%,transparent 72%);
   mask-image:radial-gradient(ellipse 78% 62% at 50% 32%,#000 10%,transparent 72%);
-}
-.env .wave{
-  position:absolute; left:0; right:0; bottom:0; height:46vh;
-  opacity:.5; mix-blend-mode:screen;
-}
-.env .wave svg{ width:100%; height:100%; display:block; }
-.env .wave .dot{ fill:var(--jade); animation:waveBob 7s ease-in-out infinite; }
-@keyframes waveBob{
-  0%,100%{ transform:translateY(0); opacity:.35; }
-  50%    { transform:translateY(-10px); opacity:.9; }
+
 }
 .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.22;mix-blend-mode:overlay}
 
