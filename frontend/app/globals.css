@@ -388,6 +388,7 @@ h1 .l>span{display:block}
   .nav-links{display:none}
   .nav-toggle{display:flex}
   .nav-grid{grid-template-columns:1fr auto}
+  .nav-right>.btn-login{display:none}
   main{padding:26px 0 64px}
   .lede{max-width:52ch}
   .chip-1{right:0}.chip-2{left:0}
