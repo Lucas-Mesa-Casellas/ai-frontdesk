@@ -567,26 +567,6 @@ export default function Home() {
           <div className="aur aur-1" />
           <div className="aur aur-2" />
           <div className="mesh" />
-          <div className="wave">
-            <svg viewBox="0 0 1200 300" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-              {Array.from({ length: 11 }).map((_, col) =>
-                Array.from({ length: 5 }).map((_, row) => {
-                  const cx = 60 + col * 108;
-                  const cy = 300 - row * 52;
-                  const delay = -((col * 0.4 + row * 0.55) % 7);
-                  return (
-                    <circle
-                      key={`${col}-${row}`}
-                      className="dot"
-                      cx={cx}
-                      cy={cy}
-                      r={3.5}
-                      style={{ animationDelay: `${delay}s`, transformOrigin: `${cx}px ${cy}px` }}
-                    />
-                  );
-                })
-              )}
-            </svg>
           </div>
         </div>
         <svg className="grain" aria-hidden="true">
