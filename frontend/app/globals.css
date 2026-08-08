@@ -433,8 +433,8 @@ h1 .l>span{display:block}
   --r-lg:18px;
   --r-md:14px;    /* inputs & inner elements — matches the hero chips */
   --r-pill:999px;
-  --sp-top:96px;
-  --sp-bottom:96px;
+  --sp-top:6px;    /* biased smaller than --sp-bottom so centering leaves roughly even visual weight above/below content */
+  --sp-bottom:28px;
   --sp-head:16px;   /* tag -> heading -> subtitle -> content, was up to 60px */
 }
 
@@ -558,17 +558,28 @@ nav.stuck{
 
 /* ---------- section shell ---------- */
 .sec{
-  /* No forced min-height here on purpose. When every section was forced
-     to fill min-height:100svh, sections with less content (Contact) got
-     stretched with extra blank space at the bottom to reach full-screen
-     height, while denser sections (Pricing) didn't — that's what made
-     the gaps between sections look uneven. Letting height come purely
-     from content + the fixed padding below makes the visual gap between
-     any two sections just: this section's padding-bottom + the next
-     section's padding-top — identical every time, by construction. */
+  /* Both min-height:100svh and plain block flow have been tried here.
+     Block flow (no forced height) fixed an earlier bug where centering
+     was splitting every padding cut in half — correct at the time,
+     because content genuinely overflowed one screen back then.
+     Several rounds of trimming since have made the content comfortably
+     shorter than one viewport (~530px vs 700-900px+ available), so the
+     ORIGINAL problem no longer applies, and centering is now what's
+     needed: it makes each section fill exactly one screen like the
+     hero, and stops the next section's tag from bleeding into view
+     early. min-height is a floor, not a cap — if content ever exceeds
+     it on some edge case, the box just grows to fit (nothing clips),
+     so this is safe in both directions.
+
+     08 Aug 2026: tried dropping min-height for equal-gap spacing —
+     broke anchor-scroll on Contact (the last, shortest section): with
+     no forced height, the page ran out of scroll room below it, so
+     clicking "Contact" clamped to the bottom instead of aligning
+     under the nav. Reverted. Uneven gaps are the accepted trade-off
+     of keeping every section reliably full-screen. */
   position:relative;z-index:3;
-  display:flex;flex-direction:column;justify-content:flex-start;
-  padding:calc(var(--nav-h) + var(--sp-top)) 0 var(--sp-bottom);
+  min-height:100svh;display:flex;flex-direction:column;justify-content:flex-start;
+  padding:calc(var(--nav-h) + var(--sp-top) + -4vh) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
 .sec-head{margin-bottom:var(--sp-head)}
@@ -752,7 +763,7 @@ nav.stuck{
    Height queries compress the rhythm before anything overflows.
    ============================================================ */
 @media (max-height:760px){
-  :root{--nav-h:60px;--sp-top:56px;--sp-bottom:56px;--sp-head:10px}
+  :root{--nav-h:60px;--sp-top:6px;--sp-bottom:14px;--sp-head:10px}
   .sec-h{font-size:clamp(1.7rem,2.6vw,2.1rem);min-height:1.9em}
   .tier{padding:18px 18px 16px}
   .tier-fig{margin-top:10px}
