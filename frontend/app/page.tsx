@@ -567,9 +567,7 @@ export default function Home() {
           <div className="aur aur-1" />
           <div className="aur aur-2" />
           <div className="mesh" />
-          </div>
         </div>
-       </div>
         <svg className="grain" aria-hidden="true">
           <filter id="gn">
             <feTurbulence type="fractalNoise" baseFrequency=".82" numOctaves="3" stitchTiles="stitch" />
