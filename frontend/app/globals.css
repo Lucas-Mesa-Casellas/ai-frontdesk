@@ -88,7 +88,7 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   mask-image:radial-gradient(ellipse 78% 62% at 50% 32%,#000 10%,transparent 72%);
 }
 .env .spark{
-  position:absolute;width:4px;height:4px;border-radius:1px;
+  position:absolute;width:10px;height:10px;border-radius:2px;
   background:var(--jade);opacity:0;pointer-events:none;
   animation:sparkDrift 26s ease-in-out infinite;
 }
@@ -100,9 +100,9 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .env .spark-6{top:8%;left:56%;animation-duration:23s;animation-delay:-11s}
 @keyframes sparkDrift{
   0%  {transform:translate3d(0,0,0);opacity:0}
-  15% {opacity:.14}
-  50% {transform:translate3d(1.6vw,-2.2vh,0);opacity:.07}
-  85% {opacity:.14}
+  15% {opacity:.5}
+  50% {transform:translate3d(1.6vw,-2.2vh,0);opacity:.3}
+  85% {opacity:.5}
   100%{transform:translate3d(0,0,0);opacity:0}
 }
 .grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.22;mix-blend-mode:overlay}
