@@ -2,9 +2,10 @@ import { redirect } from "next/navigation";
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
-import Link from "next/link";
 import { ReactNode } from "react";
 import LangSwitcher from "@/components/LangSwitcher";
+import DashboardSidebar from "@/components/DashboardSidebar";
+import NavLink from "@/components/NavLink";
 import { IconOverview, IconPhone, IconCalendar, IconGear } from "@/components/icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
@@ -18,10 +19,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", display: "flex" }}>
-      <aside style={{
-        width: 248, borderRight: "1px solid var(--hair)", background: "rgba(255,255,255,.018)",
-        display: "flex", flexDirection: "column", position: "fixed", height: "100%", zIndex: 20,
-      }}>
+      <DashboardSidebar>
         <div style={{ padding: "22px 20px", display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{
             width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
@@ -40,10 +38,25 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <NavLink href="/dashboard/calls"><IconPhone width={17} height={17} />{t.navCalls}</NavLink>
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
+          
+            <a href="/"
+            className="nav-link"
+            style={{
+              display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
+              marginTop: 8, paddingTop: 18, borderTop: "1px solid var(--hair)",
+              borderRadius: 10, fontSize: 13.5, fontWeight: 500, textDecoration: "none",
+            }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 11.5 12 4l9 7.5" />
+              <path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9" />
+            </svg>
+            Home
+          </a>
         </div>
-      </aside>
+      </DashboardSidebar>
 
-      <div role="main" style={{ flex: 1, marginLeft: 248 }}>
+      <div role="main" className="dash-main" style={{ flex: 1 }}>
         <div style={{
           display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 14,
           padding: "14px 28px", borderBottom: "1px solid var(--hair)",
@@ -70,24 +83,34 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       </div>
 
       <style>{`
+        .nav-link { color: var(--text-2); }
         .nav-link:hover { background: rgba(255,255,255,.055); color: var(--text); }
+        .nav-link.active { background: rgba(55,226,155,.1); color: var(--jade); }
+        .dash-main { margin-left: 248px; }
+        .dash-aside {
+          width: 248px; border-right: 1px solid var(--hair); background: rgba(255,255,255,.018);
+          display: flex; flex-direction: column; position: fixed; height: 100%; z-index: 35;
+          transition: transform .3s var(--e-out);
+        }
+        .sidebar-toggle { display: none; }
+        .sidebar-scrim { display: none; }
+        @media (max-width: 1000px) {
+          .dash-aside { transform: translateX(-100%); box-shadow: 24px 0 48px -24px rgba(0,0,0,.55); background: var(--bg); }
+          .dash-aside.open { transform: translateX(0); }
+          .dash-main { margin-left: 0; }
+          .sidebar-toggle {
+            display: flex; align-items: center; justify-content: center;
+            position: fixed; top: 14px; left: 14px; z-index: 40;
+            width: 34px; height: 34px; border-radius: 10px;
+            background: rgba(255,255,255,.06); border: 1px solid var(--hair);
+            color: var(--text);
+          }
+          .sidebar-scrim {
+            display: block; position: fixed; inset: 0; z-index: 25;
+            background: rgba(0,0,0,.5);
+          }
+        }
       `}</style>
     </div>
-  );
-}
-
-function NavLink({ href, children }: { href: string; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="nav-link"
-      style={{
-        display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
-        borderRadius: 10, color: "var(--text-2)", fontSize: 13.5, fontWeight: 500,
-        textDecoration: "none", transition: "background .2s var(--e-out), color .2s var(--e-out)",
-      }}
-    >
-      {children}
-    </Link>
   );
 }

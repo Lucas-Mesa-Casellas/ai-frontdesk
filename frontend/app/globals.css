@@ -582,7 +582,7 @@ nav.stuck{
 /* Pricing's head is now just the centred tag (no heading) — the next
    element should sit close, the same way Contact's tag sits close to
    its own heading. */
-.sec-head.tag-only{margin-bottom:24px}
+#pricing .sec-h{transform:translateY(-6px)}
 .sec-head.mid{text-align:center}
 .sec-tag{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
   color:var(--jade);margin-bottom:10px}
@@ -626,7 +626,7 @@ nav.stuck{
   box-shadow:0 0 9px rgba(55,226,155,.85);animation:offerPulse 2.8s var(--e-out) infinite}
 @keyframes offerPulse{0%,100%{opacity:1}50%{opacity:.45}}
 .offer-k{font-size:13.5px;font-weight:500;color:var(--text)}
-.offer-v{font-size:13.5px;color:var(--text-3);text-decoration:line-through}
+.offer-v{font-size:16px;font-weight:700;color:var(--jade)}
 .offer-b{font-size:13.5px;font-weight:600;color:var(--jade)}
 
 /* ---------- pricing cards (design locked from v5) ---------- */
@@ -638,7 +638,7 @@ nav.stuck{
   background:linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.014));
   border:1px solid var(--hair);
   box-shadow:0 34px 70px -40px rgba(0,0,0,.9);
-  transition:transform .4s var(--e-out),border-color .4s var(--e-out),box-shadow .4s var(--e-out),background .4s var(--e-out);
+  transition:opacity .9s var(--e-out),transform .4s var(--e-out),border-color .4s var(--e-out),box-shadow .4s var(--e-out),background .4s var(--e-out);
 }
 .tier:hover{
   transform:translateY(-4px);border-color:var(--hair-2);
@@ -879,7 +879,7 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .page-foot{
-  position:relative;z-index:3;margin-top:48px;
+  position:relative;z-index:3;margin-top:24px;
   display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
   font-size:12.5px;color:var(--text-3);
 }

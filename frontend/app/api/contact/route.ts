@@ -15,6 +15,27 @@
  */
 
 const FROM = "LMC Agents <web@lmcagents.app>";
+const ALLOWED_ORIGINS = ["https://lmcagents.app", "https://www.lmcagents.app"];
+
+// In-memory rate limit: 5 requests / 10 min per IP. Resets on cold start —
+// not perfect on serverless, but stops basic scripted loops, which is the
+// actual threat here.
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+const RATE_LIMIT_MAX = 5;
+const requestLog = new Map<string, number[]>();
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const timestamps = (requestLog.get(ip) ?? []).filter(
+    (t) => now - t < RATE_LIMIT_WINDOW_MS
+  );
+  if (timestamps.length >= RATE_LIMIT_MAX) return true;
+  timestamps.push(now);
+  requestLog.set(ip, timestamps);
+  return false;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type Lead = {
   kind?: string;
@@ -39,6 +60,16 @@ function row(label: string, value: unknown): string {
 }
 
 export async function POST(request: Request) {
+  const origin = request.headers.get("origin") ?? request.headers.get("referer") ?? "";
+  if (!ALLOWED_ORIGINS.some((o) => origin.startsWith(o))) {
+    return Response.json({ ok: false, error: "forbidden" }, { status: 403 });
+  }
+
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return Response.json({ ok: false, error: "rate_limited" }, { status: 429 });
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.LEAD_NOTIFY_EMAIL;
 
@@ -62,6 +93,12 @@ export async function POST(request: Request) {
 
   if (!name || !business || !email || !phone) {
     return Response.json({ ok: false, error: "missing_fields" }, { status: 400 });
+  }
+  if (!EMAIL_RE.test(email)) {
+    return Response.json({ ok: false, error: "invalid_email" }, { status: 400 });
+  }
+  if (name.length > 200 || business.length > 200 || phone.length > 50 || message.length > 5000) {
+    return Response.json({ ok: false, error: "field_too_long" }, { status: 400 });
   }
 
   const html = `<html lang="en"><body style="font-family:system-ui,-apple-system,sans-serif;color:#111">

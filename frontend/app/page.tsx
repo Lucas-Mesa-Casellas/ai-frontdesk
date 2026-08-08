@@ -19,11 +19,11 @@ const ORDER: LangCode[] = ["EN", "ES", "FR"];
 const SHOW_SOON = true;
 const SPOTS_LEFT = 5;
 
-const TIER_CTA_STYLE = ["outline", "solid", "outline"];
+const TIER_CTA_STYLE = ["outline", "outline", "outline"];
 
 const TIERS = [
   { price: "99€", calls: 50, over: "1,40€", on: false },
-  { price: "199€", calls: 150, over: "1,20€", on: true },
+  { price: "199€", calls: 150, over: "1,20€", on: false },
   { price: "399€", calls: 400, over: "0,95€", on: false },
 ];
 
@@ -38,7 +38,7 @@ type Dict = {
   r0b: string; r0s: string; r1b: string; r1s: string;
   outcomes: [string, string][];
   chip1: string; chip2: string; c0: string; c1: string; c2: string; cue: string;
-  pTag: string; pH: string; pSub: string;
+  pTag: string; pH: string;
   oK: string; oB: (n: number) => string;
   tName: [string, string, string]; tPin: string; tMo: string; tCalls: string;
   tOver: string; tOverSuf: string; tInh: (n: string) => string; soon: string;
@@ -56,14 +56,14 @@ const T: Record<LangCode, Dict> = {
     navLogin: "Client access", navStart: "Get started", langName: "English",
     badge: "AI receptionist · Multilingual",
     h1a: "Never miss", h1bPre: "another ", h1bWord: "customer",
-    lede: "LMC Agents answers every call, understands what the caller actually needs, handles what comes next, and then tells you exactly what happened. Day and night.",
+    lede: "LMC Agents answers every call, understands what the caller needs, acts on it, then tells you what happened. Day and night.",
     heroCta: "Request a demo", heroCta2: "See pricing",
     consoleAria: "A call comes in, the AI understands it, and the right action is taken.",
     r0b: "Incoming call", r0s: "··· ··· ··· 214",
     r1b: "Understanding the request", r1s: "Intent, details and context captured",
     outcomes: [
       ["Booking request captured", "Sent to you instantly"],
-      ["Caller's question answered", "Straight from your knowledge base"],
+      ["Caller's question answered", "From your business details"],
       ["Message taken for the team", "Sent to you instantly"],
       ["Opening hours confirmed", "No call needed from you"],
     ],
@@ -71,28 +71,28 @@ const T: Record<LangCode, Dict> = {
     c0: "Incoming call", c1: "AI understands", c2: "Action taken", cue: "Scroll",
 
     pTag: "Pricing", pH: "Pricing that scales with you.",
-    pSub: "Estimates based on an average three-minute call.",
     oK: "Setup and configuration", oB: (n) => `Free for the next ${n} clients`,
-    tName: ["Starter", "Standard", "Scale"],
+    tName: ["Starter", "Pro", "Premium"],
     tPin: "Most chosen", tMo: "/month", tCalls: "calls a month",
     tCta: ["Get started", "Get started", "Get started"], soonGroup: "Coming next quarter",
     tOver: "then", tOverSuf: "per extra call",
     tInh: (n) => `Everything in ${n}, plus`, soon: "Soon",
     feats: [
-      [{ t: "Answers 24/7, nights and weekends" },
+      [{ t: "Answers 24/7" },
        { t: "Spanish, English and French" },
-       { t: "Answers questions from your knowledge base" },
-       { t: "Captures every request in full" },
-       { t: "Emailed to you the moment a call ends" },
-       { t: "Several callers answered at once" }],
-      [{ t: "Writes bookings straight to your calendar", soon: true },
-       { t: "SMS confirmation to the caller", soon: true },
-       { t: "Recordings and transcripts of every call", soon: true },
-       { t: "Monthly performance report", soon: true }],
-      [{ t: "Reminder calls 24h before the appointment", soon: true },
-       { t: "No-show follow-up and waitlist fill", soon: true },
-       { t: "Review request after the visit", soon: true },
-       { t: "Live transfer to your team when it matters", soon: true }],
+       { t: "Answers questions about your business" },
+       { t: "Captures booking requests straight to your dashboard" },
+       { t: "Several callers answered at the same time" }],
+      [{ t: "Answers 24/7" },
+       { t: "Spanish, English and French" },
+       { t: "Answers questions about your business" },
+       { t: "Captures booking requests straight to your dashboard" },
+       { t: "Several callers answered at the same time" }],
+      [{ t: "Answers 24/7" },
+       { t: "Spanish, English and French" },
+       { t: "Answers questions about your business" },
+       { t: "Captures booking requests straight to your dashboard" },
+       { t: "Several callers answered at the same time" }],
     ],
 
     cTag: "Contact", cH: "Let's talk.",
@@ -104,48 +104,48 @@ const T: Record<LangCode, Dict> = {
   },
   ES: {
     navProduct: "Producto", navPricing: "Precios", navContact: "Contacto",
-    navLogin: "Acceso clientes", navStart: "Empezar", langName: "Español",
+    navLogin: "Acceso de clientes", navStart: "Empezar", langName: "Español",
     badge: "Recepcionista IA · Multilingüe",
     h1a: "Nunca pierdas", h1bPre: "a otro ", h1bWord: "cliente",
-    lede: "LMC Agents contesta cada llamada, entiende lo que necesita de verdad quien llama, se encarga de lo que viene después y luego te cuenta exactamente qué ha pasado. De día y de noche.",
+    lede: "LMC Agents contesta cada llamada, entiende qué necesita el llamante, actúa en consecuencia, y te informa de lo que ha pasado. De día y de noche.",
     heroCta: "Solicitar una demo", heroCta2: "Ver precios",
     consoleAria: "Entra una llamada, la IA la entiende, y se ejecuta la acción correcta.",
     r0b: "Llamada entrante", r0s: "··· ··· ··· 214",
-    r1b: "Entendiendo la solicitud", r1s: "Intención, datos y contexto capturados",
+    r1b: "Entendiendo la solicitud", r1s: "Intención, datos y contexto identificados",
     outcomes: [
       ["Solicitud de cita recogida", "Te llega al instante"],
-      ["Pregunta del cliente resuelta", "Desde tu base de conocimiento"],
+      ["Pregunta del cliente resuelta", "Con los datos de tu negocio"],
       ["Mensaje recogido para el equipo", "Te llega al instante"],
-      ["Horario confirmado al cliente", "Sin que tengas que llamar"],
+      ["Horario de atención confirmado", "Sin que tengas que llamar"],
     ],
-    chip1: "Datos capturados", chip2: "Te avisamos",
-    c0: "Llamada entrante", c1: "La IA entiende", c2: "Acción ejecutada", cue: "Baja",
+    chip1: "Datos recogidos", chip2: "Te avisamos",
+    c0: "Llamada entrante", c1: "La IA entiende", c2: "Acción ejecutada", cue: "Desliza",
 
     pTag: "Precios", pH: "Precios que crecen contigo.",
-    pSub: "Estimado sobre llamadas de tres minutos de media.",
     oK: "Configuración inicial", oB: (n) => `Gratis para los próximos ${n} clientes`,
-    tName: ["Inicial", "Estándar", "Amplio"],
+    tName: ["Básico", "Pro", "Premium"],
     tPin: "El más elegido", tMo: "/mes", tCalls: "llamadas al mes",
     tCta: ["Empezar", "Empezar", "Empezar"], soonGroup: "Próximo trimestre",
     tOver: "luego", tOverSuf: "por llamada extra",
     tInh: (n) => `Todo lo de ${n}, y además`, soon: "Pronto",
-    feats: [
-      [{ t: "Atiende 24/7, noches y fines de semana" },
+   feats: [
+      [{ t: "Atiende 24/7" },
        { t: "Español, inglés y francés" },
-       { t: "Responde con tu base de conocimiento" },
-       { t: "Recoge cada solicitud al completo" },
-       { t: "Te llega por email al terminar la llamada" },
+       { t: "Responde preguntas sobre tu negocio" },
+       { t: "Las solicitudes de reserva llegan a tu panel" },
        { t: "Varias llamadas atendidas a la vez" }],
-      [{ t: "Escribe las citas directamente en tu calendario", soon: true },
-       { t: "SMS de confirmación al cliente", soon: true },
-       { t: "Grabaciones y transcripciones de cada llamada", soon: true },
-       { t: "Informe mensual de rendimiento", soon: true }],
-      [{ t: "Llamadas de recordatorio 24h antes", soon: true },
-       { t: "Recuperación de ausencias y lista de espera", soon: true },
-       { t: "Petición de reseña tras la visita", soon: true },
-       { t: "Transferencia a tu equipo cuando hace falta", soon: true }],
+      [{ t: "Atiende 24/7" },
+       { t: "Español, inglés y francés" },
+       { t: "Responde preguntas sobre tu negocio" },
+       { t: "Las solicitudes de reserva llegan a tu panel" },
+       { t: "Varias llamadas atendidas a la vez" }],
+      [{ t: "Atiende 24/7" },
+       { t: "Español, inglés y francés" },
+       { t: "Responde preguntas sobre tu negocio" },
+       { t: "Las solicitudes de reserva llegan a tu panel" },
+       { t: "Varias llamadas atendidas a la vez" }],
     ],
-
+     
     cTag: "Contacto", cH: "Hablemos.",
     cSub: "Déjanos tus datos y te contactamos en menos de 24 horas.",
     fName: "Tu nombre", fBiz: "Negocio", fEmail: "Email", fPhone: "Teléfono",
@@ -158,48 +158,48 @@ const T: Record<LangCode, Dict> = {
     navLogin: "Espace client", navStart: "Commencer", langName: "Français",
     badge: "Réceptionniste IA · Multilingue",
     h1a: "Ne manquez plus", h1bPre: "un seul ", h1bWord: "client",
-    lede: "LMC Agents répond à chaque appel, comprend ce dont l'appelant a réellement besoin, gère la suite et vous dit ensuite exactement ce qui s'est passé. Jour et nuit.",
+    lede: "LMC Agents répond à chaque appel, comprend ce dont l'appelant a besoin, agit en conséquence, puis vous informe de ce qui s'est passé. De jour comme de nuit.",
     heroCta: "Demander une démo", heroCta2: "Voir les tarifs",
     consoleAria: "Un appel arrive, l'IA le comprend, et la bonne action est exécutée.",
     r0b: "Appel entrant", r0s: "··· ··· ··· 214",
-    r1b: "Compréhension de la demande", r1s: "Intention, détails et contexte capturés",
+    r1b: "Compréhension de la demande", r1s: "Intention, détails et contexte identifiés",
     outcomes: [
       ["Demande de rendez-vous enregistrée", "Envoyée instantanément"],
-      ["Question de l'appelant résolue", "Depuis votre base de connaissances"],
+      ["Question de l'appelant résolue", "Avec les infos de votre entreprise"],
       ["Message pris pour l'équipe", "Envoyé instantanément"],
       ["Horaires confirmés à l'appelant", "Sans que vous ayez à rappeler"],
     ],
-    chip1: "Détails capturés", chip2: "Vous êtes prévenu",
+    chip1: "Détails recueillis", chip2: "Vous êtes prévenu",
     c0: "Appel entrant", c1: "L'IA comprend", c2: "Action exécutée", cue: "Défiler",
 
     pTag: "Tarifs", pH: "Des tarifs qui évoluent avec vous.",
-    pSub: "Estimé sur un appel moyen de trois minutes.",
     oK: "Mise en place et configuration", oB: (n) => `Offerte pour les ${n} prochains clients`,
-    tName: ["Essentiel", "Standard", "Étendu"],
+    tName: ["Essentiel", "Pro", "Premium"],
     tPin: "Le plus choisi", tMo: "/mois", tCalls: "appels par mois",
-    tCta: ["Commencer", "Commencer", "Commencer"], soonGroup: "Le trimestre prochain",
+    tCta: ["Commencer", "Commencer", "Commencer"], soonGroup: "Prochain trimestre",
     tOver: "puis", tOverSuf: "par appel supplémentaire",
     tInh: (n) => `Tout de ${n}, et en plus`, soon: "Bientôt",
     feats: [
-      [{ t: "Répond 24/7, nuits et week-ends compris" },
+      [{ t: "Répond 24/7" },
        { t: "Espagnol, anglais et français" },
-       { t: "Répond depuis votre base de connaissances" },
-       { t: "Enregistre chaque demande en entier" },
-       { t: "Email dès la fin de l'appel" },
+       { t: "Répond aux questions sur votre entreprise" },
+       { t: "Les demandes de réservation arrivent dans votre tableau de bord" },
        { t: "Plusieurs appels pris en même temps" }],
-      [{ t: "Écrit les rendez-vous dans votre agenda", soon: true },
-       { t: "SMS de confirmation à l'appelant", soon: true },
-       { t: "Enregistrements et transcriptions", soon: true },
-       { t: "Rapport de performance mensuel", soon: true }],
-      [{ t: "Appels de rappel 24h avant", soon: true },
-       { t: "Relance des absences et liste d'attente", soon: true },
-       { t: "Demande d'avis après la visite", soon: true },
-       { t: "Transfert vers votre équipe si nécessaire", soon: true }],
+      [{ t: "Répond 24/7" },
+       { t: "Espagnol, anglais et français" },
+       { t: "Répond aux questions sur votre entreprise" },
+       { t: "Les demandes de réservation arrivent dans votre tableau de bord" },
+       { t: "Plusieurs appels pris en même temps" }],
+      [{ t: "Répond 24/7" },
+       { t: "Espagnol, anglais et français" },
+       { t: "Répond aux questions sur votre entreprise" },
+       { t: "Les demandes de réservation arrivent dans votre tableau de bord" },
+       { t: "Plusieurs appels pris en même temps" }],
     ],
 
     cTag: "Contact", cH: "Parlons-en.",
-    cSub: "Laissez vos coordonnées, nous revenons vers vous sous 24 heures.",
-    fName: "Votre nom", fBiz: "Établissement", fEmail: "Email", fPhone: "Téléphone",
+    cSub: "Laissez vos coordonnées, nous vous recontactons sous 24 heures.",
+    fName: "Votre nom", fBiz: "Entreprise", fEmail: "Email", fPhone: "Téléphone",
     fMsg: "Message",
     fMsgPh: "Parlez-nous de votre activité et de la façon dont vous gérez le téléphone aujourd'hui.",
     cSend: "Envoyer", cSending: "Envoi…", cSent: "Envoyé", cError: "Échec de l'envoi, réessayez", cTrust: "Conçu en Europe",
@@ -308,6 +308,7 @@ export default function Home() {
   /* language menu — selected first, then canonical order, animated with FLIP */
   function pickLang(code: LangCode) {
     setLang(code);
+    document.cookie = `lmc_locale=${code.toLowerCase()};path=/;max-age=31536000`;
     const want: LangCode[] = [code, ...ORDER.filter((c) => c !== code)];
     const menu = menuRef.current;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -677,15 +678,15 @@ export default function Home() {
 
       <section className="sec" id="pricing">
         <div className="wrap">
-          <div className="sec-head mid tag-only">
+          <div className="sec-head mid">
             <div className="sec-tag up">{t.pTag}</div>
+            <h2 className="sec-h"><span className="msk"><span>{t.pH}</span></span></h2>
           </div>
 
           <div className="offer up d1">
             <span className="offer-dot" />
             <span className="offer-k">{t.oK}</span>
             <span className="offer-v">390€</span>
-            <span className="offer-b">{t.oB(SPOTS_LEFT)}</span>
           </div>
 
           <div className="tiers">
@@ -702,7 +703,6 @@ export default function Home() {
                 <div className="tier-over">{t.tOver} {x.over} {t.tOverSuf}</div>
                 <a className={`tier-cta ${TIER_CTA_STYLE[i]}`} href="#contact">{t.tCta[i]}</a>
                 <div className="tier-rule" />
-                {i > 0 && <div className="tier-inh">{t.tInh(t.tName[i - 1])}</div>}
                 <ul className="tier-f">
                   {t.feats[i].filter((f) => !f.soon).map((f) => (
                     <li key={f.t}><Ck /><span>{f.t}</span></li>

@@ -7,21 +7,29 @@ settings = get_settings()
 client = OpenAI(api_key=settings.openai_api_key)
 
 SYSTEM_PROMPT = """
-You are an AI assistant for a business receptionist platform.
-Extract structured information from the call transcript below.
+You are an AI assistant for a business receptionist platform serving trades
+(plumbers, electricians, locksmiths, and similar) and property/rental
+management businesses. Extract structured information from the call
+transcript below.
 
 Return ONLY a valid JSON object. No explanation. No markdown. No code fences.
 
 Fields to extract:
 - caller_name: string or null
 - caller_phone: string or null
-- intent: "book_reservation" | "callback" | "inquiry" | "other" | null
+- intent: "book_appointment" | "callback" | "inquiry" | "other" | null
+  (book_appointment = caller wants a job, visit, or appointment scheduled;
+   callback = caller wants someone to call them back;
+   inquiry = caller has a question and is not requesting action;
+   other = anything else)
 - summary: one sentence summary or null
 - urgency: "low" | "normal" | "high" | null
+  (high = emergency or time-critical, e.g. leak, lockout, no heat/power)
 - preferred_time: exact string the caller used, or null
 - next_action: what the business should do next, or null
-- booking_type: "reservation" | "callback" | "appointment" | "inquiry" | null
-- party_size: integer or null
+- booking_type: "appointment" | "callback" | null
+- party_size: integer or null (only if the caller mentions a number of
+  people; leave null for almost all trades and property calls)
 - extraction_complete: true if all critical info was captured, false otherwise
 - extraction_confidence: float 0.0 to 1.0
 - missing_fields: list of field names not mentioned in the transcript
