@@ -19,8 +19,9 @@ export async function setDashLocale(formData: FormData) {
 export async function confirmBooking(bookingId: string, path: string) {
   const supabase = await createClient();
   // RLS restricts this to bookings belonging to the caller's own
-  // business (see migration.sql) — a stranger with the ID can't confirm
-  // someone else's booking even if they guessed it.
+  // business (policy "owner can confirm own bookings", see
+  // supabase/migrations/004_rls_policy_sync.sql) — a stranger with the ID
+  // can't confirm someone else's booking even if they guessed it.
   await supabase.from("bookings").update({ status: "confirmed" }).eq("id", bookingId);
   revalidatePath(path);
 }
