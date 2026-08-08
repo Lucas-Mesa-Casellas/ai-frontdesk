@@ -569,6 +569,7 @@ export default function Home() {
           <div className="mesh" />
           </div>
         </div>
+       </div>
         <svg className="grain" aria-hidden="true">
           <filter id="gn">
             <feTurbulence type="fractalNoise" baseFrequency=".82" numOctaves="3" stitchTiles="stitch" />
