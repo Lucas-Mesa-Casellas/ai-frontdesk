@@ -247,14 +247,14 @@ h1{
 h1 .l{display:block;overflow:hidden;padding-bottom:.06em}
 h1 .l>span{display:block}
 .grad{
-  background:linear-gradient(96deg,var(--jade) 0%,#8BF0C6 25%,#CFF6E4 50%,#8BF0C6 75%,var(--jade) 100%);
-  background-size:250% 100%;
+  display:inline-block;
+  background:linear-gradient(96deg,var(--jade) 4%,#8BF0C6 52%,#CFF6E4 96%);
   -webkit-background-clip:text;background-clip:text;color:transparent;
-  animation:gradShift 6s ease-in-out infinite;
+  animation:gradFloat 4.5s ease-in-out infinite;
 }
-@keyframes gradShift{
-  0%,100%{background-position:0% 50%}
-  50%{background-position:100% 50%}
+@keyframes gradFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-5px)}
 }
 
 .lede{max-width:41ch;font-size:clamp(15.5px,1.15vw,17px);line-height:1.62;color:var(--text-2)}
