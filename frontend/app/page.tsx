@@ -6,16 +6,6 @@ import gsap from "gsap";
 const SPOKES = 44;
 type LangCode = "EN" | "ES" | "FR";
 const ORDER: LangCode[] = ["EN", "ES", "FR"];
-
-/* ------------------------------------------------------------------
-   ⚠️ PRICING IS PROVISIONAL — Master Paper §6.4.
-   Not published until father review + real-line cost confirmation.
-
-   ⚠️ ROADMAP ITEMS ARE MARKED. Anything with soon:true is NOT built
-   yet. SHOW_SOON renders a small "Soon" tag so the page stays truthful
-   (§13.2 — the hero copy problem). Set it false only once those
-   automations actually ship.
-------------------------------------------------------------------- */
 const SHOW_SOON = true;
 const SPOTS_LEFT = 5;
 
