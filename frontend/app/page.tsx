@@ -22,9 +22,9 @@ const SPOTS_LEFT = 5;
 const TIER_CTA_STYLE = ["outline", "outline", "outline"];
 
 const TIERS = [
-  { price: "99€", calls: 50, over: "1,40€", on: false },
-  { price: "199€", calls: 150, over: "1,20€", on: false },
-  { price: "399€", calls: 400, over: "0,95€", on: false },
+  { price: "99", calls: 50, over: "1,40€", on: false },
+  { price: "199", calls: 150, over: "1,20€", on: false },
+  { price: "399", calls: 400, over: "0,95€", on: false },
 ];
 
 type Feat = { t: string; soon?: boolean };
