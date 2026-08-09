@@ -47,13 +47,13 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .env .floor{
   position:absolute;bottom:-55vh;left:50%;transform:translateX(-50%);
   width:130vw;height:95vh;
-  background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18,185,129,.09), transparent 62%);
+  background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18,185,129,.14), transparent 62%);
   animation:floorDrift 38s ease-in-out infinite alternate;
 }
 .env .aur{position:absolute;border-radius:50%;filter:blur(70px);mix-blend-mode:screen}
 .env .aur-1{
   top:-18vh;left:8vw;width:62vw;height:58vh;
-  background:radial-gradient(circle at 50% 50%, rgba(18,185,129,.13), transparent 66%);
+  background:radial-gradient(circle at 50% 50%, rgba(18,185,129,.19), transparent 66%);
   animation:aurA 26s ease-in-out infinite alternate;
 }
 .env .aur-2{
@@ -247,8 +247,14 @@ h1{
 h1 .l{display:block;overflow:hidden;padding-bottom:.06em}
 h1 .l>span{display:block}
 .grad{
-  background:linear-gradient(96deg,var(--jade) 4%,#8BF0C6 52%,#CFF6E4 96%);
+  background:linear-gradient(96deg,var(--jade) 0%,#8BF0C6 25%,#CFF6E4 50%,#8BF0C6 75%,var(--jade) 100%);
+  background-size:250% 100%;
   -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:gradShift 6s ease-in-out infinite;
+}
+@keyframes gradShift{
+  0%,100%{background-position:0% 50%}
+  50%{background-position:100% 50%}
 }
 
 .lede{max-width:41ch;font-size:clamp(15.5px,1.15vw,17px);line-height:1.62;color:var(--text-2)}
