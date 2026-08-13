@@ -83,7 +83,7 @@ async def check_availability(request: Request):
         result = {
             "available": False,
             "reason": "outside_business_hours",
-            "alternatives": alternatives,
+            "alternatives": _describe_alternatives(alternatives),
             "message": "That time is outside office hours. See alternatives.",
         }
     elif not overlaps(supabase, business["id"], requested_start, requested_end):
@@ -93,7 +93,7 @@ async def check_availability(request: Request):
         result = {
             "available": False,
             "reason": "already_booked",
-            "alternatives": alternatives,
+            "alternatives": _describe_alternatives(alternatives),
             "message": "That time is not available. See alternatives." if alternatives else "That time is not available, and no nearby slots were found.",
         }
 
