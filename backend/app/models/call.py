@@ -9,6 +9,7 @@ class ExtractedCallData(BaseModel):
     summary: Optional[str] = None
     urgency: Optional[Literal["low", "normal", "high"]] = None
     preferred_time: Optional[str] = None
+    preferred_time_iso: Optional[str] = None
     next_action: Optional[str] = None
     booking_type: Optional[Literal["appointment", "callback"]] = None
     party_size: Optional[int] = None
