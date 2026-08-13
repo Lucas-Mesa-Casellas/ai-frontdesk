@@ -1,6 +1,7 @@
 import json
 from fastapi import APIRouter, Request, HTTPException
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from app.services.ai import extract_call_data
 from app.services.notify import notify_owner
 from app.services.retell_security import verify_retell_signature
@@ -96,9 +97,10 @@ async def retell_webhook(request: Request):
         }
 
     # Run the extraction engine we already built and tested
+    business_tz = ZoneInfo("Europe/Madrid")  # covers Spain + France (same CET/CEST offset)
     call_started_iso = (
-        datetime.fromtimestamp(start_ts / 1000, tz=timezone.utc).isoformat()
-        if start_ts else datetime.now(timezone.utc).isoformat()
+        datetime.fromtimestamp(start_ts / 1000, tz=business_tz).isoformat()
+        if start_ts else datetime.now(business_tz).isoformat()
     )
     extracted, raw_payload = extract_call_data(transcript, call_started_iso)
 
