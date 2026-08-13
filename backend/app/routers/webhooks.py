@@ -113,6 +113,7 @@ async def retell_webhook(request: Request):
         "summary": extracted.summary,
         "urgency": extracted.urgency,
         "preferred_time": extracted.preferred_time,
+        "preferred_time_iso": extracted.preferred_time_iso,
         "next_action": extracted.next_action,
         "booking_type": extracted.booking_type,
         "party_size": extracted.party_size,
