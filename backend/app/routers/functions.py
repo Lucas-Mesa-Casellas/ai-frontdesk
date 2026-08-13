@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request, HTTPException
 from app.services.business_lookup import find_business
 from app.services.scheduling import (
     DEFAULT_APPOINTMENT_MINUTES,
+    is_within_business_hours,
     overlaps,
     find_alternatives,
 )
