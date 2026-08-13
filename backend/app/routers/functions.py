@@ -53,6 +53,15 @@ async def check_availability(request: Request):
     duration = timedelta(minutes=duration_minutes)
     requested_end = requested_start + duration
 
+    if not is_within_business_hours(requested_start, requested_end):
+        alternatives = find_alternatives(supabase, business["id"], requested_start, duration)
+        readable = ", ".join(datetime.fromisoformat(a).strftime("%a %H:%M") for a in alternatives)
+        return {
+            "available": False,
+            "alternatives": alternatives,
+            "message": f"That's outside office hours. Nearby open times: {readable}." if alternatives else "That's outside office hours, and no nearby slots were found.",
+        }
+
     if not overlaps(supabase, business["id"], requested_start, requested_end):
         return {"available": True, "message": "That time is available."}
 
