@@ -143,6 +143,10 @@ async def retell_webhook(request: Request):
             "party_size": extracted.party_size,
             "notes": extracted.preferred_time,
             "start_time": extracted.preferred_time_iso,
+            "end_time": (
+                (datetime.fromisoformat(extracted.preferred_time_iso) + timedelta(minutes=DEFAULT_APPOINTMENT_MINUTES)).isoformat()
+                if extracted.preferred_time_iso else None
+            ),
             # ALWAYS pending — only a human tap on the dashboard confirms
             # a booking. The agent never implies one is confirmed (§5.5).
             "status": "pending",
