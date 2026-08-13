@@ -1,10 +1,12 @@
 import json
 from fastapi import APIRouter, Request, HTTPException
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from zoneinfo import ZoneInfo
 from app.services.ai import extract_call_data
 from app.services.notify import notify_owner
 from app.services.retell_security import verify_retell_signature
+from app.services.business_lookup import find_business
+from app.services.scheduling import DEFAULT_APPOINTMENT_MINUTES
 from app.db.supabase_client import get_supabase_admin
 from app.config import get_settings
 from app.limiter import limiter
@@ -15,33 +17,6 @@ router = APIRouter()
 # conversation (per Retell's documented disconnection_reason values).
 FAILED_DISCONNECTION_REASONS = {"dial_failed", "dial_no_answer", "dial_busy"}
 MIN_MEANINGFUL_CALL_DURATION_MS = 5000
-
-def _find_business(supabase, call_data: dict):
-    """Look up the business a call belongs to.
-
-    Primary: Retell's agent_id — stable and present even in browser-widget
-    test calls, before any real phone number exists.
-    Fallback: the DID that was called — only meaningful once a Twilio
-    number is live and imported into Retell.
-    """
-    agent_id = call_data.get("agent_id")
-    if agent_id:
-        biz = supabase.table("businesses").select(
-            "id, name, notification_email"
-        ).eq("retell_agent_id", agent_id).limit(1).execute()
-        if biz.data:
-            return biz.data[0]
-
-    to_number = call_data.get("to_number") or call_data.get("retell_llm_phone_number")
-    if to_number:
-        biz = supabase.table("businesses").select(
-            "id, name, notification_email"
-        ).eq("phone_number", to_number).limit(1).execute()
-        if biz.data:
-            return biz.data[0]
-
-    return None
-
 
 @router.post("/webhooks/retell")
 @limiter.limit("120/minute")
@@ -83,7 +58,7 @@ async def retell_webhook(request: Request):
 
     supabase = get_supabase_admin()
 
-    business = _find_business(supabase, call_data)
+    business = find_business(supabase, call_data)
     if not business:
         # No more silent fallback to a hardcoded business — that hid the
         # multi-business bug instead of fixing it. If this fires, either
