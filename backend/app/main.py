@@ -5,7 +5,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 
 from app.limiter import limiter
-from app.routers import webhooks
+from app.routers import webhooks, functions
 
 app = FastAPI(title="AI Front Desk Backend")
 
