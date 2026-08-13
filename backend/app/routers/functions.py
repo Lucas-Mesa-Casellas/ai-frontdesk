@@ -1,3 +1,4 @@
+import asyncio
 import json
 from datetime import datetime, timedelta
 from fastapi import APIRouter, Request, HTTPException
@@ -16,13 +17,21 @@ from app.limiter import limiter
 
 router = APIRouter()
 
+# Deliberate pause before responding. Our own Supabase query finishes in
+# well under a second -- fast enough that Retell's "Talk While Waiting"
+# filler gets cut off before it can finish playing (a known Retell platform
+# behavior: the moment a tool result arrives, current audio is cut and the
+# next response starts immediately). This delay gives the filler room to
+# actually be heard, and also mirrors how long a real receptionist would
+# take to check a calendar.
+RESPONSE_DELAY_SECONDS = 2.0
+
 
 @router.post("/functions/check-availability")
 @limiter.limit("60/minute")
 async def check_availability(request: Request):
     """Live custom function Retell calls mid-call when the agent needs to
-    confirm a proposed appointment time. Must respond quickly since the
-    caller is waiting on the line for this answer.
+    confirm a proposed appointment time.
     """
     raw_body = await request.body()
     signature = request.headers.get("x-retell-signature")
@@ -55,29 +64,22 @@ async def check_availability(request: Request):
 
     if not is_within_business_hours(requested_start, requested_end):
         alternatives = find_alternatives(supabase, business["id"], requested_start, duration)
-        readable = ", ".join(datetime.fromisoformat(a).strftime("%a %H:%M") for a in alternatives)
-        return {
+        result = {
             "available": False,
+            "reason": "outside_business_hours",
             "alternatives": alternatives,
-            "message": f"That's outside office hours. Nearby open times: {readable}." if alternatives else "That's outside office hours, and no nearby slots were found.",
+            "message": "That time is outside office hours. See alternatives.",
+        }
+    elif not overlaps(supabase, business["id"], requested_start, requested_end):
+        result = {"available": True, "message": "That time is available."}
+    else:
+        alternatives = find_alternatives(supabase, business["id"], requested_start, duration)
+        result = {
+            "available": False,
+            "reason": "already_booked",
+            "alternatives": alternatives,
+            "message": "That time is not available. See alternatives." if alternatives else "That time is not available, and no nearby slots were found.",
         }
 
-    if not overlaps(supabase, business["id"], requested_start, requested_end):
-        return {"available": True, "message": "That time is available."}
-
-    alternatives = find_alternatives(supabase, business["id"], requested_start, duration)
-    if alternatives:
-        readable = ", ".join(
-            datetime.fromisoformat(a).strftime("%H:%M") for a in alternatives
-        )
-        return {
-            "available": False,
-            "alternatives": alternatives,
-            "message": f"That time is not available. Nearby open times the same day: {readable}.",
-        }
-
-    return {
-        "available": False,
-        "alternatives": [],
-        "message": "That time is not available, and no nearby slots were found the same day.",
-    }
+    await asyncio.sleep(RESPONSE_DELAY_SECONDS)
+    return result
