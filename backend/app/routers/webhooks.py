@@ -96,7 +96,11 @@ async def retell_webhook(request: Request):
         }
 
     # Run the extraction engine we already built and tested
-    extracted, raw_payload = extract_call_data(transcript)
+    call_started_iso = (
+        datetime.fromtimestamp(start_ts / 1000, tz=timezone.utc).isoformat()
+        if start_ts else datetime.now(timezone.utc).isoformat()
+    )
+    extracted, raw_payload = extract_call_data(transcript, call_started_iso)
 
     now = datetime.now(timezone.utc).isoformat()
     call_record = {
@@ -135,6 +139,7 @@ async def retell_webhook(request: Request):
             "customer_phone": extracted.caller_phone,
             "party_size": extracted.party_size,
             "notes": extracted.preferred_time,
+            "start_time": extracted.preferred_time_iso,
             # ALWAYS pending — only a human tap on the dashboard confirms
             # a booking. The agent never implies one is confirmed (§5.5).
             "status": "pending",
