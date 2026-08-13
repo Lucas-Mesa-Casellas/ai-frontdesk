@@ -23,6 +23,7 @@ app.add_middleware(SlowAPIMiddleware)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 
 app.include_router(webhooks.router)
+app.include_router(functions.router)
 
 
 @app.get("/")
