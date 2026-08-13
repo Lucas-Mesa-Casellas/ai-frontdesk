@@ -24,7 +24,17 @@ Fields to extract:
    other = anything else)
 - summary: one sentence summary or null
 - urgency: "low" | "normal" | "high" | null
-  (high = emergency or time-critical, e.g. leak, lockout, no heat/power)
+  high = a genuine emergency or something needing same-day action. For trades calls:
+  an active leak/flood, no heat or hot water in cold conditions, no power, a gas smell,
+  being locked out, a safety hazard, or anything the caller explicitly calls urgent or
+  an emergency. For property management calls: a break-in or security issue, a serious
+  maintenance failure at a currently-occupied property (no water/power, a leak), or
+  anything the caller explicitly calls urgent.
+  normal = a routine request with no time pressure (a scheduled viewing, a general
+  question, an ordinary booking).
+  low = nothing needs to happen soon (general feedback, a low-priority note).
+  If genuinely unsure between normal and high, choose normal -- keep this narrow so
+  notifications stay meaningful rather than routine.
 - preferred_time: exact string the caller used, or null
 - preferred_time_iso: the requested appointment start time, resolved to a full
   ISO 8601 datetime, using the SAME timezone offset shown in the call date/time
