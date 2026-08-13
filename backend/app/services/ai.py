@@ -26,6 +26,11 @@ Fields to extract:
 - urgency: "low" | "normal" | "high" | null
   (high = emergency or time-critical, e.g. leak, lockout, no heat/power)
 - preferred_time: exact string the caller used, or null
+- preferred_time_iso: the requested appointment start time, resolved to a full
+  ISO 8601 datetime with timezone offset (e.g. "2026-08-14T17:00:00+02:00"),
+  using the call date/time above as the reference point for relative phrases
+  like "tomorrow" or "next Thursday". Null if no specific date/time was given
+  or the request isn't a bookable appointment.
 - next_action: what the business should do next, or null
 - booking_type: "appointment" | "callback" | null
 - party_size: integer or null (only if the caller mentions a number of
@@ -37,7 +42,7 @@ Fields to extract:
 """
 
 
-def extract_call_data(transcript: str) -> tuple[ExtractedCallData, dict]:
+def extract_call_data(transcript: str, call_started_at: str) -> tuple[ExtractedCallData, dict]:
     """
     Never raises. A single malformed AI response, OpenAI API hiccup, or
     model output straying outside the allowed field values (now enforced
@@ -51,7 +56,7 @@ def extract_call_data(transcript: str) -> tuple[ExtractedCallData, dict]:
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": f"Transcript:\n{transcript}"},
+                {"role": "user", "content": f"Call date/time: {call_started_at}\n\nTranscript:\n{transcript}"},
             ],
             max_tokens=500,
             temperature=0,
