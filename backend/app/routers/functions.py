@@ -26,6 +26,22 @@ router = APIRouter()
 # take to check a calendar.
 RESPONSE_DELAY_SECONDS = 2.0
 
+def _describe_alternatives(alternatives: list[str]) -> list[dict]:
+    """Attach a backend-computed weekday/date label to each alternative so
+    the model never has to derive day-of-week itself from a raw ISO string
+    -- it has gotten this wrong repeatedly when asked to compute it.
+    """
+    described = []
+    for iso in alternatives:
+        dt = datetime.fromisoformat(iso)
+        described.append({
+            "time": iso,
+            "weekday": dt.strftime("%A"),
+            "day_of_month": dt.day,
+            "month": dt.strftime("%B"),
+        })
+    return described
+
 
 @router.post("/functions/check-availability")
 @limiter.limit("60/minute")
