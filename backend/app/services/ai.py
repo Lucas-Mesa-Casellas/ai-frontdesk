@@ -27,7 +27,8 @@ Fields to extract:
   (high = emergency or time-critical, e.g. leak, lockout, no heat/power)
 - preferred_time: exact string the caller used, or null
 - preferred_time_iso: the requested appointment start time, resolved to a full
-  ISO 8601 datetime with timezone offset (e.g. "2026-08-14T17:00:00+02:00"),
+  ISO 8601 datetime, using the SAME timezone offset shown in the call date/time
+  above (e.g. "2026-08-14T17:00:00+02:00"),
   using the call date/time above as the reference point for relative phrases
   like "tomorrow" or "next Thursday". Null if no specific date/time was given
   or the request isn't a bookable appointment.
