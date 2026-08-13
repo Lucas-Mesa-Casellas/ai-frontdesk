@@ -128,6 +128,12 @@ async def retell_webhook(request: Request):
         }
         supabase.table("bookings").insert(booking_record).execute()
 
-    notify_owner(business, extracted, call_id)
+    # Urgent-only by default: routine bookings/inquiries land on the dashboard
+    # only; email is reserved for high-urgency calls and failed extractions
+    # (which need a human to look at the raw transcript directly).
+    # TODO: make this a per-business Layer 2 preference once a business asks
+    # for it -- some owners will want every call emailed.
+    if extracted.urgency == "high" or not extracted.extraction_complete:
+        notify_owner(business, extracted, call_id)
 
     return {"status": "success", "call_id": call_id}
