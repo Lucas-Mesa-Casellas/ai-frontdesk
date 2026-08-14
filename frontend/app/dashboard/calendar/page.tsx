@@ -35,22 +35,32 @@ export default async function CalendarPage({
   const nextMonthDate = new Date(Date.UTC(year, month + 1, 1));
 
   const { data: monthBookingsRaw } = await supabase
-    .from("bookings").select("*, calls(urgency)").eq("business_id", business?.id)
+    .from("bookings").select("*").eq("business_id", business?.id)
     .gte("start_time", monthStart.toISOString())
     .lt("start_time", monthEndExclusive.toISOString())
     .order("start_time", { ascending: true });
 
   const { data: undatedBookingsRaw } = await supabase
-    .from("bookings").select("*, calls(urgency)").eq("business_id", business?.id)
+    .from("bookings").select("*").eq("business_id", business?.id)
     .is("start_time", null)
     .order("created_at", { ascending: false });
 
-  // Flatten the joined calls.urgency into a plain field for the client component.
-  const flatten = (rows: any[] | null) =>
-    (rows || []).map((r) => ({ ...r, urgency: r.calls?.urgency ?? null }));
+  // Fetch urgencies in a separate query and merge in code -- avoids a fragile
+  // embedded PostgREST join, and degrades gracefully (no urgency dot) if the
+  // calls read fails for any reason rather than crashing the whole page.
+  const allRows = [...(monthBookingsRaw || []), ...(undatedBookingsRaw || [])];
+  const callIds = allRows.map((b) => b.call_id).filter(Boolean);
+  const urgencyByCall: Record<string, string | null> = {};
+  if (callIds.length) {
+    const { data: callsData } = await supabase
+      .from("calls").select("id, urgency").in("id", callIds);
+    (callsData || []).forEach((c) => { urgencyByCall[c.id] = c.urgency ?? null; });
+  }
+  const withUrgency = (rows: any[] | null) =>
+    (rows || []).map((r) => ({ ...r, urgency: r.call_id ? urgencyByCall[r.call_id] ?? null : null }));
 
-  const monthBookings = flatten(monthBookingsRaw);
-  const undatedBookings = flatten(undatedBookingsRaw);
+  const monthBookings = withUrgency(monthBookingsRaw);
+  const undatedBookings = withUrgency(undatedBookingsRaw);
 
   const byDay: Record<number, any[]> = {};
   monthBookings.forEach((b) => {
