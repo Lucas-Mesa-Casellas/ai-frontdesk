@@ -92,7 +92,7 @@ def notify_owner(business: dict, extracted, call_id: str, caller_phone_override:
     <body>
     <h2>{s['heading']} — {biz_name}</h2>
     <p><strong>{s['label_client']}:</strong> {_esc(extracted.caller_name)}</p>
-    <p><strong>{s['label_phone']}:</strong> {_esc(extracted.caller_phone)}</p>
+    <p><strong>{s['label_phone']}:</strong> {_esc(caller_phone_override or extracted.caller_phone)}</p>
     <p><strong>{s['label_time']}:</strong> {_esc(extracted.preferred_time)}</p>
     <p><strong>{s['label_type']}:</strong> {_esc(booking_type_display)}</p>
     <p><strong>{s['label_party_size']}:</strong> {_esc(extracted.party_size)}</p>
