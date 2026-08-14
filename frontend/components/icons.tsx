@@ -66,3 +66,9 @@ export const IconGlobe = (p: SVGProps<SVGSVGElement>) => (
     <path d="M3 12h18M12 3c2.5 2.6 2.5 15.4 0 18M12 3c-2.5 2.6-2.5 15.4 0 18" />
   </svg>
 );
+
+export const IconX = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}>
+    <path d="M6 6l12 12M18 6L6 18" />
+  </svg>
+);
