@@ -67,7 +67,7 @@ def _esc(value) -> str:
     return html.escape(str(value)) if value is not None else "—"
 
 
-def notify_owner(business: dict, extracted, call_id: str) -> None:
+def notify_owner(business: dict, extracted, call_id: str, caller_phone_override: str = None) -> None:
     """Email the business owner about a captured call/booking request, in
     the business's own language. Never raises -- a failed email must never
     block the webhook response or prevent the call record from having
