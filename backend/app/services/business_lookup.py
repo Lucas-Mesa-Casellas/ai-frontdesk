@@ -6,10 +6,12 @@ def find_business(supabase, call_data: dict):
     Fallback: the DID that was called — only meaningful once a Twilio
     number is live and imported into Retell.
     """
+    columns = "id, name, notification_email, language, opening_hours"
+
     agent_id = call_data.get("agent_id")
     if agent_id:
         biz = supabase.table("businesses").select(
-            "id, name, notification_email"
+            columns
         ).eq("retell_agent_id", agent_id).limit(1).execute()
         if biz.data:
             return biz.data[0]
@@ -17,7 +19,7 @@ def find_business(supabase, call_data: dict):
     to_number = call_data.get("to_number") or call_data.get("retell_llm_phone_number")
     if to_number:
         biz = supabase.table("businesses").select(
-            "id, name, notification_email"
+            columns
         ).eq("phone_number", to_number).limit(1).execute()
         if biz.data:
             return biz.data[0]
