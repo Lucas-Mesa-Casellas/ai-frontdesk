@@ -118,7 +118,18 @@ export default async function CalendarPage({
         prevHref={`/dashboard/calendar?month=${monthKey(prevMonthDate.getUTCFullYear(), prevMonthDate.getUTCMonth())}`}
         nextHref={`/dashboard/calendar?month=${monthKey(nextMonthDate.getUTCFullYear(), nextMonthDate.getUTCMonth())}`}
         intlLocale={intlLocale}
-        t={t}
+        labels={{
+          calSelectDay: t.calSelectDay,
+          calDayEmpty: t.calDayEmpty,
+          calConfirm: t.calConfirm,
+          calConfirming: t.calConfirming,
+          calCancel: t.calCancel,
+          calCancelling: t.calCancelling,
+          calCancelled: t.calCancelled,
+          calConfirmed_: t.calConfirmed_,
+          calNoDate: t.calNoDate,
+          unknown: t.unknown,
+        }}
       />
 
       {undatedBookings.length > 0 && (
