@@ -25,3 +25,11 @@ export async function confirmBooking(bookingId: string, path: string) {
   await supabase.from("bookings").update({ status: "confirmed" }).eq("id", bookingId);
   revalidatePath(path);
 }
+
+export async function cancelBooking(bookingId: string, path: string) {
+  const supabase = await createClient();
+  // Same RLS protection as confirmBooking -- restricted to the caller's
+  // own business (supabase/migrations/004_rls_policy_sync.sql).
+  await supabase.from("bookings").update({ status: "cancelled" }).eq("id", bookingId);
+  revalidatePath(path);
+}
