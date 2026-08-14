@@ -26,6 +26,7 @@ router = APIRouter()
 # take to check a calendar.
 RESPONSE_DELAY_SECONDS = 2.0
 
+
 def _describe_alternatives(alternatives: list[str]) -> list[dict]:
     """Attach a backend-computed weekday/date label to each alternative so
     the model never has to derive day-of-week itself from a raw ISO string
@@ -65,6 +66,8 @@ async def check_availability(request: Request):
     if not business:
         return {"available": False, "message": "Unable to check availability right now."}
 
+    opening_hours = business.get("opening_hours")
+
     requested_time_str = args.get("requested_time")
     if not requested_time_str:
         return {"available": False, "message": "No time was provided to check."}
@@ -78,8 +81,8 @@ async def check_availability(request: Request):
     duration = timedelta(minutes=duration_minutes)
     requested_end = requested_start + duration
 
-    if not is_within_business_hours(requested_start, requested_end):
-        alternatives = find_alternatives(supabase, business["id"], requested_start, duration)
+    if not is_within_business_hours(opening_hours, requested_start, requested_end):
+        alternatives = find_alternatives(supabase, business["id"], opening_hours, requested_start, duration)
         result = {
             "available": False,
             "reason": "outside_business_hours",
@@ -89,7 +92,7 @@ async def check_availability(request: Request):
     elif not overlaps(supabase, business["id"], requested_start, requested_end):
         result = {"available": True, "message": "That time is available."}
     else:
-        alternatives = find_alternatives(supabase, business["id"], requested_start, duration)
+        alternatives = find_alternatives(supabase, business["id"], opening_hours, requested_start, duration)
         result = {
             "available": False,
             "reason": "already_booked",
