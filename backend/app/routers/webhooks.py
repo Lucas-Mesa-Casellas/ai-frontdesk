@@ -79,13 +79,19 @@ async def retell_webhook(request: Request):
     )
     extracted, raw_payload = extract_call_data(transcript, call_started_iso)
 
+    # Fall back to verified Caller ID when the transcript never states a
+    # number explicitly -- e.g. the caller accepted "use the number you're
+    # calling from" without ever saying digits aloud. Never overrides a
+    # number the caller actually gave.
+    caller_phone = extracted.caller_phone or call_data.get("from_number")
+
     now = datetime.now(timezone.utc).isoformat()
     call_record = {
         "business_id": business["id"],
         "source": "retell",
         "transcript": transcript,
         "caller_name": extracted.caller_name,
-        "caller_phone": extracted.caller_phone,
+        "caller_phone": caller_phone,
         "intent": extracted.intent,
         "summary": extracted.summary,
         "urgency": extracted.urgency,
@@ -114,7 +120,7 @@ async def retell_webhook(request: Request):
             "call_id": call_id,
             "booking_type": extracted.booking_type,
             "customer_name": extracted.caller_name,
-            "customer_phone": extracted.caller_phone,
+            "customer_phone": caller_phone,
             "party_size": extracted.party_size,
             "notes": extracted.preferred_time,
             "start_time": extracted.preferred_time_iso,
