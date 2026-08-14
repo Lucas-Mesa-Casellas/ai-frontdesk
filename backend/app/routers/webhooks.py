@@ -140,6 +140,6 @@ async def retell_webhook(request: Request):
     # TODO: make this a per-business Layer 2 preference once a business asks
     # for it -- some owners will want every call emailed.
     if extracted.urgency == "high" or not extracted.extraction_complete:
-        notify_owner(business, extracted, call_id)
+        notify_owner(business, extracted, call_id, caller_phone_override=caller_phone)
 
     return {"status": "success", "call_id": call_id}
