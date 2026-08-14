@@ -12,7 +12,7 @@ type Booking = {
 
 export default function CalendarClient({
   cells, byDay, weekdayLabels, monthTitle, todayKey, year, month,
-  prevHref, nextHref, intlLocale, t,
+  prevHref, nextHref, intlLocale, labels,
 }: {
   cells: (number | null)[];
   byDay: Record<number, Booking[]>;
@@ -24,7 +24,7 @@ export default function CalendarClient({
   prevHref: string;
   nextHref: string;
   intlLocale: string;
-  t: Record<string, any>;
+  labels: Record<string, string>;
 }) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const selected = selectedDay !== null ? byDay[selectedDay] || [] : null;
@@ -82,9 +82,9 @@ export default function CalendarClient({
 
       <div style={{ flex: "1 1 300px", minWidth: 280 }}>
         {selectedDay === null ? (
-          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{t.calSelectDay}</p>
+          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{labels.calSelectDay}</p>
         ) : !selected || selected.length === 0 ? (
-          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{t.calDayEmpty}</p>
+          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{labels.calDayEmpty}</p>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {selected.map((b) => {
@@ -95,27 +95,26 @@ export default function CalendarClient({
                 <div key={b.id} style={{ padding: 14, borderRadius: 14, border: "1px solid var(--hair)", background: "rgba(255,255,255,.024)" }}>
                   <p style={{ fontSize: 14, fontWeight: 500, marginBottom: 3 }}>
                     {time && <span style={{ fontWeight: 600, marginRight: 6 }}>{time}</span>}
-                    {b.customer_name || t.unknown}
+                    {b.customer_name || labels.unknown}
                   </p>
                   <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 10 }}>
-                    {b.notes || t.calNoDate}
-                    {b.party_size ? ` · ${t.people(b.party_size)}` : ""}
+                    {b.notes || labels.calNoDate}
                     {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                   </p>
                   {b.status === "cancelled" ? (
-                    <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--text-3)" }}>{t.calCancelled}</span>
+                    <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--text-3)" }}>{labels.calCancelled}</span>
                   ) : b.status === "confirmed" ? (
                     <span style={{
                       fontSize: 11.5, fontWeight: 600, color: "var(--jade)", padding: "5px 11px",
                       borderRadius: 999, background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.24)",
                     }}>
-                      {t.calConfirmed_}
+                      {labels.calConfirmed_}
                     </span>
                   ) : (
                     <BookingActions
                       bookingId={b.id} path="/dashboard/calendar"
-                      confirmLabel={t.calConfirm} confirmingLabel={t.calConfirming}
-                      cancelLabel={t.calCancel} cancellingLabel={t.calCancelling}
+                      confirmLabel={labels.calConfirm} confirmingLabel={labels.calConfirming}
+                      cancelLabel={labels.calCancel} cancellingLabel={labels.calCancelling}
                     />
                   )}
                 </div>
