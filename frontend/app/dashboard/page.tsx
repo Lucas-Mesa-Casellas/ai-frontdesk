@@ -1,198 +1,161 @@
-import Link from "next/link";
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
-import ConfirmButton from "@/components/ConfirmButton";
+import Link from "next/link";
+import { IconPhone, IconCalendar } from "@/components/icons";
 
-type Booking = {
-  id: string; customer_name: string | null; customer_phone: string | null;
-  booking_type: string | null; party_size: number | null; notes: string | null;
-  status: string; created_at: string; start_time: string | null; end_time: string | null;
-};
-
-const INTL_LOCALE: Record<string, string> = { en: "en-US", es: "es-ES", fr: "fr-FR" };
-
-function pad(n: number) { return String(n).padStart(2, "0"); }
-function monthKey(year: number, month: number) { return `${year}-${pad(month + 1)}`; }
-
-export default async function CalendarPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ month?: string }>;
-}) {
+export default async function OverviewPage() {
   const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
-  const intlLocale = INTL_LOCALE[locale] || "en-US";
 
-  const sp = await searchParams;
-  const now = new Date();
-  let year = now.getFullYear();
-  let month = now.getMonth(); // 0-indexed
-  if (sp.month && /^\d{4}-\d{2}$/.test(sp.month)) {
-    const [y, m] = sp.month.split("-").map(Number);
-    year = y;
-    month = m - 1;
-  }
+  const businessId = business?.id;
 
-  const monthStart = new Date(Date.UTC(year, month, 1));
-  const monthEndExclusive = new Date(Date.UTC(year, month + 1, 1));
-  const prevMonthDate = new Date(Date.UTC(year, month - 1, 1));
-  const nextMonthDate = new Date(Date.UTC(year, month + 1, 1));
+  const [
+    { count: totalCalls },
+    { count: pendingBookings },
+    { data: recentCalls },
+    { data: upcoming },
+  ] = await Promise.all([
+    supabase.from("calls").select("*", { count: "exact", head: true }).eq("business_id", businessId),
+    supabase.from("bookings").select("*", { count: "exact", head: true })
+      .eq("business_id", businessId).eq("status", "pending"),
+    supabase.from("calls").select("*").eq("business_id", businessId)
+      .order("created_at", { ascending: false }).limit(5),
+    supabase.from("bookings").select("*").eq("business_id", businessId)
+      .in("status", ["pending", "confirmed"])
+      .order("created_at", { ascending: false }).limit(4),
+  ]);
 
-  const { data: monthBookings } = await supabase
-    .from("bookings").select("*").eq("business_id", business?.id)
-    .gte("start_time", monthStart.toISOString())
-    .lt("start_time", monthEndExclusive.toISOString())
-    .order("start_time", { ascending: true });
-
-  const { data: undatedBookings } = await supabase
-    .from("bookings").select("*").eq("business_id", business?.id)
-    .is("start_time", null)
-    .order("created_at", { ascending: false });
-
-  const byDay: Record<number, Booking[]> = {};
-  (monthBookings as Booking[] | null)?.forEach((b) => {
-    if (!b.start_time) return;
-    const d = new Date(b.start_time).getUTCDate();
-    (byDay[d] ||= []).push(b);
-  });
-
-  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
-  const firstWeekday = (monthStart.getUTCDay() + 6) % 7; // 0=Monday
-  const cells: (number | null)[] = [
-    ...Array(firstWeekday).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-  ];
-  while (cells.length % 7 !== 0) cells.push(null);
-
-  const weekdayLabels = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(Date.UTC(2024, 0, 1 + i)); // a known Monday
-    return new Intl.DateTimeFormat(intlLocale, { weekday: "short" }).format(d);
-  });
-
-  const monthTitle = new Intl.DateTimeFormat(intlLocale, { month: "long", year: "numeric" }).format(monthStart);
-
-  const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
-
-  const renderBooking = (b: Booking, compact = true) => {
-    const pending = b.status === "pending";
-    const time = b.start_time
-      ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit" }).format(new Date(b.start_time))
-      : null;
-    return (
-      <div
-        key={b.id}
-        style={{
-          display: "flex", alignItems: "center", gap: 8, padding: compact ? "4px 6px" : 14,
-          borderRadius: compact ? 7 : 14, marginBottom: 3,
-          background: pending ? "rgba(255,193,120,.06)" : "rgba(18,185,129,.08)",
-          border: `1px ${pending ? "dashed rgba(255,193,120,.35)" : "solid rgba(55,226,155,.28)"}`,
-        }}
-      >
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {time && <span style={{ fontSize: 10, fontWeight: 600, color: "var(--text-3)", marginRight: 5 }}>{time}</span>}
-          <span style={{ fontSize: compact ? 11.5 : 13.5, fontWeight: 500 }}>{b.customer_name || t.unknown}</span>
-          {!compact && (
-            <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>
-              {b.notes || t.calNoDate}
-              {b.party_size ? ` · ${t.people(b.party_size)}` : ""}
-              {b.customer_phone ? ` · ${b.customer_phone}` : ""}
-            </p>
-          )}
-        </div>
-        {pending ? (
-          <ConfirmButton bookingId={b.id} path="/dashboard/calendar" label={t.calConfirm} labelPending={t.calConfirming} />
-        ) : (
-          <span style={{
-            fontSize: 10, fontWeight: 600, color: "var(--jade)", flex: "none",
-            padding: "3px 8px", borderRadius: 999, background: "rgba(55,226,155,.1)",
-            border: "1px solid rgba(55,226,155,.24)",
-          }}>
-            {t.calConfirmed_}
-          </span>
-        )}
-      </div>
-    );
-  };
+  const conv = totalCalls ? Math.round(((pendingBookings || 0) / totalCalls) * 100) : 0;
 
   return (
-    <div style={{ padding: 32, maxWidth: 860 }}>
-      <div style={{ marginBottom: 18, display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.calTitle}</h1>
-          <p style={{ color: "var(--text-3)", fontSize: 13 }}>{t.calSub}</p>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Link
-            href={`/dashboard/calendar?month=${monthKey(prevMonthDate.getUTCFullYear(), prevMonthDate.getUTCMonth())}`}
-            style={{ padding: "5px 9px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 13, color: "var(--text-2)" }}
-          >
-            ‹
-          </Link>
-          <span style={{ fontSize: 13.5, fontWeight: 600, textTransform: "capitalize", minWidth: 120, textAlign: "center" }}>
-            {monthTitle}
-          </span>
-          <Link
-            href={`/dashboard/calendar?month=${monthKey(nextMonthDate.getUTCFullYear(), nextMonthDate.getUTCMonth())}`}
-            style={{ padding: "5px 9px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 13, color: "var(--text-2)" }}
-          >
-            ›
-          </Link>
-        </div>
+    <div style={{ padding: 40, maxWidth: 1080 }}>
+      <div style={{ marginBottom: 32 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.ovTitle}</h1>
+        <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.ovSub}</p>
       </div>
 
-      <div style={{ display: "flex", gap: 14, marginBottom: 14, fontSize: 11.5, color: "var(--text-3)" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 10, height: 10, borderRadius: 3, border: "1.5px dashed #FFC178" }} />
-          {t.calPending}
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--jade-deep)", border: "1.5px solid var(--jade)" }} />
-          {t.calConfirmed}
-        </span>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 28 }}>
+        <StatCard label={t.statCalls} value={totalCalls || 0} />
+        <StatCard label={t.statBookings} value={pendingBookings || 0} highlight />
+        <StatCard label={t.statConv} value={`${conv}%`} sub={t.statConvGoal} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 24 }}>
-        {weekdayLabels.map((w) => (
-          <div key={w} style={{ fontSize: 10, fontWeight: 600, color: "var(--text-3)", textAlign: "center", textTransform: "uppercase", padding: "0 0 4px" }}>
-            {w}
-          </div>
-        ))}
-        {cells.map((day, i) => {
-          const isToday = day !== null && todayKey === `${year}-${month}-${day}`;
-          return (
-            <div
-              key={i}
-              style={{
-                minHeight: 68, borderRadius: 8, padding: 4,
-                border: `1px solid ${isToday ? "var(--jade)" : "var(--hair)"}`,
-                background: day === null ? "transparent" : "rgba(255,255,255,.018)",
-              }}
-            >
-              {day !== null && (
-                <>
-                  <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>
-                    {day}
-                  </span>
-                  <div style={{ marginTop: 3 }}>
-                    {(byDay[day] || []).map((b) => renderBooking(b, true))}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
+        <Panel title={t.recentCalls} link="/dashboard/calls" linkLabel={t.viewAll}>
+          {!recentCalls?.length ? (
+            <Empty text={t.noCalls} />
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {recentCalls.map((c) => (
+                <Link key={c.id} href={`/dashboard/calls/${c.id}`} style={row}>
+                  <IconIn><IconPhone width={13} height={13} /></IconIn>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                      <p style={rowTitle}>{c.caller_name || t.unknown}</p>
+                      <span style={rowTime}>
+                        {new Date(c.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                    <p style={rowSub}>{c.summary || t.noSummary}</p>
                   </div>
-                </>
-              )}
+                </Link>
+              ))}
             </div>
-          );
-        })}
-      </div>
+          )}
+        </Panel>
 
-      {undatedBookings && undatedBookings.length > 0 && (
-        <div>
-          <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t.calUndatedTitle}</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {(undatedBookings as Booking[]).map((b) => renderBooking(b, false))}
-          </div>
-        </div>
-      )}
+        <Panel title={t.upcoming} link="/dashboard/calendar" linkLabel={t.viewAll}>
+          {!upcoming?.length ? (
+            <Empty text={t.noUpcoming} />
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {upcoming.map((b) => (
+                <div key={b.id} style={row}>
+                  <IconIn><IconCalendar width={13} height={13} /></IconIn>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={rowTitle}>{b.customer_name || t.unknown}</p>
+                    <p style={rowSub}>{b.notes || t.noDateSet}</p>
+                  </div>
+                  <StatusPill status={b.status} t={t} />
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
+      </div>
     </div>
+  );
+}
+
+const row: React.CSSProperties = {
+  display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
+  borderRadius: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.04)",
+  textDecoration: "none", color: "inherit",
+};
+const rowTitle: React.CSSProperties = { fontSize: 13.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
+const rowSub: React.CSSProperties = { fontSize: 12, color: "var(--text-3)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
+const rowTime: React.CSSProperties = { fontSize: 11.5, color: "var(--text-3)", flex: "none" };
+
+function IconIn({ children }: { children: React.ReactNode }) {
+  return (
+    <span style={{
+      width: 28, height: 28, borderRadius: "50%", flex: "none",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      background: "rgba(55,226,155,.12)", color: "var(--jade)",
+    }}>
+      {children}
+    </span>
+  );
+}
+
+function Empty({ text }: { text: string }) {
+  return <p style={{ color: "var(--text-3)", fontSize: 13 }}>{text}</p>;
+}
+
+function Panel({ title, link, linkLabel, children }: { title: string; link: string; linkLabel: string; children: React.ReactNode }) {
+  return (
+    <div style={{
+      background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)",
+      borderRadius: 18, padding: 20,
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+        <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>
+          {title}
+        </h2>
+        <Link href={link} style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none" }}>{linkLabel}</Link>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function StatCard({ label, value, sub, highlight }: { label: string; value: string | number; sub?: string; highlight?: boolean }) {
+  return (
+    <div style={{
+      padding: 18, borderRadius: 16,
+      border: `1px solid ${highlight ? "rgba(55,226,155,.26)" : "var(--hair)"}`,
+      background: highlight
+        ? "linear-gradient(180deg,rgba(18,185,129,.09),rgba(255,255,255,.016) 58%)"
+        : "rgba(255,255,255,.032)",
+    }}>
+      <p style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4 }}>{value}</p>
+      <p style={{ fontSize: 12, color: "var(--text-3)" }}>{label}{sub ? ` · ${sub}` : ""}</p>
+    </div>
+  );
+}
+
+function StatusPill({ status, t }: { status: string; t: typeof DASH_T.en }) {
+  const isConfirmed = status === "confirmed";
+  return (
+    <span style={{
+      fontSize: 11, padding: "4px 10px", borderRadius: 999, flex: "none",
+      border: `1px solid ${isConfirmed ? "rgba(55,226,155,.28)" : "var(--hair-2)"}`,
+      color: isConfirmed ? "var(--jade)" : "#FFC178",
+      background: isConfirmed ? "rgba(55,226,155,.1)" : "transparent",
+    }}>
+      {isConfirmed ? t.calConfirmed_ : t.calPending}
+    </span>
   );
 }
