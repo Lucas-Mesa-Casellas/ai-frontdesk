@@ -84,17 +84,17 @@ export default async function CalendarPage({
       <div
         key={b.id}
         style={{
-          display: "flex", alignItems: "center", gap: 10, padding: compact ? "6px 8px" : 16,
-          borderRadius: compact ? 8 : 16, marginBottom: 4,
+          display: "flex", alignItems: "center", gap: 8, padding: compact ? "4px 6px" : 14,
+          borderRadius: compact ? 7 : 14, marginBottom: 3,
           background: pending ? "rgba(255,193,120,.06)" : "rgba(18,185,129,.08)",
           border: `1px ${pending ? "dashed rgba(255,193,120,.35)" : "solid rgba(55,226,155,.28)"}`,
         }}
       >
         <div style={{ flex: 1, minWidth: 0 }}>
-          {time && <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", marginRight: 6 }}>{time}</span>}
-          <span style={{ fontSize: compact ? 12.5 : 14, fontWeight: 500 }}>{b.customer_name || t.unknown}</span>
+          {time && <span style={{ fontSize: 10, fontWeight: 600, color: "var(--text-3)", marginRight: 5 }}>{time}</span>}
+          <span style={{ fontSize: compact ? 11.5 : 13.5, fontWeight: 500 }}>{b.customer_name || t.unknown}</span>
           {!compact && (
-            <p style={{ fontSize: 12.5, color: "var(--text-3)", marginTop: 2 }}>
+            <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>
               {b.notes || t.calNoDate}
               {b.party_size ? ` · ${t.people(b.party_size)}` : ""}
               {b.customer_phone ? ` · ${b.customer_phone}` : ""}
@@ -105,8 +105,8 @@ export default async function CalendarPage({
           <ConfirmButton bookingId={b.id} path="/dashboard/calendar" label={t.calConfirm} labelPending={t.calConfirming} />
         ) : (
           <span style={{
-            fontSize: 10.5, fontWeight: 600, color: "var(--jade)", flex: "none",
-            padding: "4px 9px", borderRadius: 999, background: "rgba(55,226,155,.1)",
+            fontSize: 10, fontWeight: 600, color: "var(--jade)", flex: "none",
+            padding: "3px 8px", borderRadius: 999, background: "rgba(55,226,155,.1)",
             border: "1px solid rgba(55,226,155,.24)",
           }}>
             {t.calConfirmed_}
@@ -117,45 +117,45 @@ export default async function CalendarPage({
   };
 
   return (
-    <div style={{ padding: 40, maxWidth: 980 }}>
-      <div style={{ marginBottom: 22, display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
+    <div style={{ padding: 32, maxWidth: 860 }}>
+      <div style={{ marginBottom: 18, display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.calTitle}</h1>
-          <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.calSub}</p>
+          <h1 style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.calTitle}</h1>
+          <p style={{ color: "var(--text-3)", fontSize: 13 }}>{t.calSub}</p>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <Link
             href={`/dashboard/calendar?month=${monthKey(prevMonthDate.getUTCFullYear(), prevMonthDate.getUTCMonth())}`}
-            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 13, color: "var(--text-2)" }}
+            style={{ padding: "5px 9px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 13, color: "var(--text-2)" }}
           >
             ‹
           </Link>
-          <span style={{ fontSize: 14, fontWeight: 600, textTransform: "capitalize", minWidth: 140, textAlign: "center" }}>
+          <span style={{ fontSize: 13.5, fontWeight: 600, textTransform: "capitalize", minWidth: 120, textAlign: "center" }}>
             {monthTitle}
           </span>
           <Link
             href={`/dashboard/calendar?month=${monthKey(nextMonthDate.getUTCFullYear(), nextMonthDate.getUTCMonth())}`}
-            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 13, color: "var(--text-2)" }}
+            style={{ padding: "5px 9px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 13, color: "var(--text-2)" }}
           >
             ›
           </Link>
         </div>
       </div>
 
-      <div style={{ display: "flex", gap: 16, marginBottom: 18, fontSize: 12, color: "var(--text-3)" }}>
+      <div style={{ display: "flex", gap: 14, marginBottom: 14, fontSize: 11.5, color: "var(--text-3)" }}>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 11, height: 11, borderRadius: 3, border: "1.5px dashed #FFC178" }} />
+          <span style={{ width: 10, height: 10, borderRadius: 3, border: "1.5px dashed #FFC178" }} />
           {t.calPending}
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 11, height: 11, borderRadius: 3, background: "var(--jade-deep)", border: "1.5px solid var(--jade)" }} />
+          <span style={{ width: 10, height: 10, borderRadius: 3, background: "var(--jade-deep)", border: "1.5px solid var(--jade)" }} />
           {t.calConfirmed}
         </span>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 30 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 24 }}>
         {weekdayLabels.map((w) => (
-          <div key={w} style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", textAlign: "center", textTransform: "uppercase", padding: "0 0 4px" }}>
+          <div key={w} style={{ fontSize: 10, fontWeight: 600, color: "var(--text-3)", textAlign: "center", textTransform: "uppercase", padding: "0 0 4px" }}>
             {w}
           </div>
         ))}
@@ -165,17 +165,17 @@ export default async function CalendarPage({
             <div
               key={i}
               style={{
-                minHeight: 92, borderRadius: 10, padding: 6,
+                minHeight: 68, borderRadius: 8, padding: 4,
                 border: `1px solid ${isToday ? "var(--jade)" : "var(--hair)"}`,
                 background: day === null ? "transparent" : "rgba(255,255,255,.018)",
               }}
             >
               {day !== null && (
                 <>
-                  <span style={{ fontSize: 11, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>
+                  <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>
                     {day}
                   </span>
-                  <div style={{ marginTop: 4 }}>
+                  <div style={{ marginTop: 3 }}>
                     {(byDay[day] || []).map((b) => renderBooking(b, true))}
                   </div>
                 </>
@@ -187,8 +187,8 @@ export default async function CalendarPage({
 
       {undatedBookings && undatedBookings.length > 0 && (
         <div>
-          <h2 style={{ fontSize: 15, fontWeight: 600, marginBottom: 10 }}>{t.calUndatedTitle}</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t.calUndatedTitle}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {(undatedBookings as Booking[]).map((b) => renderBooking(b, false))}
           </div>
         </div>
