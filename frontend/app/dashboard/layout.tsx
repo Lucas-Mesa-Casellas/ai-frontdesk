@@ -51,7 +51,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
               <path d="M3 11.5 12 4l9 7.5" />
               <path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9" />
             </svg>
-            Home
+            {t.navHome}
           </a>
         </div>
       </DashboardSidebar>
