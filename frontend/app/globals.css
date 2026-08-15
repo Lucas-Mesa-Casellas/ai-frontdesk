@@ -992,7 +992,6 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .dash-card-highlight {
   border-color: rgba(55,226,155,.22);
   background: linear-gradient(180deg, rgba(18,185,129,.07), rgba(255,255,255,.01) 55%);
-  animation: softGlow 4s ease-in-out infinite;
 }
 .dash-card-highlight:hover {
   border-color: rgba(55,226,155,.38);
