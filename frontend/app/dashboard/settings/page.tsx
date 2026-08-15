@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase-server";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { redirect } from "next/navigation";
-
+ 
 export default async function SettingsPage({
   searchParams,
 }: { searchParams: Promise<{ updated?: string }> }) {
