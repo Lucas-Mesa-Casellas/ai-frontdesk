@@ -2,13 +2,12 @@ import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import CalendarClient from "@/components/CalendarClient";
-import BookingActions from "@/components/BookingActions";
 
 const INTL_LOCALE: Record<string, string> = { en: "en-US", es: "es-ES", fr: "fr-FR" };
 
 function pad(n: number) { return String(n).padStart(2, "0"); }
 function monthKey(year: number, month: number) { return `${year}-${pad(month + 1)}`; }
- 
+
 export default async function CalendarPage({
   searchParams,
 }: {
@@ -89,7 +88,7 @@ export default async function CalendarPage({
         <p style={{ color: "var(--text-3)", fontSize: 12.5 }}>{t.calSub}</p>
       </div>
 
-     <div className="dash-card dash-in d1" style={{ padding: 12 }}>
+      <div className="dash-card dash-in d1" style={{ padding: 12 }}>
         <CalendarClient
           cells={cells}
           byDay={byDay}
@@ -125,32 +124,6 @@ export default async function CalendarPage({
           }}
         />
       </div>
-    </div>
-
-      {undatedBookings.length > 0 && (
-        <div className="dash-in d2" style={{ marginTop: 12 }}>
-          <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t.calUndatedTitle}</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto", paddingRight: 4 }}>
-            {undatedBookings.map((b: any) => (
-              <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
-                <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{b.customer_name || t.unknown}</p>
-                <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
-                  {b.notes || t.calNoDate}
-                  {b.party_size ? ` · ${t.people(b.party_size)}` : ""}
-                  {b.customer_phone ? ` · ${b.customer_phone}` : ""}
-                </p>
-                {b.status === "pending" && (
-                  <BookingActions
-                    bookingId={b.id} path="/dashboard/calendar"
-                    confirmLabel={t.calConfirm} confirmingLabel={t.calConfirming}
-                    cancelLabel={t.calCancel} cancellingLabel={t.calCancelling}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
