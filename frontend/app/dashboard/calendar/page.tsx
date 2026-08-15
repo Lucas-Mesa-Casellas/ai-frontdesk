@@ -8,7 +8,7 @@ const INTL_LOCALE: Record<string, string> = { en: "en-US", es: "es-ES", fr: "fr-
 
 function pad(n: number) { return String(n).padStart(2, "0"); }
 function monthKey(year: number, month: number) { return `${year}-${pad(month + 1)}`; }
-
+ 
 export default async function CalendarPage({
   searchParams,
 }: {
