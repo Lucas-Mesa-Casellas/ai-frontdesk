@@ -45,9 +45,6 @@ export default async function CalendarPage({
     .is("start_time", null)
     .order("created_at", { ascending: false });
 
-  // Fetch urgencies in a separate query and merge in code -- avoids a fragile
-  // embedded PostgREST join, and degrades gracefully (no urgency dot) if the
-  // calls read fails for any reason rather than crashing the whole page.
   const allRows = [...(monthBookingsRaw || []), ...(undatedBookingsRaw || [])];
   const callIds = allRows.map((b) => b.call_id).filter(Boolean);
   const urgencyByCall: Record<string, string | null> = {};
@@ -86,69 +83,52 @@ export default async function CalendarPage({
   const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
 
   return (
-    <div style={{ padding: "24px 32px", maxWidth: 1180 }}>
-      <div className="dash-in" style={{ marginBottom: 14 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.calTitle}</h1>
-        <p style={{ color: "var(--text-3)", fontSize: 13 }}>{t.calSub}</p>
+    <div style={{ padding: "16px 24px", maxWidth: 1180 }}>
+      <div className="dash-in" style={{ marginBottom: 6 }}>
+        <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 2 }}>{t.calTitle}</h1>
+        <p style={{ color: "var(--text-3)", fontSize: 12.5 }}>{t.calSub}</p>
       </div>
 
-      <div className="dash-in d1" style={{
-        display: "flex", gap: 14, marginBottom: 16, fontSize: 11.5, color: "var(--text-3)",
-        padding: "10px 14px", borderRadius: 12, border: "1px solid var(--hair)",
-        background: "rgba(255,255,255,.024)", width: "fit-content",
-      }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 16, height: 3, borderRadius: 2, background: "#FFC178" }} />
-          {t.calPending}
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 16, height: 3, borderRadius: 2, background: "var(--jade)" }} />
-          {t.calConfirmed}
-        </span>
-        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{ width: 16, height: 3, borderRadius: 2, background: "#FF6B6B" }} />
-          {t.detailUrgency}
-        </span>
-      </div>
-
-      <div className="dash-card dash-in d2" style={{
-        border: "1px solid var(--hair)", borderRadius: 18, padding: 20,
-        background: "rgba(255,255,255,.02)",
-      }}>
-      <CalendarClient
-        cells={cells}
-        byDay={byDay}
-        weekdayLabels={weekdayLabels}
-        monthTitle={monthTitle}
-        todayKey={todayKey}
-        year={year}
-        month={month}
-        prevHref={`/dashboard/calendar?month=${monthKey(prevMonthDate.getUTCFullYear(), prevMonthDate.getUTCMonth())}`}
-        nextHref={`/dashboard/calendar?month=${monthKey(nextMonthDate.getUTCFullYear(), nextMonthDate.getUTCMonth())}`}
-        intlLocale={intlLocale}
-        labels={{
-          calSelectDay: t.calSelectDay,
-          calDayEmpty: t.calDayEmpty,
-          calConfirm: t.calConfirm,
-          calConfirming: t.calConfirming,
-          calCancel: t.calCancel,
-          calCancelling: t.calCancelling,
-          calCancelled: t.calCancelled,
-          calConfirmed_: t.calConfirmed_,
-          calNoDate: t.calNoDate,
-          unknown: t.unknown,
-        }}
-      />
+      <div className="dash-card dash-in d1" style={{ padding: 12 }}>
+        <CalendarClient
+          cells={cells}
+          byDay={byDay}
+          weekdayLabels={weekdayLabels}
+          monthTitle={monthTitle}
+          todayKey={todayKey}
+          year={year}
+          month={month}
+          prevHref={`/dashboard/calendar?month=${monthKey(prevMonthDate.getUTCFullYear(), prevMonthDate.getUTCMonth())}`}
+          nextHref={`/dashboard/calendar?month=${monthKey(nextMonthDate.getUTCFullYear(), nextMonthDate.getUTCMonth())}`}
+          intlLocale={intlLocale}
+          legend={{
+            pending: t.calPending,
+            confirmed: t.calConfirmed,
+            urgency: t.detailUrgency,
+          }}
+          labels={{
+            calSelectDay: t.calSelectDay,
+            calDayEmpty: t.calDayEmpty,
+            calConfirm: t.calConfirm,
+            calConfirming: t.calConfirming,
+            calCancel: t.calCancel,
+            calCancelling: t.calCancelling,
+            calCancelled: t.calCancelled,
+            calConfirmed_: t.calConfirmed_,
+            calNoDate: t.calNoDate,
+            unknown: t.unknown,
+          }}
+        />
       </div>
 
       {undatedBookings.length > 0 && (
-        <div className="dash-in d3" style={{ marginTop: 18 }}>
-          <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t.calUndatedTitle}</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="dash-in d2" style={{ marginTop: 12 }}>
+          <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t.calUndatedTitle}</h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
             {undatedBookings.map((b: any) => (
-              <div key={b.id} className="dash-card" style={{ padding: 14, borderRadius: 14 }}>
-                <p style={{ fontSize: 14, fontWeight: 500, marginBottom: 3 }}>{b.customer_name || t.unknown}</p>
-                <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 10 }}>
+              <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
+                <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{b.customer_name || t.unknown}</p>
+                <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
                   {b.notes || t.calNoDate}
                   {b.party_size ? ` · ${t.people(b.party_size)}` : ""}
                   {b.customer_phone ? ` · ${b.customer_phone}` : ""}
