@@ -1,5 +1,5 @@
 "use client";
- 
+
 import { useState } from "react";
 import Link from "next/link";
 import BookingActions from "./BookingActions";
@@ -10,9 +10,14 @@ type Booking = {
   start_time: string | null; urgency: string | null;
 };
 
+type UndatedBooking = {
+  id: string; customer_name: string | null; customer_phone: string | null;
+  notes: string | null; status: string;
+};
+
 export default function CalendarClient({
   cells, byDay, weekdayLabels, monthTitle, todayKey, year, month,
-  prevHref, nextHref, intlLocale, labels, legend,
+  prevHref, nextHref, intlLocale, labels, legend, undated,
 }: {
   cells: (number | null)[];
   byDay: Record<number, Booking[]>;
@@ -26,6 +31,7 @@ export default function CalendarClient({
   intlLocale: string;
   labels: Record<string, string>;
   legend: { pending: string; confirmed: string; urgency: string };
+  undated: UndatedBooking[];
 }) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const selected = selectedDay !== null ? byDay[selectedDay] || [] : null;
@@ -33,6 +39,29 @@ export default function CalendarClient({
   const dotColor = (b: Booking) => {
     if (b.urgency === "high") return "#FF6B6B";
     return b.status === "confirmed" ? "var(--jade)" : "#FFC178";
+  };
+
+  const renderActions = (b: { id: string; status: string }) => {
+    if (b.status === "cancelled") {
+      return <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)" }}>{labels.calCancelled}</span>;
+    }
+    if (b.status === "confirmed") {
+      return (
+        <span style={{
+          fontSize: 11, fontWeight: 600, color: "var(--jade)", padding: "4px 10px",
+          borderRadius: 999, background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.24)",
+        }}>
+          {labels.calConfirmed_}
+        </span>
+      );
+    }
+    return (
+      <BookingActions
+        bookingId={b.id} path="/dashboard/calendar"
+        confirmLabel={labels.calConfirm} confirmingLabel={labels.calConfirming}
+        cancelLabel={labels.calCancel} cancellingLabel={labels.calCancelling}
+      />
+    );
   };
 
   return (
@@ -97,51 +126,63 @@ export default function CalendarClient({
         </div>
       </div>
 
-      <div style={{ flex: "1 1 260px", minWidth: 240 }}>
-        {selectedDay === null ? (
-          <div className="dash-card" style={{ padding: 12, borderRadius: 12 }}>
-            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>{labels.calSelectDay}</p>
-          </div>
-        ) : !selected || selected.length === 0 ? (
-          <div className="dash-card" style={{ padding: 12, borderRadius: 12 }}>
-            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>{labels.calDayEmpty}</p>
-          </div>
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {selected.map((b) => {
-              const time = b.start_time
-                ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit" }).format(new Date(b.start_time))
-                : null;
-              return (
-                <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
-                  <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>
-                    {time && <span style={{ fontWeight: 600, marginRight: 6 }}>{time}</span>}
-                    {b.customer_name || labels.unknown}
-                  </p>
-                  <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
-                    {b.notes || labels.calNoDate}
-                    {b.customer_phone ? ` · ${b.customer_phone}` : ""}
-                  </p>
-                  {b.status === "cancelled" ? (
-                    <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)" }}>{labels.calCancelled}</span>
-                  ) : b.status === "confirmed" ? (
-                    <span style={{
-                      fontSize: 11, fontWeight: 600, color: "var(--jade)", padding: "4px 10px",
-                      borderRadius: 999, background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.24)",
-                    }}>
-                      {labels.calConfirmed_}
-                    </span>
-                  ) : (
-                    <BookingActions
-                      bookingId={b.id} path="/dashboard/calendar"
-                      confirmLabel={labels.calConfirm} confirmingLabel={labels.calConfirming}
-                      cancelLabel={labels.calCancel} cancellingLabel={labels.calCancelling}
-                    />
-                  )}
+      <div style={{ flex: "1 1 260px", minWidth: 240, maxHeight: 380, display: "flex", flexDirection: "column" }}>
+        {selectedDay !== null ? (
+          <>
+            <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+              {monthTitle} {selectedDay}
+            </p>
+            <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
+              {!selected || selected.length === 0 ? (
+                <div className="dash-card" style={{ padding: 12, borderRadius: 12 }}>
+                  <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>{labels.calDayEmpty}</p>
                 </div>
-              );
-            })}
-          </div>
+              ) : (
+                selected.map((b) => {
+                  const time = b.start_time
+                    ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit" }).format(new Date(b.start_time))
+                    : null;
+                  return (
+                    <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
+                      <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>
+                        {time && <span style={{ fontWeight: 600, marginRight: 6 }}>{time}</span>}
+                        {b.customer_name || labels.unknown}
+                      </p>
+                      <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
+                        {b.notes || labels.calNoDate}
+                        {b.customer_phone ? ` · ${b.customer_phone}` : ""}
+                      </p>
+                      {renderActions(b)}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </>
+        ) : (
+          <>
+            <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.04em" }}>
+              {labels.calUndatedTitle}
+            </p>
+            {undated.length === 0 ? (
+              <div className="dash-card" style={{ padding: 12, borderRadius: 12 }}>
+                <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>{labels.calSelectDay}</p>
+              </div>
+            ) : (
+              <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 }}>
+                {undated.map((b) => (
+                  <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
+                    <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{b.customer_name || labels.unknown}</p>
+                    <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
+                      {b.notes || labels.calNoDate}
+                      {b.customer_phone ? ` · ${b.customer_phone}` : ""}
+                    </p>
+                    {renderActions(b)}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
