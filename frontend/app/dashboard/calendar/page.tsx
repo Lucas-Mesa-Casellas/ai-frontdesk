@@ -89,7 +89,7 @@ export default async function CalendarPage({
         <p style={{ color: "var(--text-3)", fontSize: 12.5 }}>{t.calSub}</p>
       </div>
 
-      <div className="dash-card dash-in d1" style={{ padding: 12 }}>
+     <div className="dash-card dash-in d1" style={{ padding: 12 }}>
         <CalendarClient
           cells={cells}
           byDay={byDay}
@@ -106,6 +106,10 @@ export default async function CalendarPage({
             confirmed: t.calConfirmed,
             urgency: t.detailUrgency,
           }}
+          undated={undatedBookings.map((b: any) => ({
+            id: b.id, customer_name: b.customer_name, customer_phone: b.customer_phone,
+            notes: b.notes, status: b.status,
+          }))}
           labels={{
             calSelectDay: t.calSelectDay,
             calDayEmpty: t.calDayEmpty,
@@ -116,10 +120,12 @@ export default async function CalendarPage({
             calCancelled: t.calCancelled,
             calConfirmed_: t.calConfirmed_,
             calNoDate: t.calNoDate,
+            calUndatedTitle: t.calUndatedTitle,
             unknown: t.unknown,
           }}
         />
       </div>
+    </div>
 
       {undatedBookings.length > 0 && (
         <div className="dash-in d2" style={{ marginTop: 12 }}>
