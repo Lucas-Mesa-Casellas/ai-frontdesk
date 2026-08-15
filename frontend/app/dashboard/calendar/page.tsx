@@ -124,7 +124,7 @@ export default async function CalendarPage({
       {undatedBookings.length > 0 && (
         <div className="dash-in d2" style={{ marginTop: 12 }}>
           <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>{t.calUndatedTitle}</h2>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 220, overflowY: "auto", paddingRight: 4 }}>
             {undatedBookings.map((b: any) => (
               <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
                 <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{b.customer_name || t.unknown}</p>
