@@ -107,7 +107,7 @@ export default async function CalendarPage({
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ width: 16, height: 3, borderRadius: 2, background: "#FF6B6B" }} />
-          {t.detailUrgent}
+          {t.detailUrgency}
         </span>
       </div>
 
