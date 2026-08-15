@@ -72,20 +72,11 @@ export default async function SettingsPage({
             </div>
             <button
               type="submit"
+              className="btn-jade"
               style={{
                 alignSelf: "flex-start", padding: "10px 22px", borderRadius: 11, border: "none",
                 fontSize: 13.5, fontWeight: 600, color: "#04140D", cursor: "pointer",
                 background: "linear-gradient(180deg,#5CEBAF,var(--jade-2))",
-                boxShadow: "0 1px 0 rgba(255,255,255,.45) inset, 0 8px 22px -10px rgba(18,185,129,.6)",
-                transition: "transform .24s var(--e-out), box-shadow .24s var(--e-out)",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-1.5px)";
-                e.currentTarget.style.boxShadow = "0 1px 0 rgba(255,255,255,.45) inset, 0 14px 32px -12px rgba(18,185,129,.75)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "none";
-                e.currentTarget.style.boxShadow = "0 1px 0 rgba(255,255,255,.45) inset, 0 8px 22px -10px rgba(18,185,129,.6)";
               }}
             >
               {t.setSave}
@@ -101,6 +92,7 @@ export default async function SettingsPage({
           <form action={signOut}>
             <button
               type="submit"
+              className="btn-danger"
               style={{
                 padding: "9px 18px", borderRadius: 11, fontSize: 13, color: "#E5877B",
                 border: "1px solid rgba(239,68,68,.28)", background: "rgba(239,68,68,.06)", cursor: "pointer",
