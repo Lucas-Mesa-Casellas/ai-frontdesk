@@ -932,6 +932,11 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   0%,100% { box-shadow: 0 0 0 0 rgba(55,226,155,.10); }
   50%     { box-shadow: 0 0 24px 2px rgba(55,226,155,.05); }
 }
+@keyframes livePulse {
+  0%   { box-shadow: 0 0 0 0 rgba(55,226,155,.45); }
+  70%  { box-shadow: 0 0 0 6px rgba(55,226,155,0); }
+  100% { box-shadow: 0 0 0 0 rgba(55,226,155,0); }
+}
 
 .dash-in {
   opacity: 0;
@@ -947,6 +952,15 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .d4 { animation-delay: .16s; }
 .d5 { animation-delay: .20s; }
 .d6 { animation-delay: .24s; }
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--jade);
+  animation: livePulse 2.2s ease-in-out infinite;
+  flex: none;
+}
 
 /* Glass card for dashboard panels */
 .dash-card {
@@ -1023,6 +1037,23 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   box-shadow: 0 0 0 3px rgba(18,185,129,.11);
 }
 
+/* Buttons */
+.btn-jade {
+  transition: transform .24s var(--e-out), box-shadow .24s var(--e-out), filter .24s var(--e-out);
+  box-shadow: 0 1px 0 rgba(255,255,255,.45) inset, 0 8px 22px -10px rgba(18,185,129,.6);
+}
+.btn-jade:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 1px 0 rgba(255,255,255,.45) inset, 0 14px 32px -12px rgba(18,185,129,.75);
+}
+.btn-danger {
+  transition: background .2s var(--e-out), transform .2s var(--e-out);
+}
+.btn-danger:hover {
+  background: rgba(239,68,68,.14) !important;
+  transform: translateY(-1px);
+}
+
 /* Calendar */
 .cal-grid {
   display: grid;
@@ -1050,6 +1081,10 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   border-color: rgba(55,226,155,.35);
   background: rgba(55,226,155,.06);
 }
+.cal-cell.selected {
+  border-color: var(--jade);
+  background: rgba(55,226,155,.08);
+}
 .cal-day-label {
   font-size: 11px;
   font-weight: 500;
@@ -1057,11 +1092,22 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   text-align: center;
   padding: 6px 0;
 }
+.cal-nav {
+  transition: background .2s var(--e-out), border-color .2s var(--e-out);
+}
+.cal-nav:hover {
+  background: rgba(255,255,255,.05);
+  border-color: rgba(255,255,255,.15);
+}
 
 /* Sidebar active glow */
 .nav-link {
   position: relative;
   transition: background .22s var(--e-out), color .22s var(--e-out);
+}
+.nav-link.active {
+  background: rgba(55,226,155,.1);
+  color: var(--jade);
 }
 .nav-link.active::before {
   content: "";
@@ -1070,4 +1116,5 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   width: 3px; border-radius: 0 3px 3px 0;
   background: var(--jade);
   box-shadow: 0 0 12px rgba(55,226,155,.5);
+}
 }
