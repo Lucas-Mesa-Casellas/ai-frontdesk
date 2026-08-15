@@ -92,7 +92,11 @@ export default async function CalendarPage({
         <p style={{ color: "var(--text-3)", fontSize: 13 }}>{t.calSub}</p>
       </div>
 
-      <div style={{ display: "flex", gap: 14, marginBottom: 18, fontSize: 11.5, color: "var(--text-3)" }}>
+      <div style={{
+        display: "flex", gap: 14, marginBottom: 16, fontSize: 11.5, color: "var(--text-3)",
+        padding: "10px 14px", borderRadius: 12, border: "1px solid var(--hair)",
+        background: "rgba(255,255,255,.024)", width: "fit-content",
+      }}>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ width: 16, height: 3, borderRadius: 2, background: "#FFC178" }} />
           {t.calPending}
@@ -103,10 +107,14 @@ export default async function CalendarPage({
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <span style={{ width: 16, height: 3, borderRadius: 2, background: "#FF6B6B" }} />
-          {t.detailUrgency}
+          {t.detailUrgent}
         </span>
       </div>
 
+      <div style={{
+        border: "1px solid var(--hair)", borderRadius: 18, padding: 20,
+        background: "rgba(255,255,255,.02)",
+      }}>
       <CalendarClient
         cells={cells}
         byDay={byDay}
@@ -131,6 +139,7 @@ export default async function CalendarPage({
           unknown: t.unknown,
         }}
       />
+      </div>
 
       {undatedBookings.length > 0 && (
         <div style={{ marginTop: 32 }}>
