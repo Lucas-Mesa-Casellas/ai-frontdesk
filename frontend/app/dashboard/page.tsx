@@ -3,7 +3,7 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
 import { IconPhone, IconCalendar } from "@/components/icons";
-
+ 
 export default async function OverviewPage() {
   const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
