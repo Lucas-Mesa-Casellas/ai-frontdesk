@@ -1060,7 +1060,6 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   gap: 6px;
 }
 .cal-cell {
-  aspect-ratio: 1;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
