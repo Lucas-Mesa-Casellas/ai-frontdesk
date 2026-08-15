@@ -83,9 +83,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       </div>
 
       <style>{`
-        .nav-link { color: var(--text-2); }
+        .nav-link { color: var(--text-2); position: relative; }
         .nav-link:hover { background: rgba(255,255,255,.055); color: var(--text); }
         .nav-link.active { background: rgba(55,226,155,.1); color: var(--jade); }
+        .nav-link.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: var(--jade); box-shadow: 0 0 12px rgba(55,226,155,.5); }
         .dash-main { margin-left: 248px; }
         .dash-aside {
           width: 248px; border-right: 1px solid var(--hair); background: rgba(255,255,255,.018);
