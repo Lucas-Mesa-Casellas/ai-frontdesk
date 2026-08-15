@@ -20,7 +20,7 @@ export default async function CallsPage() {
 
   return (
     <div style={{ padding: "28px 32px", maxWidth: 760 }}>
-      <div style={{ marginBottom: 28 }}>
+      <div className="dash-in" style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.callsTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.callsSub}</p>
       </div>
@@ -31,17 +31,16 @@ export default async function CallsPage() {
           <p style={{ fontSize: 13, color: "var(--text-3)" }}>{t.callsEmptySub}</p>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {calls.map((c) => {
+         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {calls.map((c, i) => {
             const s = STATUS_STYLE[c.status] || STATUS_STYLE.needs_review;
+            const delayClass = `d${Math.min(i + 1, 6)}`;
             return (
               <Link
                 key={c.id}
                 href={`/dashboard/calls/${c.id}`}
-                style={{
-                  display: "block", padding: 18, borderRadius: 16, textDecoration: "none", color: "inherit",
-                  background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)",
-                }}
+                className={`dash-card ${delayClass} dash-in`}
+                style={{ display: "block", padding: 18, textDecoration: "none", color: "inherit" }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
