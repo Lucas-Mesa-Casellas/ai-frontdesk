@@ -48,14 +48,14 @@ export default async function SettingsPage({
   const label: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-3)", marginBottom: 7 };
 
   return (
-    <div style={{ padding: 40, maxWidth: 920 }}>
-      <div style={{ marginBottom: 26 }}>
+    <div style={{ padding: "28px 32px", maxWidth: 920 }}>
+      <div className="dash-in" style={{ marginBottom: 26 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.setTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.setSub}</p>
       </div>
 
       <div className="settings-grid">
-        <div style={{ background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)", borderRadius: 18, padding: 22 }}>
+        <div className="dash-card dash-in d1" style={{ padding: 22 }}>
           <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>{t.setBizInfo}</h2>
           <form action={updateSettings} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
@@ -76,6 +76,16 @@ export default async function SettingsPage({
                 alignSelf: "flex-start", padding: "10px 22px", borderRadius: 11, border: "none",
                 fontSize: 13.5, fontWeight: 600, color: "#04140D", cursor: "pointer",
                 background: "linear-gradient(180deg,#5CEBAF,var(--jade-2))",
+                boxShadow: "0 1px 0 rgba(255,255,255,.45) inset, 0 8px 22px -10px rgba(18,185,129,.6)",
+                transition: "transform .24s var(--e-out), box-shadow .24s var(--e-out)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-1.5px)";
+                e.currentTarget.style.boxShadow = "0 1px 0 rgba(255,255,255,.45) inset, 0 14px 32px -12px rgba(18,185,129,.75)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "none";
+                e.currentTarget.style.boxShadow = "0 1px 0 rgba(255,255,255,.45) inset, 0 8px 22px -10px rgba(18,185,129,.6)";
               }}
             >
               {t.setSave}
@@ -85,7 +95,7 @@ export default async function SettingsPage({
           </form>
         </div>
 
-        <div style={{ background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)", borderRadius: 18, padding: 22 }}>
+        <div className="dash-card dash-in d2" style={{ padding: 22, borderColor: "rgba(179,38,30,.25)" }}>
           <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t.setDanger}</h2>
           <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 14 }}>{t.setDangerSub}</p>
           <form action={signOut}>
