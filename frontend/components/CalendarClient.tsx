@@ -82,9 +82,13 @@ export default function CalendarClient({
 
       <div style={{ flex: "1 1 300px", minWidth: 280 }}>
         {selectedDay === null ? (
-          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{labels.calSelectDay}</p>
+          <div style={{ padding: 16, borderRadius: 14, border: "1px solid var(--hair)", background: "rgba(255,255,255,.02)" }}>
+            <p style={{ fontSize: 13, color: "var(--text-3)" }}>{labels.calSelectDay}</p>
+          </div>
         ) : !selected || selected.length === 0 ? (
-          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{labels.calDayEmpty}</p>
+          <div style={{ padding: 16, borderRadius: 14, border: "1px solid var(--hair)", background: "rgba(255,255,255,.02)" }}>
+            <p style={{ fontSize: 13, color: "var(--text-3)" }}>{labels.calDayEmpty}</p>
+          </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {selected.map((b) => {
