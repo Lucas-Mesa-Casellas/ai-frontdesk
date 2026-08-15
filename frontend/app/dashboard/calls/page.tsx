@@ -19,7 +19,7 @@ export default async function CallsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div style={{ padding: 40, maxWidth: 760 }}>
+    <div style={{ padding: "28px 32px", maxWidth: 760 }}>
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.callsTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.callsSub}</p>
