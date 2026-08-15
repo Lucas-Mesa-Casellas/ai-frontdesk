@@ -918,3 +918,156 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   transition:color .22s var(--e-out),border-color .22s var(--e-out),background .22s var(--e-out);
 }
 .btn-ghost:hover{color:var(--text);border-color:rgba(55,226,155,.4);background:rgba(55,226,155,.06)}
+
+/* ========== DASHBOARD PREMIUM LAYER ========== */
+@keyframes dashIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes dashInScale {
+  from { opacity: 0; transform: scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes softGlow {
+  0%,100% { box-shadow: 0 0 0 0 rgba(55,226,155,.10); }
+  50%     { box-shadow: 0 0 24px 2px rgba(55,226,155,.05); }
+}
+
+.dash-in {
+  opacity: 0;
+  animation: dashIn .55s var(--e-out) forwards;
+}
+.dash-in-scale {
+  opacity: 0;
+  animation: dashInScale .5s var(--e-out) forwards;
+}
+.d1 { animation-delay: .04s; }
+.d2 { animation-delay: .08s; }
+.d3 { animation-delay: .12s; }
+.d4 { animation-delay: .16s; }
+.d5 { animation-delay: .20s; }
+.d6 { animation-delay: .24s; }
+
+/* Glass card for dashboard panels */
+.dash-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+  border: 1px solid var(--hair);
+  border-radius: 18px;
+  transition: transform .28s var(--e-out), box-shadow .28s var(--e-out), border-color .28s var(--e-out);
+}
+.dash-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.03) 45%, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.dash-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,.13);
+  box-shadow: 0 28px 56px -22px rgba(0,0,0,.65);
+}
+
+.dash-card-highlight {
+  border-color: rgba(55,226,155,.22);
+  background: linear-gradient(180deg, rgba(18,185,129,.07), rgba(255,255,255,.01) 55%);
+  animation: softGlow 4s ease-in-out infinite;
+}
+.dash-card-highlight:hover {
+  border-color: rgba(55,226,155,.38);
+  box-shadow: 0 28px 56px -22px rgba(0,0,0,.7), 0 0 0 1px rgba(55,226,155,.06);
+}
+
+/* Row items (calls, bookings lists) */
+.dash-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.04);
+  text-decoration: none;
+  color: inherit;
+  transition: background .22s var(--e-out), border-color .22s var(--e-out), transform .22s var(--e-out);
+}
+.dash-row:hover {
+  background: rgba(255,255,255,.055);
+  border-color: rgba(255,255,255,.09);
+  transform: translateX(3px);
+}
+
+/* Form fields */
+.dash-input {
+  width: 100%;
+  font-size: 14px;
+  color: var(--text);
+  background: rgba(255,255,255,.028);
+  border: 1px solid var(--hair-2);
+  border-radius: 11px;
+  padding: 11px 13px;
+  transition: border-color .26s var(--e-out), background .26s var(--e-out), box-shadow .26s var(--e-out);
+}
+.dash-input:hover { border-color: rgba(255,255,255,.18); }
+.dash-input:focus {
+  outline: none;
+  border-color: rgba(55,226,155,.45);
+  background: rgba(255,255,255,.045);
+  box-shadow: 0 0 0 3px rgba(18,185,129,.11);
+}
+
+/* Calendar */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 8px;
+  background: rgba(255,255,255,.025);
+  border: 1px solid transparent;
+  transition: background .2s var(--e-out), border-color .2s var(--e-out), transform .2s var(--e-out);
+}
+.cal-cell:hover {
+  background: rgba(255,255,255,.05);
+  border-color: rgba(255,255,255,.08);
+  transform: translateY(-1px);
+}
+.cal-cell.today {
+  border-color: rgba(55,226,155,.35);
+  background: rgba(55,226,155,.06);
+}
+.cal-day-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-3);
+  text-align: center;
+  padding: 6px 0;
+}
+
+/* Sidebar active glow */
+.nav-link {
+  position: relative;
+  transition: background .22s var(--e-out), color .22s var(--e-out);
+}
+.nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 8px; bottom: 8px;
+  width: 3px; border-radius: 0 3px 3px 0;
+  background: var(--jade);
+  box-shadow: 0 0 12px rgba(55,226,155,.5);
+}
