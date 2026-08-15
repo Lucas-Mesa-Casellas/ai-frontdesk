@@ -1,5 +1,5 @@
 "use client";
- 
+
 import { useState } from "react";
 import Link from "next/link";
 import BookingActions from "./BookingActions";
@@ -12,7 +12,7 @@ type Booking = {
 
 export default function CalendarClient({
   cells, byDay, weekdayLabels, monthTitle, todayKey, year, month,
-  prevHref, nextHref, intlLocale, labels,
+  prevHref, nextHref, intlLocale, labels, legend,
 }: {
   cells: (number | null)[];
   byDay: Record<number, Booking[]>;
@@ -25,6 +25,7 @@ export default function CalendarClient({
   nextHref: string;
   intlLocale: string;
   labels: Record<string, string>;
+  legend: { pending: string; confirmed: string; urgency: string };
 }) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const selected = selectedDay !== null ? byDay[selectedDay] || [] : null;
@@ -35,19 +36,33 @@ export default function CalendarClient({
   };
 
   return (
-    <div style={{ display: "flex", gap: 24, alignItems: "flex-start", flexWrap: "wrap" }}>
-      <div style={{ flex: "1 1 560px", minWidth: 340 }}>
-        <div style={{ marginBottom: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div style={{ display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+      <div style={{ flex: "1 1 520px", minWidth: 300 }}>
+        <div style={{ marginBottom: 6, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Link href={prevHref} style={{ padding: "5px 9px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 13, color: "var(--text-2)" }}>‹</Link>
-            <span style={{ fontSize: 13.5, fontWeight: 600, textTransform: "capitalize", minWidth: 120, textAlign: "center" }}>{monthTitle}</span>
-            <Link href={nextHref} style={{ padding: "5px 9px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 13, color: "var(--text-2)" }}>›</Link>
+            <Link href={prevHref} className="cal-nav" style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 14, color: "var(--text-2)", textDecoration: "none" }}>‹</Link>
+            <span style={{ fontSize: 13, fontWeight: 600, textTransform: "capitalize", minWidth: 110, textAlign: "center" }}>{monthTitle}</span>
+            <Link href={nextHref} className="cal-nav" style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 14, color: "var(--text-2)", textDecoration: "none" }}>›</Link>
+          </div>
+          <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--text-3)", alignItems: "center" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "#FFC178" }} />
+              {legend.pending}
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "var(--jade)" }} />
+              {legend.confirmed}
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "#FF6B6B" }} />
+              {legend.urgency}
+            </span>
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3 }}>
           {weekdayLabels.map((w) => (
-            <div key={w} style={{ fontSize: 10, fontWeight: 600, color: "var(--text-3)", textAlign: "center", textTransform: "uppercase", padding: "0 0 4px" }}>{w}</div>
+            <div key={w} style={{ fontSize: 9.5, fontWeight: 600, color: "var(--text-3)", textAlign: "center", textTransform: "uppercase", padding: "0 0 2px", letterSpacing: "0.04em" }}>{w}</div>
           ))}
           {cells.map((day, i) => {
             const isToday = day !== null && todayKey === `${year}-${month}-${day}`;
@@ -58,18 +73,20 @@ export default function CalendarClient({
                 key={i}
                 disabled={day === null}
                 onClick={() => day !== null && setSelectedDay(day === selectedDay ? null : day)}
+                className={`cal-cell ${isToday ? "today" : ""} ${isSelected ? "selected" : ""}`}
                 style={{
-                  minHeight: 60, borderRadius: 8, padding: 4, textAlign: "left", cursor: day === null ? "default" : "pointer",
-                  border: `1px solid ${isSelected ? "var(--jade)" : isToday ? "rgba(55,226,155,.5)" : "var(--hair)"}`,
+                  minHeight: 46, borderRadius: 8, padding: 3, textAlign: "left", cursor: day === null ? "default" : "pointer",
+                  border: `1px solid ${isSelected ? "var(--jade)" : isToday ? "rgba(55,226,155,.45)" : "var(--hair)"}`,
                   background: day === null ? "transparent" : isSelected ? "rgba(55,226,155,.08)" : "rgba(255,255,255,.018)",
+                  transition: "all .15s var(--e-out)",
                 }}
               >
                 {day !== null && (
                   <>
                     <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>{day}</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 4 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 1.5, marginTop: 3 }}>
                       {bookings.slice(0, 4).map((b) => (
-                        <span key={b.id} style={{ height: 3, borderRadius: 2, background: dotColor(b) }} />
+                        <span key={b.id} style={{ height: 2.5, borderRadius: 2, background: dotColor(b) }} />
                       ))}
                     </div>
                   </>
@@ -80,36 +97,36 @@ export default function CalendarClient({
         </div>
       </div>
 
-      <div style={{ flex: "1 1 300px", minWidth: 280 }}>
+      <div style={{ flex: "1 1 260px", minWidth: 240 }}>
         {selectedDay === null ? (
-          <div style={{ padding: 16, borderRadius: 14, border: "1px solid var(--hair)", background: "rgba(255,255,255,.02)" }}>
-            <p style={{ fontSize: 13, color: "var(--text-3)" }}>{labels.calSelectDay}</p>
+          <div className="dash-card" style={{ padding: 12, borderRadius: 12 }}>
+            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>{labels.calSelectDay}</p>
           </div>
         ) : !selected || selected.length === 0 ? (
-          <div style={{ padding: 16, borderRadius: 14, border: "1px solid var(--hair)", background: "rgba(255,255,255,.02)" }}>
-            <p style={{ fontSize: 13, color: "var(--text-3)" }}>{labels.calDayEmpty}</p>
+          <div className="dash-card" style={{ padding: 12, borderRadius: 12 }}>
+            <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>{labels.calDayEmpty}</p>
           </div>
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {selected.map((b) => {
               const time = b.start_time
                 ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit" }).format(new Date(b.start_time))
                 : null;
               return (
-                <div key={b.id} style={{ padding: 14, borderRadius: 14, border: "1px solid var(--hair)", background: "rgba(255,255,255,.024)" }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, marginBottom: 3 }}>
+                <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
+                  <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>
                     {time && <span style={{ fontWeight: 600, marginRight: 6 }}>{time}</span>}
                     {b.customer_name || labels.unknown}
                   </p>
-                  <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 10 }}>
+                  <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
                     {b.notes || labels.calNoDate}
                     {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                   </p>
                   {b.status === "cancelled" ? (
-                    <span style={{ fontSize: 11.5, fontWeight: 600, color: "var(--text-3)" }}>{labels.calCancelled}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)" }}>{labels.calCancelled}</span>
                   ) : b.status === "confirmed" ? (
                     <span style={{
-                      fontSize: 11.5, fontWeight: 600, color: "var(--jade)", padding: "5px 11px",
+                      fontSize: 11, fontWeight: 600, color: "var(--jade)", padding: "4px 10px",
                       borderRadius: 999, background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.24)",
                     }}>
                       {labels.calConfirmed_}
