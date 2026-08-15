@@ -31,33 +31,36 @@ export default async function OverviewPage() {
 
   return (
     <div style={{ padding: "28px 32px", maxWidth: 1080 }}>
-      <div className="dash-in" style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.ovTitle}</h1>
-        <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.ovSub}</p>
+      <div className="dash-in" style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 6 }}>{t.ovTitle}</h1>
+        <p style={{ color: "var(--text-3)", fontSize: 13.5, display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="live-dot" />
+          {t.ovSub}
+        </p>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 28 }}>
         <div className="dash-card dash-in d1" style={{ padding: 18 }}>
-          <p style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4 }}>{totalCalls || 0}</p>
+          <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{totalCalls ?? 0}</p>
           <p style={{ fontSize: 12, color: "var(--text-3)" }}>{t.statCalls}</p>
         </div>
 
         <div className="dash-card dash-card-highlight dash-in d2" style={{ padding: 18 }}>
-          <p style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4 }}>{pendingBookings || 0}</p>
+          <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{pendingBookings ?? 0}</p>
           <p style={{ fontSize: 12, color: "var(--text-3)" }}>{t.statBookings}</p>
         </div>
 
         <div className="dash-card dash-in d3" style={{ padding: 18 }}>
-          <p style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4 }}>{conv}%</p>
+          <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{conv}%</p>
           <p style={{ fontSize: 12, color: "var(--text-3)" }}>{t.statConv}{t.statConvGoal ? ` · ${t.statConvGoal}` : ""}</p>
         </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
         <div className="dash-card dash-in d4" style={{ padding: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, alignItems: "center" }}>
             <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.recentCalls}</h2>
-            <Link href="/dashboard/calls" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none" }}>{t.viewAll}</Link>
+            <Link href="/dashboard/calls" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none", fontWeight: 500 }}>{t.viewAll}</Link>
           </div>
           {!recentCalls?.length ? (
             <Empty text={t.noCalls} />
@@ -82,9 +85,9 @@ export default async function OverviewPage() {
         </div>
 
         <div className="dash-card dash-in d5" style={{ padding: 20 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, alignItems: "center" }}>
             <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.upcoming}</h2>
-            <Link href="/dashboard/calendar" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none" }}>{t.viewAll}</Link>
+            <Link href="/dashboard/calendar" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none", fontWeight: 500 }}>{t.viewAll}</Link>
           </div>
           {!upcoming?.length ? (
             <Empty text={t.noUpcoming} />
@@ -112,6 +115,7 @@ const row: React.CSSProperties = {
   display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
   borderRadius: 12, background: "rgba(255,255,255,.03)", border: "1px solid rgba(255,255,255,.04)",
   textDecoration: "none", color: "inherit",
+  transition: "background .22s var(--e-out), border-color .22s var(--e-out), transform .22s var(--e-out)",
 };
 const rowTitle: React.CSSProperties = { fontSize: 13.5, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
 const rowSub: React.CSSProperties = { fontSize: 12, color: "var(--text-3)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" };
@@ -131,38 +135,6 @@ function IconIn({ children }: { children: React.ReactNode }) {
 
 function Empty({ text }: { text: string }) {
   return <p style={{ color: "var(--text-3)", fontSize: 13 }}>{text}</p>;
-}
-
-function Panel({ title, link, linkLabel, children }: { title: string; link: string; linkLabel: string; children: React.ReactNode }) {
-  return (
-    <div style={{
-      background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)",
-      borderRadius: 18, padding: 20,
-    }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
-        <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>
-          {title}
-        </h2>
-        <Link href={link} style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none" }}>{linkLabel}</Link>
-      </div>
-      {children}
-    </div>
-  );
-}
-
-function StatCard({ label, value, sub, highlight }: { label: string; value: string | number; sub?: string; highlight?: boolean }) {
-  return (
-    <div style={{
-      padding: 18, borderRadius: 16,
-      border: `1px solid ${highlight ? "rgba(55,226,155,.26)" : "var(--hair)"}`,
-      background: highlight
-        ? "linear-gradient(180deg,rgba(18,185,129,.09),rgba(255,255,255,.016) 58%)"
-        : "rgba(255,255,255,.032)",
-    }}>
-      <p style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4 }}>{value}</p>
-      <p style={{ fontSize: 12, color: "var(--text-3)" }}>{label}{sub ? ` · ${sub}` : ""}</p>
-    </div>
-  );
 }
 
 function StatusPill({ status, t }: { status: string; t: typeof DASH_T.en }) {
