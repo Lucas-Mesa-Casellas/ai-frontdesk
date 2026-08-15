@@ -86,13 +86,13 @@ export default async function CalendarPage({
   const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
 
   return (
-    <div style={{ padding: 32, maxWidth: 1180 }}>
-      <div style={{ marginBottom: 18 }}>
+    <div style={{ padding: "24px 32px", maxWidth: 1180 }}>
+      <div className="dash-in" style={{ marginBottom: 14 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.calTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13 }}>{t.calSub}</p>
       </div>
 
-      <div style={{
+      <div className="dash-in d1" style={{
         display: "flex", gap: 14, marginBottom: 16, fontSize: 11.5, color: "var(--text-3)",
         padding: "10px 14px", borderRadius: 12, border: "1px solid var(--hair)",
         background: "rgba(255,255,255,.024)", width: "fit-content",
@@ -111,7 +111,7 @@ export default async function CalendarPage({
         </span>
       </div>
 
-      <div style={{
+      <div className="dash-card dash-in d2" style={{
         border: "1px solid var(--hair)", borderRadius: 18, padding: 20,
         background: "rgba(255,255,255,.02)",
       }}>
@@ -142,11 +142,11 @@ export default async function CalendarPage({
       </div>
 
       {undatedBookings.length > 0 && (
-        <div style={{ marginTop: 32 }}>
+        <div className="dash-in d3" style={{ marginTop: 18 }}>
           <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t.calUndatedTitle}</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {undatedBookings.map((b: any) => (
-              <div key={b.id} style={{ padding: 14, borderRadius: 14, border: "1px solid var(--hair)", background: "rgba(255,255,255,.024)" }}>
+              <div key={b.id} className="dash-card" style={{ padding: 14, borderRadius: 14 }}>
                 <p style={{ fontSize: 14, fontWeight: 500, marginBottom: 3 }}>{b.customer_name || t.unknown}</p>
                 <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 10 }}>
                   {b.notes || t.calNoDate}
