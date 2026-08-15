@@ -30,20 +30,35 @@ export default async function OverviewPage() {
   const conv = totalCalls ? Math.round(((pendingBookings || 0) / totalCalls) * 100) : 0;
 
   return (
-    <div style={{ padding: 40, maxWidth: 1080 }}>
-      <div style={{ marginBottom: 32 }}>
+    <div style={{ padding: "28px 32px", maxWidth: 1080 }}>
+      <div className="dash-in" style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.ovTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.ovSub}</p>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 28 }}>
-        <StatCard label={t.statCalls} value={totalCalls || 0} />
-        <StatCard label={t.statBookings} value={pendingBookings || 0} highlight />
-        <StatCard label={t.statConv} value={`${conv}%`} sub={t.statConvGoal} />
+        <div className="dash-card dash-in d1" style={{ padding: 18 }}>
+          <p style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4 }}>{totalCalls || 0}</p>
+          <p style={{ fontSize: 12, color: "var(--text-3)" }}>{t.statCalls}</p>
+        </div>
+
+        <div className="dash-card dash-card-highlight dash-in d2" style={{ padding: 18 }}>
+          <p style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4 }}>{pendingBookings || 0}</p>
+          <p style={{ fontSize: 12, color: "var(--text-3)" }}>{t.statBookings}</p>
+        </div>
+
+        <div className="dash-card dash-in d3" style={{ padding: 18 }}>
+          <p style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4 }}>{conv}%</p>
+          <p style={{ fontSize: 12, color: "var(--text-3)" }}>{t.statConv}{t.statConvGoal ? ` · ${t.statConvGoal}` : ""}</p>
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-        <Panel title={t.recentCalls} link="/dashboard/calls" linkLabel={t.viewAll}>
+        <div className="dash-card dash-in d4" style={{ padding: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+            <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.recentCalls}</h2>
+            <Link href="/dashboard/calls" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none" }}>{t.viewAll}</Link>
+          </div>
           {!recentCalls?.length ? (
             <Empty text={t.noCalls} />
           ) : (
@@ -64,9 +79,13 @@ export default async function OverviewPage() {
               ))}
             </div>
           )}
-        </Panel>
+        </div>
 
-        <Panel title={t.upcoming} link="/dashboard/calendar" linkLabel={t.viewAll}>
+        <div className="dash-card dash-in d5" style={{ padding: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14 }}>
+            <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.upcoming}</h2>
+            <Link href="/dashboard/calendar" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none" }}>{t.viewAll}</Link>
+          </div>
           {!upcoming?.length ? (
             <Empty text={t.noUpcoming} />
           ) : (
@@ -83,7 +102,7 @@ export default async function OverviewPage() {
               ))}
             </div>
           )}
-        </Panel>
+        </div>
       </div>
     </div>
   );
