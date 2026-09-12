@@ -1116,3 +1116,21 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   box-shadow: 0 0 12px rgba(55,226,155,.5);
 }
 
+/* Dashboard topbar language switcher: on mobile the button sits well left
+   of the screen edge (business-name pill takes the space to its right), so
+   .lang-menu's normal `right:0` (anchored to the button, not the viewport)
+   pushes the dropdown's left edge past the screen edge. Dropping the
+   positioning context to the viewport (the dashboard has no other
+   positioned ancestor above .lang-dash) lets it anchor to the real screen
+   edge instead of the button. Top is the topbar's own fixed height (76px,
+   same constant used by the calendar page) plus the original 12px gap. */
+@media (max-width: 700px) {
+  .lang-dash { position: static; }
+  .lang-dash .lang-menu {
+    top: calc(76px + 12px);
+    right: 16px;
+    left: auto;
+    max-width: calc(100vw - 32px);
+  }
+}
+

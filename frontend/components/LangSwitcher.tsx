@@ -64,7 +64,7 @@ export default function LangSwitcher({ current }: { current: Locale }) {
   }
 
   return (
-    <div ref={ref} className="lang">
+    <div ref={ref} className="lang lang-dash">
       <button
         className="lang-btn"
         aria-expanded={open}
