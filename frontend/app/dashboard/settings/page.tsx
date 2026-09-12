@@ -48,14 +48,14 @@ export default async function SettingsPage({
   const label: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-3)", marginBottom: 7 };
 
   return (
-    <div style={{ padding: "28px 32px", maxWidth: 920 }}>
+    <div className="set-wrap">
       <div className="dash-in" style={{ marginBottom: 26 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.setTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.setSub}</p>
       </div>
 
       <div className="settings-grid">
-        <div className="dash-card dash-in d1" style={{ padding: 22 }}>
+        <div className="dash-card dash-in d1 set-card">
           <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>{t.setBizInfo}</h2>
           <form action={updateSettings} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
             <div>
@@ -86,7 +86,7 @@ export default async function SettingsPage({
           </form>
         </div>
 
-        <div className="dash-card dash-in d2" style={{ padding: 22, borderColor: "rgba(179,38,30,.25)" }}>
+        <div className="dash-card dash-in d2 set-card" style={{ borderColor: "rgba(179,38,30,.25)" }}>
           <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t.setDanger}</h2>
           <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 14 }}>{t.setDangerSub}</p>
           <form action={signOut}>
@@ -105,9 +105,17 @@ export default async function SettingsPage({
       </div>
 
       <style>{`
+        .set-wrap { padding: 28px 32px; max-width: 920px; }
+        .set-card { padding: 22px; }
         .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
         @media (max-width: 800px) {
           .settings-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+          .set-wrap { padding: 18px 16px; }
+        }
+        @media (max-width: 480px) {
+          .set-card { padding: 16px; }
         }
       `}</style>
     </div>

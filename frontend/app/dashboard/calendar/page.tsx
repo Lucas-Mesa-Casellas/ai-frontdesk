@@ -83,13 +83,13 @@ export default async function CalendarPage({
   const confirmedCount = monthBookings.filter((b: any) => b.status === "confirmed").length;
 
   return (
-    <div style={{ height: "calc(100vh - 76px)", display: "flex", flexDirection: "column", padding: "16px 24px", maxWidth: 1180 }}>
+    <div className="cal-page">
       <div className="dash-in" style={{ marginBottom: 10, flex: "none" }}>
         <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 2 }}>{t.calTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 12.5 }}>{t.calSub}</p>
       </div>
 
-      <div className="dash-card dash-in d1" style={{ padding: 14, flex: 1, minHeight: 0, display: "flex" }}>
+      <div className="dash-card dash-in d1 cal-page-card">
         <CalendarClient
           cells={cells}
           byDay={byDay}
@@ -128,6 +128,15 @@ export default async function CalendarPage({
           }}
         />
       </div>
+
+      <style>{`
+        .cal-page { height: calc(100vh - 76px); display: flex; flex-direction: column; padding: 16px 24px; max-width: 1180px; }
+        .cal-page-card { padding: 14px; flex: 1; min-height: 0; display: flex; }
+        @media (max-width: 700px) {
+          .cal-page { height: auto; padding: 14px; }
+          .cal-page-card { flex: none; min-height: 0; }
+        }
+      `}</style>
     </div>
   );
 }

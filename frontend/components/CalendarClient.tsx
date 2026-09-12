@@ -71,15 +71,15 @@ export default function CalendarClient({
   };
 
   return (
-    <div style={{ display: "flex", gap: 18, flex: 1, minHeight: 0, width: "100%" }}>
-      <div style={{ flex: "1.4 1 0", minWidth: 0, display: "flex", flexDirection: "column", minHeight: 0 }}>
-        <div style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", flex: "none" }}>
+    <div className="cal-layout" style={{ width: "100%" }}>
+      <div className="cal-grid-col">
+        <div className="cal-grid-head" style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", rowGap: 8, flex: "none" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Link href={prevHref} className="cal-nav" style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 14, color: "var(--text-2)", textDecoration: "none" }}>‹</Link>
             <span style={{ fontSize: 13, fontWeight: 600, textTransform: "capitalize", minWidth: 110, textAlign: "center" }}>{monthTitle}</span>
             <Link href={nextHref} className="cal-nav" style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 14, color: "var(--text-2)", textDecoration: "none" }}>›</Link>
           </div>
-          <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--text-3)", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--text-3)", alignItems: "center", flexWrap: "wrap", rowGap: 4 }}>
             <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "#FFC178" }} />
               {legend.pending}
@@ -135,7 +135,7 @@ export default function CalendarClient({
         </div>
       </div>
 
-      <div style={{ flex: "1 1 0", minWidth: 220, display: "flex", flexDirection: "column", minHeight: 0 }}>
+      <div className="cal-agenda-col" style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
         <div style={{
           display: "flex", gap: 16, padding: "10px 14px", borderRadius: 12, marginBottom: 10, flex: "none",
           border: "1px solid var(--hair)", background: "rgba(255,255,255,.022)",
@@ -155,7 +155,7 @@ export default function CalendarClient({
           {selectedDay !== null ? selectedDateLabel : labels.calUndatedTitle}
         </p>
 
-        <div style={{ overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, minHeight: 0 }}>
+        <div className="cal-agenda-list" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {selectedDay !== null ? (
             !selected || selected.length === 0 ? (
               <div className="dash-card" style={{ padding: 12, borderRadius: 12 }}>
@@ -199,6 +199,20 @@ export default function CalendarClient({
           )}
         </div>
       </div>
+
+      <style>{`
+        .cal-layout { display: flex; gap: 18px; flex: 1; min-height: 0; }
+        .cal-grid-col { flex: 1.4 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+        .cal-agenda-col { flex: 1 1 0; min-width: 220px; }
+        .cal-agenda-list { overflow-y: auto; min-height: 0; }
+        @media (max-width: 700px) {
+          .cal-layout { flex-direction: column; gap: 16px; }
+          .cal-grid-col { flex: none; width: 100%; }
+          .cal-agenda-col { flex: none; width: 100%; min-width: 0; }
+          .cal-agenda-list { overflow-y: visible; min-height: auto; }
+          .cal-grid-head { gap: 6px 12px; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -30,7 +30,7 @@ export default async function OverviewPage() {
   const conv = totalCalls ? Math.round(((pendingBookings || 0) / totalCalls) * 100) : 0;
 
   return (
-    <div style={{ padding: "28px 32px", maxWidth: 1080 }}>
+    <div className="ov-wrap">
       <div className="dash-in" style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 6 }}>{t.ovTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5, display: "flex", alignItems: "center", gap: 8 }}>
@@ -39,25 +39,25 @@ export default async function OverviewPage() {
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 14, marginBottom: 28 }}>
-        <div className="dash-card dash-in d1" style={{ padding: 18 }}>
-          <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{totalCalls ?? 0}</p>
-          <p style={{ fontSize: 12, color: "var(--text-3)" }}>{t.statCalls}</p>
+      <div className="ov-stats">
+        <div className="dash-card dash-in d1 ov-stat-card">
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{totalCalls ?? 0}</p>
+          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statCalls}</p>
         </div>
 
-        <div className="dash-card dash-card-highlight dash-in d2" style={{ padding: 18 }}>
-          <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{pendingBookings ?? 0}</p>
-          <p style={{ fontSize: 12, color: "var(--text-3)" }}>{t.statBookings}</p>
+        <div className="dash-card dash-card-highlight dash-in d2 ov-stat-card">
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{pendingBookings ?? 0}</p>
+          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statBookings}</p>
         </div>
 
-        <div className="dash-card dash-in d3" style={{ padding: 18 }}>
-          <p style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{conv}%</p>
-          <p style={{ fontSize: 12, color: "var(--text-3)" }}>{t.statConv}{t.statConvGoal ? ` · ${t.statConvGoal}` : ""}</p>
+        <div className="dash-card dash-in d3 ov-stat-card">
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{conv}%</p>
+          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statConv}{t.statConvGoal ? ` · ${t.statConvGoal}` : ""}</p>
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-        <div className="dash-card dash-in d4" style={{ padding: 20 }}>
+      <div className="ov-content">
+        <div className="dash-card dash-in d4 ov-panel">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, alignItems: "center" }}>
             <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.recentCalls}</h2>
             <Link href="/dashboard/calls" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none", fontWeight: 500 }}>{t.viewAll}</Link>
@@ -84,7 +84,7 @@ export default async function OverviewPage() {
           )}
         </div>
 
-        <div className="dash-card dash-in d5" style={{ padding: 20 }}>
+        <div className="dash-card dash-in d5 ov-panel">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, alignItems: "center" }}>
             <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.upcoming}</h2>
             <Link href="/dashboard/calendar" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none", fontWeight: 500 }}>{t.viewAll}</Link>
@@ -107,6 +107,27 @@ export default async function OverviewPage() {
           )}
         </div>
       </div>
+
+      <style>{`
+        .ov-wrap { padding: 28px 32px; max-width: 1080px; }
+        .ov-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 28px; }
+        .ov-stat-card { padding: 18px; }
+        .ov-stat-num { font-size: 28px; }
+        .ov-stat-label { font-size: 12px; }
+        .ov-content { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .ov-panel { padding: 20px; }
+        @media (max-width: 700px) {
+          .ov-wrap { padding: 18px 16px; }
+          .ov-content { grid-template-columns: 1fr; gap: 14px; }
+        }
+        @media (max-width: 480px) {
+          .ov-stats { gap: 8px; }
+          .ov-stat-card { padding: 12px; }
+          .ov-stat-num { font-size: 20px; }
+          .ov-stat-label { font-size: 10.5px; }
+          .ov-panel { padding: 14px; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -19,7 +19,7 @@ export default async function CallsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div style={{ padding: "28px 32px", maxWidth: 760 }}>
+    <div className="calls-wrap">
       <div className="dash-in" style={{ marginBottom: 28 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.callsTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.callsSub}</p>
@@ -39,13 +39,13 @@ export default async function CallsPage() {
               <Link
                 key={c.id}
                 href={`/dashboard/calls/${c.id}`}
-                className={`dash-card ${delayClass} dash-in`}
-                style={{ display: "block", padding: 18, textDecoration: "none", color: "inherit" }}
+                className={`dash-card ${delayClass} dash-in call-card`}
+                style={{ display: "block", textDecoration: "none", color: "inherit" }}
               >
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                <div className="call-card-head" style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", rowGap: 8, marginBottom: 10 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
                     <span style={{
-                      width: 34, height: 34, borderRadius: "50%",
+                      width: 34, height: 34, borderRadius: "50%", flex: "none",
                       display: "flex", alignItems: "center", justifyContent: "center",
                       background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.2)", color: "var(--jade)",
                     }}>
@@ -79,6 +79,18 @@ export default async function CallsPage() {
           })}
         </div>
       )}
+
+      <style>{`
+        .calls-wrap { padding: 28px 32px; max-width: 760px; }
+        .call-card { padding: 18px; }
+        @media (max-width: 700px) {
+          .calls-wrap { padding: 18px 16px; }
+        }
+        @media (max-width: 480px) {
+          .call-card { padding: 14px; }
+          .call-card-head { gap: 8px; }
+        }
+      `}</style>
     </div>
   );
 }
