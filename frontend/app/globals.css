@@ -1098,6 +1098,30 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   border-color: rgba(255,255,255,.15);
 }
 
+/* Same hover affordance as .ov-view-all (dashboard overview's "Ver todas"
+   links) -- a subtle white overlay, rgba(255,255,255,.055). Background
+   lives entirely in these classes (not inline on the element) because an
+   inline `style.background` always wins over any stylesheet rule -- a
+   :hover class rule would otherwise be silently inert. Defined here rather
+   than in a component-local <style> tag because BookingActions renders
+   once per booking row, so a local <style> would duplicate per instance.
+   The confirm button layers the overlay on top of its jade gradient
+   (rather than replacing it) so it brightens instead of flashing white. */
+.ba-confirm-btn {
+  background: linear-gradient(180deg,#5CEBAF,var(--jade-2));
+  transition: background .22s var(--e-out);
+}
+.ba-confirm-btn:hover {
+  background: linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,.055)), linear-gradient(180deg,#5CEBAF,var(--jade-2));
+}
+.ba-cancel-btn {
+  background: transparent;
+  transition: background .22s var(--e-out);
+}
+.ba-cancel-btn:hover {
+  background: rgba(255,255,255,.055);
+}
+
 /* Sidebar active glow */
 .nav-link {
   position: relative;

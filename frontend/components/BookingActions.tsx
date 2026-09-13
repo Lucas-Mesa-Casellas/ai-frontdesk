@@ -50,11 +50,11 @@ export default function BookingActions({
         <button
           disabled={pending}
           onClick={() => run("confirm")}
+          className="ba-confirm-btn"
           style={{
             display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600,
             color: "#04140D", padding: "7px 13px", borderRadius: 9, border: "none",
             cursor: pending ? "default" : "pointer",
-            background: "linear-gradient(180deg,#5CEBAF,var(--jade-2))",
             opacity: pending && action !== "confirm" ? 0.5 : 1,
           }}
         >
@@ -64,11 +64,11 @@ export default function BookingActions({
         <button
           disabled={pending}
           onClick={() => run("cancel")}
+          className="ba-cancel-btn"
           style={{
             display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600,
             color: "var(--text-2)", padding: "7px 13px", borderRadius: 9,
             border: "1px solid var(--hair)", cursor: pending ? "default" : "pointer",
-            background: "transparent",
             opacity: pending && action !== "cancel" ? 0.5 : 1,
           }}
         >
