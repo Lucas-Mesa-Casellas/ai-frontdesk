@@ -11,7 +11,9 @@ export type DashDict = {
   ovTitle: string; ovSub: string;
   statCalls: string; statBookings: string; statConv: string;
   noCalls: string; unknown: string;
-  hourChartTitle: string; hourChartSub: string; hourTooltip: (hourLabel: string, count: number) => string;
+  hourChartTitle: string; hourChartSub: string;
+  weekdayChartTitle: string; weekdayChartSub: string;
+  chartTooltip: (label: string, count: number) => string;
 
   callsTitle: string; callsSub: string; callsEmptyTitle: string; callsEmptySub: string;
   noPhone: string; back: string;
@@ -54,7 +56,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     statCalls: "Calls answered", statBookings: "Booking requests", statConv: "Booking rate",
     noCalls: "No calls yet.", unknown: "Unknown",
     hourChartTitle: "Calls by hour of day", hourChartSub: "When your calls tend to come in.",
-    hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "call" : "calls"}`,
+    weekdayChartTitle: "Calls by day of week", weekdayChartSub: "Which days tend to be busiest.",
+    chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "call" : "calls"}`,
 
     callsTitle: "Call history", callsSub: "Every call your AI receptionist has handled.",
     callsEmptyTitle: "No calls yet", callsEmptySub: "Calls will appear here once your AI starts answering.",
@@ -103,7 +106,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     statCalls: "Llamadas atendidas", statBookings: "Solicitudes de cita", statConv: "Tasa de reserva",
     noCalls: "Aún no hay llamadas.", unknown: "Desconocido",
     hourChartTitle: "Llamadas por hora del día", hourChartSub: "Cuándo suelen llegar tus llamadas.",
-    hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
+    weekdayChartTitle: "Llamadas por día de la semana", weekdayChartSub: "Qué días suelen tener más actividad.",
+    chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
 
     callsTitle: "Historial de llamadas", callsSub: "Todas las llamadas gestionadas por tu IA.",
     callsEmptyTitle: "Aún no hay llamadas", callsEmptySub: "Las llamadas aparecerán aquí en cuanto tu IA empiece a contestar.",
@@ -152,7 +156,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     statCalls: "Appels traités", statBookings: "Demandes de rendez-vous", statConv: "Taux de réservation",
     noCalls: "Aucun appel pour l'instant.", unknown: "Inconnu",
     hourChartTitle: "Appels par heure de la journée", hourChartSub: "À quel moment vos appels arrivent le plus souvent.",
-    hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "appel" : "appels"}`,
+    weekdayChartTitle: "Appels par jour de la semaine", weekdayChartSub: "Les jours où vous recevez le plus d'appels.",
+    chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "appel" : "appels"}`,
 
     callsTitle: "Historique des appels", callsSub: "Tous les appels gérés par votre IA.",
     callsEmptyTitle: "Aucun appel pour l'instant", callsEmptySub: "Les appels apparaîtront ici dès que votre IA commencera à répondre.",
