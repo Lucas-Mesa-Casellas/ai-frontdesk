@@ -9,11 +9,12 @@ type Booking = {
   id: string; customer_name: string | null; customer_phone: string | null;
   party_size: number | null; notes: string | null; status: string;
   start_time: string | null; urgency: string | null; summary: string | null;
+  call_id: string | null;
 };
 
 type UndatedBooking = {
   id: string; customer_name: string | null; customer_phone: string | null;
-  summary: string | null; status: string;
+  summary: string | null; status: string; call_id: string | null;
 };
 
 export default function CalendarClient({
@@ -186,7 +187,14 @@ export default function CalendarClient({
                       {b.summary || labels.calNoReason}
                       {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                     </p>
-                    {renderActions(b)}
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                      {renderActions(b)}
+                      {b.call_id && (
+                        <Link href={`/dashboard/calls/${b.call_id}`} className="cal-see-call" style={{ fontSize: 11.5, color: "var(--text-3)", textDecoration: "none" }}>
+                          {labels.calSeeCall} →
+                        </Link>
+                      )}
+                    </div>
                   </div>
                 );
               })
@@ -206,7 +214,14 @@ export default function CalendarClient({
                   {b.summary || labels.calNoReason}
                   {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                 </p>
-                {renderActions(b)}
+                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                  {renderActions(b)}
+                  {b.call_id && (
+                    <Link href={`/dashboard/calls/${b.call_id}`} className="cal-see-call" style={{ fontSize: 11.5, color: "var(--text-3)", textDecoration: "none" }}>
+                      {labels.calSeeCall} →
+                    </Link>
+                  )}
+                </div>
               </div>
             ))
           )}
@@ -227,6 +242,8 @@ export default function CalendarClient({
            selector (not a bare .cal-booking-card:hover) so specificity
            beats .dash-card:hover regardless of source order. */
         .dash-card.cal-booking-card:hover { transform: none; }
+        .cal-see-call { transition: color .2s var(--e-out); }
+        .cal-see-call:hover { color: var(--text); }
         @media (max-width: 700px) {
           .cal-layout { flex-direction: column; gap: 16px; }
           .cal-grid-col { flex: none; width: 100%; }

@@ -125,7 +125,7 @@ export default async function CalendarPage({
           stats={{ total: monthBookings.length, confirmed: confirmedCount }}
           undated={undatedBookings.map((b: any) => ({
             id: b.id, customer_name: b.customer_name, customer_phone: b.customer_phone,
-            summary: b.summary, status: b.status,
+            summary: b.summary, status: b.status, call_id: b.call_id,
           }))}
           labels={{
             calSelectDay: t.calSelectDay,
@@ -144,6 +144,7 @@ export default async function CalendarPage({
             statConfirmed: t.calConfirmed,
             calReason: t.calReason,
             calNoReason: t.calNoReason,
+            calSeeCall: t.calSeeCall,
           }}
         />
       </div>
