@@ -125,7 +125,7 @@ export default function CalendarClient({
                 {day !== null && (
                   <>
                     <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>{day}</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 4 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 4, width: "100%" }}>
                       {bookings.slice(0, 3).map((b) => (
                         <div
                           key={b.id}
