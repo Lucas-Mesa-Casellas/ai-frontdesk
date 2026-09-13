@@ -9,7 +9,7 @@ export type DashDict = {
   loginBack: string; loginExpired: string;
 
   ovTitle: string; ovSub: string;
-  statCalls: string; statBookings: string; statConv: string; statConvTooltip: string;
+  statCalls: string; statBookings: string; statConv: string;
   recentCalls: string; viewAll: string; noCalls: string; noSummary: string; unknown: string;
   upcoming: string; noUpcoming: string; noDateSet: string;
   hourChartTitle: string; hourChartSub: string; hourTooltip: (hourLabel: string, count: number) => string;
@@ -53,8 +53,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginExpired: "That link has expired or was already used. Request a new one.",
 
     ovTitle: "Overview", ovSub: "Your activity, live.",
-    statCalls: "Calls answered", statBookings: "Booking requests", statConv: "Calls that asked to book",
-    statConvTooltip: "Percentage of answered calls where the caller asked to book an appointment or service.",
+    statCalls: "Calls answered", statBookings: "Booking requests", statConv: "Calls booked",
     recentCalls: "Recent calls", viewAll: "View all", noCalls: "No calls yet.",
     noSummary: "No summary yet.", unknown: "Unknown",
     upcoming: "Upcoming bookings", noUpcoming: "No upcoming bookings.", noDateSet: "No date set",
@@ -105,8 +104,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginExpired: "Ese enlace ha caducado o ya se ha usado. Pide uno nuevo.",
 
     ovTitle: "Resumen", ovSub: "Tu actividad, en directo.",
-    statCalls: "Llamadas atendidas", statBookings: "Solicitudes de cita", statConv: "Llamadas que pidieron cita",
-    statConvTooltip: "Porcentaje de llamadas atendidas en las que quien llamó pidió reservar una cita o servicio.",
+    statCalls: "Llamadas atendidas", statBookings: "Solicitudes de cita", statConv: "Llamadas reservadas",
     recentCalls: "Últimas llamadas", viewAll: "Ver todas", noCalls: "Aún no hay llamadas.",
     noSummary: "Sin resumen aún.", unknown: "Desconocido",
     upcoming: "Próximas citas", noUpcoming: "No hay próximas citas.", noDateSet: "Sin fecha",
@@ -157,8 +155,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginExpired: "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.",
 
     ovTitle: "Aperçu", ovSub: "Votre activité, en direct.",
-    statCalls: "Appels traités", statBookings: "Demandes de rendez-vous", statConv: "Appels ayant demandé un rendez-vous",
-    statConvTooltip: "Pourcentage d'appels traités où l'appelant a demandé à réserver un rendez-vous ou un service.",
+    statCalls: "Appels traités", statBookings: "Demandes de rendez-vous", statConv: "Appels réservés",
     recentCalls: "Derniers appels", viewAll: "Tout voir", noCalls: "Aucun appel pour l'instant.",
     noSummary: "Pas encore de résumé.", unknown: "Inconnu",
     upcoming: "Prochains rendez-vous", noUpcoming: "Aucun rendez-vous à venir.", noDateSet: "Aucune date",

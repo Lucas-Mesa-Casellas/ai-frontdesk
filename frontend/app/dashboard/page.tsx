@@ -15,6 +15,7 @@ export default async function OverviewPage() {
   const [
     { count: totalCalls },
     { count: pendingBookings },
+    { count: totalBookings },
     { data: recentCalls },
     { data: upcoming },
     { data: allCallTimes },
@@ -22,6 +23,12 @@ export default async function OverviewPage() {
     supabase.from("calls").select("*", { count: "exact", head: true }).eq("business_id", businessId),
     supabase.from("bookings").select("*", { count: "exact", head: true })
       .eq("business_id", businessId).eq("status", "pending"),
+    // Any booking ever created counts as "this call resulted in a request,"
+    // regardless of what later happened to it -- unlike pendingBookings
+    // above, this must NOT filter by status, or confirming/cancelling a
+    // booking would make the conversion rate go down for having done so.
+    supabase.from("bookings").select("*", { count: "exact", head: true })
+      .eq("business_id", businessId),
     supabase.from("calls").select("*").eq("business_id", businessId)
       .order("created_at", { ascending: false }).limit(5),
     supabase.from("bookings").select("*").eq("business_id", businessId)
@@ -30,7 +37,7 @@ export default async function OverviewPage() {
     supabase.from("calls").select("created_at").eq("business_id", businessId),
   ]);
 
-  const conv = totalCalls ? Math.round(((pendingBookings || 0) / totalCalls) * 100) : 0;
+  const conv = totalCalls ? Math.round(((totalBookings || 0) / totalCalls) * 100) : 0;
 
   const hourCounts = Array(24).fill(0);
   (allCallTimes || []).forEach((c) => { hourCounts[madridHour(new Date(c.created_at))]++; });
@@ -62,11 +69,7 @@ export default async function OverviewPage() {
 
         <div className="dash-card dash-in d3 ov-stat-card">
           <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{conv}%</p>
-          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>
-            <span title={t.statConvTooltip} style={{ borderBottom: "1px dotted var(--text-3)", cursor: "help" }}>
-              {t.statConv}
-            </span>
-          </p>
+          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statConv}</p>
         </div>
       </div>
 
