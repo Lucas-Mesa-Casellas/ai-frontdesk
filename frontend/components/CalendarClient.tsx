@@ -174,7 +174,7 @@ export default function CalendarClient({
                   ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ }).format(new Date(b.start_time))
                   : null;
                 return (
-                  <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
+                  <div key={b.id} className="dash-card cal-booking-card" style={{ padding: 10, borderRadius: 12 }}>
                     <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>
                       {time && <span style={{ fontWeight: 600, marginRight: 6 }}>{time}</span>}
                       {b.customer_name || labels.unknown}
@@ -197,7 +197,7 @@ export default function CalendarClient({
             </div>
           ) : (
             undated.map((b) => (
-              <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
+              <div key={b.id} className="dash-card cal-booking-card" style={{ padding: 10, borderRadius: 12 }}>
                 <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{b.customer_name || labels.unknown}</p>
                 <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-3)", marginBottom: 2 }}>
                   {labels.calReason}
@@ -218,6 +218,15 @@ export default function CalendarClient({
         .cal-grid-col { flex: 1.4 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
         .cal-agenda-col { flex: 1 1 0; min-width: 220px; }
         .cal-agenda-list { overflow-y: auto; min-height: 0; }
+        /* .dash-card:hover (globals.css) lifts the card with translateY(-2px)
+           -- fine for clickable cards elsewhere, but these booking-detail
+           boxes aren't clickable themselves (just a container around the
+           Confirm/Cancel buttons), so the shift read as spurious movement.
+           Cancels only the transform; border-color/box-shadow hover
+           feedback from .dash-card:hover still applies untouched. Combined
+           selector (not a bare .cal-booking-card:hover) so specificity
+           beats .dash-card:hover regardless of source order. */
+        .dash-card.cal-booking-card:hover { transform: none; }
         @media (max-width: 700px) {
           .cal-layout { flex-direction: column; gap: 16px; }
           .cal-grid-col { flex: none; width: 100%; }
