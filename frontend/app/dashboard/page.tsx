@@ -3,7 +3,7 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
 import { IconPhone, IconCalendar } from "@/components/icons";
-import { BUSINESS_TZ } from "@/lib/tz";
+import { BUSINESS_TZ, madridHour, zonedTimeToUtc } from "@/lib/tz";
  
 export default async function OverviewPage() {
   const { supabase, business } = await getAuthedBusiness();
@@ -17,6 +17,7 @@ export default async function OverviewPage() {
     { count: pendingBookings },
     { data: recentCalls },
     { data: upcoming },
+    { data: allCallTimes },
   ] = await Promise.all([
     supabase.from("calls").select("*", { count: "exact", head: true }).eq("business_id", businessId),
     supabase.from("bookings").select("*", { count: "exact", head: true })
@@ -26,9 +27,17 @@ export default async function OverviewPage() {
     supabase.from("bookings").select("*").eq("business_id", businessId)
       .in("status", ["pending", "confirmed"])
       .order("created_at", { ascending: false }).limit(4),
+    supabase.from("calls").select("created_at").eq("business_id", businessId),
   ]);
 
   const conv = totalCalls ? Math.round(((pendingBookings || 0) / totalCalls) * 100) : 0;
+
+  const hourCounts = Array(24).fill(0);
+  (allCallTimes || []).forEach((c) => { hourCounts[madridHour(new Date(c.created_at))]++; });
+  const maxHourCount = Math.max(1, ...hourCounts);
+  const hourLabel = (h: number) =>
+    zonedTimeToUtc(2024, 0, 1, h).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ });
+  const axisHours = [0, 3, 6, 9, 12, 15, 18, 21];
 
   return (
     <div className="ov-wrap">
@@ -113,6 +122,34 @@ export default async function OverviewPage() {
         </div>
       </div>
 
+      <div className="dash-card dash-in d6 ov-panel" style={{ marginTop: 18 }}>
+        <div style={{ marginBottom: 14 }}>
+          <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.hourChartTitle}</h2>
+          <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{t.hourChartSub}</p>
+        </div>
+        {!totalCalls ? (
+          <Empty text={t.noCalls} />
+        ) : (
+          <>
+            <div className="ov-hourbars">
+              {hourCounts.map((count, h) => (
+                <div
+                  key={h}
+                  className="ov-hourbar"
+                  title={t.hourTooltip(hourLabel(h), count)}
+                  style={{ height: count > 0 ? `${Math.max((count / maxHourCount) * 100, 8)}%` : 2 }}
+                />
+              ))}
+            </div>
+            <div className="ov-hourlabels">
+              {axisHours.map((h) => (
+                <span key={h}>{hourLabel(h)}</span>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
       <style>{`
         .ov-wrap { padding: 28px 32px; max-width: 1080px; }
         .ov-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 28px; }
@@ -123,6 +160,10 @@ export default async function OverviewPage() {
         .ov-panel { padding: 20px; }
         .ov-view-all { padding: 4px 8px; margin: -4px -8px; border-radius: 8px; transition: background .22s var(--e-out); }
         .ov-view-all:hover { background: rgba(255,255,255,.055); }
+        .ov-hourbars { display: flex; align-items: flex-end; gap: 2px; height: 80px; border-bottom: 1px solid var(--hair); }
+        .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
+        .ov-hourlabels { display: flex; justify-content: space-between; margin-top: 6px; }
+        .ov-hourlabels span { font-size: 9.5px; color: var(--text-3); }
         @media (max-width: 700px) {
           .ov-wrap { padding: 18px 16px; }
           .ov-content { grid-template-columns: 1fr; gap: 14px; }
@@ -133,6 +174,7 @@ export default async function OverviewPage() {
           .ov-stat-num { font-size: 20px; }
           .ov-stat-label { font-size: 10.5px; }
           .ov-panel { padding: 14px; }
+          .ov-hourlabels span:nth-child(2n) { display: none; }
         }
       `}</style>
     </div>

@@ -12,6 +12,7 @@ export type DashDict = {
   statCalls: string; statBookings: string; statConv: string; statConvTooltip: string;
   recentCalls: string; viewAll: string; noCalls: string; noSummary: string; unknown: string;
   upcoming: string; noUpcoming: string; noDateSet: string;
+  hourChartTitle: string; hourChartSub: string; hourTooltip: (hourLabel: string, count: number) => string;
 
   callsTitle: string; callsSub: string; callsEmptyTitle: string; callsEmptySub: string;
   noPhone: string; back: string;
@@ -55,6 +56,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     recentCalls: "Recent calls", viewAll: "View all", noCalls: "No calls yet.",
     noSummary: "No summary yet.", unknown: "Unknown",
     upcoming: "Upcoming bookings", noUpcoming: "No upcoming bookings.", noDateSet: "No date set",
+    hourChartTitle: "Calls by hour of day", hourChartSub: "When your calls tend to come in.",
+    hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "call" : "calls"}`,
 
     callsTitle: "Call history", callsSub: "Every call your AI receptionist has handled.",
     callsEmptyTitle: "No calls yet", callsEmptySub: "Calls will appear here once your AI starts answering.",
@@ -103,6 +106,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     recentCalls: "Últimas llamadas", viewAll: "Ver todas", noCalls: "Aún no hay llamadas.",
     noSummary: "Sin resumen aún.", unknown: "Desconocido",
     upcoming: "Próximas citas", noUpcoming: "No hay próximas citas.", noDateSet: "Sin fecha",
+    hourChartTitle: "Llamadas por hora del día", hourChartSub: "Cuándo suelen llegar tus llamadas.",
+    hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
 
     callsTitle: "Historial de llamadas", callsSub: "Todas las llamadas gestionadas por tu IA.",
     callsEmptyTitle: "Aún no hay llamadas", callsEmptySub: "Las llamadas aparecerán aquí en cuanto tu IA empiece a contestar.",
@@ -151,6 +156,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     recentCalls: "Derniers appels", viewAll: "Tout voir", noCalls: "Aucun appel pour l'instant.",
     noSummary: "Pas encore de résumé.", unknown: "Inconnu",
     upcoming: "Prochains rendez-vous", noUpcoming: "Aucun rendez-vous à venir.", noDateSet: "Aucune date",
+    hourChartTitle: "Appels par heure de la journée", hourChartSub: "À quel moment vos appels arrivent le plus souvent.",
+    hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "appel" : "appels"}`,
 
     callsTitle: "Historique des appels", callsSub: "Tous les appels gérés par votre IA.",
     callsEmptyTitle: "Aucun appel pour l'instant", callsEmptySub: "Les appels apparaîtront ici dès que votre IA commencera à répondre.",

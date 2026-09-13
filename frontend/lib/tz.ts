@@ -21,6 +21,18 @@ export function madridYMD(date: Date): [number, number, number] {
   return [get("year"), get("month"), get("day")];
 }
 
+// The hour of day (0-23), as seen in BUSINESS_TZ, for a given instant.
+// Used to bucket calls by local hour-of-day (e.g. the Overview page's
+// calls-by-hour chart) instead of by the server's default timezone.
+export function madridHour(date: Date): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: BUSINESS_TZ,
+    hour: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  return Number(parts.find((p) => p.type === "hour")?.value);
+}
+
 // The UTC instant corresponding to a given wall-clock date/time as observed
 // in `timeZone` -- e.g. zonedTimeToUtc(2026, 6, 1) is "midnight on July 1st,
 // Madrid time" expressed as the real UTC instant that is, not the UTC
