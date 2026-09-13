@@ -16,6 +16,8 @@ export type DashDict = {
 
   callsTitle: string; callsSub: string; callsEmptyTitle: string; callsEmptySub: string;
   noPhone: string; back: string;
+  callsFilterFrom: string; callsFilterTo: string; callsFilterApply: string; callsFilterClear: string;
+  callsFilterEmptyTitle: string; callsFilterEmptySub: string;
   callStatusCaptured: string; callStatusReview: string;
   urgencyLow: string; urgencyNormal: string; urgencyHigh: string;
   bookingTypeAppointment: string; bookingTypeCallback: string;
@@ -62,6 +64,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     callsTitle: "Call history", callsSub: "Every call your AI receptionist has handled.",
     callsEmptyTitle: "No calls yet", callsEmptySub: "Calls will appear here once your AI starts answering.",
     noPhone: "Number not captured", back: "Back to calls",
+    callsFilterFrom: "From", callsFilterTo: "To", callsFilterApply: "Filter", callsFilterClear: "Clear",
+    callsFilterEmptyTitle: "No calls in this range", callsFilterEmptySub: "Try a different date range.",
     callStatusCaptured: "Request captured", callStatusReview: "Needs review",
     urgencyLow: "Low", urgencyNormal: "Normal", urgencyHigh: "High",
     bookingTypeAppointment: "Appointment", bookingTypeCallback: "Callback",
@@ -112,6 +116,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     callsTitle: "Historial de llamadas", callsSub: "Todas las llamadas gestionadas por tu IA.",
     callsEmptyTitle: "Aún no hay llamadas", callsEmptySub: "Las llamadas aparecerán aquí en cuanto tu IA empiece a contestar.",
     noPhone: "Número no capturado", back: "Volver a llamadas",
+    callsFilterFrom: "Desde", callsFilterTo: "Hasta", callsFilterApply: "Filtrar", callsFilterClear: "Quitar filtro",
+    callsFilterEmptyTitle: "No hay llamadas en este rango", callsFilterEmptySub: "Prueba con otro rango de fechas.",
     callStatusCaptured: "Solicitud registrada", callStatusReview: "Necesita revisión",
     urgencyLow: "Baja", urgencyNormal: "Normal", urgencyHigh: "Alta",
     bookingTypeAppointment: "Cita", bookingTypeCallback: "Llamada de vuelta",
@@ -162,6 +168,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     callsTitle: "Historique des appels", callsSub: "Tous les appels gérés par votre IA.",
     callsEmptyTitle: "Aucun appel pour l'instant", callsEmptySub: "Les appels apparaîtront ici dès que votre IA commencera à répondre.",
     noPhone: "Numéro non capturé", back: "Retour aux appels",
+    callsFilterFrom: "Du", callsFilterTo: "Au", callsFilterApply: "Filtrer", callsFilterClear: "Effacer",
+    callsFilterEmptyTitle: "Aucun appel sur cette période", callsFilterEmptySub: "Essayez une autre période.",
     callStatusCaptured: "Demande enregistrée", callStatusReview: "À vérifier",
     urgencyLow: "Faible", urgencyNormal: "Normale", urgencyHigh: "Élevée",
     bookingTypeAppointment: "Rendez-vous", bookingTypeCallback: "Rappel",

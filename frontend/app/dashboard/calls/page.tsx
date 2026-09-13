@@ -3,7 +3,14 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
 import { IconPhone } from "@/components/icons";
-import { BUSINESS_TZ } from "@/lib/tz";
+import { BUSINESS_TZ, zonedTimeToUtc } from "@/lib/tz";
+
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+function parseDateParam(v: string | undefined): [number, number, number] | null {
+  if (!v || !DATE_RE.test(v)) return null;
+  const [y, m, d] = v.split("-").map(Number);
+  return [y, m - 1, d];
+}
 
 const STATUS_STYLE: Record<string, { bg: string; border: string; color: string }> = {
   // Matches the only two values backend/app/routers/webhooks.py ever writes
@@ -15,7 +22,11 @@ const STATUS_STYLE: Record<string, { bg: string; border: string; color: string }
   needs_review: { bg: "rgba(255,193,120,.1)", border: "rgba(255,193,120,.24)", color: "#FFC178" },
 };
 
-export default async function CallsPage() {
+export default async function CallsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ from?: string; to?: string }>;
+}) {
   const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
@@ -26,21 +37,49 @@ export default async function CallsPage() {
     other: t.intentOther,
   };
 
-  const { data: calls } = await supabase
+  const sp = await searchParams;
+  // Bounds are Madrid calendar days, not UTC ones -- e.g. "to" must include
+  // the entirety of that day as observed in Madrid, so the exclusive upper
+  // bound is Madrid midnight of the *next* day (day+1 overflows correctly).
+  const fromYmd = parseDateParam(sp.from);
+  const toYmd = parseDateParam(sp.to);
+  const fromUtc = fromYmd ? zonedTimeToUtc(fromYmd[0], fromYmd[1], fromYmd[2]) : null;
+  const toUtcExclusive = toYmd ? zonedTimeToUtc(toYmd[0], toYmd[1], toYmd[2] + 1) : null;
+  const isFiltered = !!(fromUtc || toUtcExclusive);
+
+  let callsQuery = supabase
     .from("calls").select("*").eq("business_id", business?.id)
     .order("created_at", { ascending: false });
+  if (fromUtc) callsQuery = callsQuery.gte("created_at", fromUtc.toISOString());
+  if (toUtcExclusive) callsQuery = callsQuery.lt("created_at", toUtcExclusive.toISOString());
+  const { data: calls } = await callsQuery;
 
   return (
     <div className="calls-wrap">
-      <div className="dash-in" style={{ marginBottom: 28 }}>
+      <div className="dash-in" style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.callsTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.callsSub}</p>
       </div>
 
+      <form className="dash-in calls-filter">
+        <div>
+          <label style={filterLabel}>{t.callsFilterFrom}</label>
+          <input type="date" name="from" defaultValue={sp.from ?? ""} className="dash-input" />
+        </div>
+        <div>
+          <label style={filterLabel}>{t.callsFilterTo}</label>
+          <input type="date" name="to" defaultValue={sp.to ?? ""} className="dash-input" />
+        </div>
+        <button type="submit" className="btn-jade" style={filterBtn}>{t.callsFilterApply}</button>
+        {isFiltered && (
+          <Link href="/dashboard/calls" style={{ fontSize: 13, color: "var(--text-3)", padding: "9px 4px" }}>{t.callsFilterClear}</Link>
+        )}
+      </form>
+
       {!calls?.length ? (
         <div style={{ textAlign: "center", padding: "56px 20px", border: "1px solid var(--hair)", borderRadius: 18, background: "rgba(255,255,255,.024)" }}>
-          <p style={{ fontSize: 15, marginBottom: 6 }}>{t.callsEmptyTitle}</p>
-          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{t.callsEmptySub}</p>
+          <p style={{ fontSize: 15, marginBottom: 6 }}>{isFiltered ? t.callsFilterEmptyTitle : t.callsEmptyTitle}</p>
+          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{isFiltered ? t.callsFilterEmptySub : t.callsEmptySub}</p>
         </div>
       ) : (
          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -106,14 +145,23 @@ export default async function CallsPage() {
       <style>{`
         .calls-wrap { padding: 28px 32px; max-width: 760px; }
         .call-card { padding: 18px; }
+        .calls-filter { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
         @media (max-width: 700px) {
           .calls-wrap { padding: 18px 16px; }
         }
         @media (max-width: 480px) {
           .call-card { padding: 14px; }
           .call-card-head { gap: 8px; }
+          .calls-filter { flex-direction: column; align-items: stretch; }
         }
       `}</style>
     </div>
   );
 }
+
+const filterLabel: React.CSSProperties = { display: "block", fontSize: 11.5, fontWeight: 500, color: "var(--text-3)", marginBottom: 6 };
+const filterBtn: React.CSSProperties = {
+  padding: "11px 20px", borderRadius: 11, border: "none",
+  fontSize: 13.5, fontWeight: 600, color: "#04140D", cursor: "pointer",
+  background: "linear-gradient(180deg,#5CEBAF,var(--jade-2))",
+};
