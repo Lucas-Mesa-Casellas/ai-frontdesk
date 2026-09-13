@@ -22,8 +22,23 @@ export async function confirmBooking(bookingId: string, path: string) {
   // business (policy "owner can confirm own bookings", see
   // supabase/migrations/004_rls_policy_sync.sql) — a stranger with the ID
   // can't confirm someone else's booking even if they guessed it.
-  const { error } = await supabase.from("bookings").update({ status: "confirmed" }).eq("id", bookingId);
-  if (error) throw error;
+  const { data, error } = await supabase.from("bookings").update({ status: "confirmed" }).eq("id", bookingId).select("id");
+  if (error) {
+    // Full PostgrestError (code/message/details/hint), not just the
+    // generic "an error occurred" the client shows -- needed to tell an
+    // actual RLS with-check violation apart from other failure modes.
+    // Check server logs after reproducing to see this.
+    console.error("[confirmBooking] update failed", { bookingId, error });
+    throw error;
+  }
+  if (!data || data.length === 0) {
+    // No Postgres error, but RLS's USING clause silently matched 0 rows --
+    // e.g. this booking's business_id doesn't trace back to the caller's
+    // own auth.uid() via businesses.owner_id. Distinct from the error case
+    // above: the request "succeeded" as far as Postgres is concerned.
+    console.error("[confirmBooking] update matched 0 rows (RLS likely filtered it)", { bookingId });
+    throw new Error("Update matched no rows — check RLS policy / booking ownership.");
+  }
   revalidatePath(path);
 }
 
@@ -31,7 +46,14 @@ export async function cancelBooking(bookingId: string, path: string) {
   const supabase = await createClient();
   // Same RLS protection as confirmBooking -- restricted to the caller's
   // own business (supabase/migrations/004_rls_policy_sync.sql).
-  const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", bookingId);
-  if (error) throw error;
+  const { data, error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", bookingId).select("id");
+  if (error) {
+    console.error("[cancelBooking] update failed", { bookingId, error });
+    throw error;
+  }
+  if (!data || data.length === 0) {
+    console.error("[cancelBooking] update matched 0 rows (RLS likely filtered it)", { bookingId });
+    throw new Error("Update matched no rows — check RLS policy / booking ownership.");
+  }
   revalidatePath(path);
 }

@@ -26,7 +26,10 @@ export default function BookingActions({
         if (kind === "confirm") await confirmBooking(bookingId, path);
         else await cancelBooking(bookingId, path);
         setDone(kind);
-      } catch {
+      } catch (err) {
+        // Full detail is logged server-side in dash-actions.ts; this is a
+        // secondary copy in the browser console for whoever is testing.
+        console.error("[BookingActions]", kind, "failed for booking", bookingId, err);
         setFailed(true);
       }
     });
