@@ -53,7 +53,11 @@ export default async function OverviewPage() {
 
         <div className="dash-card dash-in d3 ov-stat-card">
           <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{conv}%</p>
-          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statConv}{t.statConvGoal ? ` · ${t.statConvGoal}` : ""}</p>
+          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>
+            <span title={t.statConvTooltip} style={{ borderBottom: "1px dotted var(--text-3)", cursor: "help" }}>
+              {t.statConv}
+            </span>
+          </p>
         </div>
       </div>
 
