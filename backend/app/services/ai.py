@@ -6,13 +6,29 @@ from app.models.call import ExtractedCallData
 settings = get_settings()
 client = OpenAI(api_key=settings.openai_api_key)
 
-SYSTEM_PROMPT = """
+LANGUAGE_NAMES = {"es": "Spanish", "fr": "French", "en": "English"}
+
+
+def build_system_prompt(language: str) -> str:
+    # Falls back to Spanish (matches businesses.language's own DB default)
+    # for any value that isn't one of the three the dashboard supports.
+    language_name = LANGUAGE_NAMES.get(language, "Spanish")
+    return f"""
 You are an AI assistant for a business receptionist platform serving trades
 (plumbers, electricians, locksmiths, and similar) and property/rental
 management businesses. Extract structured information from the call
 transcript below.
 
 Return ONLY a valid JSON object. No explanation. No markdown. No code fences.
+
+This business communicates with its customers in {language_name}. Write
+summary, next_action, and notes directly in {language_name} -- not
+English, regardless of what language the transcript itself is in --
+since a human business owner reads these, not this system. Do NOT
+translate caller_name, caller_phone, or preferred_time; keep those
+exactly as heard. intent, urgency, and booking_type below MUST stay
+the exact English values listed for each -- those are read by code,
+never shown as raw text to a person.
 
 Fields to extract:
 - caller_name: string or null
@@ -22,7 +38,7 @@ Fields to extract:
    callback = caller wants someone to call them back;
    inquiry = caller has a question and is not requesting action;
    other = anything else)
-- summary: one sentence summary or null
+- summary: one sentence summary, written in {language_name}, or null
 - urgency: "low" | "normal" | "high" | null
   high = a genuine emergency or something needing same-day action. For trades calls:
   an active leak/flood, no heat or hot water in cold conditions, no power, a gas smell,
@@ -42,18 +58,20 @@ Fields to extract:
   using the call date/time above as the reference point for relative phrases
   like "tomorrow" or "next Thursday". Null if no specific date/time was given
   or the request isn't a bookable appointment.
-- next_action: what the business should do next, or null
+- next_action: what the business should do next, written in {language_name}, or null
 - booking_type: "appointment" | "callback" | null
 - party_size: integer or null (only if the caller mentions a number of
   people; leave null for almost all trades and property calls)
 - extraction_complete: true if all critical info was captured, false otherwise
 - extraction_confidence: float 0.0 to 1.0
 - missing_fields: list of field names not mentioned in the transcript
-- notes: any extra relevant detail, or null
+- notes: any extra relevant detail, written in {language_name}, or null
 """
 
 
-def extract_call_data(transcript: str, call_started_at: str) -> tuple[ExtractedCallData, dict]:
+def extract_call_data(
+    transcript: str, call_started_at: str, business_language: str = "es"
+) -> tuple[ExtractedCallData, dict]:
     """
     Never raises. A single malformed AI response, OpenAI API hiccup, or
     model output straying outside the allowed field values (now enforced
@@ -61,12 +79,20 @@ def extract_call_data(transcript: str, call_started_at: str) -> tuple[ExtractedC
     on any failure here we fall back to an empty, "needs_review"
     extraction rather than letting an exception propagate up through the
     webhook and drop the call entirely.
+
+    business_language is the business's own dashboard language
+    (businesses.language -- see supabase/migrations/005_business_language.sql),
+    threaded through so summary/next_action/notes come back written in the
+    language the business owner actually reads, not always English.
+    intent/urgency/booking_type are unaffected by this -- those stay fixed
+    English enum values consumed by code and translated for display via
+    frontend/lib/dash-i18n.ts, never natural language.
     """
     try:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": build_system_prompt(business_language)},
                 {"role": "user", "content": f"Call date/time: {call_started_at}\n\nTranscript:\n{transcript}"},
             ],
             max_tokens=500,

@@ -77,7 +77,7 @@ async def retell_webhook(request: Request):
         datetime.fromtimestamp(start_ts / 1000, tz=business_tz).isoformat()
         if start_ts else datetime.now(business_tz).isoformat()
     )
-    extracted, raw_payload = extract_call_data(transcript, call_started_iso)
+    extracted, raw_payload = extract_call_data(transcript, call_started_iso, business.get("language", "es"))
 
     # Fall back to verified Caller ID when the transcript never states a
     # number explicitly -- e.g. the caller accepted "use the number you're
