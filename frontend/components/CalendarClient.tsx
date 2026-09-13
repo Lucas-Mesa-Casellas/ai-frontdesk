@@ -104,7 +104,7 @@ export default function CalendarClient({
           ))}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gridTemplateRows: `repeat(${cells.length / 7}, minmax(30px, 1fr))`, gap: 3, flex: 1, minHeight: 0 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gridTemplateRows: `repeat(${cells.length / 7}, minmax(44px, 1fr))`, gap: 3, flex: 1, minHeight: 0 }}>
           {cells.map((day, i) => {
             const isToday = day !== null && todayKey === `${year}-${month}-${day}`;
             const isSelected = day !== null && day === selectedDay;
@@ -125,9 +125,9 @@ export default function CalendarClient({
                 {day !== null && (
                   <>
                     <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>{day}</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 1.5, marginTop: 3 }}>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 4 }}>
                       {bookings.slice(0, 3).map((b) => (
-                        <span key={b.id} style={{ height: 2.5, borderRadius: 2, background: dotColor(b) }} />
+                        <div key={b.id} style={{ width: "100%", height: 4, borderRadius: 2, background: dotColor(b) }} />
                       ))}
                     </div>
                   </>
