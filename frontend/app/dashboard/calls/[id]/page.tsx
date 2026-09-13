@@ -4,6 +4,7 @@ import { DASH_T } from "@/lib/dash-i18n";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { IconArrowLeft, IconPhone } from "@/components/icons";
+import { BUSINESS_TZ } from "@/lib/tz";
 
 export default async function CallDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -50,13 +51,13 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
           <div style={field}>
             <p style={fieldLabel}>{t.detailDate}</p>
             <p style={{ fontSize: 13.5, fontWeight: 500 }}>
-              {new Date(call.created_at).toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long" })}
+              {new Date(call.created_at).toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", timeZone: BUSINESS_TZ })}
             </p>
           </div>
           <div style={field}>
             <p style={fieldLabel}>{t.detailTime}</p>
             <p style={{ fontSize: 13.5, fontWeight: 500 }}>
-              {new Date(call.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+              {new Date(call.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
             </p>
           </div>
           {call.preferred_time && (

@@ -3,6 +3,7 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
 import { IconPhone, IconCalendar } from "@/components/icons";
+import { BUSINESS_TZ } from "@/lib/tz";
  
 export default async function OverviewPage() {
   const { supabase, business } = await getAuthedBusiness();
@@ -73,7 +74,7 @@ export default async function OverviewPage() {
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
                       <p style={rowTitle}>{c.caller_name || t.unknown}</p>
                       <span style={rowTime}>
-                        {new Date(c.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                        {new Date(c.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
                       </span>
                     </div>
                     <p style={rowSub}>{c.summary || t.noSummary}</p>

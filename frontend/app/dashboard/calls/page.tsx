@@ -3,6 +3,7 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
 import { IconPhone } from "@/components/icons";
+import { BUSINESS_TZ } from "@/lib/tz";
 
 const STATUS_STYLE: Record<string, { bg: string; border: string; color: string }> = {
   reservation_requested: { bg: "rgba(55,226,155,.1)", border: "rgba(55,226,155,.24)", color: "var(--jade)" },
@@ -58,10 +59,10 @@ export default async function CallsPage() {
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <p style={{ fontSize: 12, color: "var(--text-3)" }}>
-                      {new Date(c.created_at).toLocaleDateString(locale, { day: "numeric", month: "short" })}
+                      {new Date(c.created_at).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: BUSINESS_TZ })}
                     </p>
                     <p style={{ fontSize: 12, color: "var(--text-3)" }}>
-                      {new Date(c.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(c.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
                     </p>
                   </div>
                 </div>

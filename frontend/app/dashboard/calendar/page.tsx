@@ -2,6 +2,7 @@ import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import CalendarClient from "@/components/CalendarClient";
+import { BUSINESS_TZ, madridYMD } from "@/lib/tz";
 
 const INTL_LOCALE: Record<string, string> = { en: "en-US", es: "es-ES", fr: "fr-FR" };
 
@@ -20,8 +21,9 @@ export default async function CalendarPage({
 
   const sp = await searchParams;
   const now = new Date();
-  let year = now.getFullYear();
-  let month = now.getMonth();
+  const [nowYear, nowMonth1, nowDay] = madridYMD(now);
+  let year = nowYear;
+  let month = nowMonth1 - 1;
   if (sp.month && /^\d{4}-\d{2}$/.test(sp.month)) {
     const [y, m] = sp.month.split("-").map(Number);
     year = y;
@@ -61,7 +63,7 @@ export default async function CalendarPage({
   const byDay: Record<number, any[]> = {};
   monthBookings.forEach((b) => {
     if (!b.start_time) return;
-    const d = new Date(b.start_time).getUTCDate();
+    const [, , d] = madridYMD(new Date(b.start_time));
     (byDay[d] ||= []).push(b);
   });
 
@@ -75,11 +77,11 @@ export default async function CalendarPage({
 
   const weekdayLabels = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(Date.UTC(2024, 0, 1 + i));
-    return new Intl.DateTimeFormat(intlLocale, { weekday: "short" }).format(d);
+    return new Intl.DateTimeFormat(intlLocale, { weekday: "short", timeZone: BUSINESS_TZ }).format(d);
   });
 
-  const monthTitle = new Intl.DateTimeFormat(intlLocale, { month: "long", year: "numeric" }).format(monthStart);
-  const todayKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+  const monthTitle = new Intl.DateTimeFormat(intlLocale, { month: "long", year: "numeric", timeZone: BUSINESS_TZ }).format(monthStart);
+  const todayKey = `${nowYear}-${nowMonth1 - 1}-${nowDay}`;
   const confirmedCount = monthBookings.filter((b: any) => b.status === "confirmed").length;
 
   return (

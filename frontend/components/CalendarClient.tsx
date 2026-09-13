@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import BookingActions from "./BookingActions";
+import { BUSINESS_TZ } from "@/lib/tz";
 
 type Booking = {
   id: string; customer_name: string | null; customer_phone: string | null;
@@ -43,7 +44,7 @@ export default function CalendarClient({
   };
 
   const selectedDateLabel = selectedDay !== null
-    ? new Intl.DateTimeFormat(intlLocale, { weekday: "short", month: "short", day: "numeric" })
+    ? new Intl.DateTimeFormat(intlLocale, { weekday: "short", month: "short", day: "numeric", timeZone: BUSINESS_TZ })
         .format(new Date(Date.UTC(year, month, selectedDay)))
     : null;
 
@@ -166,7 +167,7 @@ export default function CalendarClient({
             ) : (
               selected.map((b) => {
                 const time = b.start_time
-                  ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit" }).format(new Date(b.start_time))
+                  ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ }).format(new Date(b.start_time))
                   : null;
                 return (
                   <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
