@@ -2,6 +2,7 @@ import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { IconPhone } from "@/components/icons";
 import { BUSINESS_TZ, zonedTimeToUtc } from "@/lib/tz";
 
@@ -38,6 +39,16 @@ export default async function CallsPage({
   };
 
   const sp = await searchParams;
+  // If both dates are valid and "from" is after "to", the range is stated
+  // backwards rather than genuinely invalid -- redirect to the swapped
+  // range instead of either silently applying it (URL and the form's
+  // displayed values would then disagree) or showing a validation error
+  // for something this easy to just correct. Plain string comparison is
+  // safe since both are YYYY-MM-DD.
+  if (sp.from && sp.to && DATE_RE.test(sp.from) && DATE_RE.test(sp.to) && sp.from > sp.to) {
+    redirect(`/dashboard/calls?from=${sp.to}&to=${sp.from}`);
+  }
+
   // Bounds are Madrid calendar days, not UTC ones -- e.g. "to" must include
   // the entirety of that day as observed in Madrid, so the exclusive upper
   // bound is Madrid midnight of the *next* day (day+1 overflows correctly).
