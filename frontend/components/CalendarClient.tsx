@@ -8,12 +8,12 @@ import { BUSINESS_TZ } from "@/lib/tz";
 type Booking = {
   id: string; customer_name: string | null; customer_phone: string | null;
   party_size: number | null; notes: string | null; status: string;
-  start_time: string | null; urgency: string | null;
+  start_time: string | null; urgency: string | null; summary: string | null;
 };
 
 type UndatedBooking = {
   id: string; customer_name: string | null; customer_phone: string | null;
-  notes: string | null; status: string;
+  summary: string | null; status: string;
 };
 
 export default function CalendarClient({
@@ -179,8 +179,11 @@ export default function CalendarClient({
                       {time && <span style={{ fontWeight: 600, marginRight: 6 }}>{time}</span>}
                       {b.customer_name || labels.unknown}
                     </p>
+                    <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-3)", marginBottom: 2 }}>
+                      {labels.calReason}
+                    </p>
                     <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
-                      {b.notes || labels.calNoDate}
+                      {b.summary || labels.calNoReason}
                       {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                     </p>
                     {renderActions(b)}
@@ -196,8 +199,11 @@ export default function CalendarClient({
             undated.map((b) => (
               <div key={b.id} className="dash-card" style={{ padding: 10, borderRadius: 12 }}>
                 <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{b.customer_name || labels.unknown}</p>
+                <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-3)", marginBottom: 2 }}>
+                  {labels.calReason}
+                </p>
                 <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
-                  {b.notes || labels.calNoDate}
+                  {b.summary || labels.calNoReason}
                   {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                 </p>
                 {renderActions(b)}

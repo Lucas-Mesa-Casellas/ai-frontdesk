@@ -53,17 +53,26 @@ export default async function CalendarPage({
 
   const allRows = [...(monthBookingsRaw || []), ...(undatedBookingsRaw || [])];
   const callIds = allRows.map((b) => b.call_id).filter(Boolean);
-  const urgencyByCall: Record<string, string | null> = {};
+  // bookings.notes actually stores extracted.preferred_time (the caller's
+  // raw natural-language time phrase, e.g. "mañana tres de la tarde") --
+  // set that way in backend/app/routers/webhooks.py's booking_record. It
+  // is NOT a general reason/summary field despite the column name, so the
+  // day-detail panel needs the linked call's own summary instead.
+  const callInfoByCall: Record<string, { urgency: string | null; summary: string | null }> = {};
   if (callIds.length) {
     const { data: callsData } = await supabase
-      .from("calls").select("id, urgency").in("id", callIds);
-    (callsData || []).forEach((c) => { urgencyByCall[c.id] = c.urgency ?? null; });
+      .from("calls").select("id, urgency, summary").in("id", callIds);
+    (callsData || []).forEach((c) => { callInfoByCall[c.id] = { urgency: c.urgency ?? null, summary: c.summary ?? null }; });
   }
-  const withUrgency = (rows: any[] | null) =>
-    (rows || []).map((r) => ({ ...r, urgency: r.call_id ? urgencyByCall[r.call_id] ?? null : null }));
+  const withCallInfo = (rows: any[] | null) =>
+    (rows || []).map((r) => ({
+      ...r,
+      urgency: r.call_id ? callInfoByCall[r.call_id]?.urgency ?? null : null,
+      summary: r.call_id ? callInfoByCall[r.call_id]?.summary ?? null : null,
+    }));
 
-  const monthBookings = withUrgency(monthBookingsRaw);
-  const undatedBookings = withUrgency(undatedBookingsRaw);
+  const monthBookings = withCallInfo(monthBookingsRaw);
+  const undatedBookings = withCallInfo(undatedBookingsRaw);
 
   const byDay: Record<number, any[]> = {};
   monthBookings.forEach((b) => {
@@ -116,7 +125,7 @@ export default async function CalendarPage({
           stats={{ total: monthBookings.length, confirmed: confirmedCount }}
           undated={undatedBookings.map((b: any) => ({
             id: b.id, customer_name: b.customer_name, customer_phone: b.customer_phone,
-            notes: b.notes, status: b.status,
+            summary: b.summary, status: b.status,
           }))}
           labels={{
             calSelectDay: t.calSelectDay,
@@ -133,6 +142,8 @@ export default async function CalendarPage({
             unknown: t.unknown,
             statThisMonth: t.calStatsThisMonth,
             statConfirmed: t.calConfirmed,
+            calReason: t.calReason,
+            calNoReason: t.calNoReason,
           }}
         />
       </div>
