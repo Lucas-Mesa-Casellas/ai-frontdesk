@@ -66,6 +66,8 @@ export default function CalendarClient({
         bookingId={b.id} path="/dashboard/calendar"
         confirmLabel={labels.calConfirm} confirmingLabel={labels.calConfirming}
         cancelLabel={labels.calCancel} cancellingLabel={labels.calCancelling}
+        confirmedLabel={labels.calConfirmed_} cancelledLabel={labels.calCancelled}
+        errorLabel={labels.calActionError}
       />
     );
   };

@@ -120,6 +120,7 @@ export default async function CalendarPage({
             calCancelling: t.calCancelling,
             calCancelled: t.calCancelled,
             calConfirmed_: t.calConfirmed_,
+            calActionError: t.calActionError,
             calNoDate: t.calNoDate,
             calUndatedTitle: t.calUndatedTitle,
             unknown: t.unknown,

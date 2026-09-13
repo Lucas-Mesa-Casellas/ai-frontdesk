@@ -22,7 +22,8 @@ export async function confirmBooking(bookingId: string, path: string) {
   // business (policy "owner can confirm own bookings", see
   // supabase/migrations/004_rls_policy_sync.sql) — a stranger with the ID
   // can't confirm someone else's booking even if they guessed it.
-  await supabase.from("bookings").update({ status: "confirmed" }).eq("id", bookingId);
+  const { error } = await supabase.from("bookings").update({ status: "confirmed" }).eq("id", bookingId);
+  if (error) throw error;
   revalidatePath(path);
 }
 
@@ -30,6 +31,7 @@ export async function cancelBooking(bookingId: string, path: string) {
   const supabase = await createClient();
   // Same RLS protection as confirmBooking -- restricted to the caller's
   // own business (supabase/migrations/004_rls_policy_sync.sql).
-  await supabase.from("bookings").update({ status: "cancelled" }).eq("id", bookingId);
+  const { error } = await supabase.from("bookings").update({ status: "cancelled" }).eq("id", bookingId);
+  if (error) throw error;
   revalidatePath(path);
 }
