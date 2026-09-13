@@ -23,7 +23,7 @@ export type DashDict = {
   bookingTypeAppointment: string; bookingTypeCallback: string;
   intentBookAppointment: string; intentCallback: string; intentInquiry: string; intentOther: string;
 
-  detailDate: string; detailTime: string; detailRequested: string; detailUrgency: string;
+  detailDate: string; detailTime: string; detailRequested: string; detailUrgency: string; detailUrgent: string;
   detailSummary: string; detailTranscript: string; detailBooking: string; detailIntent: string;
 
   calTitle: string; calSub: string; calEmptyTitle: string; calEmptySub: string;
@@ -73,7 +73,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     intentInquiry: "General inquiry", intentOther: "Other",
 
     detailDate: "Date", detailTime: "Time", detailRequested: "Requested time",
-    detailUrgency: "Urgency", detailSummary: "AI summary", detailTranscript: "Full transcript",
+    detailUrgency: "Urgency", detailUrgent: "Urgent", detailSummary: "AI summary", detailTranscript: "Full transcript",
     detailBooking: "Linked booking", detailIntent: "Call type",
 
     calTitle: "Calendar", calSub: "Booking requests captured by your AI.",
@@ -125,7 +125,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     intentInquiry: "Consulta general", intentOther: "Otro",
 
     detailDate: "Fecha", detailTime: "Hora", detailRequested: "Horario solicitado",
-    detailUrgency: "Urgencia", detailSummary: "Resumen de la IA", detailTranscript: "Transcripción completa",
+    detailUrgency: "Urgencia", detailUrgent: "Urgente", detailSummary: "Resumen de la IA", detailTranscript: "Transcripción completa",
     detailBooking: "Reserva vinculada", detailIntent: "Tipo de llamada",
 
     calTitle: "Calendario", calSub: "Solicitudes de cita recogidas por tu IA.",
@@ -177,7 +177,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     intentInquiry: "Demande d'information", intentOther: "Autre",
 
     detailDate: "Date", detailTime: "Heure", detailRequested: "Horaire demandé",
-    detailUrgency: "Urgence", detailSummary: "Résumé de l'IA", detailTranscript: "Transcription complète",
+    detailUrgency: "Urgence", detailUrgent: "Urgent", detailSummary: "Résumé de l'IA", detailTranscript: "Transcription complète",
     detailBooking: "Rendez-vous lié", detailIntent: "Type d'appel",
 
     calTitle: "Calendrier", calSub: "Demandes de rendez-vous enregistrées par votre IA.",

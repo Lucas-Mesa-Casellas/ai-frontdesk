@@ -111,7 +111,7 @@ export default async function CalendarPage({
           legend={{
             pending: t.calPending,
             confirmed: t.calConfirmed,
-            urgency: t.detailUrgency,
+            urgency: t.detailUrgent,
           }}
           stats={{ total: monthBookings.length, confirmed: confirmedCount }}
           undated={undatedBookings.map((b: any) => ({
