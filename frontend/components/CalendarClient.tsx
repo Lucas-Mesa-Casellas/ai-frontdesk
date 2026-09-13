@@ -127,7 +127,11 @@ export default function CalendarClient({
                     <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>{day}</span>
                     <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 4 }}>
                       {bookings.slice(0, 3).map((b) => (
-                        <div key={b.id} style={{ width: "100%", height: 4, borderRadius: 2, background: dotColor(b) }} />
+                        <div
+                          key={b.id}
+                          title={`${b.customer_name || labels.unknown} — ${b.notes || labels.calNoDate}`}
+                          style={{ width: "100%", height: 4, borderRadius: 2, background: dotColor(b) }}
+                        />
                       ))}
                     </div>
                   </>
