@@ -51,7 +51,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginExpired: "That link has expired or was already used. Request a new one.",
 
     ovTitle: "Overview", ovSub: "Your activity, live.",
-    statCalls: "Calls answered", statBookings: "Booking requests", statConv: "Calls booked",
+    statCalls: "Calls answered", statBookings: "Booking requests", statConv: "Booking rate",
     noCalls: "No calls yet.", unknown: "Unknown",
     hourChartTitle: "Calls by hour of day", hourChartSub: "When your calls tend to come in.",
     hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "call" : "calls"}`,
@@ -100,7 +100,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginExpired: "Ese enlace ha caducado o ya se ha usado. Pide uno nuevo.",
 
     ovTitle: "Resumen", ovSub: "Tu actividad, en directo.",
-    statCalls: "Llamadas atendidas", statBookings: "Solicitudes de cita", statConv: "Llamadas reservadas",
+    statCalls: "Llamadas atendidas", statBookings: "Solicitudes de cita", statConv: "Tasa de reserva",
     noCalls: "Aún no hay llamadas.", unknown: "Desconocido",
     hourChartTitle: "Llamadas por hora del día", hourChartSub: "Cuándo suelen llegar tus llamadas.",
     hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
@@ -149,7 +149,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginExpired: "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.",
 
     ovTitle: "Aperçu", ovSub: "Votre activité, en direct.",
-    statCalls: "Appels traités", statBookings: "Demandes de rendez-vous", statConv: "Appels réservés",
+    statCalls: "Appels traités", statBookings: "Demandes de rendez-vous", statConv: "Taux de réservation",
     noCalls: "Aucun appel pour l'instant.", unknown: "Inconnu",
     hourChartTitle: "Appels par heure de la journée", hourChartSub: "À quel moment vos appels arrivent le plus souvent.",
     hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "appel" : "appels"}`,
