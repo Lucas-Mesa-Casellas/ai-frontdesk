@@ -20,3 +20,40 @@ export function madridYMD(date: Date): [number, number, number] {
   const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
   return [get("year"), get("month"), get("day")];
 }
+
+// The UTC instant corresponding to a given wall-clock date/time as observed
+// in `timeZone` -- e.g. zonedTimeToUtc(2026, 6, 1) is "midnight on July 1st,
+// Madrid time" expressed as the real UTC instant that is, not the UTC
+// calendar day. Needed anywhere a query range must line up with a Madrid
+// calendar boundary (a month, in practice) rather than a UTC one: Madrid
+// runs 1-2h ahead of UTC, so "day 1 at UTC midnight" and "day 1 at Madrid
+// midnight" are never the same moment, and a query using the former can
+// mis-bucket bookings made within that gap around the start/end of a month.
+//
+// month0 is 0-based (January = 0), matching JS Date's own convention, and
+// is allowed to overflow (month0: 12 correctly rolls into January of the
+// next year) the same way `new Date(year, month0, day)` does.
+export function zonedTimeToUtc(
+  year: number,
+  month0: number,
+  day: number,
+  hour = 0,
+  minute = 0,
+  second = 0,
+  timeZone: string = BUSINESS_TZ
+): Date {
+  const utcGuess = Date.UTC(year, month0, day, hour, minute, second);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    hourCycle: "h23",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+  }).formatToParts(new Date(utcGuess));
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value);
+  // Re-parse "the wall-clock time timeZone actually showed at utcGuess" as
+  // if it were itself UTC -- the gap between the two is exactly timeZone's
+  // UTC offset at that moment (never ambiguous for a plain midnight, since
+  // Madrid's DST transitions land at 2-3am local, never at midnight).
+  const asIfUtc = Date.UTC(get("year"), get("month") - 1, get("day"), get("hour"), get("minute"), get("second"));
+  return new Date(utcGuess - (asIfUtc - utcGuess));
+}

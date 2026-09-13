@@ -2,7 +2,7 @@ import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import CalendarClient from "@/components/CalendarClient";
-import { BUSINESS_TZ, madridYMD } from "@/lib/tz";
+import { BUSINESS_TZ, madridYMD, zonedTimeToUtc } from "@/lib/tz";
 
 const INTL_LOCALE: Record<string, string> = { en: "en-US", es: "es-ES", fr: "fr-FR" };
 
@@ -31,14 +31,19 @@ export default async function CalendarPage({
   }
 
   const monthStart = new Date(Date.UTC(year, month, 1));
-  const monthEndExclusive = new Date(Date.UTC(year, month + 1, 1));
   const prevMonthDate = new Date(Date.UTC(year, month - 1, 1));
   const nextMonthDate = new Date(Date.UTC(year, month + 1, 1));
 
+  // Unlike monthStart above (a UTC-native anchor used only for grid/label
+  // arithmetic, where it doesn't matter), the query range must line up with
+  // Madrid's actual month boundary -- see zonedTimeToUtc's doc comment.
+  const queryStart = zonedTimeToUtc(year, month, 1);
+  const queryEnd = zonedTimeToUtc(year, month + 1, 1);
+
   const { data: monthBookingsRaw } = await supabase
     .from("bookings").select("*").eq("business_id", business?.id)
-    .gte("start_time", monthStart.toISOString())
-    .lt("start_time", monthEndExclusive.toISOString())
+    .gte("start_time", queryStart.toISOString())
+    .lt("start_time", queryEnd.toISOString())
     .order("start_time", { ascending: true });
 
   const { data: undatedBookingsRaw } = await supabase
