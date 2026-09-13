@@ -19,6 +19,12 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
   const urgencyLabel: Record<string, string> = { low: t.urgencyLow, normal: t.urgencyNormal, high: t.urgencyHigh };
   const bookingTypeLabel: Record<string, string> = { appointment: t.bookingTypeAppointment, callback: t.bookingTypeCallback };
   const bookingStatusLabel: Record<string, string> = { pending: t.calPending, confirmed: t.calConfirmed_, cancelled: t.calCancelled };
+  const intentLabel: Record<string, string> = {
+    book_appointment: t.intentBookAppointment,
+    callback: t.intentCallback,
+    inquiry: t.intentInquiry,
+    other: t.intentOther,
+  };
 
   const card: React.CSSProperties = {
     background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)", borderRadius: 18,
@@ -64,6 +70,12 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
               {new Date(call.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
             </p>
           </div>
+          {call.intent && intentLabel[call.intent] && (
+            <div style={field}>
+              <p style={fieldLabel}>{t.detailIntent}</p>
+              <p style={{ fontSize: 13.5, fontWeight: 500 }}>{intentLabel[call.intent]}</p>
+            </div>
+          )}
           {call.preferred_time && (
             <div style={{ ...field, background: "rgba(55,226,155,.07)", borderColor: "rgba(55,226,155,.18)" }}>
               <p style={{ ...fieldLabel, color: "var(--jade)" }}>{t.detailRequested}</p>

@@ -18,9 +18,10 @@ export type DashDict = {
   callStatusCaptured: string; callStatusReview: string;
   urgencyLow: string; urgencyNormal: string; urgencyHigh: string;
   bookingTypeAppointment: string; bookingTypeCallback: string;
+  intentBookAppointment: string; intentCallback: string; intentInquiry: string; intentOther: string;
 
   detailDate: string; detailTime: string; detailRequested: string; detailUrgency: string;
-  detailSummary: string; detailTranscript: string; detailBooking: string;
+  detailSummary: string; detailTranscript: string; detailBooking: string; detailIntent: string;
 
   calTitle: string; calSub: string; calEmptyTitle: string; calEmptySub: string;
   calPending: string; calConfirmed: string; calConfirm: string; calConfirming: string;
@@ -61,10 +62,12 @@ export const DASH_T: Record<Locale, DashDict> = {
     callStatusCaptured: "Request captured", callStatusReview: "Needs review",
     urgencyLow: "Low", urgencyNormal: "Normal", urgencyHigh: "High",
     bookingTypeAppointment: "Appointment", bookingTypeCallback: "Callback",
+    intentBookAppointment: "Appointment request", intentCallback: "Callback request",
+    intentInquiry: "General inquiry", intentOther: "Other",
 
     detailDate: "Date", detailTime: "Time", detailRequested: "Requested time",
     detailUrgency: "Urgency", detailSummary: "AI summary", detailTranscript: "Full transcript",
-    detailBooking: "Linked booking",
+    detailBooking: "Linked booking", detailIntent: "Call type",
 
     calTitle: "Calendar", calSub: "Booking requests captured by your AI.",
     calEmptyTitle: "No bookings", calEmptySub: "Booking requests captured by your AI will appear here.",
@@ -107,10 +110,12 @@ export const DASH_T: Record<Locale, DashDict> = {
     callStatusCaptured: "Solicitud registrada", callStatusReview: "Necesita revisión",
     urgencyLow: "Baja", urgencyNormal: "Normal", urgencyHigh: "Alta",
     bookingTypeAppointment: "Cita", bookingTypeCallback: "Llamada de vuelta",
+    intentBookAppointment: "Solicitud de cita", intentCallback: "Solicitud de llamada",
+    intentInquiry: "Consulta general", intentOther: "Otro",
 
     detailDate: "Fecha", detailTime: "Hora", detailRequested: "Horario solicitado",
     detailUrgency: "Urgencia", detailSummary: "Resumen de la IA", detailTranscript: "Transcripción completa",
-    detailBooking: "Reserva vinculada",
+    detailBooking: "Reserva vinculada", detailIntent: "Tipo de llamada",
 
     calTitle: "Calendario", calSub: "Solicitudes de cita recogidas por tu IA.",
     calEmptyTitle: "Sin reservas", calEmptySub: "Las solicitudes de cita recogidas por tu IA aparecerán aquí.",
@@ -153,10 +158,12 @@ export const DASH_T: Record<Locale, DashDict> = {
     callStatusCaptured: "Demande enregistrée", callStatusReview: "À vérifier",
     urgencyLow: "Faible", urgencyNormal: "Normale", urgencyHigh: "Élevée",
     bookingTypeAppointment: "Rendez-vous", bookingTypeCallback: "Rappel",
+    intentBookAppointment: "Demande de rendez-vous", intentCallback: "Demande de rappel",
+    intentInquiry: "Demande d'information", intentOther: "Autre",
 
     detailDate: "Date", detailTime: "Heure", detailRequested: "Horaire demandé",
     detailUrgency: "Urgence", detailSummary: "Résumé de l'IA", detailTranscript: "Transcription complète",
-    detailBooking: "Rendez-vous lié",
+    detailBooking: "Rendez-vous lié", detailIntent: "Type d'appel",
 
     calTitle: "Calendrier", calSub: "Demandes de rendez-vous enregistrées par votre IA.",
     calEmptyTitle: "Aucun rendez-vous", calEmptySub: "Les demandes enregistrées par votre IA apparaîtront ici.",

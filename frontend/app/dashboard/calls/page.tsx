@@ -19,6 +19,12 @@ export default async function CallsPage() {
   const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
+  const intentLabel: Record<string, string> = {
+    book_appointment: t.intentBookAppointment,
+    callback: t.intentCallback,
+    inquiry: t.intentInquiry,
+    other: t.intentOther,
+  };
 
   const { data: calls } = await supabase
     .from("calls").select("*").eq("business_id", business?.id)
@@ -75,12 +81,22 @@ export default async function CallsPage() {
                 {c.summary && (
                   <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 10, lineHeight: 1.5 }}>{c.summary}</p>
                 )}
-                <span style={{
-                  fontSize: 11, padding: "4px 10px", borderRadius: 999,
-                  background: s.bg, border: `1px solid ${s.border}`, color: s.color,
-                }}>
-                  {statusLabel}
-                </span>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {c.intent && intentLabel[c.intent] && (
+                    <span style={{
+                      fontSize: 11, padding: "4px 10px", borderRadius: 999,
+                      background: "rgba(255,255,255,.04)", border: "1px solid var(--hair)", color: "var(--text-2)",
+                    }}>
+                      {intentLabel[c.intent]}
+                    </span>
+                  )}
+                  <span style={{
+                    fontSize: 11, padding: "4px 10px", borderRadius: 999,
+                    background: s.bg, border: `1px solid ${s.border}`, color: s.color,
+                  }}>
+                    {statusLabel}
+                  </span>
+                </div>
               </Link>
             );
           })}
