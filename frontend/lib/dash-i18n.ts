@@ -19,11 +19,10 @@ export type DashDict = {
   callsFilterEmptyTitle: string; callsFilterEmptySub: string;
   callStatusCaptured: string; callStatusReview: string;
   urgencyLow: string; urgencyNormal: string; urgencyHigh: string;
-  bookingTypeAppointment: string; bookingTypeCallback: string;
   intentBookAppointment: string; intentCallback: string; intentInquiry: string; intentOther: string;
 
   detailDate: string; detailTime: string; detailRequested: string; detailUrgency: string; detailUrgent: string;
-  detailSummary: string; detailTranscript: string; detailBooking: string; detailIntent: string;
+  detailSummary: string; detailTranscript: string; detailIntent: string;
 
   calTitle: string; calSub: string; calEmptyTitle: string; calEmptySub: string;
   calPending: string; calConfirmed: string; calConfirm: string; calConfirming: string;
@@ -64,13 +63,12 @@ export const DASH_T: Record<Locale, DashDict> = {
     callsFilterEmptyTitle: "No calls in this range", callsFilterEmptySub: "Try a different date range.",
     callStatusCaptured: "Request captured", callStatusReview: "Needs review",
     urgencyLow: "Low", urgencyNormal: "Normal", urgencyHigh: "High",
-    bookingTypeAppointment: "Appointment", bookingTypeCallback: "Callback",
     intentBookAppointment: "Appointment request", intentCallback: "Callback request",
     intentInquiry: "General inquiry", intentOther: "Other",
 
     detailDate: "Date", detailTime: "Time", detailRequested: "Requested time",
     detailUrgency: "Urgency", detailUrgent: "Urgent", detailSummary: "AI summary", detailTranscript: "Full transcript",
-    detailBooking: "Linked booking", detailIntent: "Call type",
+    detailIntent: "Call type",
 
     calTitle: "Calendar", calSub: "Booking requests captured by your AI.",
     calEmptyTitle: "No bookings", calEmptySub: "Booking requests captured by your AI will appear here.",
@@ -113,13 +111,12 @@ export const DASH_T: Record<Locale, DashDict> = {
     callsFilterEmptyTitle: "No hay llamadas en este rango", callsFilterEmptySub: "Prueba con otro rango de fechas.",
     callStatusCaptured: "Solicitud registrada", callStatusReview: "Necesita revisión",
     urgencyLow: "Baja", urgencyNormal: "Normal", urgencyHigh: "Alta",
-    bookingTypeAppointment: "Cita", bookingTypeCallback: "Llamada de vuelta",
     intentBookAppointment: "Solicitud de cita", intentCallback: "Solicitud de llamada",
     intentInquiry: "Consulta general", intentOther: "Otro",
 
     detailDate: "Fecha", detailTime: "Hora", detailRequested: "Horario solicitado",
     detailUrgency: "Urgencia", detailUrgent: "Urgente", detailSummary: "Resumen de la IA", detailTranscript: "Transcripción completa",
-    detailBooking: "Reserva vinculada", detailIntent: "Tipo de llamada",
+    detailIntent: "Tipo de llamada",
 
     calTitle: "Calendario", calSub: "Solicitudes de cita recogidas por tu IA.",
     calEmptyTitle: "Sin reservas", calEmptySub: "Las solicitudes de cita recogidas por tu IA aparecerán aquí.",
@@ -162,13 +159,12 @@ export const DASH_T: Record<Locale, DashDict> = {
     callsFilterEmptyTitle: "Aucun appel sur cette période", callsFilterEmptySub: "Essayez une autre période.",
     callStatusCaptured: "Demande enregistrée", callStatusReview: "À vérifier",
     urgencyLow: "Faible", urgencyNormal: "Normale", urgencyHigh: "Élevée",
-    bookingTypeAppointment: "Rendez-vous", bookingTypeCallback: "Rappel",
     intentBookAppointment: "Demande de rendez-vous", intentCallback: "Demande de rappel",
     intentInquiry: "Demande d'information", intentOther: "Autre",
 
     detailDate: "Date", detailTime: "Heure", detailRequested: "Horaire demandé",
     detailUrgency: "Urgence", detailUrgent: "Urgent", detailSummary: "Résumé de l'IA", detailTranscript: "Transcription complète",
-    detailBooking: "Rendez-vous lié", detailIntent: "Type d'appel",
+    detailIntent: "Type d'appel",
 
     calTitle: "Calendrier", calSub: "Demandes de rendez-vous enregistrées par votre IA.",
     calEmptyTitle: "Aucun rendez-vous", calEmptySub: "Les demandes enregistrées par votre IA apparaîtront ici.",

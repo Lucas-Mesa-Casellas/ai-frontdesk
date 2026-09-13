@@ -13,12 +13,10 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
   const t = DASH_T[locale];
 
   const { data: call } = await supabase
-    .from("calls").select("*, bookings(*)").eq("id", id).single();
+    .from("calls").select("*").eq("id", id).single();
   if (!call) notFound();
 
   const urgencyLabel: Record<string, string> = { low: t.urgencyLow, normal: t.urgencyNormal, high: t.urgencyHigh };
-  const bookingTypeLabel: Record<string, string> = { appointment: t.bookingTypeAppointment, callback: t.bookingTypeCallback };
-  const bookingStatusLabel: Record<string, string> = { pending: t.calPending, confirmed: t.calConfirmed_, cancelled: t.calCancelled };
   const intentLabel: Record<string, string> = {
     book_appointment: t.intentBookAppointment,
     callback: t.intentCallback,
@@ -106,22 +104,6 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
           </div>
         )}
       </div>
-
-      {call.bookings?.length > 0 && (
-        <div style={{ ...card, padding: 20 }}>
-          <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{t.detailBooking}</h2>
-          {call.bookings.map((b: { id: string; customer_name?: string; booking_type?: string; status: string }) => (
-            <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, borderRadius: 12, background: "rgba(255,255,255,.03)" }}>
-              <div>
-                <p style={{ fontSize: 13.5, fontWeight: 500 }}>{b.customer_name || call.caller_name}</p>
-                <p style={{ fontSize: 12, color: "var(--text-3)" }}>
-                  {(b.booking_type && bookingTypeLabel[b.booking_type]) ?? b.booking_type} · {bookingStatusLabel[b.status] ?? b.status}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
