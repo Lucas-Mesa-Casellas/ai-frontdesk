@@ -61,14 +61,14 @@ export default async function OverviewPage() {
         <div className="dash-card dash-in d4 ov-panel">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, alignItems: "center" }}>
             <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.recentCalls}</h2>
-            <Link href="/dashboard/calls" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none", fontWeight: 500 }}>{t.viewAll}</Link>
+            <Link href="/dashboard/calls" className="ov-view-all" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none", fontWeight: 500 }}>{t.viewAll}</Link>
           </div>
           {!recentCalls?.length ? (
             <Empty text={t.noCalls} />
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {recentCalls.map((c) => (
-                <Link key={c.id} href={`/dashboard/calls/${c.id}`} style={row}>
+                <div key={c.id} style={row}>
                   <IconIn><IconPhone width={13} height={13} /></IconIn>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
@@ -79,7 +79,7 @@ export default async function OverviewPage() {
                     </div>
                     <p style={rowSub}>{c.summary || t.noSummary}</p>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           )}
@@ -88,7 +88,7 @@ export default async function OverviewPage() {
         <div className="dash-card dash-in d5 ov-panel">
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 14, alignItems: "center" }}>
             <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.upcoming}</h2>
-            <Link href="/dashboard/calendar" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none", fontWeight: 500 }}>{t.viewAll}</Link>
+            <Link href="/dashboard/calendar" className="ov-view-all" style={{ fontSize: 12, color: "var(--jade)", textDecoration: "none", fontWeight: 500 }}>{t.viewAll}</Link>
           </div>
           {!upcoming?.length ? (
             <Empty text={t.noUpcoming} />
@@ -117,6 +117,8 @@ export default async function OverviewPage() {
         .ov-stat-label { font-size: 12px; }
         .ov-content { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
         .ov-panel { padding: 20px; }
+        .ov-view-all { padding: 4px 8px; margin: -4px -8px; border-radius: 8px; transition: background .22s var(--e-out); }
+        .ov-view-all:hover { background: rgba(255,255,255,.055); }
         @media (max-width: 700px) {
           .ov-wrap { padding: 18px 16px; }
           .ov-content { grid-template-columns: 1fr; gap: 14px; }
