@@ -29,7 +29,7 @@ export type DashDict = {
   calConfirmed_: string; calNoDate: string; calUndatedTitle: string; calSelectDay: string; calDayEmpty: string; calCancel: string; calCancelling: string; calCancelled: string; calStatsThisMonth: string; calActionError: string; people: (n: number) => string;
 
   setTitle: string; setSub: string; setBizInfo: string; setBizName: string;
-  setEmail: string; setPhone: string; setSave: string; setSaved: string;
+  setEmail: string; setPhone: string; setSave: string; setSaved: string; setSaveFailed: string;
   setDanger: string; setDangerSub: string; setSignOut: string;
 
   statusNew: string; statusReview: string; statusRequested: string;
@@ -80,6 +80,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     setBizInfo: "Business information", setBizName: "Business name",
     setEmail: "Notification email", setPhone: "Phone number",
     setSave: "Save changes", setSaved: "Saved.",
+    setSaveFailed: "Save failed — nothing was updated. Check permissions.",
     setDanger: "Account", setDangerSub: "You can log back in anytime with your email.", setSignOut: "Sign out",
 
     statusNew: "new", statusReview: "needs review", statusRequested: "requested",
@@ -128,6 +129,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     setBizInfo: "Información del negocio", setBizName: "Nombre del negocio",
     setEmail: "Email de notificación", setPhone: "Teléfono",
     setSave: "Guardar cambios", setSaved: "Guardado.",
+    setSaveFailed: "No se pudo guardar — no se actualizó nada. Comprueba los permisos.",
     setDanger: "Cuenta", setDangerSub: "Puedes volver a entrar cuando quieras con tu email.", setSignOut: "Cerrar sesión",
 
     statusNew: "nueva", statusReview: "revisar", statusRequested: "solicitada",
@@ -176,6 +178,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     setBizInfo: "Informations de l'entreprise", setBizName: "Nom de l'entreprise",
     setEmail: "Email de notification", setPhone: "Téléphone",
     setSave: "Enregistrer", setSaved: "Enregistré.",
+    setSaveFailed: "Échec de l'enregistrement — rien n'a été mis à jour. Vérifiez les permissions.",
     setDanger: "Compte", setDangerSub: "Vous pouvez vous reconnecter à tout moment avec votre email.", setSignOut: "Déconnexion",
 
     statusNew: "nouveau", statusReview: "à vérifier", statusRequested: "demandée",

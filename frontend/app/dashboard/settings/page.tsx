@@ -82,7 +82,7 @@ export default async function SettingsPage({
               {t.setSave}
             </button>
             {updated === "true" && <p style={{ fontSize: 13, color: "var(--jade)" }}>{t.setSaved}</p>}
-            {updated === "false" && <p style={{ fontSize: 13, color: "#E5877B" }}>Save failed — nothing was updated. Check permissions.</p>}
+            {updated === "false" && <p style={{ fontSize: 13, color: "#E5877B" }}>{t.setSaveFailed}</p>}
           </form>
         </div>
 
