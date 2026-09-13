@@ -16,6 +16,10 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
     .from("calls").select("*, bookings(*)").eq("id", id).single();
   if (!call) notFound();
 
+  const urgencyLabel: Record<string, string> = { low: t.urgencyLow, normal: t.urgencyNormal, high: t.urgencyHigh };
+  const bookingTypeLabel: Record<string, string> = { appointment: t.bookingTypeAppointment, callback: t.bookingTypeCallback };
+  const bookingStatusLabel: Record<string, string> = { pending: t.calPending, confirmed: t.calConfirmed_, cancelled: t.calCancelled };
+
   const card: React.CSSProperties = {
     background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)", borderRadius: 18,
   };
@@ -69,7 +73,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
           {call.urgency && call.urgency !== "normal" && (
             <div style={{ ...field, background: "rgba(255,193,120,.07)", borderColor: "rgba(255,193,120,.18)" }}>
               <p style={{ ...fieldLabel, color: "#FFC178" }}>{t.detailUrgency}</p>
-              <p style={{ fontSize: 13.5, fontWeight: 500, color: "#FFC178" }}>{call.urgency}</p>
+              <p style={{ fontSize: 13.5, fontWeight: 500, color: "#FFC178" }}>{urgencyLabel[call.urgency] ?? call.urgency}</p>
             </div>
           )}
         </div>
@@ -100,7 +104,9 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
             <div key={b.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, borderRadius: 12, background: "rgba(255,255,255,.03)" }}>
               <div>
                 <p style={{ fontSize: 13.5, fontWeight: 500 }}>{b.customer_name || call.caller_name}</p>
-                <p style={{ fontSize: 12, color: "var(--text-3)" }}>{b.booking_type} · {b.status}</p>
+                <p style={{ fontSize: 12, color: "var(--text-3)" }}>
+                  {(b.booking_type && bookingTypeLabel[b.booking_type]) ?? b.booking_type} · {bookingStatusLabel[b.status] ?? b.status}
+                </p>
               </div>
             </div>
           ))}

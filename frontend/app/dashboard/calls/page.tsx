@@ -6,7 +6,12 @@ import { IconPhone } from "@/components/icons";
 import { BUSINESS_TZ } from "@/lib/tz";
 
 const STATUS_STYLE: Record<string, { bg: string; border: string; color: string }> = {
-  reservation_requested: { bg: "rgba(55,226,155,.1)", border: "rgba(55,226,155,.24)", color: "var(--jade)" },
+  // Matches the only two values backend/app/routers/webhooks.py ever writes
+  // to calls.status (line ~109). The previous key here was
+  // "reservation_requested", which never matched a real value -- every
+  // successfully-captured call silently fell through to the needs_review
+  // (amber) styling below instead of its own (jade) one.
+  request_captured: { bg: "rgba(55,226,155,.1)", border: "rgba(55,226,155,.24)", color: "var(--jade)" },
   needs_review: { bg: "rgba(255,193,120,.1)", border: "rgba(255,193,120,.24)", color: "#FFC178" },
 };
 
@@ -35,6 +40,7 @@ export default async function CallsPage() {
          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {calls.map((c, i) => {
             const s = STATUS_STYLE[c.status] || STATUS_STYLE.needs_review;
+            const statusLabel = c.status === "request_captured" ? t.callStatusCaptured : t.callStatusReview;
             const delayClass = `d${Math.min(i + 1, 6)}`;
             return (
               <Link
@@ -73,7 +79,7 @@ export default async function CallsPage() {
                   fontSize: 11, padding: "4px 10px", borderRadius: 999,
                   background: s.bg, border: `1px solid ${s.border}`, color: s.color,
                 }}>
-                  {c.status?.replace(/_/g, " ")}
+                  {statusLabel}
                 </span>
               </Link>
             );
