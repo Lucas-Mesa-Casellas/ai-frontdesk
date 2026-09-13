@@ -10,8 +10,7 @@ export type DashDict = {
 
   ovTitle: string; ovSub: string;
   statCalls: string; statBookings: string; statConv: string;
-  recentCalls: string; viewAll: string; noCalls: string; noSummary: string; unknown: string;
-  upcoming: string; noUpcoming: string; noDateSet: string;
+  noCalls: string; unknown: string;
   hourChartTitle: string; hourChartSub: string; hourTooltip: (hourLabel: string, count: number) => string;
 
   callsTitle: string; callsSub: string; callsEmptyTitle: string; callsEmptySub: string;
@@ -54,9 +53,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     ovTitle: "Overview", ovSub: "Your activity, live.",
     statCalls: "Calls answered", statBookings: "Booking requests", statConv: "Calls booked",
-    recentCalls: "Recent calls", viewAll: "View all", noCalls: "No calls yet.",
-    noSummary: "No summary yet.", unknown: "Unknown",
-    upcoming: "Upcoming bookings", noUpcoming: "No upcoming bookings.", noDateSet: "No date set",
+    noCalls: "No calls yet.", unknown: "Unknown",
     hourChartTitle: "Calls by hour of day", hourChartSub: "When your calls tend to come in.",
     hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "call" : "calls"}`,
 
@@ -105,9 +102,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     ovTitle: "Resumen", ovSub: "Tu actividad, en directo.",
     statCalls: "Llamadas atendidas", statBookings: "Solicitudes de cita", statConv: "Llamadas reservadas",
-    recentCalls: "Últimas llamadas", viewAll: "Ver todas", noCalls: "Aún no hay llamadas.",
-    noSummary: "Sin resumen aún.", unknown: "Desconocido",
-    upcoming: "Próximas citas", noUpcoming: "No hay próximas citas.", noDateSet: "Sin fecha",
+    noCalls: "Aún no hay llamadas.", unknown: "Desconocido",
     hourChartTitle: "Llamadas por hora del día", hourChartSub: "Cuándo suelen llegar tus llamadas.",
     hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
 
@@ -156,9 +151,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     ovTitle: "Aperçu", ovSub: "Votre activité, en direct.",
     statCalls: "Appels traités", statBookings: "Demandes de rendez-vous", statConv: "Appels réservés",
-    recentCalls: "Derniers appels", viewAll: "Tout voir", noCalls: "Aucun appel pour l'instant.",
-    noSummary: "Pas encore de résumé.", unknown: "Inconnu",
-    upcoming: "Prochains rendez-vous", noUpcoming: "Aucun rendez-vous à venir.", noDateSet: "Aucune date",
+    noCalls: "Aucun appel pour l'instant.", unknown: "Inconnu",
     hourChartTitle: "Appels par heure de la journée", hourChartSub: "À quel moment vos appels arrivent le plus souvent.",
     hourTooltip: (h, n) => `${h} — ${n} ${n === 1 ? "appel" : "appels"}`,
 
