@@ -1,7 +1,7 @@
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
-import { BUSINESS_TZ, madridHour, madridWeekday, zonedTimeToUtc } from "@/lib/tz";
+import { BUSINESS_TZ, madridHour, zonedTimeToUtc } from "@/lib/tz";
  
 export default async function OverviewPage() {
   const { supabase, business } = await getAuthedBusiness();
@@ -31,22 +31,11 @@ export default async function OverviewPage() {
   const conv = totalCalls ? Math.round(((totalBookings || 0) / totalCalls) * 100) : 0;
 
   const hourCounts = Array(24).fill(0);
-  const weekdayCounts = Array(7).fill(0);
-  (allCallTimes || []).forEach((c) => {
-    const d = new Date(c.created_at);
-    hourCounts[madridHour(d)]++;
-    weekdayCounts[madridWeekday(d)]++;
-  });
+  (allCallTimes || []).forEach((c) => { hourCounts[madridHour(new Date(c.created_at))]++; });
   const maxHourCount = Math.max(1, ...hourCounts);
-  const maxWeekdayCount = Math.max(1, ...weekdayCounts);
   const hourLabel = (h: number) =>
     zonedTimeToUtc(2024, 0, 1, h).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ });
   const axisHours = [0, 3, 6, 9, 12, 15, 18, 21];
-  // Jan 1 2024 was a Monday -- same reference date trick already used for
-  // the calendar's own weekdayLabels (app/dashboard/calendar/page.tsx).
-  const weekdayLabels = Array.from({ length: 7 }, (_, i) =>
-    new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: BUSINESS_TZ }).format(new Date(Date.UTC(2024, 0, 1 + i)))
-  );
 
   return (
     <div className="ov-wrap">
@@ -103,34 +92,6 @@ export default async function OverviewPage() {
         )}
       </div>
 
-      <div className="dash-card dash-in d5 ov-panel" style={{ marginTop: 18 }}>
-        <div style={{ marginBottom: 14 }}>
-          <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.weekdayChartTitle}</h2>
-          <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{t.weekdayChartSub}</p>
-        </div>
-        {!totalCalls ? (
-          <Empty text={t.noCalls} />
-        ) : (
-          <>
-            <div className="ov-weekbars">
-              {weekdayCounts.map((count, i) => (
-                <div
-                  key={i}
-                  className="ov-weekbar"
-                  title={t.chartTooltip(weekdayLabels[i], count)}
-                  style={{ height: count > 0 ? `${Math.max((count / maxWeekdayCount) * 100, 8)}%` : 2 }}
-                />
-              ))}
-            </div>
-            <div className="ov-weeklabels">
-              {weekdayLabels.map((label, i) => (
-                <span key={i}>{label}</span>
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-
       <style>{`
         .ov-wrap { padding: 28px 32px; max-width: 1080px; }
         .ov-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 28px; }
@@ -142,10 +103,6 @@ export default async function OverviewPage() {
         .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
         .ov-hourlabels { display: flex; justify-content: space-between; margin-top: 6px; }
         .ov-hourlabels span { font-size: 9.5px; color: var(--text-3); }
-        .ov-weekbars { display: flex; align-items: flex-end; gap: 10px; height: 80px; border-bottom: 1px solid var(--hair); }
-        .ov-weekbar { flex: 1; border-radius: 3px 3px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
-        .ov-weeklabels { display: flex; gap: 10px; margin-top: 6px; }
-        .ov-weeklabels span { flex: 1; text-align: center; font-size: 10px; color: var(--text-3); text-transform: capitalize; }
         @media (max-width: 700px) {
           .ov-wrap { padding: 18px 16px; }
         }

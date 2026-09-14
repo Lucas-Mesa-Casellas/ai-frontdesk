@@ -12,7 +12,6 @@ export type DashDict = {
   statCalls: string; statBookings: string; statConv: string;
   noCalls: string; unknown: string;
   hourChartTitle: string; hourChartSub: string;
-  weekdayChartTitle: string; weekdayChartSub: string;
   chartTooltip: (label: string, count: number) => string;
 
   callsTitle: string; callsSub: string; callsEmptyTitle: string; callsEmptySub: string;
@@ -56,7 +55,6 @@ export const DASH_T: Record<Locale, DashDict> = {
     statCalls: "Calls answered", statBookings: "Booking requests", statConv: "Booking rate",
     noCalls: "No calls yet.", unknown: "Unknown",
     hourChartTitle: "Calls by hour of day", hourChartSub: "When your calls tend to come in.",
-    weekdayChartTitle: "Calls by day of week", weekdayChartSub: "Which days tend to be busiest.",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "call" : "calls"}`,
 
     callsTitle: "Call history", callsSub: "Every call your AI receptionist has handled.",
@@ -106,7 +104,6 @@ export const DASH_T: Record<Locale, DashDict> = {
     statCalls: "Llamadas atendidas", statBookings: "Solicitudes de cita", statConv: "Tasa de reserva",
     noCalls: "Aún no hay llamadas.", unknown: "Desconocido",
     hourChartTitle: "Llamadas por hora del día", hourChartSub: "Cuándo suelen llegar tus llamadas.",
-    weekdayChartTitle: "Llamadas por día de la semana", weekdayChartSub: "Qué días suelen tener más actividad.",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
 
     callsTitle: "Historial de llamadas", callsSub: "Todas las llamadas gestionadas por tu IA.",
@@ -156,7 +153,6 @@ export const DASH_T: Record<Locale, DashDict> = {
     statCalls: "Appels traités", statBookings: "Demandes de rendez-vous", statConv: "Taux de réservation",
     noCalls: "Aucun appel pour l'instant.", unknown: "Inconnu",
     hourChartTitle: "Appels par heure de la journée", hourChartSub: "À quel moment vos appels arrivent le plus souvent.",
-    weekdayChartTitle: "Appels par jour de la semaine", weekdayChartSub: "Les jours où vous recevez le plus d'appels.",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "appel" : "appels"}`,
 
     callsTitle: "Historique des appels", callsSub: "Tous les appels gérés par votre IA.",

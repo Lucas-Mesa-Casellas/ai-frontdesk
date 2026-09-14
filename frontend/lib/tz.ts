@@ -33,18 +33,6 @@ export function madridHour(date: Date): number {
   return Number(parts.find((p) => p.type === "hour")?.value);
 }
 
-// The weekday (0=Monday..6=Sunday), as seen in BUSINESS_TZ, for a given
-// instant. Same Monday-first convention already used for the calendar
-// grid's own firstWeekday calc (app/dashboard/calendar/page.tsx), so a
-// weekday index means the same thing everywhere in this app. Derived from
-// madridYMD (the calendar date) rather than a separate Intl call, since
-// weekday depends only on the date, not the time-of-day component.
-export function madridWeekday(date: Date): number {
-  const [y, m, d] = madridYMD(date);
-  const jsDay = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0=Sun..6=Sat
-  return (jsDay + 6) % 7; // 0=Mon..6=Sun
-}
-
 // The UTC instant corresponding to a given wall-clock date/time as observed
 // in `timeZone` -- e.g. zonedTimeToUtc(2026, 6, 1) is "midnight on July 1st,
 // Madrid time" expressed as the real UTC instant that is, not the UTC
