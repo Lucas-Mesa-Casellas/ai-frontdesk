@@ -25,14 +25,21 @@ This business communicates with its customers in {language_name}. Write
 summary, next_action, and notes directly in {language_name} -- not
 English, regardless of what language the transcript itself is in --
 since a human business owner reads these, not this system. Do NOT
-translate caller_name, caller_phone, or preferred_time; keep those
-exactly as heard. intent, urgency, and booking_type below MUST stay
-the exact English values listed for each -- those are read by code,
-never shown as raw text to a person.
+translate caller_name or preferred_time; keep those exactly as heard.
+intent, urgency, and booking_type below MUST stay the exact English
+values listed for each -- those are read by code, never shown as raw
+text to a person. caller_phone has its own, separate rule below --
+it is never free text to preserve verbatim.
 
 Fields to extract:
 - caller_name: string or null
-- caller_phone: string or null
+- caller_phone: the literal digits the caller stated, or null if they
+  never actually spoke a number. If the caller says something like
+  "use this number" / "use the number I'm calling from" / "puedes usar
+  este número" without reciting digits, that means null -- the system
+  falls back to the verified caller ID in that case. NEVER put a
+  description or phrase here (e.g. "this number", "same number as
+  before") -- this field is either real digits or null, nothing else.
 - intent: "book_appointment" | "callback" | "inquiry" | "other" | null
   (book_appointment = caller wants a job, visit, or appointment scheduled;
    callback = caller wants someone to call them back;
