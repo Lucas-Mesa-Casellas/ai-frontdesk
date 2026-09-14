@@ -24,6 +24,8 @@ export type DashDict = {
 
   detailDate: string; detailTime: string; detailRequested: string; detailUrgency: string; detailUrgent: string;
   detailSummary: string; detailTranscript: string; detailIntent: string;
+  transcriptTranslateBtn: string; transcriptTranslating: string;
+  transcriptShowOriginal: string; transcriptShowTranslated: string; transcriptTranslateError: string;
 
   calTitle: string; calSub: string; calEmptyTitle: string; calEmptySub: string;
   calPending: string; calConfirmed: string; calConfirm: string; calConfirming: string;
@@ -69,6 +71,9 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     detailDate: "Date", detailTime: "Time", detailRequested: "Requested time",
     detailUrgency: "Urgency", detailUrgent: "Urgent", detailSummary: "AI summary", detailTranscript: "Full transcript",
+    transcriptTranslateBtn: "Translate transcript", transcriptTranslating: "Translating…",
+    transcriptShowOriginal: "Show original", transcriptShowTranslated: "Show translation",
+    transcriptTranslateError: "Translation failed. Please try again.",
     detailIntent: "Call type",
 
     calTitle: "Calendar", calSub: "Booking requests captured by your AI.",
@@ -118,6 +123,9 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     detailDate: "Fecha", detailTime: "Hora", detailRequested: "Horario solicitado",
     detailUrgency: "Urgencia", detailUrgent: "Urgente", detailSummary: "Resumen de la IA", detailTranscript: "Transcripción completa",
+    transcriptTranslateBtn: "Traducir transcripción", transcriptTranslating: "Traduciendo…",
+    transcriptShowOriginal: "Ver original", transcriptShowTranslated: "Ver traducción",
+    transcriptTranslateError: "No se pudo traducir. Inténtalo de nuevo.",
     detailIntent: "Tipo de llamada",
 
     calTitle: "Calendario", calSub: "Solicitudes de cita recogidas por tu IA.",
@@ -167,6 +175,9 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     detailDate: "Date", detailTime: "Heure", detailRequested: "Horaire demandé",
     detailUrgency: "Urgence", detailUrgent: "Urgent", detailSummary: "Résumé de l'IA", detailTranscript: "Transcription complète",
+    transcriptTranslateBtn: "Traduire la transcription", transcriptTranslating: "Traduction…",
+    transcriptShowOriginal: "Voir l'original", transcriptShowTranslated: "Voir la traduction",
+    transcriptTranslateError: "La traduction a échoué. Veuillez réessayer.",
     detailIntent: "Type d'appel",
 
     calTitle: "Calendrier", calSub: "Demandes de rendez-vous enregistrées par votre IA.",

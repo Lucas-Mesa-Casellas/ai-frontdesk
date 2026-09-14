@@ -3,6 +3,7 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import CalendarClient from "@/components/CalendarClient";
 import { BUSINESS_TZ, madridYMD, zonedTimeToUtc } from "@/lib/tz";
+import { resolveTranslatable } from "@/lib/translate-helpers";
 
 const INTL_LOCALE: Record<string, string> = { en: "en-US", es: "es-ES", fr: "fr-FR" };
 
@@ -58,18 +59,26 @@ export default async function CalendarPage({
   // set that way in backend/app/routers/webhooks.py's booking_record. It
   // is NOT a general reason/summary field despite the column name, so the
   // day-detail panel needs the linked call's own summary instead.
-  const callInfoByCall: Record<string, { urgency: string | null; summary: string | null }> = {};
+  const callInfoByCall: Record<string, { urgency: string | null; summary: string | null; translations: any }> = {};
   if (callIds.length) {
     const { data: callsData } = await supabase
-      .from("calls").select("id, urgency, summary").in("id", callIds);
-    (callsData || []).forEach((c) => { callInfoByCall[c.id] = { urgency: c.urgency ?? null, summary: c.summary ?? null }; });
+      .from("calls").select("id, urgency, summary, translations").in("id", callIds);
+    (callsData || []).forEach((c) => {
+      callInfoByCall[c.id] = { urgency: c.urgency ?? null, summary: c.summary ?? null, translations: c.translations ?? {} };
+    });
   }
+  const businessLanguage = business?.language ?? "es";
   const withCallInfo = (rows: any[] | null) =>
-    (rows || []).map((r) => ({
-      ...r,
-      urgency: r.call_id ? callInfoByCall[r.call_id]?.urgency ?? null : null,
-      summary: r.call_id ? callInfoByCall[r.call_id]?.summary ?? null : null,
-    }));
+    (rows || []).map((r) => {
+      const info = r.call_id ? callInfoByCall[r.call_id] : null;
+      const summaryResolved = resolveTranslatable(info?.summary ?? null, info?.translations, "summary", locale, businessLanguage);
+      return {
+        ...r,
+        urgency: info?.urgency ?? null,
+        summary: summaryResolved.text,
+        summaryNeedsTranslation: summaryResolved.needsFetch,
+      };
+    });
 
   const monthBookings = withCallInfo(monthBookingsRaw);
   const undatedBookings = withCallInfo(undatedBookingsRaw);
@@ -125,8 +134,9 @@ export default async function CalendarPage({
           stats={{ total: monthBookings.length, confirmed: confirmedCount }}
           undated={undatedBookings.map((b: any) => ({
             id: b.id, customer_name: b.customer_name, customer_phone: b.customer_phone,
-            summary: b.summary, status: b.status, call_id: b.call_id,
+            summary: b.summary, summaryNeedsTranslation: b.summaryNeedsTranslation, status: b.status, call_id: b.call_id,
           }))}
+          dashboardLocale={locale}
           labels={{
             calSelectDay: t.calSelectDay,
             calDayEmpty: t.calDayEmpty,

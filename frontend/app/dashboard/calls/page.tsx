@@ -5,6 +5,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { IconPhone } from "@/components/icons";
 import { BUSINESS_TZ, zonedTimeToUtc } from "@/lib/tz";
+import { resolveTranslatable } from "@/lib/translate-helpers";
+import TranslatedField from "@/components/TranslatedField";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 function parseDateParam(v: string | undefined): [number, number, number] | null {
@@ -98,6 +100,7 @@ export default async function CallsPage({
             const s = STATUS_STYLE[c.status] || STATUS_STYLE.needs_review;
             const statusLabel = c.status === "request_captured" ? t.callStatusCaptured : t.callStatusReview;
             const delayClass = `d${Math.min(i + 1, 6)}`;
+            const summaryResolved = resolveTranslatable(c.summary, c.translations, "summary", locale, business?.language ?? "es");
             return (
               <Link
                 key={c.id}
@@ -128,8 +131,14 @@ export default async function CallsPage({
                     </p>
                   </div>
                 </div>
-                {c.summary && (
-                  <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 10, lineHeight: 1.5 }}>{c.summary}</p>
+                {summaryResolved.text && (
+                  <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 10, lineHeight: 1.5 }}>
+                    {summaryResolved.needsFetch ? (
+                      <TranslatedField callId={c.id} locale={locale} field="summary" initialText={summaryResolved.text} />
+                    ) : (
+                      summaryResolved.text
+                    )}
+                  </p>
                 )}
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                   {c.intent && intentLabel[c.intent] && (

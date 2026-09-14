@@ -3,23 +3,24 @@
 import { useState } from "react";
 import Link from "next/link";
 import BookingActions from "./BookingActions";
+import TranslatedField from "./TranslatedField";
 import { BUSINESS_TZ } from "@/lib/tz";
 
 type Booking = {
   id: string; customer_name: string | null; customer_phone: string | null;
   party_size: number | null; notes: string | null; status: string;
   start_time: string | null; urgency: string | null; summary: string | null;
-  call_id: string | null;
+  summaryNeedsTranslation: boolean; call_id: string | null;
 };
 
 type UndatedBooking = {
   id: string; customer_name: string | null; customer_phone: string | null;
-  summary: string | null; status: string; call_id: string | null;
+  summary: string | null; summaryNeedsTranslation: boolean; status: string; call_id: string | null;
 };
 
 export default function CalendarClient({
   cells, byDay, weekdayLabels, monthTitle, todayKey, year, month,
-  prevHref, nextHref, intlLocale, labels, legend, undated, stats,
+  prevHref, nextHref, intlLocale, dashboardLocale, labels, legend, undated, stats,
 }: {
   cells: (number | null)[];
   byDay: Record<number, Booking[]>;
@@ -31,6 +32,7 @@ export default function CalendarClient({
   prevHref: string;
   nextHref: string;
   intlLocale: string;
+  dashboardLocale: string;
   labels: Record<string, string>;
   legend: { pending: string; confirmed: string; urgency: string };
   undated: UndatedBooking[];
@@ -130,7 +132,18 @@ export default function CalendarClient({
                       {bookings.slice(0, 3).map((b) => (
                         <div
                           key={b.id}
-                          title={`${b.customer_name || labels.unknown} — ${b.notes || labels.calNoDate}`}
+                          // Was showing b.notes (bookings.notes -- the raw
+                          // preferred-time phrase, e.g. "mañana tres de la
+                          // tarde"), the same wrong-field bug already fixed
+                          // for the day-detail panel two sessions ago but
+                          // never closed here. b.summary is the call's own
+                          // summary, already resolved server-side to the
+                          // cached translation if one exists (or canonical
+                          // text otherwise) -- this tooltip doesn't itself
+                          // trigger a fresh translation on hover, since a
+                          // native title attribute has no room for a
+                          // loading state; the panel below does that.
+                          title={`${b.customer_name || labels.unknown} — ${b.summary || labels.calNoReason}`}
                           style={{ width: "100%", height: 4, borderRadius: 2, background: dotColor(b) }}
                         />
                       ))}
@@ -184,7 +197,15 @@ export default function CalendarClient({
                       {labels.calReason}
                     </p>
                     <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
-                      {b.summary || labels.calNoReason}
+                      {b.summary ? (
+                        b.summaryNeedsTranslation && b.call_id ? (
+                          <TranslatedField callId={b.call_id} locale={dashboardLocale} field="summary" initialText={b.summary} />
+                        ) : (
+                          b.summary
+                        )
+                      ) : (
+                        labels.calNoReason
+                      )}
                       {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                     </p>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
@@ -211,7 +232,15 @@ export default function CalendarClient({
                   {labels.calReason}
                 </p>
                 <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
-                  {b.summary || labels.calNoReason}
+                  {b.summary ? (
+                    b.summaryNeedsTranslation && b.call_id ? (
+                      <TranslatedField callId={b.call_id} locale={dashboardLocale} field="summary" initialText={b.summary} />
+                    ) : (
+                      b.summary
+                    )
+                  ) : (
+                    labels.calNoReason
+                  )}
                   {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                 </p>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>

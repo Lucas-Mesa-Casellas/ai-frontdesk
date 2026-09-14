@@ -1,20 +1,28 @@
-import { createClient } from "@/lib/supabase-server";
+import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { IconArrowLeft, IconPhone } from "@/components/icons";
 import { BUSINESS_TZ } from "@/lib/tz";
+import { resolveTranslatable } from "@/lib/translate-helpers";
+import TranslatedField from "@/components/TranslatedField";
+import TranscriptPanel from "@/components/TranscriptPanel";
 
 export default async function CallDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = await createClient();
+  const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
 
   const { data: call } = await supabase
     .from("calls").select("*").eq("id", id).single();
   if (!call) notFound();
+
+  const businessLanguage = business?.language ?? "es";
+  const summaryResolved = resolveTranslatable(call.summary, call.translations, "summary", locale, businessLanguage);
+  const needsTranscriptTranslation = locale !== businessLanguage;
+  const cachedTranscript: string | null = call.translations?.[locale]?.transcript ?? null;
 
   const urgencyLabel: Record<string, string> = { low: t.urgencyLow, normal: t.urgencyNormal, high: t.urgencyHigh };
   const intentLabel: Record<string, string> = {
@@ -86,22 +94,43 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
           )}
         </div>
 
-        {call.summary && (
+        {summaryResolved.text && (
           <div style={{ marginBottom: 18 }}>
             <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t.detailSummary}</h2>
-            <p style={{ ...field, fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.6 }}>{call.summary}</p>
+            <p style={{ ...field, fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.6 }}>
+              {summaryResolved.needsFetch ? (
+                <TranslatedField callId={call.id} locale={locale} field="summary" initialText={summaryResolved.text} />
+              ) : (
+                summaryResolved.text
+              )}
+            </p>
           </div>
         )}
 
         {call.transcript && (
-          <div>
-            <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t.detailTranscript}</h2>
-            <div style={{ ...field, fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.6, maxHeight: 340, overflowY: "auto" }}>
-              {call.transcript.split("\n").map((line: string, i: number) => (
-                <p key={i} style={{ marginBottom: 8 }}>{line}</p>
-              ))}
+          needsTranscriptTranslation ? (
+            <TranscriptPanel
+              callId={call.id}
+              locale={locale}
+              originalTranscript={call.transcript}
+              cachedTranslation={cachedTranscript}
+              titleLabel={t.detailTranscript}
+              translateLabel={t.transcriptTranslateBtn}
+              translatingLabel={t.transcriptTranslating}
+              showOriginalLabel={t.transcriptShowOriginal}
+              showTranslatedLabel={t.transcriptShowTranslated}
+              errorLabel={t.transcriptTranslateError}
+            />
+          ) : (
+            <div>
+              <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t.detailTranscript}</h2>
+              <div style={{ ...field, fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.6, maxHeight: 340, overflowY: "auto" }}>
+                {call.transcript.split("\n").map((line: string, i: number) => (
+                  <p key={i} style={{ marginBottom: 8 }}>{line}</p>
+                ))}
+              </div>
             </div>
-          </div>
+          )
         )}
       </div>
     </div>
