@@ -69,7 +69,7 @@ export default async function CallsPage({
 
   return (
     <div className="calls-wrap">
-      <div className="dash-in" style={{ marginBottom: 20 }}>
+      <div className="dash-in" style={{ marginBottom: 20, flex: "none" }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.callsTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.callsSub}</p>
       </div>
@@ -89,7 +89,8 @@ export default async function CallsPage({
         )}
       </form>
 
-      {!calls?.length ? (
+      <div className="calls-list">
+        {!calls?.length ? (
         <div style={{ textAlign: "center", padding: "56px 20px", border: "1px solid var(--hair)", borderRadius: 18, background: "rgba(255,255,255,.024)" }}>
           <p style={{ fontSize: 15, marginBottom: 6 }}>{isFiltered ? t.callsFilterEmptyTitle : t.callsEmptyTitle}</p>
           <p style={{ fontSize: 13, color: "var(--text-3)" }}>{isFiltered ? t.callsFilterEmptySub : t.callsEmptySub}</p>
@@ -161,13 +162,23 @@ export default async function CallsPage({
           })}
         </div>
       )}
+      </div>
 
       <style>{`
-        .calls-wrap { padding: 28px 32px; max-width: 760px; }
+        /* Same fixed-shell pattern as the calendar page: the shell owns the
+           viewport height, the title and filter row stay put, and only the
+           list scrolls. min-height: 0 is what lets the flex child actually
+           shrink below its content height instead of pushing the shell
+           taller. Reverts to normal page scroll at the same 700px
+           breakpoint the calendar uses -- a pinned inner scroll area is
+           awkward on a phone. */
+        .calls-wrap { height: calc(100vh - 76px); display: flex; flex-direction: column; padding: 28px 32px; max-width: 760px; }
+        .calls-list { flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; }
         .call-card { padding: 18px; }
-        .calls-filter { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .calls-filter { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; flex: none; }
         @media (max-width: 700px) {
-          .calls-wrap { padding: 18px 16px; }
+          .calls-wrap { height: auto; padding: 18px 16px; }
+          .calls-list { overflow-y: visible; min-height: auto; padding-right: 0; }
         }
         @media (max-width: 480px) {
           .call-card { padding: 14px; }
