@@ -47,7 +47,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
       </Link>
 
       <div style={{ ...card, padding: 24, marginBottom: 18 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 20 }}>
           <span style={{
             width: 42, height: 42, borderRadius: "50%", flex: "none",
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -80,10 +80,22 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
               <p style={{ fontSize: 13.5, fontWeight: 500 }}>{intentLabel[call.intent]}</p>
             </div>
           )}
-          {call.preferred_time && (
+          {(call.preferred_time_iso || call.preferred_time) && (
             <div style={{ ...field, background: "rgba(55,226,155,.07)", borderColor: "rgba(55,226,155,.18)" }}>
               <p style={{ ...fieldLabel, color: "var(--jade)" }}>{t.detailRequested}</p>
-              <p style={{ fontSize: 13.5, fontWeight: 500, color: "var(--jade)" }}>{call.preferred_time}</p>
+              <p style={{ fontSize: 13.5, fontWeight: 500, color: "var(--jade)" }}>
+                {call.preferred_time_iso
+                  ? (() => {
+                      const parts = new Intl.DateTimeFormat("en-GB", {
+                        day: "2-digit", month: "2-digit", year: "numeric",
+                        hour: "2-digit", minute: "2-digit", hour12: false,
+                        timeZone: BUSINESS_TZ,
+                      }).formatToParts(new Date(call.preferred_time_iso));
+                      const get = (t: string) => parts.find((p) => p.type === t)?.value;
+                      return `${get("day")}/${get("month")}/${get("year")} - ${get("hour")}:${get("minute")}`;
+                    })()
+                  : call.preferred_time}
+              </p>
             </div>
           )}
           {call.urgency && call.urgency !== "normal" && (
