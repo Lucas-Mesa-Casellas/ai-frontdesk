@@ -5,18 +5,20 @@ import { confirmBooking, cancelBooking } from "@/lib/dash-actions";
 import { IconCheck, IconX } from "./icons";
 
 export default function BookingActions({
-  bookingId, path, confirmLabel, confirmingLabel, cancelLabel, cancellingLabel,
-  confirmedLabel, cancelledLabel, errorLabel,
+  bookingId, path, currentStatus,
+  confirmLabel, confirmingLabel, cancelLabel, cancellingLabel,
+  confirmedLabel, cancelledLabel, errorLabel, changeLabel,
 }: {
-  bookingId: string; path: string;
+  bookingId: string; path: string; currentStatus: string;
   confirmLabel: string; confirmingLabel: string;
   cancelLabel: string; cancellingLabel: string;
-  confirmedLabel: string; cancelledLabel: string; errorLabel: string;
+  confirmedLabel: string; cancelledLabel: string; errorLabel: string; changeLabel: string;
 }) {
   const [pending, startTransition] = useTransition();
   const [action, setAction] = useState<"confirm" | "cancel" | null>(null);
   const [done, setDone] = useState<"confirm" | "cancel" | null>(null);
   const [failed, setFailed] = useState(false);
+  const [editing, setEditing] = useState(currentStatus === "pending");
 
   const run = (kind: "confirm" | "cancel") => {
     setAction(kind);
@@ -26,24 +28,34 @@ export default function BookingActions({
         if (kind === "confirm") await confirmBooking(bookingId, path);
         else await cancelBooking(bookingId, path);
         setDone(kind);
+        setEditing(false);
       } catch (err) {
-        // Full detail is logged server-side in dash-actions.ts; this is a
-        // secondary copy in the browser console for whoever is testing.
         console.error("[BookingActions]", kind, "failed for booking", bookingId, err);
         setFailed(true);
       }
     });
   };
 
-  if (done) {
+  const settledKind: "confirm" | "cancel" | null =
+    done ?? (currentStatus === "confirmed" ? "confirm" : currentStatus === "cancelled" ? "cancel" : null);
+
+  if (!editing && settledKind) {
+    const Icon = settledKind === "confirm" ? IconCheck : IconX;
     return (
-      <div style={{
-        display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600,
-        color: "var(--jade)",
-      }}>
-        <IconCheck width={13} height={13} />
-        {done === "confirm" ? confirmedLabel : cancelledLabel}
-      </div>
+      <button
+        onClick={() => setEditing(true)}
+        style={{
+          display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600,
+          color: settledKind === "confirm" ? "var(--jade)" : "var(--text-3)",
+          background: "none", border: "none", cursor: "pointer", padding: 0,
+        }}
+      >
+        <Icon width={13} height={13} />
+        {settledKind === "confirm" ? confirmedLabel : cancelledLabel}
+        <span style={{ fontSize: 11, fontWeight: 500, color: "var(--text-3)", marginLeft: 4, textDecoration: "underline" }}>
+          {changeLabel}
+        </span>
+      </button>
     );
   }
 

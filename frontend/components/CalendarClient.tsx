@@ -56,30 +56,15 @@ export default function CalendarClient({
         .format(new Date(Date.UTC(year, month, selectedDay)))
     : null;
 
-  const renderActions = (b: { id: string; status: string }) => {
-    if (b.status === "cancelled") {
-      return <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)" }}>{labels.calCancelled}</span>;
-    }
-    if (b.status === "confirmed") {
-      return (
-        <span style={{
-          fontSize: 11, fontWeight: 600, color: "var(--jade)", padding: "4px 10px",
-          borderRadius: 999, background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.24)",
-        }}>
-          {labels.calConfirmed_}
-        </span>
-      );
-    }
-    return (
-      <BookingActions
-        bookingId={b.id} path="/dashboard/calendar"
-        confirmLabel={labels.calConfirm} confirmingLabel={labels.calConfirming}
-        cancelLabel={labels.calCancel} cancellingLabel={labels.calCancelling}
-        confirmedLabel={labels.calConfirmed_} cancelledLabel={labels.calCancelled}
-        errorLabel={labels.calActionError}
-      />
-    );
-  };
+  const renderActions = (b: { id: string; status: string }) => (
+    <BookingActions
+      bookingId={b.id} path="/dashboard/calendar" currentStatus={b.status}
+      confirmLabel={labels.calConfirm} confirmingLabel={labels.calConfirming}
+      cancelLabel={labels.calCancel} cancellingLabel={labels.calCancelling}
+      confirmedLabel={labels.calConfirmed_} cancelledLabel={labels.calCancelled}
+      errorLabel={labels.calActionError} changeLabel={labels.calChange}
+    />
+  );
 
   return (
     <div className="cal-layout" style={{ width: "100%" }}>

@@ -29,7 +29,7 @@ export type DashDict = {
 
   calTitle: string; calSub: string; calEmptyTitle: string; calEmptySub: string;
   calPending: string; calConfirmed: string; calConfirm: string; calConfirming: string;
-  calConfirmed_: string; calNoDate: string; calUndatedTitle: string; calSelectDay: string; calDayEmpty: string; calCancel: string; calCancelling: string; calCancelled: string; calStatsThisMonth: string; calActionError: string; calReason: string; calNoReason: string; calSeeCall: string; people: (n: number) => string;
+  calConfirmed_: string; calNoDate: string; calUndatedTitle: string; calSelectDay: string; calDayEmpty: string; calCancel: string; calCancelling: string; calCancelled: string; calStatsThisMonth: string; calActionError: string; calReason: string; calNoReason: string; calSeeCall: string; calChange: string; people: (n: number) => string;
 
   setTitle: string; setSub: string; setBizInfo: string; setBizName: string;
   setEmail: string; setPhone: string; setSave: string; setSaved: string; setSaveFailed: string;
@@ -80,7 +80,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     calEmptyTitle: "No bookings", calEmptySub: "Booking requests captured by your AI will appear here.",
     calPending: "Requested", calConfirmed: "Confirmed",
     calConfirm: "Confirm", calConfirming: "Confirming…", calConfirmed_: "Confirmed",
-    calNoDate: "No date given", calUndatedTitle: "Requests without a date", calSelectDay: "Select a day to see its bookings.", calDayEmpty: "No bookings this day.", calCancel: "Cancel", calCancelling: "Cancelling…", calCancelled: "Cancelled", calStatsThisMonth: "This month", calActionError: "Something went wrong. Please try again.", calReason: "Reason", calNoReason: "No summary available", calSeeCall: "See call", people: (n) => `${n} ${n === 1 ? "person" : "people"}`,
+    calNoDate: "No date given", calUndatedTitle: "Requests without a date", calSelectDay: "Select a day to see its bookings.", calDayEmpty: "No bookings this day.", calCancel: "Cancel", calCancelling: "Cancelling…", calCancelled: "Cancelled", calStatsThisMonth: "This month", calActionError: "Something went wrong. Please try again.", calReason: "Reason", calNoReason: "No summary available", calSeeCall: "See call", calChange: "Change", people: (n) => `${n} ${n === 1 ? "person" : "people"}`,
 
     setTitle: "Settings", setSub: "Manage your business info and preferences.",
     setBizInfo: "Business information", setBizName: "Business name",
@@ -132,7 +132,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     calEmptyTitle: "Sin reservas", calEmptySub: "Las solicitudes de cita recogidas por tu IA aparecerán aquí.",
     calPending: "Solicitado", calConfirmed: "Confirmado",
     calConfirm: "Confirmar", calConfirming: "Confirmando…", calConfirmed_: "Confirmado",
-    calNoDate: "Sin fecha indicada", calUndatedTitle: "Solicitudes sin fecha", calSelectDay: "Selecciona un día para ver sus citas.", calDayEmpty: "Sin citas ese día.", calCancel: "Cancelar", calCancelling: "Cancelando…", calCancelled: "Cancelado", calStatsThisMonth: "Este mes", calActionError: "Algo salió mal. Inténtalo de nuevo.", calReason: "Motivo", calNoReason: "Sin resumen disponible", calSeeCall: "Ver llamada", people: (n) => `${n} ${n === 1 ? "persona" : "personas"}`,
+    calNoDate: "Sin fecha indicada", calUndatedTitle: "Solicitudes sin fecha", calSelectDay: "Selecciona un día para ver sus citas.", calDayEmpty: "Sin citas ese día.", calCancel: "Cancelar", calCancelling: "Cancelando…", calCancelled: "Cancelado", calStatsThisMonth: "Este mes", calActionError: "Algo salió mal. Inténtalo de nuevo.", calReason: "Motivo", calNoReason: "Sin resumen disponible", calSeeCall: "Ver llamada", calChange: "Cambiar", people: (n) => `${n} ${n === 1 ? "persona" : "personas"}`,
 
     setTitle: "Ajustes", setSub: "Gestiona tu información y preferencias.",
     setBizInfo: "Información del negocio", setBizName: "Nombre del negocio",
@@ -184,7 +184,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     calEmptyTitle: "Aucun rendez-vous", calEmptySub: "Les demandes enregistrées par votre IA apparaîtront ici.",
     calPending: "Demandé", calConfirmed: "Confirmé",
     calConfirm: "Confirmer", calConfirming: "Confirmation…", calConfirmed_: "Confirmé",
-    calNoDate: "Aucune date indiquée", calUndatedTitle: "Demandes sans date", calSelectDay: "Sélectionnez un jour pour voir ses rendez-vous.", calDayEmpty: "Aucun rendez-vous ce jour.", calCancel: "Annuler", calCancelling: "Annulation…", calCancelled: "Annulé", calStatsThisMonth: "Ce mois-ci", calActionError: "Une erreur est survenue. Veuillez réessayer.", calReason: "Motif", calNoReason: "Aucun résumé disponible", calSeeCall: "Voir l'appel", people: (n) => `${n} ${n === 1 ? "personne" : "personnes"}`,
+    calNoDate: "Aucune date indiquée", calUndatedTitle: "Demandes sans date", calSelectDay: "Sélectionnez un jour pour voir ses rendez-vous.", calDayEmpty: "Aucun rendez-vous ce jour.", calCancel: "Annuler", calCancelling: "Annulation…", calCancelled: "Annulé", calStatsThisMonth: "Ce mois-ci", calActionError: "Une erreur est survenue. Veuillez réessayer.", calReason: "Motif", calNoReason: "Aucun résumé disponible", calSeeCall: "Voir l'appel", calChange: "Modifier", people: (n) => `${n} ${n === 1 ? "personne" : "personnes"}`,
 
     setTitle: "Paramètres", setSub: "Gérez vos informations et préférences.",
     setBizInfo: "Informations de l'entreprise", setBizName: "Nom de l'entreprise",
