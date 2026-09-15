@@ -50,10 +50,6 @@ export default async function OverviewPage() {
 
   return (
     <div className="ov-wrap">
-      <AnimateOnRouteEntry className="ov-wave" activeClassName="ov-wave-animate">
-        <div className="ov-wave-line" />
-      </AnimateOnRouteEntry>
-
       <div className="dash-in" style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 6 }}>{t.ovTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5, display: "flex", alignItems: "center", gap: 8 }}>
@@ -107,6 +103,16 @@ export default async function OverviewPage() {
         )}
       </div>
 
+      <AnimateOnRouteEntry className="ov-wave" activeClassName="ov-wave-animate">
+        <div className="ov-wave-line" />
+        <div className="ov-wave-badge" aria-hidden="true">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+            <path d="M17.6 5.6a9 9 0 1 0 2.2 3.6" stroke="#04140D" strokeWidth="2.8" strokeLinecap="round" />
+            <circle cx="18.6" cy="5.4" r="2.85" fill="#04140D" />
+          </svg>
+        </div>
+      </AnimateOnRouteEntry>
+
       <div className="ov-nav-links">
         <Link href="/dashboard/calls" className="dash-card dash-in d5 ov-nav-link">
           <IconPhone width={16} height={16} />
@@ -128,14 +134,14 @@ export default async function OverviewPage() {
            rim reads -- these cards are semi-transparent, so a filled
            gradient shows through as a smudge instead. closest-side with a
            transparent core reproduces what the aura actually looks like:
-           glow at the edges only. Toned down twice now -- .42/.34 read as
-           washed-out, then .18/.24 was still a bit bright per Lucas.
-           Picked by eye against several candidates each round, not the
-           first number tried. */
+           glow at the edges only. Toned down three times now -- .42/.34
+           read as washed-out, .18/.24 and then .14/.20 were both still a
+           bit bright per Lucas. Picked by eye against several candidates
+           each round, not the first number tried. */
         .ov-stat-card::after, .ov-panel::after {
           content: ""; position: absolute; inset: -14px; border-radius: 30px;
-          background: radial-gradient(closest-side, transparent 55%, rgba(55,226,155,.20) 100%);
-          filter: blur(10px); opacity: .14; z-index: -1; pointer-events: none;
+          background: radial-gradient(closest-side, transparent 55%, rgba(55,226,155,.16) 100%);
+          filter: blur(10px); opacity: .1; z-index: -1; pointer-events: none;
         }
         .ov-stat-num { font-size: 28px; }
         .ov-stat-label { font-size: 12px; }
@@ -144,7 +150,7 @@ export default async function OverviewPage() {
         .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
         .ov-hourlabels { display: flex; justify-content: space-between; margin-top: 6px; }
         .ov-hourlabels span { font-size: 9.5px; color: var(--text-3); }
-        .ov-nav-links { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+        .ov-nav-links { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .ov-nav-link {
           display: flex; align-items: center; justify-content: center; gap: 9px;
           padding: 16px; font-size: 13.5px; font-weight: 600; color: var(--text-2);
@@ -154,27 +160,49 @@ export default async function OverviewPage() {
            across -- scaleX grows a SOLID line rather than translating a
            faded gradient segment, so everything behind the growing edge
            stays fully lit instead of fading back to transparent, and it
-           ends as a solid, fully bright line rather than a faded remnant. */
+           ends as a solid, fully bright line rather than a faded remnant.
+           Sits between the hour chart and the nav buttons now, in normal
+           flow (not pinned to .ov-wrap's bottom edge) -- height leaves
+           room for the badge, which is taller than the line itself and
+           needs to stay vertically centered on it throughout the draw. */
         .ov-wave {
-          position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
-          pointer-events: none; z-index: -1;
+          position: relative; height: 22px; margin: 28px 0 20px;
         }
         .ov-wave-line {
-          position: absolute; inset: 0;
+          position: absolute; left: 0; right: 26px; top: 50%; height: 2px;
           background: var(--jade);
           opacity: .55;
-          transform: scaleX(0); transform-origin: left;
+          transform: translateY(-50%) scaleX(0); transform-origin: left;
           box-shadow: 0 0 6px 1px rgba(55,226,155,.4), 0 0 14px 4px rgba(55,226,155,.2);
         }
+        /* The badge (the company mark, same as the sidebar's logo badge)
+           arrives just as the line finishes drawing -- its own short
+           fade/scale-in, delayed to land right at the line's end instead
+           of just popping in from the start. */
+        .ov-wave-badge {
+          position: absolute; right: 0; top: 50%; width: 20px; height: 20px; margin-top: -10px;
+          border-radius: 50%; display: flex; align-items: center; justify-content: center;
+          background: linear-gradient(155deg, var(--jade), var(--jade-deep));
+          box-shadow: 0 0 10px 2px rgba(55,226,155,.3);
+          opacity: 0; transform: scale(.4);
+        }
         .ov-wave-animate .ov-wave-line {
-          animation: ovNeonDraw 1.8s var(--e-out) 1 forwards;
+          animation: ovNeonDraw 3.5s var(--e-out) 1 forwards;
+        }
+        .ov-wave-animate .ov-wave-badge {
+          animation: ovWaveBadgeIn .45s var(--e-out) 3.2s 1 forwards;
         }
         @keyframes ovNeonDraw {
-          from { transform: scaleX(0); }
-          to   { transform: scaleX(1); }
+          from { transform: translateY(-50%) scaleX(0); }
+          to   { transform: translateY(-50%) scaleX(1); }
+        }
+        @keyframes ovWaveBadgeIn {
+          from { opacity: 0; transform: scale(.4); }
+          to   { opacity: 1; transform: scale(1); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .ov-wave-line { transform: scaleX(1); animation: none; }
+          .ov-wave-line { transform: translateY(-50%) scaleX(1); animation: none; }
+          .ov-wave-badge { opacity: 1; transform: scale(1); animation: none; }
         }
         @media (max-width: 700px) {
           .ov-wrap { padding: 20px 18px; }
@@ -190,7 +218,7 @@ export default async function OverviewPage() {
           /* Cards are narrow and only 8px apart here, so full-strength
              halos bleed into each other and read as one bright band
              behind the row rather than a glow per card. */
-          .ov-stat-card::after { inset: -8px; border-radius: 20px; filter: blur(7px); opacity: .1; }
+          .ov-stat-card::after { inset: -8px; border-radius: 20px; filter: blur(7px); opacity: .07; }
         }
       `}</style>
     </div>
