@@ -119,10 +119,17 @@ export default async function OverviewPage() {
         .ov-wrap { position: relative; padding: 32px 36px; max-width: 1080px; isolation: isolate; }
         .ov-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
         .ov-stat-card { position: relative; padding: 20px; }
+        /* Adapted from the landing page's .aura treatment (globals.css):
+           a blurred jade field sitting behind the subject, bleeding out
+           past its edges. There the console covers the middle, so only the
+           rim reads -- these cards are semi-transparent, so a filled
+           gradient shows through as a smudge instead. closest-side with a
+           transparent core reproduces what the aura actually looks like:
+           glow at the edges only. */
         .ov-stat-card::after {
-          content: ""; position: absolute; inset: -14px; border-radius: inherit;
-          background: radial-gradient(circle at 50% 35%, rgba(55,226,155,.22), transparent 70%);
-          opacity: .3; z-index: -1; pointer-events: none;
+          content: ""; position: absolute; inset: -14px; border-radius: 30px;
+          background: radial-gradient(closest-side, transparent 55%, rgba(55,226,155,.34) 100%);
+          filter: blur(10px); opacity: .42; z-index: -1; pointer-events: none;
         }
         .ov-stat-num { font-size: 28px; }
         .ov-stat-label { font-size: 12px; }
@@ -168,6 +175,10 @@ export default async function OverviewPage() {
           .ov-panel { padding: 14px; }
           .ov-hourlabels span:nth-child(2n) { display: none; }
           .ov-nav-links { grid-template-columns: 1fr; }
+          /* Cards are narrow and only 8px apart here, so full-strength
+             halos bleed into each other and read as one bright band
+             behind the row rather than a glow per card. */
+          .ov-stat-card::after { inset: -8px; border-radius: 20px; filter: blur(7px); opacity: .28; }
         }
         @media (prefers-reduced-motion: reduce) {
           .ov-wave::after { animation: none; }
