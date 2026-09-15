@@ -78,7 +78,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     calTitle: "Calendar", calSub: "Booking requests captured by your AI.",
     calEmptyTitle: "No bookings", calEmptySub: "Booking requests captured by your AI will appear here.",
-    calPending: "Requested, not confirmed", calConfirmed: "Confirmed",
+    calPending: "Requested", calConfirmed: "Confirmed",
     calConfirm: "Confirm", calConfirming: "Confirming…", calConfirmed_: "Confirmed",
     calNoDate: "No date given", calUndatedTitle: "Requests without a date", calSelectDay: "Select a day to see its bookings.", calDayEmpty: "No bookings this day.", calCancel: "Cancel", calCancelling: "Cancelling…", calCancelled: "Cancelled", calStatsThisMonth: "This month", calActionError: "Something went wrong. Please try again.", calReason: "Reason", calNoReason: "No summary available", calSeeCall: "See call", people: (n) => `${n} ${n === 1 ? "person" : "people"}`,
 
@@ -130,7 +130,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     calTitle: "Calendario", calSub: "Solicitudes de cita recogidas por tu IA.",
     calEmptyTitle: "Sin reservas", calEmptySub: "Las solicitudes de cita recogidas por tu IA aparecerán aquí.",
-    calPending: "Solicitado, sin confirmar", calConfirmed: "Confirmado",
+    calPending: "Solicitado", calConfirmed: "Confirmado",
     calConfirm: "Confirmar", calConfirming: "Confirmando…", calConfirmed_: "Confirmado",
     calNoDate: "Sin fecha indicada", calUndatedTitle: "Solicitudes sin fecha", calSelectDay: "Selecciona un día para ver sus citas.", calDayEmpty: "Sin citas ese día.", calCancel: "Cancelar", calCancelling: "Cancelando…", calCancelled: "Cancelado", calStatsThisMonth: "Este mes", calActionError: "Algo salió mal. Inténtalo de nuevo.", calReason: "Motivo", calNoReason: "Sin resumen disponible", calSeeCall: "Ver llamada", people: (n) => `${n} ${n === 1 ? "persona" : "personas"}`,
 
@@ -182,7 +182,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     calTitle: "Calendrier", calSub: "Demandes de rendez-vous enregistrées par votre IA.",
     calEmptyTitle: "Aucun rendez-vous", calEmptySub: "Les demandes enregistrées par votre IA apparaîtront ici.",
-    calPending: "Demandé, non confirmé", calConfirmed: "Confirmé",
+    calPending: "Demandé", calConfirmed: "Confirmé",
     calConfirm: "Confirmer", calConfirming: "Confirmation…", calConfirmed_: "Confirmé",
     calNoDate: "Aucune date indiquée", calUndatedTitle: "Demandes sans date", calSelectDay: "Sélectionnez un jour pour voir ses rendez-vous.", calDayEmpty: "Aucun rendez-vous ce jour.", calCancel: "Annuler", calCancelling: "Annulation…", calCancelled: "Annulé", calStatsThisMonth: "Ce mois-ci", calActionError: "Une erreur est survenue. Veuillez réessayer.", calReason: "Motif", calNoReason: "Aucun résumé disponible", calSeeCall: "Voir l'appel", people: (n) => `${n} ${n === 1 ? "personne" : "personnes"}`,
 
