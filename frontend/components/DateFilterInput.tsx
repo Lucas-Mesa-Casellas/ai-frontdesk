@@ -26,12 +26,16 @@ function displayToIso(value: string) {
 }
 
 export default function DateFilterInput({
-  name, defaultValue, label, labelStyle,
+  name, defaultValue, label, labelStyle, placeholder,
 }: {
   name: string;
   defaultValue: string;
   label: string;
   labelStyle: React.CSSProperties;
+  // day/month/year order stays dd/mm/yyyy for every locale (matches
+  // isoToDisplay/displayToIso above, which don't vary by locale either) --
+  // only the placeholder/title TEXT localizes (yyyy vs aaaa).
+  placeholder: string;
 }) {
   const [text, setText] = useState(() => isoToDisplay(defaultValue));
   const iso = displayToIso(text);
@@ -44,13 +48,13 @@ export default function DateFilterInput({
         type="text"
         inputMode="numeric"
         autoComplete="off"
-        placeholder="dd/mm/yyyy"
+        placeholder={placeholder}
         // Lenient on purpose: 1/1/2027 is accepted and padded on the way
         // out, so the only thing this blocks is input that isn't a date at
         // all. An empty field skips validation entirely, which is what
         // leaves the filter optional.
         pattern="\d{1,2}/\d{1,2}/\d{4}"
-        title="dd/mm/yyyy"
+        title={placeholder}
         value={text}
         onChange={(e) => setText(e.target.value)}
         className="dash-input"

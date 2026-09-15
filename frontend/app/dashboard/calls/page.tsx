@@ -76,8 +76,8 @@ export default async function CallsPage({
       </div>
 
       <form className="dash-in calls-filter">
-        <DateFilterInput name="from" defaultValue={sp.from ?? ""} label={t.callsFilterFrom} labelStyle={filterLabel} />
-        <DateFilterInput name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} />
+        <DateFilterInput name="from" defaultValue={sp.from ?? ""} label={t.callsFilterFrom} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} />
+        <DateFilterInput name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} />
         <button type="submit" className="btn-jade" style={filterBtn}>{t.callsFilterApply}</button>
         {isFiltered && (
           <Link href="/dashboard/calls" className="link-quiet" style={{ fontSize: 13, padding: "9px 4px" }}>{t.callsFilterClear}</Link>
