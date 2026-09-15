@@ -76,8 +76,15 @@ export default async function CallsPage({
       </div>
 
       <form className="dash-in calls-filter">
-        <DateFilterInput name="from" defaultValue={sp.from ?? ""} label={t.callsFilterFrom} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} />
-        <DateFilterInput name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} />
+        {/* Keyed by the actual filter value: DateFilterInput's typed text is
+            local useState seeded from defaultValue only on mount, so a soft
+            navigation that changes searchParams without unmounting the
+            component (e.g. the Clear link below) would otherwise leave
+            stale text in the field after the filter itself has cleared.
+            A key that changes forces React to remount instead of reusing
+            the instance, which resets that state to match. */}
+        <DateFilterInput key={`from-${sp.from ?? ""}`} name="from" defaultValue={sp.from ?? ""} label={t.callsFilterFrom} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} />
+        <DateFilterInput key={`to-${sp.to ?? ""}`} name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} />
         <button type="submit" className="btn-jade" style={filterBtn}>{t.callsFilterApply}</button>
         {isFiltered && (
           <Link href="/dashboard/calls" className="link-quiet" style={{ fontSize: 13, padding: "9px 4px" }}>{t.callsFilterClear}</Link>
