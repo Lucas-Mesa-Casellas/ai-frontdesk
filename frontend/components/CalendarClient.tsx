@@ -34,7 +34,7 @@ export default function CalendarClient({
   intlLocale: string;
   dashboardLocale: string;
   labels: Record<string, string>;
-  legend: { pending: string; confirmed: string; urgency: string };
+  legend: { pending: string; confirmed: string; cancelled: string; urgency: string };
   undated: UndatedBooking[];
   stats: { total: number; confirmed: number };
 }) {
@@ -42,6 +42,11 @@ export default function CalendarClient({
   const selected = selectedDay !== null ? byDay[selectedDay] || [] : null;
 
   const dotColor = (b: Booking) => {
+    // Cancelled is checked first: it's inactive/done regardless of the
+    // urgency it originally had, so it must never render as high-urgency
+    // red -- and previously fell through to the same amber as "pending",
+    // reading as "still needs attention" instead of "no longer relevant."
+    if (b.status === "cancelled") return "var(--text-3)";
     if (b.urgency === "high") return "#FF6B6B";
     return b.status === "confirmed" ? "var(--jade)" : "#FFC178";
   };
@@ -93,6 +98,10 @@ export default function CalendarClient({
             <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "var(--jade)" }} />
               {legend.confirmed}
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "var(--text-3)" }} />
+              {legend.cancelled}
             </span>
             <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
               <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "#FF6B6B" }} />

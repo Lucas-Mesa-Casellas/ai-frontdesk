@@ -129,6 +129,7 @@ export default async function CalendarPage({
           legend={{
             pending: t.calPending,
             confirmed: t.calConfirmed,
+            cancelled: t.calCancelled,
             urgency: t.detailUrgent,
           }}
           stats={{ total: monthBookings.length, confirmed: confirmedCount }}
