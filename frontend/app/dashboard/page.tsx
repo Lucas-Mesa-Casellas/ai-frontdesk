@@ -148,9 +148,14 @@ export default async function OverviewPage() {
           box-shadow: 0 0 18px 3px rgba(55,226,155,.22);
           animation: ovWaveTravel 4.5s ease-in-out 1 forwards;
         }
+        /* End value is in units of the bar's own width (45% of the track),
+           so 122% lands its right edge flush with the track's right edge.
+           The old 220% was a valid mid-point back when this looped, but as
+           a resting position it parked the whole bar past the track's
+           overflow:hidden edge -- the animation finished invisible. */
         @keyframes ovWaveTravel {
           0%   { transform: translateX(-120%); }
-          100% { transform: translateX(220%); }
+          100% { transform: translateX(122%); }
         }
         @media (max-width: 700px) {
           .ov-wrap { padding: 20px 18px; }
