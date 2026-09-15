@@ -103,7 +103,10 @@ export default async function OverviewPage() {
         )}
       </div>
 
-      <AnimateOnRouteEntry className="ov-wave" activeClassName="ov-wave-animate">
+      <AnimateOnRouteEntry
+        className="ov-wave" activeClassName="ov-wave-animate" doneClassName="ov-wave-done"
+        once storageKey="ov-wave-played"
+      >
         <div className="ov-wave-line" />
         <div className="ov-wave-badge" aria-hidden="true">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
@@ -200,6 +203,11 @@ export default async function OverviewPage() {
           from { opacity: 0; transform: scale(.4); }
           to   { opacity: 1; transform: scale(1); }
         }
+        /* Already played once this session (AnimateOnRouteEntry's
+           sessionStorage check) -- show the finished state directly, no
+           animation, no flash of the collapsed start state first. */
+        .ov-wave-done .ov-wave-line { transform: translateY(-50%) scaleX(1); }
+        .ov-wave-done .ov-wave-badge { opacity: 1; transform: scale(1); }
         @media (prefers-reduced-motion: reduce) {
           .ov-wave-line { transform: translateY(-50%) scaleX(1); animation: none; }
           .ov-wave-badge { opacity: 1; transform: scale(1); animation: none; }
