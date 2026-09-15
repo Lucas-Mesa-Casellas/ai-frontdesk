@@ -14,22 +14,24 @@ export default async function OverviewPage() {
 
   const [
     { count: totalCalls },
-    { count: pendingBookings },
+    { count: totalBookings },
     { data: bookedCallIds },
     { data: allCallTimes },
   ] = await Promise.all([
     supabase.from("calls").select("*", { count: "exact", head: true }).eq("business_id", businessId),
+    // Every booking request ever captured, which is what the "Booking
+    // requests" label says -- not a status='pending' subset, which read as
+    // an inbox count and dropped every time one was confirmed or cancelled.
     supabase.from("bookings").select("*", { count: "exact", head: true })
-      .eq("business_id", businessId).eq("status", "pending"),
+      .eq("business_id", businessId),
     // Booking rate is "% of calls that led to at least one booking," not a
     // raw booking count -- a single call can produce more than one booking,
     // and bookings.call_id is ON DELETE SET NULL (bookings intentionally
     // outlive a purged/deleted call), so counting rows directly can exceed
     // totalCalls and push this over 100%. Any booking ever created still
-    // counts here regardless of what later happened to it -- unlike
-    // pendingBookings above, this must NOT filter by status, or
-    // confirming/cancelling a booking would make the rate go down for
-    // having done so.
+    // counts here regardless of what later happened to it -- this must NOT
+    // filter by status, or confirming/cancelling a booking would make the
+    // rate go down for having done so.
     supabase.from("bookings").select("call_id")
       .eq("business_id", businessId).not("call_id", "is", null),
     supabase.from("calls").select("created_at").eq("business_id", businessId),
@@ -64,7 +66,7 @@ export default async function OverviewPage() {
         </div>
 
         <div className="dash-card dash-card-highlight dash-in d2 ov-stat-card">
-          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{pendingBookings ?? 0}</p>
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{totalBookings ?? 0}</p>
           <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statBookings}</p>
         </div>
 
