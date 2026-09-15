@@ -49,14 +49,18 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
       <div style={{ ...card, padding: 24, marginBottom: 18 }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 20 }}>
           <span style={{
-            width: 42, height: 42, borderRadius: "50%", flex: "none", marginTop: -12,
+            width: 42, height: 42, borderRadius: "50%", flex: "none", marginTop: 2,
             display: "flex", alignItems: "center", justifyContent: "center",
             background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.22)", color: "var(--jade)",
           }}>
             <IconPhone width={17} height={17} />
           </span>
           <div style={{ minWidth: 0 }}>
-            <h1 style={{ fontSize: 18, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{call.caller_name || t.unknown}</h1>
+            {/* marginBottom overrides a leaked global h1{margin-bottom:16px
+                (or 22px)} rule in globals.css meant for the marketing
+                page's hero title -- an unscoped element selector, so it
+                was reaching every h1 in the app, including this one. */}
+            <h1 style={{ fontSize: 18, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 2 }}>{call.caller_name || t.unknown}</h1>
             <p style={{ fontSize: 13, color: "var(--text-3)" }}>{call.caller_phone || t.noPhone}</p>
           </div>
         </div>
