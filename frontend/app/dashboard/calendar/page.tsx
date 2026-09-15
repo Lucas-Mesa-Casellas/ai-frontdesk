@@ -153,7 +153,6 @@ export default async function CalendarPage({
             unknown: t.unknown,
             statThisMonth: t.calStatsThisMonth,
             statConfirmed: t.calConfirmed,
-            calReason: t.calReason,
             calNoReason: t.calNoReason,
             calSeeCall: t.calSeeCall,
             calChange: t.calChange,

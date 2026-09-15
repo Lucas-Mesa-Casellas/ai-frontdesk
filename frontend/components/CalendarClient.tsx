@@ -183,14 +183,11 @@ export default function CalendarClient({
                   : null;
                 return (
                   <div key={b.id} className="dash-card cal-booking-card" style={{ padding: 10, borderRadius: 12 }}>
-                    <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>
+                    <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
                       {time && <span style={{ fontWeight: 600, marginRight: 6 }}>{time}</span>}
                       {b.customer_name || labels.unknown}
                     </p>
-                    <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-3)", marginBottom: 2 }}>
-                      {labels.calReason}
-                    </p>
-                    <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
+                    <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 10 }}>
                       {b.summary ? (
                         b.summaryNeedsTranslation && b.call_id ? (
                           <TranslatedField callId={b.call_id} locale={dashboardLocale} field="summary" initialText={b.summary} />
@@ -202,7 +199,7 @@ export default function CalendarClient({
                       )}
                       {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                     </p>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
                       {renderActions(b)}
                       {b.call_id && (
                         <Link href={`/dashboard/calls/${b.call_id}`} className="cal-link-box" style={{ fontSize: 11.5 }}>
@@ -221,11 +218,8 @@ export default function CalendarClient({
           ) : (
             undated.map((b) => (
               <div key={b.id} className="dash-card cal-booking-card" style={{ padding: 10, borderRadius: 12 }}>
-                <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>{b.customer_name || labels.unknown}</p>
-                <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.04em", color: "var(--text-3)", marginBottom: 2 }}>
-                  {labels.calReason}
-                </p>
-                <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 8 }}>
+                <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{b.customer_name || labels.unknown}</p>
+                <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 10 }}>
                   {b.summary ? (
                     b.summaryNeedsTranslation && b.call_id ? (
                       <TranslatedField callId={b.call_id} locale={dashboardLocale} field="summary" initialText={b.summary} />
@@ -237,7 +231,7 @@ export default function CalendarClient({
                   )}
                   {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                 </p>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
                   {renderActions(b)}
                   {b.call_id && (
                     <Link href={`/dashboard/calls/${b.call_id}`} className="cal-link-box" style={{ fontSize: 11.5 }}>

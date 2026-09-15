@@ -42,21 +42,24 @@ export default function BookingActions({
   if (!editing && settledKind) {
     const Icon = settledKind === "confirm" ? IconCheck : IconX;
     return (
-      <button
-        onClick={() => setEditing(true)}
-        className="ba-change-btn"
-        style={{
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Status is plain text, not a button -- only "Change" below is
+            clickable, so clicking the settled status itself does nothing. */}
+        <span style={{
           display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600,
           color: settledKind === "confirm" ? "var(--jade)" : "var(--text-3)",
-          background: "none", border: "none", cursor: "pointer", padding: 0,
-        }}
-      >
-        <Icon width={13} height={13} />
-        {settledKind === "confirm" ? confirmedLabel : cancelledLabel}
-        <span className="ba-change-label" style={{ fontSize: 11, fontWeight: 500, color: "var(--jade)", marginLeft: 4 }}>
-          {changeLabel}
+        }}>
+          <Icon width={13} height={13} />
+          {settledKind === "confirm" ? confirmedLabel : cancelledLabel}
         </span>
-      </button>
+        <button
+          onClick={() => setEditing(true)}
+          className="cal-link-box"
+          style={{ fontSize: 11, fontWeight: 500 }}
+        >
+          {changeLabel}
+        </button>
+      </div>
     );
   }
 
