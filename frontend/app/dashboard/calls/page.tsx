@@ -7,6 +7,7 @@ import { IconPhone } from "@/components/icons";
 import { BUSINESS_TZ, zonedTimeToUtc } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import TranslatedField from "@/components/TranslatedField";
+import DateFilterInput from "@/components/DateFilterInput";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 function parseDateParam(v: string | undefined): [number, number, number] | null {
@@ -75,14 +76,8 @@ export default async function CallsPage({
       </div>
 
       <form className="dash-in calls-filter">
-        <div>
-          <label style={filterLabel}>{t.callsFilterFrom}</label>
-          <input type="date" name="from" defaultValue={sp.from ?? ""} className="dash-input" />
-        </div>
-        <div>
-          <label style={filterLabel}>{t.callsFilterTo}</label>
-          <input type="date" name="to" defaultValue={sp.to ?? ""} className="dash-input" />
-        </div>
+        <DateFilterInput name="from" defaultValue={sp.from ?? ""} label={t.callsFilterFrom} labelStyle={filterLabel} />
+        <DateFilterInput name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} />
         <button type="submit" className="btn-jade" style={filterBtn}>{t.callsFilterApply}</button>
         {isFiltered && (
           <Link href="/dashboard/calls" style={{ fontSize: 13, color: "var(--text-3)", padding: "9px 4px" }}>{t.callsFilterClear}</Link>
