@@ -49,7 +49,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
       <div style={{ ...card, padding: 24, marginBottom: 18 }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 20 }}>
           <span style={{
-            width: 42, height: 42, borderRadius: "50%", flex: "none",
+            width: 42, height: 42, borderRadius: "50%", flex: "none", marginTop: -12,
             display: "flex", alignItems: "center", justifyContent: "center",
             background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.22)", color: "var(--jade)",
           }}>
