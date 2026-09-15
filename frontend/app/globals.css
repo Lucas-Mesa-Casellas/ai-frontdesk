@@ -938,20 +938,24 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   100% { box-shadow: 0 0 0 0 rgba(55,226,155,0); }
 }
 
+/* Was .55s/.5s with delays up to .24s -- correct on its own, but stacked on
+   top of real per-navigation data-fetch latency it made every page feel
+   like it was still loading well after the content was actually there.
+   Halved across the board; still enough stagger to read as deliberate. */
 .dash-in {
   opacity: 0;
-  animation: dashIn .55s var(--e-out) forwards;
+  animation: dashIn .3s var(--e-out) forwards;
 }
 .dash-in-scale {
   opacity: 0;
-  animation: dashInScale .5s var(--e-out) forwards;
+  animation: dashInScale .28s var(--e-out) forwards;
 }
-.d1 { animation-delay: .04s; }
-.d2 { animation-delay: .08s; }
-.d3 { animation-delay: .12s; }
-.d4 { animation-delay: .16s; }
-.d5 { animation-delay: .20s; }
-.d6 { animation-delay: .24s; }
+.d1 { animation-delay: .02s; }
+.d2 { animation-delay: .04s; }
+.d3 { animation-delay: .06s; }
+.d4 { animation-delay: .08s; }
+.d5 { animation-delay: .10s; }
+.d6 { animation-delay: .12s; }
 
 .live-dot {
   width: 6px;
