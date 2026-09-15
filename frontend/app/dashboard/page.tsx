@@ -15,22 +15,28 @@ export default async function OverviewPage() {
   const [
     { count: totalCalls },
     { count: pendingBookings },
-    { count: totalBookings },
+    { data: bookedCallIds },
     { data: allCallTimes },
   ] = await Promise.all([
     supabase.from("calls").select("*", { count: "exact", head: true }).eq("business_id", businessId),
     supabase.from("bookings").select("*", { count: "exact", head: true })
       .eq("business_id", businessId).eq("status", "pending"),
-    // Any booking ever created counts as "this call resulted in a request,"
-    // regardless of what later happened to it -- unlike pendingBookings
-    // above, this must NOT filter by status, or confirming/cancelling a
-    // booking would make the conversion rate go down for having done so.
-    supabase.from("bookings").select("*", { count: "exact", head: true })
-      .eq("business_id", businessId),
+    // Booking rate is "% of calls that led to at least one booking," not a
+    // raw booking count -- a single call can produce more than one booking,
+    // and bookings.call_id is ON DELETE SET NULL (bookings intentionally
+    // outlive a purged/deleted call), so counting rows directly can exceed
+    // totalCalls and push this over 100%. Any booking ever created still
+    // counts here regardless of what later happened to it -- unlike
+    // pendingBookings above, this must NOT filter by status, or
+    // confirming/cancelling a booking would make the rate go down for
+    // having done so.
+    supabase.from("bookings").select("call_id")
+      .eq("business_id", businessId).not("call_id", "is", null),
     supabase.from("calls").select("created_at").eq("business_id", businessId),
   ]);
 
-  const conv = totalCalls ? Math.round(((totalBookings || 0) / totalCalls) * 100) : 0;
+  const distinctBookedCalls = new Set((bookedCallIds || []).map((b) => b.call_id)).size;
+  const conv = totalCalls ? Math.min(100, Math.round((distinctBookedCalls / totalCalls) * 100)) : 0;
 
   const hourCounts = Array(24).fill(0);
   (allCallTimes || []).forEach((c) => { hourCounts[madridHour(new Date(c.created_at))]++; });
