@@ -128,13 +128,14 @@ export default async function OverviewPage() {
            rim reads -- these cards are semi-transparent, so a filled
            gradient shows through as a smudge instead. closest-side with a
            transparent core reproduces what the aura actually looks like:
-           glow at the edges only. Toned down hard from an earlier .42/.34
-           pass that looked washed-out once actually looked at -- picked by
-           eye against three candidates, not the first number tried. */
+           glow at the edges only. Toned down twice now -- .42/.34 read as
+           washed-out, then .18/.24 was still a bit bright per Lucas.
+           Picked by eye against several candidates each round, not the
+           first number tried. */
         .ov-stat-card::after, .ov-panel::after {
           content: ""; position: absolute; inset: -14px; border-radius: 30px;
-          background: radial-gradient(closest-side, transparent 55%, rgba(55,226,155,.24) 100%);
-          filter: blur(10px); opacity: .18; z-index: -1; pointer-events: none;
+          background: radial-gradient(closest-side, transparent 55%, rgba(55,226,155,.20) 100%);
+          filter: blur(10px); opacity: .14; z-index: -1; pointer-events: none;
         }
         .ov-stat-num { font-size: 28px; }
         .ov-stat-label { font-size: 12px; }
@@ -161,8 +162,9 @@ export default async function OverviewPage() {
         .ov-wave-line {
           position: absolute; inset: 0;
           background: var(--jade);
+          opacity: .55;
           transform: scaleX(0); transform-origin: left;
-          box-shadow: 0 0 8px 1px rgba(55,226,155,.85), 0 0 20px 5px rgba(55,226,155,.45);
+          box-shadow: 0 0 6px 1px rgba(55,226,155,.4), 0 0 14px 4px rgba(55,226,155,.2);
         }
         .ov-wave-animate .ov-wave-line {
           animation: ovNeonDraw 1.8s var(--e-out) 1 forwards;
@@ -188,7 +190,7 @@ export default async function OverviewPage() {
           /* Cards are narrow and only 8px apart here, so full-strength
              halos bleed into each other and read as one bright band
              behind the row rather than a glow per card. */
-          .ov-stat-card::after { inset: -8px; border-radius: 20px; filter: blur(7px); opacity: .13; }
+          .ov-stat-card::after { inset: -8px; border-radius: 20px; filter: blur(7px); opacity: .1; }
         }
       `}</style>
     </div>
