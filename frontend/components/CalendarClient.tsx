@@ -186,6 +186,9 @@ export default function CalendarClient({
                     <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
                       {time && <span style={{ fontWeight: 600, marginRight: 6 }}>{time}</span>}
                       {b.customer_name || labels.unknown}
+                      {b.customer_phone && (
+                        <span style={{ fontWeight: 400, fontSize: 12, color: "var(--text-3)" }}> · {b.customer_phone}</span>
+                      )}
                     </p>
                     <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 10 }}>
                       {b.summary ? (
@@ -197,9 +200,8 @@ export default function CalendarClient({
                       ) : (
                         labels.calNoReason
                       )}
-                      {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                     </p>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
+                    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 18 }}>
                       {renderActions(b)}
                       {b.call_id && (
                         <Link href={`/dashboard/calls/${b.call_id}`} className="cal-link-box" style={{ fontSize: 11.5 }}>
@@ -218,7 +220,12 @@ export default function CalendarClient({
           ) : (
             undated.map((b) => (
               <div key={b.id} className="dash-card cal-booking-card" style={{ padding: 10, borderRadius: 12 }}>
-                <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>{b.customer_name || labels.unknown}</p>
+                <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
+                  {b.customer_name || labels.unknown}
+                  {b.customer_phone && (
+                    <span style={{ fontWeight: 400, fontSize: 12, color: "var(--text-3)" }}> · {b.customer_phone}</span>
+                  )}
+                </p>
                 <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 10 }}>
                   {b.summary ? (
                     b.summaryNeedsTranslation && b.call_id ? (
@@ -229,9 +236,8 @@ export default function CalendarClient({
                   ) : (
                     labels.calNoReason
                   )}
-                  {b.customer_phone ? ` · ${b.customer_phone}` : ""}
                 </p>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
+                <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 18 }}>
                   {renderActions(b)}
                   {b.call_id && (
                     <Link href={`/dashboard/calls/${b.call_id}`} className="cal-link-box" style={{ fontSize: 11.5 }}>
