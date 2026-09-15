@@ -49,11 +49,27 @@ export async function translateCallFields(
   const merged = { ...cached, ...translated };
   const nextTranslations = { ...translations, [targetLocale]: merged };
 
-  const { error: updateError } = await supabase
+  // .select("id") + a 0-row check, not just checking `error` -- the same
+  // silent-failure class of bug found and fixed for confirmBooking/
+  // cancelBooking: an UPDATE that Postgres considers "successful" but
+  // whose RLS USING clause matches nothing returns error: null, not an
+  // error. Without this check, a still-broken policy would look like the
+  // translation worked (correct text returned to the caller for this one
+  // view) while silently never persisting -- re-translating from scratch,
+  // burning an OpenAI call, on every single future view.
+  const { data: updateData, error: updateError } = await supabase
     .from("calls")
     .update({ translations: nextTranslations })
-    .eq("id", callId);
-  if (updateError) throw updateError;
+    .eq("id", callId)
+    .select("id");
+  if (updateError) {
+    console.error("[translateCallFields] update failed", { callId, targetLocale, updateError });
+    throw updateError;
+  }
+  if (!updateData || updateData.length === 0) {
+    console.error("[translateCallFields] update matched 0 rows (RLS likely filtered it)", { callId, targetLocale });
+    throw new Error("Translation update matched no rows — check calls' UPDATE RLS policy / ownership.");
+  }
 
   return merged;
 }
@@ -84,11 +100,20 @@ export async function translateTranscript(callId: string, targetLocale: string):
     [targetLocale]: { ...(translations[targetLocale] ?? {}), transcript: translatedTranscript },
   };
 
-  const { error: updateError } = await supabase
+  // Same 0-row check as translateCallFields above -- see its comment.
+  const { data: updateData, error: updateError } = await supabase
     .from("calls")
     .update({ translations: nextTranslations })
-    .eq("id", callId);
-  if (updateError) throw updateError;
+    .eq("id", callId)
+    .select("id");
+  if (updateError) {
+    console.error("[translateTranscript] update failed", { callId, targetLocale, updateError });
+    throw updateError;
+  }
+  if (!updateData || updateData.length === 0) {
+    console.error("[translateTranscript] update matched 0 rows (RLS likely filtered it)", { callId, targetLocale });
+    throw new Error("Translation update matched no rows — check calls' UPDATE RLS policy / ownership.");
+  }
 
   return translatedTranscript;
 }
