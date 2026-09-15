@@ -39,7 +39,9 @@ export default async function OverviewPage() {
 
   return (
     <div className="ov-wrap">
-      <div className="dash-in" style={{ marginBottom: 28 }}>
+      <div className="ov-glow" aria-hidden="true" />
+
+      <div className="dash-in" style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 6 }}>{t.ovTitle}</h1>
         <p style={{ color: "var(--text-3)", fontSize: 13.5, display: "flex", alignItems: "center", gap: 8 }}>
           <span className="live-dot" />
@@ -47,73 +49,73 @@ export default async function OverviewPage() {
         </p>
       </div>
 
-      <div className="ov-bento">
-        <div className="ov-bento-stats">
-          <div className="dash-card dash-in d1 ov-stat-card">
-            <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{totalCalls ?? 0}</p>
-            <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statCalls}</p>
-          </div>
-
-          <div className="dash-card dash-card-highlight dash-in d2 ov-stat-card">
-            <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{pendingBookings ?? 0}</p>
-            <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statBookings}</p>
-          </div>
+      <div className="ov-stats">
+        <div className="dash-card dash-in d1 ov-stat-card">
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{totalCalls ?? 0}</p>
+          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statCalls}</p>
         </div>
 
-        <div className="dash-card dash-in d3 ov-panel">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 14 }}>
-            <div>
-              <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.hourChartTitle}</h2>
-              <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{t.hourChartSub}</p>
-            </div>
-            <div style={{ textAlign: "right", flex: "none" }}>
-              <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", lineHeight: 1 }}>{conv}%</p>
-              <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statConv}</p>
-            </div>
-          </div>
-          {!totalCalls ? (
-            <Empty text={t.noCalls} />
-          ) : (
-            <>
-              <div className="ov-hourbars">
-                {hourCounts.map((count, h) => (
-                  <div
-                    key={h}
-                    className="ov-hourbar"
-                    title={t.chartTooltip(hourLabel(h), count)}
-                    style={{ height: count > 0 ? `${Math.max((count / maxHourCount) * 100, 8)}%` : 2 }}
-                  />
-                ))}
-              </div>
-              <div className="ov-hourlabels">
-                {axisHours.map((h) => (
-                  <span key={h}>{hourLabel(h)}</span>
-                ))}
-              </div>
-            </>
-          )}
+        <div className="dash-card dash-card-highlight dash-in d2 ov-stat-card">
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{pendingBookings ?? 0}</p>
+          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statBookings}</p>
+        </div>
+
+        <div className="dash-card dash-in d3 ov-stat-card">
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{conv}%</p>
+          <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statConv}</p>
         </div>
       </div>
 
+      <div className="dash-card dash-in d4 ov-panel">
+        <div style={{ marginBottom: 18 }}>
+          <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.hourChartTitle}</h2>
+          <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{t.hourChartSub}</p>
+        </div>
+        {!totalCalls ? (
+          <Empty text={t.noCalls} />
+        ) : (
+          <>
+            <div className="ov-hourbars">
+              {hourCounts.map((count, h) => (
+                <div
+                  key={h}
+                  className="ov-hourbar"
+                  title={t.chartTooltip(hourLabel(h), count)}
+                  style={{ height: count > 0 ? `${Math.max((count / maxHourCount) * 100, 8)}%` : 2 }}
+                />
+              ))}
+            </div>
+            <div className="ov-hourlabels">
+              {axisHours.map((h) => (
+                <span key={h}>{hourLabel(h)}</span>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
       <style>{`
-        .ov-wrap { padding: 28px 32px; max-width: 1080px; }
-        .ov-bento { display: grid; grid-template-columns: 1fr 2fr; gap: 14px; margin-bottom: 28px; }
-        .ov-bento-stats { display: flex; flex-direction: row; gap: 14px; }
-        .ov-bento-stats .ov-stat-card { flex: 1; }
-        .ov-stat-card { padding: 18px; }
+        .ov-wrap { position: relative; padding: 32px 36px; max-width: 1080px; isolation: isolate; }
+        .ov-glow {
+          position: absolute; top: -120px; right: -160px; width: 480px; height: 480px;
+          background: radial-gradient(circle, rgba(55,226,155,.14), rgba(55,226,155,0) 70%);
+          pointer-events: none; z-index: -1;
+        }
+        .ov-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
+        .ov-stat-card { padding: 20px; }
         .ov-stat-num { font-size: 28px; }
         .ov-stat-label { font-size: 12px; }
-        .ov-panel { padding: 20px; }
+        .ov-panel { padding: 24px; }
         .ov-hourbars { display: flex; align-items: flex-end; gap: 2px; height: 80px; border-bottom: 1px solid var(--hair); }
         .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
         .ov-hourlabels { display: flex; justify-content: space-between; margin-top: 6px; }
         .ov-hourlabels span { font-size: 9.5px; color: var(--text-3); }
         @media (max-width: 700px) {
-          .ov-wrap { padding: 18px 16px; }
-          .ov-bento { grid-template-columns: 1fr; }
+          .ov-wrap { padding: 20px 18px; }
+          .ov-glow { width: 320px; height: 320px; top: -80px; right: -100px; }
         }
         @media (max-width: 480px) {
-          .ov-bento-stats { gap: 8px; }
+          .ov-stats { gap: 8px; }
           .ov-stat-card { padding: 12px; }
           .ov-stat-num { font-size: 20px; }
           .ov-stat-label { font-size: 10.5px; }
