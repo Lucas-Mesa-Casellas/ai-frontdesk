@@ -39,7 +39,7 @@ export default async function OverviewPage() {
 
   return (
     <div className="ov-wrap">
-      <div className="ov-glow" aria-hidden="true" />
+      <div className="ov-wave" aria-hidden="true" />
 
       <div className="dash-in" style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 6 }}>{t.ovTitle}</h1>
@@ -96,13 +96,20 @@ export default async function OverviewPage() {
 
       <style>{`
         .ov-wrap { position: relative; padding: 32px 36px; max-width: 1080px; isolation: isolate; }
-        .ov-glow {
-          position: absolute; top: -120px; right: -160px; width: 480px; height: 480px;
-          background: radial-gradient(circle, rgba(55,226,155,.14), rgba(55,226,155,0) 70%);
-          pointer-events: none; z-index: -1;
-        }
         .ov-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
-        .ov-stat-card { padding: 20px; }
+        .ov-stat-card { position: relative; padding: 20px; }
+        .ov-stat-card::after {
+          content: ""; position: absolute; inset: -14px; border-radius: inherit;
+          background: radial-gradient(circle at 50% 35%, rgba(55,226,155,.22), transparent 70%);
+          opacity: .18; z-index: -1; pointer-events: none;
+          animation: ovStatGlow 5.5s ease-in-out infinite;
+        }
+        .ov-stats .ov-stat-card:nth-child(2)::after { animation-delay: 1.1s; }
+        .ov-stats .ov-stat-card:nth-child(3)::after { animation-delay: 2.2s; }
+        @keyframes ovStatGlow {
+          0%, 100% { opacity: .16; transform: scale(.92); }
+          50%      { opacity: .42; transform: scale(1.05); }
+        }
         .ov-stat-num { font-size: 28px; }
         .ov-stat-label { font-size: 12px; }
         .ov-panel { padding: 24px; }
@@ -110,9 +117,24 @@ export default async function OverviewPage() {
         .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
         .ov-hourlabels { display: flex; justify-content: space-between; margin-top: 6px; }
         .ov-hourlabels span { font-size: 9.5px; color: var(--text-3); }
+        .ov-wave {
+          position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
+          overflow: hidden; pointer-events: none; z-index: -1;
+        }
+        .ov-wave::after {
+          content: ""; position: absolute; top: 0; left: 0; width: 45%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(55,226,155,.55), transparent);
+          filter: blur(3px);
+          box-shadow: 0 0 18px 3px rgba(55,226,155,.22);
+          animation: ovWaveTravel 9s ease-in-out infinite;
+        }
+        @keyframes ovWaveTravel {
+          0%   { transform: translateX(-120%); }
+          50%  { transform: translateX(220%); }
+          100% { transform: translateX(-120%); }
+        }
         @media (max-width: 700px) {
           .ov-wrap { padding: 20px 18px; }
-          .ov-glow { width: 320px; height: 320px; top: -80px; right: -100px; }
         }
         @media (max-width: 480px) {
           .ov-stats { gap: 8px; }
@@ -121,6 +143,9 @@ export default async function OverviewPage() {
           .ov-stat-label { font-size: 10.5px; }
           .ov-panel { padding: 14px; }
           .ov-hourlabels span:nth-child(2n) { display: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ov-stat-card::after, .ov-wave::after { animation: none; }
         }
       `}</style>
     </div>
