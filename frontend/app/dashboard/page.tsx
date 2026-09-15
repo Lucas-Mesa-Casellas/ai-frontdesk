@@ -4,6 +4,7 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { BUSINESS_TZ, madridHour, zonedTimeToUtc } from "@/lib/tz";
 import { IconPhone, IconCalendar } from "@/components/icons";
+import AnimateOnRouteEntry from "@/components/AnimateOnRouteEntry";
  
 export default async function OverviewPage() {
   const { supabase, business } = await getAuthedBusiness();
@@ -49,7 +50,9 @@ export default async function OverviewPage() {
 
   return (
     <div className="ov-wrap">
-      <div className="ov-wave" aria-hidden="true" />
+      <AnimateOnRouteEntry className="ov-wave" activeClassName="ov-wave-animate">
+        <div className="ov-wave-line" />
+      </AnimateOnRouteEntry>
 
       <div className="dash-in" style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 6 }}>{t.ovTitle}</h1>
@@ -125,15 +128,17 @@ export default async function OverviewPage() {
            rim reads -- these cards are semi-transparent, so a filled
            gradient shows through as a smudge instead. closest-side with a
            transparent core reproduces what the aura actually looks like:
-           glow at the edges only. */
-        .ov-stat-card::after {
+           glow at the edges only. Toned down hard from an earlier .42/.34
+           pass that looked washed-out once actually looked at -- picked by
+           eye against three candidates, not the first number tried. */
+        .ov-stat-card::after, .ov-panel::after {
           content: ""; position: absolute; inset: -14px; border-radius: 30px;
-          background: radial-gradient(closest-side, transparent 55%, rgba(55,226,155,.34) 100%);
-          filter: blur(10px); opacity: .42; z-index: -1; pointer-events: none;
+          background: radial-gradient(closest-side, transparent 55%, rgba(55,226,155,.24) 100%);
+          filter: blur(10px); opacity: .18; z-index: -1; pointer-events: none;
         }
         .ov-stat-num { font-size: 28px; }
         .ov-stat-label { font-size: 12px; }
-        .ov-panel { padding: 24px; }
+        .ov-panel { position: relative; padding: 24px; }
         .ov-hourbars { display: flex; align-items: flex-end; gap: 2px; height: 80px; border-bottom: 1px solid var(--hair); }
         .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
         .ov-hourlabels { display: flex; justify-content: space-between; margin-top: 6px; }
@@ -144,25 +149,30 @@ export default async function OverviewPage() {
           padding: 16px; font-size: 13.5px; font-weight: 600; color: var(--text-2);
           text-decoration: none;
         }
+        /* A neon line lighting up left-to-right, not a blurred bar sliding
+           across -- scaleX grows a SOLID line rather than translating a
+           faded gradient segment, so everything behind the growing edge
+           stays fully lit instead of fading back to transparent, and it
+           ends as a solid, fully bright line rather than a faded remnant. */
         .ov-wave {
-          position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
-          overflow: hidden; pointer-events: none; z-index: -1;
+          position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+          pointer-events: none; z-index: -1;
         }
-        .ov-wave::after {
-          content: ""; position: absolute; top: 0; left: 0; width: 45%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(55,226,155,.55), transparent);
-          filter: blur(3px);
-          box-shadow: 0 0 18px 3px rgba(55,226,155,.22);
-          animation: ovWaveTravel 4.5s ease-in-out 1 forwards;
+        .ov-wave-line {
+          position: absolute; inset: 0;
+          background: var(--jade);
+          transform: scaleX(0); transform-origin: left;
+          box-shadow: 0 0 8px 1px rgba(55,226,155,.85), 0 0 20px 5px rgba(55,226,155,.45);
         }
-        /* End value is in units of the bar's own width (45% of the track),
-           so 122% lands its right edge flush with the track's right edge.
-           The old 220% was a valid mid-point back when this looped, but as
-           a resting position it parked the whole bar past the track's
-           overflow:hidden edge -- the animation finished invisible. */
-        @keyframes ovWaveTravel {
-          0%   { transform: translateX(-120%); }
-          100% { transform: translateX(122%); }
+        .ov-wave-animate .ov-wave-line {
+          animation: ovNeonDraw 1.8s var(--e-out) 1 forwards;
+        }
+        @keyframes ovNeonDraw {
+          from { transform: scaleX(0); }
+          to   { transform: scaleX(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .ov-wave-line { transform: scaleX(1); animation: none; }
         }
         @media (max-width: 700px) {
           .ov-wrap { padding: 20px 18px; }
@@ -178,10 +188,7 @@ export default async function OverviewPage() {
           /* Cards are narrow and only 8px apart here, so full-strength
              halos bleed into each other and read as one bright band
              behind the row rather than a glow per card. */
-          .ov-stat-card::after { inset: -8px; border-radius: 20px; filter: blur(7px); opacity: .28; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .ov-wave::after { animation: none; }
+          .ov-stat-card::after { inset: -8px; border-radius: 20px; filter: blur(7px); opacity: .13; }
         }
       `}</style>
     </div>
