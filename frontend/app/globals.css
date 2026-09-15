@@ -1153,6 +1153,29 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
    buttons, so its "Change" label underlines when the badge is hovered. */
 .ba-change-btn:hover .ba-change-label { text-decoration: underline; }
 
+/* Calendar's "See call" hover: a background pill, same visual language as
+   the sidebar's own active state below (rgba(55,226,155,.1), jade text) --
+   but this is a hover, not a permanent active state, so it's quicker and
+   lighter than that reference rather than an exact copy. Scoped to its own
+   class rather than changing .link-quiet, which stays correct (brighten +
+   underline) for the call detail back link, the transcript toggle, and the
+   calls-filter clear link -- none of which are Calendar-specific. Padding
+   sits in the base rule (not just on hover) with a matching negative
+   margin, so the hover background has room to fill without the link's
+   text shifting position when the box appears. */
+.cal-link-box {
+  color: var(--text-3);
+  text-decoration: none;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: 8px;
+  transition: background .18s var(--e-out), color .18s var(--e-out);
+}
+.cal-link-box:hover {
+  background: rgba(55,226,155,.1);
+  color: var(--jade);
+}
+
 /* Sidebar active glow */
 .nav-link {
   position: relative;

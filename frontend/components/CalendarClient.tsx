@@ -205,7 +205,7 @@ export default function CalendarClient({
                     <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                       {renderActions(b)}
                       {b.call_id && (
-                        <Link href={`/dashboard/calls/${b.call_id}`} className="link-quiet" style={{ fontSize: 11.5 }}>
+                        <Link href={`/dashboard/calls/${b.call_id}`} className="cal-link-box" style={{ fontSize: 11.5 }}>
                           {labels.calSeeCall} →
                         </Link>
                       )}
@@ -240,7 +240,7 @@ export default function CalendarClient({
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                   {renderActions(b)}
                   {b.call_id && (
-                    <Link href={`/dashboard/calls/${b.call_id}`} className="link-quiet" style={{ fontSize: 11.5 }}>
+                    <Link href={`/dashboard/calls/${b.call_id}`} className="cal-link-box" style={{ fontSize: 11.5 }}>
                       {labels.calSeeCall} →
                     </Link>
                   )}
