@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { BUSINESS_TZ, madridHour, zonedTimeToUtc } from "@/lib/tz";
+import { IconPhone, IconCalendar } from "@/components/icons";
  
 export default async function OverviewPage() {
   const { supabase, business } = await getAuthedBusiness();
@@ -94,6 +96,17 @@ export default async function OverviewPage() {
         )}
       </div>
 
+      <div className="ov-nav-links">
+        <Link href="/dashboard/calls" className="dash-card dash-in d5 ov-nav-link">
+          <IconPhone width={16} height={16} />
+          {t.navCalls}
+        </Link>
+        <Link href="/dashboard/calendar" className="dash-card dash-in d6 ov-nav-link">
+          <IconCalendar width={16} height={16} />
+          {t.navCalendar}
+        </Link>
+      </div>
+
       <style>{`
         .ov-wrap { position: relative; padding: 32px 36px; max-width: 1080px; isolation: isolate; }
         .ov-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
@@ -101,14 +114,7 @@ export default async function OverviewPage() {
         .ov-stat-card::after {
           content: ""; position: absolute; inset: -14px; border-radius: inherit;
           background: radial-gradient(circle at 50% 35%, rgba(55,226,155,.22), transparent 70%);
-          opacity: .18; z-index: -1; pointer-events: none;
-          animation: ovStatGlow 5.5s ease-in-out infinite;
-        }
-        .ov-stats .ov-stat-card:nth-child(2)::after { animation-delay: 1.1s; }
-        .ov-stats .ov-stat-card:nth-child(3)::after { animation-delay: 2.2s; }
-        @keyframes ovStatGlow {
-          0%, 100% { opacity: .16; transform: scale(.92); }
-          50%      { opacity: .42; transform: scale(1.05); }
+          opacity: .3; z-index: -1; pointer-events: none;
         }
         .ov-stat-num { font-size: 28px; }
         .ov-stat-label { font-size: 12px; }
@@ -117,6 +123,12 @@ export default async function OverviewPage() {
         .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
         .ov-hourlabels { display: flex; justify-content: space-between; margin-top: 6px; }
         .ov-hourlabels span { font-size: 9.5px; color: var(--text-3); }
+        .ov-nav-links { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+        .ov-nav-link {
+          display: flex; align-items: center; justify-content: center; gap: 9px;
+          padding: 16px; font-size: 13.5px; font-weight: 600; color: var(--text-2);
+          text-decoration: none;
+        }
         .ov-wave {
           position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
           overflow: hidden; pointer-events: none; z-index: -1;
@@ -126,12 +138,11 @@ export default async function OverviewPage() {
           background: linear-gradient(90deg, transparent, rgba(55,226,155,.55), transparent);
           filter: blur(3px);
           box-shadow: 0 0 18px 3px rgba(55,226,155,.22);
-          animation: ovWaveTravel 9s ease-in-out infinite;
+          animation: ovWaveTravel 4.5s ease-in-out 1 forwards;
         }
         @keyframes ovWaveTravel {
           0%   { transform: translateX(-120%); }
-          50%  { transform: translateX(220%); }
-          100% { transform: translateX(-120%); }
+          100% { transform: translateX(220%); }
         }
         @media (max-width: 700px) {
           .ov-wrap { padding: 20px 18px; }
@@ -143,9 +154,10 @@ export default async function OverviewPage() {
           .ov-stat-label { font-size: 10.5px; }
           .ov-panel { padding: 14px; }
           .ov-hourlabels span:nth-child(2n) { display: none; }
+          .ov-nav-links { grid-template-columns: 1fr; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .ov-stat-card::after, .ov-wave::after { animation: none; }
+          .ov-wave::after { animation: none; }
         }
       `}</style>
     </div>
