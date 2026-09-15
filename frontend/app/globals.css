@@ -1122,6 +1122,37 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   background: rgba(255,255,255,.055);
 }
 
+/* Shared affordances for clickable text. On a dark surface cursor:pointer
+   alone gives no signal that something is a control, so every bare text
+   link/button gets a visible change on hover, and they all get the same
+   one. Colour and text-decoration live here rather than inline on the
+   elements because an inline style always beats a stylesheet :hover rule
+   -- the same gotcha documented for .ba-confirm-btn above. */
+.link-quiet {
+  color: var(--text-3);
+  text-decoration: none;
+  transition: color .2s var(--e-out);
+}
+.link-quiet:hover { color: var(--text); text-decoration: underline; }
+
+/* Bordered ghost buttons: transparent fill, hairline border. Reuses the
+   same overlay as .ba-cancel-btn so the two read as one family. */
+.dash-ghost-btn {
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--hair);
+  transition: background .22s var(--e-out), border-color .22s var(--e-out), color .22s var(--e-out);
+}
+.dash-ghost-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,.055);
+  border-color: var(--hair-2);
+  color: var(--text);
+}
+
+/* The settled Confirm/Cancel badge is itself the control that re-opens the
+   buttons, so its "Change" label underlines when the badge is hovered. */
+.ba-change-btn:hover .ba-change-label { text-decoration: underline; }
+
 /* Sidebar active glow */
 .nav-link {
   position: relative;

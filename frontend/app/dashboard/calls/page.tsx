@@ -80,7 +80,7 @@ export default async function CallsPage({
         <DateFilterInput name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} />
         <button type="submit" className="btn-jade" style={filterBtn}>{t.callsFilterApply}</button>
         {isFiltered && (
-          <Link href="/dashboard/calls" style={{ fontSize: 13, color: "var(--text-3)", padding: "9px 4px" }}>{t.callsFilterClear}</Link>
+          <Link href="/dashboard/calls" className="link-quiet" style={{ fontSize: 13, padding: "9px 4px" }}>{t.callsFilterClear}</Link>
         )}
       </form>
 

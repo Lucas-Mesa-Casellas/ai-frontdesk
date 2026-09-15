@@ -205,7 +205,7 @@ export default function CalendarClient({
                     <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                       {renderActions(b)}
                       {b.call_id && (
-                        <Link href={`/dashboard/calls/${b.call_id}`} className="cal-see-call" style={{ fontSize: 11.5, color: "var(--text-3)", textDecoration: "none" }}>
+                        <Link href={`/dashboard/calls/${b.call_id}`} className="link-quiet" style={{ fontSize: 11.5 }}>
                           {labels.calSeeCall} →
                         </Link>
                       )}
@@ -240,7 +240,7 @@ export default function CalendarClient({
                 <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
                   {renderActions(b)}
                   {b.call_id && (
-                    <Link href={`/dashboard/calls/${b.call_id}`} className="cal-see-call" style={{ fontSize: 11.5, color: "var(--text-3)", textDecoration: "none" }}>
+                    <Link href={`/dashboard/calls/${b.call_id}`} className="link-quiet" style={{ fontSize: 11.5 }}>
                       {labels.calSeeCall} →
                     </Link>
                   )}
@@ -265,8 +265,6 @@ export default function CalendarClient({
            selector (not a bare .cal-booking-card:hover) so specificity
            beats .dash-card:hover regardless of source order. */
         .dash-card.cal-booking-card:hover { transform: none; }
-        .cal-see-call { transition: color .2s var(--e-out); }
-        .cal-see-call:hover { color: var(--text); }
         @media (max-width: 700px) {
           .cal-layout { flex-direction: column; gap: 16px; }
           .cal-grid-col { flex: none; width: 100%; }

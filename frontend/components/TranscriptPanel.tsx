@@ -58,9 +58,10 @@ export default function TranscriptPanel({
         {translated ? (
           <button
             onClick={() => setShowingTranslated((v) => !v)}
+            className="dash-ghost-btn"
             style={{
-              display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 500, color: "var(--text-2)",
-              padding: "6px 11px", borderRadius: 8, border: "1px solid var(--hair)", background: "transparent", cursor: "pointer",
+              display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 500,
+              padding: "6px 11px", borderRadius: 8, cursor: "pointer",
             }}
           >
             <IconGlobe width={12} height={12} />
@@ -70,9 +71,10 @@ export default function TranscriptPanel({
           <button
             onClick={handleTranslate}
             disabled={loading}
+            className="dash-ghost-btn"
             style={{
-              display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 500, color: "var(--text-2)",
-              padding: "6px 11px", borderRadius: 8, border: "1px solid var(--hair)", background: "transparent",
+              display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 500,
+              padding: "6px 11px", borderRadius: 8,
               cursor: loading ? "default" : "pointer", opacity: loading ? 0.6 : 1,
             }}
           >

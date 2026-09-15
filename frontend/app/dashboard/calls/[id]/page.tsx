@@ -42,7 +42,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <div style={{ padding: 40, maxWidth: 680 }}>
-      <Link href="/dashboard/calls" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-3)", textDecoration: "none", marginBottom: 22 }}>
+      <Link href="/dashboard/calls" className="link-quiet" style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 13, marginBottom: 22 }}>
         <IconArrowLeft width={14} height={14} /> {t.back}
       </Link>
 

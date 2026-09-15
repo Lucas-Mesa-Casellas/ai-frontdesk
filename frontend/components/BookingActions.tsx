@@ -44,6 +44,7 @@ export default function BookingActions({
     return (
       <button
         onClick={() => setEditing(true)}
+        className="ba-change-btn"
         style={{
           display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600,
           color: settledKind === "confirm" ? "var(--jade)" : "var(--text-3)",
@@ -52,7 +53,7 @@ export default function BookingActions({
       >
         <Icon width={13} height={13} />
         {settledKind === "confirm" ? confirmedLabel : cancelledLabel}
-        <span style={{ fontSize: 11, fontWeight: 500, color: "var(--text-3)", marginLeft: 4, textDecoration: "underline" }}>
+        <span className="ba-change-label" style={{ fontSize: 11, fontWeight: 500, color: "var(--jade)", marginLeft: 4 }}>
           {changeLabel}
         </span>
       </button>
