@@ -156,6 +156,8 @@ export default async function CalendarPage({
             calNoReason: t.calNoReason,
             calSeeCall: t.calSeeCall,
             calChange: t.calChange,
+            calDelete: t.calDelete,
+            calDeleteConfirm: t.calDeleteConfirm,
           }}
         />
       </div>

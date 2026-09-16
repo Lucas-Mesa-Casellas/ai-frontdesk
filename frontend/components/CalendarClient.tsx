@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import BookingActions from "./BookingActions";
+import DeleteButton from "./DeleteButton";
 import TranslatedField from "./TranslatedField";
+import { deleteBooking } from "@/lib/dash-actions";
 import { BUSINESS_TZ } from "@/lib/tz";
 
 type Booking = {
@@ -63,6 +65,17 @@ export default function CalendarClient({
       cancelLabel={labels.calCancel} cancellingLabel={labels.calCancelling}
       confirmedLabel={labels.calConfirmed_} cancelledLabel={labels.calCancelled}
       errorLabel={labels.calActionError} changeLabel={labels.calChange}
+    />
+  );
+
+  const renderDelete = (bookingId: string) => (
+    <DeleteButton
+      action={() => deleteBooking(bookingId, "/dashboard/calendar")}
+      label={labels.calDelete}
+      confirmMessage={labels.calDeleteConfirm}
+      errorLabel={labels.calActionError}
+      className="cal-link-box-danger"
+      style={{ fontSize: 11.5 }}
     />
   );
 
@@ -208,6 +221,7 @@ export default function CalendarClient({
                           {labels.calSeeCall} →
                         </Link>
                       )}
+                      {renderDelete(b.id)}
                     </div>
                   </div>
                 );
@@ -244,6 +258,7 @@ export default function CalendarClient({
                       {labels.calSeeCall} →
                     </Link>
                   )}
+                  {renderDelete(b.id)}
                 </div>
               </div>
             ))

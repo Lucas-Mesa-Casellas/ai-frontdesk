@@ -1178,6 +1178,22 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   background: rgba(55,226,155,.1);
 }
 
+/* Same box-on-hover language as .cal-link-box above, but for the
+   destructive Delete control -- a jade-tinted hover on a red-labeled
+   delete action would send the wrong signal, so this gets its own muted
+   red hover instead of sharing the class outright. */
+.cal-link-box-danger {
+  color: #E5877B;
+  text-decoration: none;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: 8px;
+  transition: background .18s var(--e-out);
+}
+.cal-link-box-danger:hover {
+  background: rgba(239,68,68,.1);
+}
+
 /* Sidebar active glow */
 .nav-link {
   position: relative;

@@ -24,12 +24,13 @@ export type DashDict = {
 
   detailDate: string; detailTime: string; detailRequested: string; detailUrgency: string; detailUrgent: string;
   detailSummary: string; detailTranscript: string; detailIntent: string;
+  detailDelete: string; detailDeleteConfirm: string; detailDeleteError: string;
   transcriptTranslateBtn: string; transcriptTranslating: string;
   transcriptShowOriginal: string; transcriptShowTranslated: string; transcriptTranslateError: string;
 
   calTitle: string; calSub: string; calEmptyTitle: string; calEmptySub: string;
   calPending: string; calConfirmed: string; calConfirm: string; calConfirming: string;
-  calConfirmed_: string; calNoDate: string; calUndatedTitle: string; calSelectDay: string; calDayEmpty: string; calCancel: string; calCancelling: string; calCancelled: string; calStatsThisMonth: string; calActionError: string; calNoReason: string; calSeeCall: string; calChange: string; people: (n: number) => string;
+  calConfirmed_: string; calNoDate: string; calUndatedTitle: string; calSelectDay: string; calDayEmpty: string; calCancel: string; calCancelling: string; calCancelled: string; calStatsThisMonth: string; calActionError: string; calNoReason: string; calSeeCall: string; calChange: string; calDelete: string; calDeleteConfirm: string; people: (n: number) => string;
 
   setTitle: string; setSub: string; setBizInfo: string; setBizName: string;
   setEmail: string; setPhone: string; setSave: string; setSaved: string; setSaveFailed: string;
@@ -75,12 +76,13 @@ export const DASH_T: Record<Locale, DashDict> = {
     transcriptShowOriginal: "Show original", transcriptShowTranslated: "Show translation",
     transcriptTranslateError: "Translation failed. Please try again.",
     detailIntent: "Call type",
+    detailDelete: "Delete call", detailDeleteConfirm: "Delete this call and its transcript? This can't be undone.", detailDeleteError: "Couldn't delete. Please try again.",
 
     calTitle: "Calendar", calSub: "Booking requests captured by your AI.",
     calEmptyTitle: "No bookings", calEmptySub: "Booking requests captured by your AI will appear here.",
     calPending: "Requested", calConfirmed: "Confirmed",
     calConfirm: "Confirm", calConfirming: "Confirming…", calConfirmed_: "Confirmed",
-    calNoDate: "No date given", calUndatedTitle: "Requests without a date", calSelectDay: "Select a day to see its bookings.", calDayEmpty: "No bookings this day.", calCancel: "Cancel", calCancelling: "Cancelling…", calCancelled: "Cancelled", calStatsThisMonth: "This month", calActionError: "Something went wrong. Please try again.", calNoReason: "No summary available", calSeeCall: "See call", calChange: "Change", people: (n) => `${n} ${n === 1 ? "person" : "people"}`,
+    calNoDate: "No date given", calUndatedTitle: "Requests without a date", calSelectDay: "Select a day to see its bookings.", calDayEmpty: "No bookings this day.", calCancel: "Cancel", calCancelling: "Cancelling…", calCancelled: "Cancelled", calStatsThisMonth: "This month", calActionError: "Something went wrong. Please try again.", calNoReason: "No summary available", calSeeCall: "See call", calChange: "Change", calDelete: "Delete", calDeleteConfirm: "Delete this booking? This can't be undone.", people: (n) => `${n} ${n === 1 ? "person" : "people"}`,
 
     setTitle: "Settings", setSub: "Manage your business info and preferences.",
     setBizInfo: "Business information", setBizName: "Business name",
@@ -127,12 +129,13 @@ export const DASH_T: Record<Locale, DashDict> = {
     transcriptShowOriginal: "Ver original", transcriptShowTranslated: "Ver traducción",
     transcriptTranslateError: "No se pudo traducir. Inténtalo de nuevo.",
     detailIntent: "Tipo de llamada",
+    detailDelete: "Eliminar llamada", detailDeleteConfirm: "¿Eliminar esta llamada y su transcripción? No se puede deshacer.", detailDeleteError: "No se pudo eliminar. Inténtalo de nuevo.",
 
     calTitle: "Calendario", calSub: "Solicitudes de cita recogidas por tu IA.",
     calEmptyTitle: "Sin reservas", calEmptySub: "Las solicitudes de cita recogidas por tu IA aparecerán aquí.",
     calPending: "Solicitado", calConfirmed: "Confirmado",
     calConfirm: "Confirmar", calConfirming: "Confirmando…", calConfirmed_: "Confirmado",
-    calNoDate: "Sin fecha indicada", calUndatedTitle: "Solicitudes sin fecha", calSelectDay: "Selecciona un día para ver sus citas.", calDayEmpty: "Sin citas ese día.", calCancel: "Cancelar", calCancelling: "Cancelando…", calCancelled: "Cancelado", calStatsThisMonth: "Este mes", calActionError: "Algo salió mal. Inténtalo de nuevo.", calNoReason: "Sin resumen disponible", calSeeCall: "Ver llamada", calChange: "Cambiar", people: (n) => `${n} ${n === 1 ? "persona" : "personas"}`,
+    calNoDate: "Sin fecha indicada", calUndatedTitle: "Solicitudes sin fecha", calSelectDay: "Selecciona un día para ver sus citas.", calDayEmpty: "Sin citas ese día.", calCancel: "Cancelar", calCancelling: "Cancelando…", calCancelled: "Cancelado", calStatsThisMonth: "Este mes", calActionError: "Algo salió mal. Inténtalo de nuevo.", calNoReason: "Sin resumen disponible", calSeeCall: "Ver llamada", calChange: "Cambiar", calDelete: "Eliminar", calDeleteConfirm: "¿Eliminar esta reserva? No se puede deshacer.", people: (n) => `${n} ${n === 1 ? "persona" : "personas"}`,
 
     setTitle: "Ajustes", setSub: "Gestiona tu información y preferencias.",
     setBizInfo: "Información del negocio", setBizName: "Nombre del negocio",
@@ -179,12 +182,13 @@ export const DASH_T: Record<Locale, DashDict> = {
     transcriptShowOriginal: "Voir l'original", transcriptShowTranslated: "Voir la traduction",
     transcriptTranslateError: "La traduction a échoué. Veuillez réessayer.",
     detailIntent: "Type d'appel",
+    detailDelete: "Supprimer l'appel", detailDeleteConfirm: "Supprimer cet appel et sa transcription ? Cette action est irréversible.", detailDeleteError: "Échec de la suppression. Veuillez réessayer.",
 
     calTitle: "Calendrier", calSub: "Demandes de rendez-vous enregistrées par votre IA.",
     calEmptyTitle: "Aucun rendez-vous", calEmptySub: "Les demandes enregistrées par votre IA apparaîtront ici.",
     calPending: "Demandé", calConfirmed: "Confirmé",
     calConfirm: "Confirmer", calConfirming: "Confirmation…", calConfirmed_: "Confirmé",
-    calNoDate: "Aucune date indiquée", calUndatedTitle: "Demandes sans date", calSelectDay: "Sélectionnez un jour pour voir ses rendez-vous.", calDayEmpty: "Aucun rendez-vous ce jour.", calCancel: "Annuler", calCancelling: "Annulation…", calCancelled: "Annulé", calStatsThisMonth: "Ce mois-ci", calActionError: "Une erreur est survenue. Veuillez réessayer.", calNoReason: "Aucun résumé disponible", calSeeCall: "Voir l'appel", calChange: "Modifier", people: (n) => `${n} ${n === 1 ? "personne" : "personnes"}`,
+    calNoDate: "Aucune date indiquée", calUndatedTitle: "Demandes sans date", calSelectDay: "Sélectionnez un jour pour voir ses rendez-vous.", calDayEmpty: "Aucun rendez-vous ce jour.", calCancel: "Annuler", calCancelling: "Annulation…", calCancelled: "Annulé", calStatsThisMonth: "Ce mois-ci", calActionError: "Une erreur est survenue. Veuillez réessayer.", calNoReason: "Aucun résumé disponible", calSeeCall: "Voir l'appel", calChange: "Modifier", calDelete: "Supprimer", calDeleteConfirm: "Supprimer cette réservation ? Cette action est irréversible.", people: (n) => `${n} ${n === 1 ? "personne" : "personnes"}`,
 
     setTitle: "Paramètres", setSub: "Gérez vos informations et préférences.",
     setBizInfo: "Informations de l'entreprise", setBizName: "Nom de l'entreprise",

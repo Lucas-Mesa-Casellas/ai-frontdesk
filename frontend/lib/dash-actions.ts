@@ -57,3 +57,39 @@ export async function cancelBooking(bookingId: string, path: string) {
   }
   revalidatePath(path);
 }
+
+export async function deleteBooking(bookingId: string, path: string) {
+  const supabase = await createClient();
+  // RLS restricts this to the caller's own business (policy "owner can
+  // delete own bookings", supabase/migrations/007_delete_policies.sql).
+  const { data, error } = await supabase.from("bookings").delete().eq("id", bookingId).select("id");
+  if (error) {
+    console.error("[deleteBooking] delete failed", { bookingId, error });
+    throw error;
+  }
+  if (!data || data.length === 0) {
+    console.error("[deleteBooking] delete matched 0 rows (RLS likely filtered it)", { bookingId });
+    throw new Error("Delete matched no rows — check RLS policy / booking ownership.");
+  }
+  revalidatePath(path);
+}
+
+export async function deleteCall(callId: string, path: string) {
+  const supabase = await createClient();
+  // RLS restricts this to the caller's own business (policy "owner can
+  // delete own calls", supabase/migrations/007_delete_policies.sql).
+  // bookings.call_id is ON DELETE SET NULL, so any booking made from this
+  // call survives, just detached from it -- matches the rest of the app's
+  // existing "bookings intentionally outlive a purged call" behavior,
+  // rather than silently deleting an otherwise-legitimate booking too.
+  const { data, error } = await supabase.from("calls").delete().eq("id", callId).select("id");
+  if (error) {
+    console.error("[deleteCall] delete failed", { callId, error });
+    throw error;
+  }
+  if (!data || data.length === 0) {
+    console.error("[deleteCall] delete matched 0 rows (RLS likely filtered it)", { callId });
+    throw new Error("Delete matched no rows — check RLS policy / call ownership.");
+  }
+  revalidatePath(path);
+}

@@ -8,6 +8,8 @@ import { BUSINESS_TZ } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import TranslatedField from "@/components/TranslatedField";
 import TranscriptPanel from "@/components/TranscriptPanel";
+import DeleteButton from "@/components/DeleteButton";
+import { deleteCall } from "@/lib/dash-actions";
 
 export default async function CallDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -148,6 +150,21 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
             </div>
           )
         )}
+
+        <div style={{ marginTop: 24, paddingTop: 18, borderTop: "1px solid var(--hair)" }}>
+          <DeleteButton
+            action={deleteCall.bind(null, call.id, "/dashboard/calls")}
+            label={t.detailDelete}
+            confirmMessage={t.detailDeleteConfirm}
+            errorLabel={t.detailDeleteError}
+            redirectTo="/dashboard/calls"
+            className="btn-danger"
+            style={{
+              padding: "9px 18px", borderRadius: 11, fontSize: 13, color: "#E5877B",
+              border: "1px solid rgba(239,68,68,.28)", background: "rgba(239,68,68,.06)", cursor: "pointer",
+            }}
+          />
+        </div>
       </div>
     </div>
   );
