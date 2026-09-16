@@ -42,7 +42,7 @@ export default function BookingActions({
   if (!editing && settledKind) {
     const Icon = settledKind === "confirm" ? IconCheck : IconX;
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
         {/* Status is plain text, not a button -- only "Change" below is
             clickable, so clicking the settled status itself does nothing. */}
         <span style={{
