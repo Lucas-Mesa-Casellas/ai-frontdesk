@@ -115,7 +115,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     callsTitle: "Historial de llamadas", callsSub: "Todas las llamadas gestionadas por tu IA.",
     callsEmptyTitle: "Aún no hay llamadas", callsEmptySub: "Las llamadas aparecerán aquí en cuanto tu IA empiece a contestar.",
-    noPhone: "Número no capturado", back: "Volver a llamadas",
+    noPhone: "Número no disponible", back: "Volver a llamadas",
     callsFilterFrom: "Desde", callsFilterTo: "Hasta", callsFilterApply: "Filtrar", callsFilterClear: "Quitar filtro", callsFilterDatePlaceholder: "dd/mm/aaaa",
     callsFilterEmptyTitle: "No hay llamadas en este rango", callsFilterEmptySub: "Prueba con otro rango de fechas.",
     callStatusCaptured: "Solicitud registrada", callStatusReview: "Necesita revisión",
@@ -133,7 +133,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     calTitle: "Calendario", calSub: "Solicitudes de cita recogidas por tu IA.",
     calEmptyTitle: "Sin reservas", calEmptySub: "Las solicitudes de cita recogidas por tu IA aparecerán aquí.",
-    calPending: "Solicitado", calConfirmed: "Confirmado",
+    calPending: "Pendiente", calConfirmed: "Confirmado",
     calConfirm: "Confirmar", calConfirming: "Confirmando…", calConfirmed_: "Confirmado",
     calNoDate: "Sin fecha indicada", calUndatedTitle: "Solicitudes sin fecha", calSelectDay: "Selecciona un día para ver sus citas.", calDayEmpty: "Sin citas ese día.", calCancel: "Cancelar", calCancelling: "Cancelando…", calCancelled: "Cancelado", calStatsThisMonth: "Este mes", calActionError: "Algo salió mal. Inténtalo de nuevo.", calNoReason: "Sin resumen disponible", calSeeCall: "Ver llamada", calChange: "Cambiar", calDelete: "Eliminar", calDeleteConfirm: "¿Eliminar esta reserva? No se puede deshacer.", people: (n) => `${n} ${n === 1 ? "persona" : "personas"}`,
 
@@ -156,7 +156,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginCta: "M'envoyer le lien", loginSending: "Envoi…",
     loginErr: "Cet email n'est associé à aucun compte client. Vérifiez-le ou contactez-nous.",
     loginSentTitle: "Consultez votre boîte mail",
-    loginSentSub: (email) => `Nous avons envoyé un lien de connexion sécurisé à ${email}. Il fonctionne une fois et expire rapidement.`,
+    loginSentSub: (email) => `Nous avons envoyé un lien de connexion sécurisé à ${email}. Il n'est valable qu'une seule fois et expire rapidement.`,
     loginBack: "Retour à lmcagents.app",
     loginExpired: "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.",
 
@@ -168,13 +168,13 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     callsTitle: "Historique des appels", callsSub: "Tous les appels gérés par votre IA.",
     callsEmptyTitle: "Aucun appel pour l'instant", callsEmptySub: "Les appels apparaîtront ici dès que votre IA commencera à répondre.",
-    noPhone: "Numéro non capturé", back: "Retour aux appels",
+    noPhone: "Numéro non renseigné", back: "Retour aux appels",
     callsFilterFrom: "Du", callsFilterTo: "Au", callsFilterApply: "Filtrer", callsFilterClear: "Effacer", callsFilterDatePlaceholder: "jj/mm/aaaa",
     callsFilterEmptyTitle: "Aucun appel sur cette période", callsFilterEmptySub: "Essayez une autre période.",
     callStatusCaptured: "Demande enregistrée", callStatusReview: "À vérifier",
     urgencyLow: "Faible", urgencyNormal: "Normale", urgencyHigh: "Élevée",
     intentBookAppointment: "Demande de rendez-vous", intentCallback: "Demande de rappel",
-    intentInquiry: "Demande d'information", intentOther: "Autre",
+    intentInquiry: "Demande de renseignements", intentOther: "Autre",
 
     detailDate: "Date", detailTime: "Heure", detailRequested: "Horaire demandé",
     detailUrgency: "Urgence", detailUrgent: "Urgent", detailSummary: "Résumé de l'IA", detailTranscript: "Transcription complète",
@@ -186,7 +186,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     calTitle: "Calendrier", calSub: "Demandes de rendez-vous enregistrées par votre IA.",
     calEmptyTitle: "Aucun rendez-vous", calEmptySub: "Les demandes enregistrées par votre IA apparaîtront ici.",
-    calPending: "Demandé", calConfirmed: "Confirmé",
+    calPending: "En attente", calConfirmed: "Confirmé",
     calConfirm: "Confirmer", calConfirming: "Confirmation…", calConfirmed_: "Confirmé",
     calNoDate: "Aucune date indiquée", calUndatedTitle: "Demandes sans date", calSelectDay: "Sélectionnez un jour pour voir ses rendez-vous.", calDayEmpty: "Aucun rendez-vous ce jour.", calCancel: "Annuler", calCancelling: "Annulation…", calCancelled: "Annulé", calStatsThisMonth: "Ce mois-ci", calActionError: "Une erreur est survenue. Veuillez réessayer.", calNoReason: "Aucun résumé disponible", calSeeCall: "Voir l'appel", calChange: "Modifier", calDelete: "Supprimer", calDeleteConfirm: "Supprimer cette réservation ? Cette action est irréversible.", people: (n) => `${n} ${n === 1 ? "personne" : "personnes"}`,
 
