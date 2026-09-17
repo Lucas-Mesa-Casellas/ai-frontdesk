@@ -110,14 +110,22 @@ def find_alternatives(supabase, business_id: str, opening_hours: dict, requested
     """Up to MAX_ALTERNATIVES free slots within this business's hours,
     stepping forward from the requested time and rolling into later
     business days if needed. Naive fixed-step search -- fine for MVP call
-    volume, revisit if a business has a genuinely packed calendar."""
+    volume, revisit if a business has a genuinely packed calendar.
+
+    Seeded from max(requested_start, now) so a requested_start that's
+    already in the past (e.g. "as soon as possible" resolving to earlier
+    today) can't hand back slots that have already gone by -- this was
+    checking business hours and existing bookings, but never the actual
+    current time.
+    """
     alternatives = []
-    candidate = _next_business_start(opening_hours, requested_start + timedelta(minutes=SLOT_STEP_MINUTES))
+    now = datetime.now(requested_start.tzinfo)
+    candidate = _next_business_start(opening_hours, max(requested_start, now) + timedelta(minutes=SLOT_STEP_MINUTES))
     for _ in range(MAX_CANDIDATES_TO_CHECK):
         if len(alternatives) >= MAX_ALTERNATIVES:
             break
         candidate_end = candidate + duration
-        if is_within_business_hours(opening_hours, candidate, candidate_end) and not overlaps(supabase, business_id, candidate, candidate_end):
+        if candidate >= now and is_within_business_hours(opening_hours, candidate, candidate_end) and not overlaps(supabase, business_id, candidate, candidate_end):
             alternatives.append(candidate.isoformat())
         candidate = _next_business_start(opening_hours, candidate + timedelta(minutes=SLOT_STEP_MINUTES))
     return alternatives
