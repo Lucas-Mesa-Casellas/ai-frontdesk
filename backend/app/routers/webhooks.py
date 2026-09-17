@@ -18,6 +18,18 @@ router = APIRouter()
 FAILED_DISCONNECTION_REASONS = {"dial_failed", "dial_no_answer", "dial_busy"}
 MIN_MEANINGFUL_CALL_DURATION_MS = 5000
 
+# ExtractedCallData already normalizes these at parse time (see
+# app/models/call.py), but this fallback gets its own defensive check too --
+# a caller_phone of "null" is truthy, so treating it as "the caller stated a
+# number" would silently skip the Caller ID fallback below, exactly like the
+# literal string did before that fix.
+_NULLISH_PHONE_VALUES = {"null", "none", "n/a", "na", ""}
+
+
+def _is_real_phone(value: str | None) -> bool:
+    return bool(value) and value.strip().lower() not in _NULLISH_PHONE_VALUES
+
+
 @router.post("/webhooks/retell")
 @limiter.limit("120/minute")
 async def retell_webhook(request: Request):
@@ -83,7 +95,7 @@ async def retell_webhook(request: Request):
     # number explicitly -- e.g. the caller accepted "use the number you're
     # calling from" without ever saying digits aloud. Never overrides a
     # number the caller actually gave.
-    caller_phone = extracted.caller_phone or call_data.get("from_number")
+    caller_phone = extracted.caller_phone if _is_real_phone(extracted.caller_phone) else call_data.get("from_number")
 
     now = datetime.now(timezone.utc).isoformat()
     call_record = {
