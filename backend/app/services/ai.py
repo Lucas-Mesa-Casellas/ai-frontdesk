@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 from openai import OpenAI
 from app.config import get_settings
 from app.models.call import ExtractedCallData
@@ -7,6 +8,34 @@ settings = get_settings()
 client = OpenAI(api_key=settings.openai_api_key)
 
 LANGUAGE_NAMES = {"es": "Spanish", "fr": "French", "en": "English"}
+
+_WEEKDAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]  # datetime.weekday() order
+
+
+def _resolve_requested_weekday(call_started_at: str, requested_weekday: str | None, preferred_time_iso: str | None) -> str | None:
+    """Same class of error as the Layer 1 day-of-week bug already fixed for
+    what the agent SPEAKS during the call (per the Agents Paper), just at a
+    different spot: here the model is resolving a spoken weekday into an
+    actual calendar date during post-call extraction, and gets it wrong the
+    same way. requested_weekday is pure extraction (did they say "Wednesday"?
+    no arithmetic involved), so recompute the DATE deterministically from
+    call_started_at and keep only the model's time-of-day.
+    """
+    if not requested_weekday or not preferred_time_iso:
+        return preferred_time_iso
+    try:
+        call_started = datetime.fromisoformat(call_started_at)
+        model_dt = datetime.fromisoformat(preferred_time_iso)
+    except ValueError:
+        return preferred_time_iso
+    target_weekday = _WEEKDAY_KEYS.index(requested_weekday)
+    days_ahead = (target_weekday - call_started.weekday()) % 7
+    if days_ahead == 0:
+        # A caller naming a weekday other than "today" means the NEXT
+        # occurrence of it, a week out -- not the day of the call itself.
+        days_ahead = 7
+    target_date = call_started.date() + timedelta(days=days_ahead)
+    return model_dt.replace(year=target_date.year, month=target_date.month, day=target_date.day).isoformat()
 
 
 def build_system_prompt(language: str) -> str:
@@ -39,7 +68,8 @@ Fields to extract:
   este número" without reciting digits, that means null -- the system
   falls back to the verified caller ID in that case. NEVER put a
   description or phrase here (e.g. "this number", "same number as
-  before") -- this field is either real digits or null, nothing else.
+  before"), and NEVER write the word "null" as text -- this field is
+  either real digits or an actual JSON null, nothing else.
 - intent: "book_appointment" | "callback" | "inquiry" | "other" | null
   (book_appointment = caller wants a job, visit, or appointment scheduled;
    callback = caller wants someone to call them back;
@@ -64,7 +94,18 @@ Fields to extract:
   above (e.g. "2026-08-14T17:00:00+02:00"),
   using the call date/time above as the reference point for relative phrases
   like "tomorrow" or "next Thursday". Null if no specific date/time was given
-  or the request isn't a bookable appointment.
+  or the request isn't a bookable appointment. Still fill in your best guess
+  at the date even when requested_weekday (below) is set -- the system
+  recomputes the date from requested_weekday itself and only keeps this
+  field's time-of-day in that case, so getting the date wrong here is fine,
+  but leave the correct time-of-day here.
+- requested_weekday: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun" |
+  null -- set this ONLY when the caller explicitly named a day of the week
+  (e.g. "Wednesday", "miércoles", "mercredi", "next Tuesday"). Leave it null
+  for "tomorrow", "next month", "the 23rd", or any other phrasing that isn't
+  a specific weekday name -- this field exists because figuring out which
+  actual calendar date a named weekday falls on is arithmetic you get wrong,
+  so leave that step to the system; just report which day they said.
 - next_action: what the business should do next, written in {language_name}, or null
 - booking_type: "appointment" | "callback" | null
 - party_size: integer or null (only if the caller mentions a number of
@@ -113,6 +154,9 @@ def extract_call_data(
         }
         parsed = json.loads(raw_text)
         extracted = ExtractedCallData(**parsed)
+        extracted.preferred_time_iso = _resolve_requested_weekday(
+            call_started_at, extracted.requested_weekday, extracted.preferred_time_iso
+        )
         return extracted, raw_payload
 
     except Exception as e:
