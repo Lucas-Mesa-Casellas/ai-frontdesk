@@ -44,13 +44,15 @@ export default function CalendarClient({
   const selected = selectedDay !== null ? byDay[selectedDay] || [] : null;
 
   const dotColor = (b: Booking) => {
-    // Cancelled is checked first: it's inactive/done regardless of the
-    // urgency it originally had, so it must never render as high-urgency
-    // red -- and previously fell through to the same amber as "pending",
-    // reading as "still needs attention" instead of "no longer relevant."
+    // Cancelled and confirmed are both checked before urgency: either one
+    // means this booking is resolved, regardless of the urgency it
+    // originally had, so neither should render as high-urgency red -- a
+    // confirmed-but-urgent booking previously still showed red, reading as
+    // "still needs attention" instead of "already handled."
     if (b.status === "cancelled") return "var(--text-3)";
+    if (b.status === "confirmed") return "var(--jade)";
     if (b.urgency === "high") return "#FF6B6B";
-    return b.status === "confirmed" ? "var(--jade)" : "#FFC178";
+    return "#FFC178";
   };
 
   // Most-to-least attention-worthy, same classification dotColor already
