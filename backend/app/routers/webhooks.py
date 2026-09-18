@@ -7,6 +7,7 @@ from app.services.notify import notify_owner
 from app.services.retell_security import verify_retell_signature
 from app.services.business_lookup import find_business
 from app.services.scheduling import DEFAULT_APPOINTMENT_MINUTES
+from app.services.phone import to_e164
 from app.db.supabase_client import get_supabase_admin
 from app.config import get_settings
 from app.limiter import limiter
@@ -91,11 +92,25 @@ async def retell_webhook(request: Request):
     )
     extracted, raw_payload = extract_call_data(transcript, call_started_iso, business.get("language", "es"))
 
+    # Normalize whatever number we end up with to E.164 so the same real
+    # number doesn't get stored three different ways depending on how the
+    # caller said it -- with the country code, national format with a
+    # leading trunk 0, or misheard/mistranscribed outright. Region comes
+    # from the business's own country (never hardcoded to one country,
+    # since this backend serves businesses in more than one).
+    country = business.get("country") or "ES"
+    from_number = call_data.get("from_number")
+
     # Fall back to verified Caller ID when the transcript never states a
     # number explicitly -- e.g. the caller accepted "use the number you're
     # calling from" without ever saying digits aloud. Never overrides a
     # number the caller actually gave.
-    caller_phone = extracted.caller_phone if _is_real_phone(extracted.caller_phone) else call_data.get("from_number")
+    extracted_phone = extracted.caller_phone if _is_real_phone(extracted.caller_phone) else None
+
+    # Same fallback again if the caller-stated number doesn't normalize into
+    # something valid for this country (e.g. a misheard extra digit) --
+    # prefer the verified Caller ID over storing a malformed number.
+    caller_phone = to_e164(extracted_phone, country) or to_e164(from_number, country) or from_number
 
     now = datetime.now(timezone.utc).isoformat()
     call_record = {
