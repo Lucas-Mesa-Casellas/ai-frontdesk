@@ -8,6 +8,14 @@ from pydantic import BaseModel, field_validator
 # at the model boundary, so nothing downstream has to know this happens.
 _NULLISH_STRINGS = {"null", "none", "n/a", "na", ""}
 
+# Transcripts are formatted with English speaker labels ("Agent: ...",
+# "User: ...") regardless of the call's spoken language -- when the caller
+# is never actually asked their name, the model has grabbed the speaker
+# label itself instead of leaving caller_name null. A few localized/synonym
+# variants included defensively in case a differently-formatted transcript
+# or a model hallucination introduces one.
+_SPEAKER_LABELS = {"user", "agent", "caller", "utilisateur", "usuario", "assistant", "ai"}
+
 
 class ExtractedCallData(BaseModel):
     caller_name: Optional[str] = None
@@ -41,5 +49,12 @@ class ExtractedCallData(BaseModel):
     @classmethod
     def _blank_nullish_strings(cls, v):
         if isinstance(v, str) and v.strip().lower() in _NULLISH_STRINGS:
+            return None
+        return v
+
+    @field_validator("caller_name", mode="before")
+    @classmethod
+    def _blank_speaker_labels(cls, v):
+        if isinstance(v, str) and v.strip().lower() in _SPEAKER_LABELS:
             return None
         return v

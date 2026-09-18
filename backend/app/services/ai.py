@@ -61,7 +61,11 @@ text to a person. caller_phone has its own, separate rule below --
 it is never free text to preserve verbatim.
 
 Fields to extract:
-- caller_name: string or null
+- caller_name: the caller's actual name, or null if they never gave one.
+  The transcript below labels each line with who's speaking ("Agent:",
+  "User:") -- those labels are transcript formatting, NEVER the caller's
+  name. If the caller was never asked their name or never gave one, that's
+  null, not the speaker label.
 - caller_phone: the literal digits the caller stated, or null if they
   never actually spoke a number. If the caller says something like
   "use this number" / "use the number I'm calling from" / "puedes usar
