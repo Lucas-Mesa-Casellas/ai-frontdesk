@@ -8,12 +8,16 @@ Business hours are read from businesses.opening_hours (jsonb), not hardcoded
 {
   "is_24_7": false,
   "days": {
-    "mon": {"open": "09:00", "close": "18:00"}, ... ,
-    "sat": null, "sun": null
+    "mon": [{"open": "08:00", "close": "12:00"}, {"open": "13:30", "close": "17:30"}], ... ,
+    "sat": [], "sun": []
   }
 }
-A missing/empty opening_hours falls back to a safe default (Mon-Fri 09:00-18:00)
-so a business that hasn't been configured yet doesn't silently become 24/7.
+Each day is a LIST of windows, not a single {open, close} -- lets a day have
+a closure in the middle (a lunch break) rather than one continuous span. An
+empty list means closed that day (the old convention was null; this is the
+list-shaped equivalent of the same thing). A missing/empty opening_hours
+falls back to a safe default (Mon-Fri 09:00-18:00, no midday closure) so a
+business that hasn't been configured yet doesn't silently become 24/7.
 """
 from datetime import datetime, timedelta
 
@@ -27,68 +31,67 @@ _WEEKDAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]  # datetime.we
 _DEFAULT_OPENING_HOURS = {
     "is_24_7": False,
     "days": {
-        "mon": {"open": "09:00", "close": "18:00"},
-        "tue": {"open": "09:00", "close": "18:00"},
-        "wed": {"open": "09:00", "close": "18:00"},
-        "thu": {"open": "09:00", "close": "18:00"},
-        "fri": {"open": "09:00", "close": "18:00"},
-        "sat": None,
-        "sun": None,
+        "mon": [{"open": "09:00", "close": "18:00"}],
+        "tue": [{"open": "09:00", "close": "18:00"}],
+        "wed": [{"open": "09:00", "close": "18:00"}],
+        "thu": [{"open": "09:00", "close": "18:00"}],
+        "fri": [{"open": "09:00", "close": "18:00"}],
+        "sat": [],
+        "sun": [],
     },
 }
 
 
-def _day_window(opening_hours: dict, weekday: int):
-    """Return (open_h, open_m, close_h, close_m) for a given
-    datetime.weekday() value, or None if closed that day."""
-    hours = (opening_hours or {}).get("days") or _DEFAULT_OPENING_HOURS["days"]
-    window = hours.get(_WEEKDAY_KEYS[weekday])
-    if not window:
-        return None
-    open_h, open_m = (int(x) for x in window["open"].split(":"))
-    close_h, close_m = (int(x) for x in window["close"].split(":"))
-    return open_h, open_m, close_h, close_m
+def _day_windows(opening_hours: dict, weekday: int) -> list[tuple[int, int, int, int]]:
+    """Return this weekday's windows as (open_h, open_m, close_h, close_m)
+    tuples, in the order they're stored. An empty list means closed."""
+    days = (opening_hours or {}).get("days") or _DEFAULT_OPENING_HOURS["days"]
+    windows = days.get(_WEEKDAY_KEYS[weekday]) or []
+    parsed = []
+    for w in windows:
+        open_h, open_m = (int(x) for x in w["open"].split(":"))
+        close_h, close_m = (int(x) for x in w["close"].split(":"))
+        parsed.append((open_h, open_m, close_h, close_m))
+    return parsed
 
 
 def is_within_business_hours(opening_hours: dict, start: datetime, end: datetime) -> bool:
-    """True if [start, end) falls entirely within this business's hours."""
+    """True if [start, end) falls entirely within ONE of this business's
+    windows for that day -- an appointment can't span across a midday
+    closure just because it starts in the morning window and ends in the
+    afternoon one."""
     opening_hours = opening_hours or _DEFAULT_OPENING_HOURS
     if opening_hours.get("is_24_7"):
         return True
 
-    window = _day_window(opening_hours, start.weekday())
-    if window is None:
-        return False
-    open_h, open_m, close_h, close_m = window
-
-    if (start.hour, start.minute) < (open_h, open_m):
-        return False
-    if (end.hour, end.minute) > (close_h, close_m):
-        return False
-    return True
+    for open_h, open_m, close_h, close_m in _day_windows(opening_hours, start.weekday()):
+        if (start.hour, start.minute) < (open_h, open_m):
+            continue
+        if (end.hour, end.minute) > (close_h, close_m):
+            continue
+        return True
+    return False
 
 
 def _next_business_start(opening_hours: dict, dt: datetime) -> datetime:
     """Roll dt forward to the next valid business-hours instant for this
-    business -- skips closed days and hours outside that day's window.
-    24/7 businesses return dt unchanged."""
+    business -- skips closed days, hours before the day's first window,
+    and gaps BETWEEN windows (e.g. a lunch closure rolls forward to the
+    afternoon window's open, not to the next day). 24/7 businesses return
+    dt unchanged."""
     opening_hours = opening_hours or _DEFAULT_OPENING_HOURS
     if opening_hours.get("is_24_7"):
         return dt
 
     while True:
-        window = _day_window(opening_hours, dt.weekday())
-        if window is None:
-            dt = (dt + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-            continue
-        open_h, open_m, close_h, close_m = window
-        if (dt.hour, dt.minute) < (open_h, open_m):
-            dt = dt.replace(hour=open_h, minute=open_m, second=0, microsecond=0)
-            continue
-        if (dt.hour, dt.minute) >= (close_h, close_m):
-            dt = (dt + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-            continue
-        return dt
+        for open_h, open_m, close_h, close_m in _day_windows(opening_hours, dt.weekday()):
+            if (dt.hour, dt.minute) < (open_h, open_m):
+                return dt.replace(hour=open_h, minute=open_m, second=0, microsecond=0)
+            if (dt.hour, dt.minute) < (close_h, close_m):
+                return dt
+            # dt is at/after this window's close -- try the next window
+            # today (if any) before giving up on the whole day.
+        dt = (dt + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
 
 
 def overlaps(supabase, business_id: str, start: datetime, end: datetime) -> bool:
