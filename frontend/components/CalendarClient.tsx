@@ -53,6 +53,16 @@ export default function CalendarClient({
     return b.status === "confirmed" ? "var(--jade)" : "#FFC178";
   };
 
+  // Most-to-least attention-worthy, same classification dotColor already
+  // makes per booking -- a day with a mix of statuses shows the count in
+  // whichever color the "most urgent" booking that day would get on its
+  // own, not a new precedence rule.
+  const DAY_COLOR_PRIORITY = ["#FF6B6B", "#FFC178", "var(--jade)", "var(--text-3)"] as const;
+  const dayColor = (dayBookings: Booking[]) => {
+    const present = new Set(dayBookings.map(dotColor));
+    return DAY_COLOR_PRIORITY.find((c) => present.has(c)) ?? "var(--text-3)";
+  };
+
   const selectedDateLabel = selectedDay !== null
     ? new Intl.DateTimeFormat(intlLocale, { weekday: "short", month: "short", day: "numeric", timeZone: BUSINESS_TZ })
         .format(new Date(Date.UTC(year, month, selectedDay)))
@@ -135,26 +145,11 @@ export default function CalendarClient({
                 {day !== null && (
                   <>
                     <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>{day}</span>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2, marginTop: 4, width: "100%" }}>
-                      {bookings.slice(0, 3).map((b) => (
-                        <div
-                          key={b.id}
-                          // Was showing b.notes (bookings.notes -- the raw
-                          // preferred-time phrase, e.g. "mañana tres de la
-                          // tarde"), the same wrong-field bug already fixed
-                          // for the day-detail panel two sessions ago but
-                          // never closed here. b.summary is the call's own
-                          // summary, already resolved server-side to the
-                          // cached translation if one exists (or canonical
-                          // text otherwise) -- this tooltip doesn't itself
-                          // trigger a fresh translation on hover, since a
-                          // native title attribute has no room for a
-                          // loading state; the panel below does that.
-                          title={`${b.customer_name || labels.unknown} — ${b.summary || labels.calNoReason}`}
-                          style={{ width: "100%", height: 4, borderRadius: 2, background: dotColor(b) }}
-                        />
-                      ))}
-                    </div>
+                    {bookings.length > 0 && (
+                      <div style={{ marginTop: 4 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: dayColor(bookings) }}>{bookings.length}</span>
+                      </div>
+                    )}
                   </>
                 )}
               </button>
