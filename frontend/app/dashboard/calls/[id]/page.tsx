@@ -26,13 +26,22 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
   const needsTranscriptTranslation = locale !== businessLanguage;
   const cachedTranscript: string | null = call.translations?.[locale]?.transcript ?? null;
 
-  const urgencyLabel: Record<string, string> = { low: t.urgencyLow, normal: t.urgencyNormal, high: t.urgencyHigh };
   const intentLabel: Record<string, string> = {
     book_appointment: t.intentBookAppointment,
     callback: t.intentCallback,
     inquiry: t.intentInquiry,
     other: t.intentOther,
   };
+  // green/amber/red traffic-light order, matching how the calendar already
+  // colors urgency elsewhere -- low is calm/fine, high is a real emergency.
+  const URGENCY_STYLE: Record<string, { color: string; bg: string; border: string; label: string }> = {
+    low: { color: "var(--jade)", bg: "rgba(55,226,155,.07)", border: "rgba(55,226,155,.18)", label: t.urgencyLow },
+    normal: { color: "#FFC178", bg: "rgba(255,193,120,.07)", border: "rgba(255,193,120,.18)", label: t.urgencyNormal },
+    high: { color: "#FF6B6B", bg: "rgba(255,107,107,.07)", border: "rgba(255,107,107,.18)", label: t.urgencyHigh },
+  };
+  // urgency can be null (extraction failed, or it was never assessed) --
+  // shown as its own neutral state rather than assumed to always be set.
+  const urgencyStyle = call.urgency ? URGENCY_STYLE[call.urgency] : null;
 
   const card: React.CSSProperties = {
     background: "rgba(255,255,255,.032)", border: "1px solid var(--hair)", borderRadius: 18,
@@ -49,22 +58,35 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
       </Link>
 
       <div style={{ ...card, padding: 24, marginBottom: 18 }}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 20 }}>
-          <span style={{
-            width: 42, height: 42, borderRadius: "50%", flex: "none", marginTop: 2,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.22)", color: "var(--jade)",
-          }}>
-            <IconPhone width={17} height={17} />
-          </span>
-          <div style={{ minWidth: 0 }}>
-            {/* marginBottom overrides a leaked global h1{margin-bottom:16px
-                (or 22px)} rule in globals.css meant for the marketing
-                page's hero title -- an unscoped element selector, so it
-                was reaching every h1 in the app, including this one. */}
-            <h1 style={{ fontSize: 18, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 2 }}>{call.caller_name || t.unknown}</h1>
-            <p style={{ fontSize: 13, color: "var(--text-3)" }}>{call.caller_phone || t.noPhone}</p>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, marginBottom: 20 }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: 12, minWidth: 0 }}>
+            <span style={{
+              width: 42, height: 42, borderRadius: "50%", flex: "none", marginTop: 2,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.22)", color: "var(--jade)",
+            }}>
+              <IconPhone width={17} height={17} />
+            </span>
+            <div style={{ minWidth: 0 }}>
+              {/* marginBottom overrides a leaked global h1{margin-bottom:16px
+                  (or 22px)} rule in globals.css meant for the marketing
+                  page's hero title -- an unscoped element selector, so it
+                  was reaching every h1 in the app, including this one. */}
+              <h1 style={{ fontSize: 18, fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginBottom: 2 }}>{call.caller_name || t.unknown}</h1>
+              <p style={{ fontSize: 13, color: "var(--text-3)" }}>{call.caller_phone || t.noPhone}</p>
+            </div>
           </div>
+          {/* Sits at the same height as the name/number block instead of
+              buried among the Date/Time fields below -- the type of call is
+              as much identifying info as the caller's name is. */}
+          {call.intent && intentLabel[call.intent] && (
+            <span style={{
+              flex: "none", fontSize: 12, fontWeight: 600, padding: "6px 12px", borderRadius: 20,
+              background: "rgba(255,255,255,.05)", border: "1px solid var(--hair)", color: "var(--text-2)",
+            }}>
+              {intentLabel[call.intent]}
+            </span>
+          )}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
@@ -80,12 +102,6 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
               {new Date(call.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
             </p>
           </div>
-          {call.intent && intentLabel[call.intent] && (
-            <div style={field}>
-              <p style={fieldLabel}>{t.detailIntent}</p>
-              <p style={{ fontSize: 13.5, fontWeight: 500 }}>{intentLabel[call.intent]}</p>
-            </div>
-          )}
           {(call.preferred_time_iso || call.preferred_time) && (
             <div style={{ ...field, background: "rgba(55,226,155,.07)", borderColor: "rgba(55,226,155,.18)" }}>
               <p style={{ ...fieldLabel, color: "var(--jade)" }}>{t.detailRequested}</p>
@@ -104,12 +120,15 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
               </p>
             </div>
           )}
-          {call.urgency && call.urgency !== "normal" && (
-            <div style={{ ...field, background: "rgba(255,193,120,.07)", borderColor: "rgba(255,193,120,.18)" }}>
-              <p style={{ ...fieldLabel, color: "#FFC178" }}>{t.detailUrgency}</p>
-              <p style={{ fontSize: 13.5, fontWeight: 500, color: "#FFC178" }}>{urgencyLabel[call.urgency] ?? call.urgency}</p>
-            </div>
-          )}
+          {/* Always shown now, not just when urgency isn't "normal" -- a
+              missing assessment (urgencyStyle null) gets its own neutral
+              state instead of the box disappearing entirely. */}
+          <div style={urgencyStyle ? { ...field, background: urgencyStyle.bg, borderColor: urgencyStyle.border } : field}>
+            <p style={{ ...fieldLabel, color: urgencyStyle?.color }}>{t.detailUrgency}</p>
+            <p style={{ fontSize: 13.5, fontWeight: 500, color: urgencyStyle?.color }}>
+              {urgencyStyle ? urgencyStyle.label : t.urgencyUnknown}
+            </p>
+          </div>
         </div>
 
         {summaryResolved.text && (

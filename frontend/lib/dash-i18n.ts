@@ -19,7 +19,7 @@ export type DashDict = {
   callsFilterFrom: string; callsFilterTo: string; callsFilterApply: string; callsFilterClear: string; callsFilterDatePlaceholder: string;
   callsFilterEmptyTitle: string; callsFilterEmptySub: string;
   callStatusCaptured: string; callStatusReview: string;
-  urgencyLow: string; urgencyNormal: string; urgencyHigh: string;
+  urgencyLow: string; urgencyNormal: string; urgencyHigh: string; urgencyUnknown: string;
   intentBookAppointment: string; intentCallback: string; intentInquiry: string; intentOther: string;
 
   detailDate: string; detailTime: string; detailRequested: string; detailUrgency: string; detailUrgent: string;
@@ -66,7 +66,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     callsFilterFrom: "From", callsFilterTo: "To", callsFilterApply: "Filter", callsFilterClear: "Clear", callsFilterDatePlaceholder: "dd/mm/yyyy",
     callsFilterEmptyTitle: "No calls in this range", callsFilterEmptySub: "Try a different date range.",
     callStatusCaptured: "Request captured", callStatusReview: "Needs review",
-    urgencyLow: "Low", urgencyNormal: "Normal", urgencyHigh: "High",
+    urgencyLow: "Low", urgencyNormal: "Normal", urgencyHigh: "High", urgencyUnknown: "Not assessed",
     intentBookAppointment: "Appointment request", intentCallback: "Callback request",
     intentInquiry: "General inquiry", intentOther: "Other",
 
@@ -119,7 +119,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     callsFilterFrom: "Desde", callsFilterTo: "Hasta", callsFilterApply: "Filtrar", callsFilterClear: "Quitar filtro", callsFilterDatePlaceholder: "dd/mm/aaaa",
     callsFilterEmptyTitle: "No hay llamadas en este rango", callsFilterEmptySub: "Prueba con otro rango de fechas.",
     callStatusCaptured: "Solicitud registrada", callStatusReview: "Necesita revisión",
-    urgencyLow: "Baja", urgencyNormal: "Normal", urgencyHigh: "Alta",
+    urgencyLow: "Baja", urgencyNormal: "Normal", urgencyHigh: "Alta", urgencyUnknown: "No evaluada",
     intentBookAppointment: "Solicitud de cita", intentCallback: "Solicitud de llamada",
     intentInquiry: "Consulta general", intentOther: "Otro",
 
@@ -172,7 +172,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     callsFilterFrom: "Du", callsFilterTo: "Au", callsFilterApply: "Filtrer", callsFilterClear: "Effacer", callsFilterDatePlaceholder: "jj/mm/aaaa",
     callsFilterEmptyTitle: "Aucun appel sur cette période", callsFilterEmptySub: "Essayez une autre période.",
     callStatusCaptured: "Demande enregistrée", callStatusReview: "À vérifier",
-    urgencyLow: "Faible", urgencyNormal: "Normale", urgencyHigh: "Élevée",
+    urgencyLow: "Faible", urgencyNormal: "Normale", urgencyHigh: "Élevée", urgencyUnknown: "Non évaluée",
     intentBookAppointment: "Demande de rendez-vous", intentCallback: "Demande de rappel",
     intentInquiry: "Demande de renseignements", intentOther: "Autre",
 
