@@ -38,7 +38,7 @@ export type DashDict = {
 
   statusNew: string; statusReview: string; statusRequested: string;
 
-  langName: string; navHome: string;
+  langName: string;
 };
 
 export const DASH_T: Record<Locale, DashDict> = {
@@ -92,7 +92,6 @@ export const DASH_T: Record<Locale, DashDict> = {
     setDanger: "Account", setDangerSub: "You can log back in anytime with your email.", setSignOut: "Sign out",
 
     statusNew: "new", statusReview: "needs review", statusRequested: "requested",
-    navHome: "Home",
     langName: "English",
   },
   es: {
@@ -145,7 +144,6 @@ export const DASH_T: Record<Locale, DashDict> = {
     setDanger: "Cuenta", setDangerSub: "Puedes volver a entrar cuando quieras con tu email.", setSignOut: "Cerrar sesión",
 
     statusNew: "nueva", statusReview: "revisar", statusRequested: "solicitada",
-    navHome: "Inicio",
     langName: "Español",
   },
   fr: {
@@ -198,7 +196,6 @@ export const DASH_T: Record<Locale, DashDict> = {
     setDanger: "Compte", setDangerSub: "Vous pouvez vous reconnecter à tout moment avec votre email.", setSignOut: "Déconnexion",
 
     statusNew: "nouveau", statusReview: "à vérifier", statusRequested: "demandée",
-    navHome: "Accueil",
     langName: "Français",
   },
 };

@@ -38,21 +38,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <NavLink href="/dashboard/calls"><IconPhone width={17} height={17} />{t.navCalls}</NavLink>
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
-          
-            <a href="/"
-            className="nav-link"
-            style={{
-              display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
-              marginTop: 8, paddingTop: 18, borderTop: "1px solid var(--hair)",
-              borderRadius: 10, fontSize: 13.5, fontWeight: 500, textDecoration: "none",
-            }}
-          >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 11.5 12 4l9 7.5" />
-              <path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9" />
-            </svg>
-            {t.navHome}
-          </a>
         </div>
       </DashboardSidebar>
 
