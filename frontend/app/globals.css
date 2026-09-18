@@ -1040,6 +1040,77 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   box-shadow: 0 0 0 3px rgba(18,185,129,.11);
 }
 
+/* Calendar popover for DateFilterInput -- same glass-panel language as
+   .lang-menu (opacity/transform transition on an .open class, not
+   conditional mount, so it's ready in the DOM for the outside-click
+   listener the moment it opens). Portaled to document.body (see the
+   component) to escape an ancestor .dash-in's finished-but-still-"filled"
+   transform animation, which would otherwise hijack position: fixed's
+   containing block -- so this is `fixed`, not `absolute`, with its
+   desktop top/left set inline from a measured anchor point rather than
+   from a relatively-positioned parent it's no longer a child of. */
+.datefilter-popover {
+  position: fixed; top: 0; left: 0; z-index: 60;
+  width: 264px; padding: 12px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(20,24,31,.97), rgba(13,16,21,.97));
+  border: 1px solid var(--hair-2);
+  box-shadow: 0 30px 60px -22px rgba(0,0,0,.95), inset 0 1px 0 rgba(255,255,255,.09);
+  backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+  opacity: 0; transform: translateY(-6px) scale(.98); pointer-events: none;
+  transition: opacity .22s var(--e-out), transform .22s var(--e-out);
+}
+.datefilter-popover.open { opacity: 1; transform: none; pointer-events: auto; }
+
+.datefilter-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.datefilter-month { font-size: 13px; font-weight: 600; text-transform: capitalize; }
+.datefilter-nav {
+  width: 26px; height: 26px; border-radius: 8px; flex: none;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--hair); background: rgba(255,255,255,.03);
+  color: var(--text-2); font-size: 14px;
+  transition: background .18s var(--e-out), border-color .18s var(--e-out);
+}
+.datefilter-nav:hover { background: rgba(255,255,255,.07); border-color: var(--hair-2); }
+
+.datefilter-weekdays, .datefilter-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.datefilter-weekdays span {
+  font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--text-3); text-align: center; padding-bottom: 4px;
+}
+.datefilter-day {
+  height: 30px; border-radius: 8px; font-size: 12.5px; color: var(--text-2);
+  transition: background .16s var(--e-out), color .16s var(--e-out);
+}
+.datefilter-day:hover { background: rgba(255,255,255,.07); color: var(--text); }
+.datefilter-day.today { color: var(--jade); font-weight: 600; }
+.datefilter-day.selected { background: var(--jade); color: #04140D; font-weight: 700; }
+.datefilter-day.selected.today { color: #04140D; }
+
+.datefilter-scrim { display: none; }
+
+@media (max-width: 700px) {
+  /* A shrunk-down version of the desktop popover would mean tiny tap
+     targets, so this becomes a full-width bottom sheet instead -- same
+     component, same state, just a different CSS shape for the popover
+     and a backdrop scrim behind it (mirrors .sidebar-scrim's role for the
+     mobile nav elsewhere in the dashboard). */
+  .datefilter-scrim {
+    display: block; position: fixed; inset: 0; z-index: 58;
+    background: rgba(0,0,0,.5);
+  }
+  .datefilter-popover {
+    position: fixed; left: 0; right: 0; top: auto; bottom: 0; z-index: 60;
+    width: 100%; border-radius: 20px 20px 0 0;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+  }
+  .datefilter-popover.open { transform: translateY(0); }
+  .datefilter-day { height: 42px; font-size: 14px; }
+  .datefilter-month { font-size: 15px; }
+  .datefilter-nav { width: 34px; height: 34px; font-size: 16px; }
+}
+
 /* Buttons */
 .btn-jade {
   transition: transform .24s var(--e-out), box-shadow .24s var(--e-out), filter .24s var(--e-out);

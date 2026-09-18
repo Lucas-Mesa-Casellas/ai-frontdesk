@@ -83,8 +83,8 @@ export default async function CallsPage({
             stale text in the field after the filter itself has cleared.
             A key that changes forces React to remount instead of reusing
             the instance, which resets that state to match. */}
-        <DateFilterInput key={`from-${sp.from ?? ""}`} name="from" defaultValue={sp.from ?? ""} label={t.callsFilterFrom} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} />
-        <DateFilterInput key={`to-${sp.to ?? ""}`} name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} />
+        <DateFilterInput key={`from-${sp.from ?? ""}`} name="from" defaultValue={sp.from ?? ""} label={t.callsFilterFrom} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} locale={locale} />
+        <DateFilterInput key={`to-${sp.to ?? ""}`} name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} locale={locale} />
         <button type="submit" className="btn-jade" style={filterBtn}>{t.callsFilterApply}</button>
         {isFiltered && (
           <Link href="/dashboard/calls" className="link-quiet" style={{ fontSize: 13, padding: "9px 4px" }}>{t.callsFilterClear}</Link>
