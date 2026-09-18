@@ -146,7 +146,11 @@ export default function CalendarClient({
                   <>
                     <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>{day}</span>
                     {bookings.length > 0 && (
-                      <div style={{ marginTop: 4 }}>
+                      // A flex row centered as a group -- not just this one
+                      // number centered on its own -- so it stays correct
+                      // if this ever needs to show more than one figure
+                      // side by side instead of a single merged count.
+                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 4, marginTop: 4, width: "100%" }}>
                         <span style={{ fontSize: 13, fontWeight: 700, color: dayColor(bookings) }}>{bookings.length}</span>
                       </div>
                     )}
