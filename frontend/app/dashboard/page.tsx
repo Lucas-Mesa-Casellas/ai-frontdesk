@@ -95,8 +95,18 @@ export default async function OverviewPage() {
               ))}
             </div>
             <div className="ov-hourlabels">
-              {axisHours.map((h) => (
-                <span key={h}>{hourLabel(h)}</span>
+              {/* One span per hour, same flex/gap sizing as .ov-hourbars,
+                  so each tick sits directly under its own bar -- the
+                  previous 8-item row spread evenly via space-between,
+                  which pins the LAST tick (21) to the container's right
+                  edge even though bars 22 and 23 still follow it, dragging
+                  every label progressively further right of its real bar
+                  the closer it gets to the end. Non-tick hours render an
+                  empty span purely to hold the same width. */}
+              {hourCounts.map((_, h) => (
+                <span key={h} className={h % 6 !== 0 ? "ov-hourlabel-thin" : undefined}>
+                  {axisHours.includes(h) ? hourLabel(h) : ""}
+                </span>
               ))}
             </div>
           </>
@@ -151,8 +161,8 @@ export default async function OverviewPage() {
         .ov-panel { position: relative; padding: 24px; }
         .ov-hourbars { display: flex; align-items: flex-end; gap: 2px; height: 80px; border-bottom: 1px solid var(--hair); }
         .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
-        .ov-hourlabels { display: flex; justify-content: space-between; margin-top: 6px; }
-        .ov-hourlabels span { font-size: 9.5px; color: var(--text-3); }
+        .ov-hourlabels { display: flex; gap: 2px; margin-top: 6px; }
+        .ov-hourlabels span { flex: 1; min-width: 3px; font-size: 9.5px; color: var(--text-3); text-align: center; }
         .ov-nav-links { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .ov-nav-link {
           display: flex; align-items: center; justify-content: center; gap: 9px;
@@ -221,7 +231,11 @@ export default async function OverviewPage() {
           .ov-stat-num { font-size: 20px; }
           .ov-stat-label { font-size: 10.5px; }
           .ov-panel { padding: 14px; }
-          .ov-hourlabels span:nth-child(2n) { display: none; }
+          /* Was :nth-child(2n) against 8 label spans (every other tick) --
+             now there are 24 spans (one per hour, for alignment), so this
+             targets the same visual ticks (3, 9, 15, 21) by the class
+             applied in JS instead of by position. */
+          .ov-hourlabel-thin { display: none; }
           .ov-nav-links { grid-template-columns: 1fr; }
           /* Cards are narrow and only 8px apart here, so full-strength
              halos bleed into each other and read as one bright band
