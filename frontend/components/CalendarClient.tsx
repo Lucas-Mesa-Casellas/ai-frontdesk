@@ -56,13 +56,19 @@ export default function CalendarClient({
   };
 
   // Most-to-least attention-worthy, same classification dotColor already
-  // makes per booking -- a day with a mix of statuses shows the count in
-  // whichever color the "most urgent" booking that day would get on its
-  // own, not a new precedence rule.
+  // makes per booking. A day's bookings are grouped by that color and
+  // shown as one count per color present (ordered by this priority) --
+  // merging them into a single number would hide that, say, one of two
+  // bookings that day was actually cancelled (1 cancelled + 1 confirmed
+  // read as a single "2" in jade, losing the cancelled one entirely).
   const DAY_COLOR_PRIORITY = ["#FF6B6B", "#FFC178", "var(--jade)", "var(--text-3)"] as const;
-  const dayColor = (dayBookings: Booking[]) => {
-    const present = new Set(dayBookings.map(dotColor));
-    return DAY_COLOR_PRIORITY.find((c) => present.has(c)) ?? "var(--text-3)";
+  const dayColorGroups = (dayBookings: Booking[]) => {
+    const counts = new Map<string, number>();
+    dayBookings.forEach((b) => {
+      const c = dotColor(b);
+      counts.set(c, (counts.get(c) ?? 0) + 1);
+    });
+    return DAY_COLOR_PRIORITY.filter((c) => counts.has(c)).map((c) => [c, counts.get(c)!] as const);
   };
 
   const selectedDateLabel = selectedDay !== null
@@ -148,12 +154,14 @@ export default function CalendarClient({
                   <>
                     <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>{day}</span>
                     {bookings.length > 0 && (
-                      // A flex row centered as a group -- not just this one
-                      // number centered on its own -- so it stays correct
-                      // if this ever needs to show more than one figure
-                      // side by side instead of a single merged count.
+                      // A flex row centered as a group, one number per
+                      // distinct status color that day (not a single
+                      // merged count) -- gap keeps them from touching
+                      // when more than one renders.
                       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 4, marginTop: 4, width: "100%" }}>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: dayColor(bookings) }}>{bookings.length}</span>
+                        {dayColorGroups(bookings).map(([color, count]) => (
+                          <span key={color} style={{ fontSize: 13, fontWeight: 700, color }}>{count}</span>
+                        ))}
                       </div>
                     )}
                   </>
