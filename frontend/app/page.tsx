@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import ProductTour, { TOUR_SCREENSHOTS_READY } from "@/components/ProductTour";
+import BusinessTypes from "@/components/BusinessTypes";
 
 const SPOKES = 44;
 type LangCode = "EN" | "ES" | "FR";
@@ -726,6 +727,8 @@ export default function Home() {
               </div>
             ))}
           </div>
+
+          <BusinessTypes lang={lang} />
         </div>
       </section>
 
