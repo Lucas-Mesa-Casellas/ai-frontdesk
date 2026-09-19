@@ -1,9 +1,7 @@
-import Link from "next/link";
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { BUSINESS_TZ, madridHour, zonedTimeToUtc } from "@/lib/tz";
-import { IconPhone, IconCalendar } from "@/components/icons";
 import AnimateOnRouteEntry from "@/components/AnimateOnRouteEntry";
  
 export default async function OverviewPage() {
@@ -126,17 +124,6 @@ export default async function OverviewPage() {
         </div>
       </AnimateOnRouteEntry>
 
-      <div className="ov-nav-links">
-        <Link href="/dashboard/calls" className="dash-card dash-in d5 ov-nav-link">
-          <IconPhone width={16} height={16} />
-          {t.navCalls}
-        </Link>
-        <Link href="/dashboard/calendar" className="dash-card dash-in d6 ov-nav-link">
-          <IconCalendar width={16} height={16} />
-          {t.navCalendar}
-        </Link>
-      </div>
-
       <style>{`
         .ov-wrap { position: relative; padding: 32px 36px; max-width: 1080px; isolation: isolate; }
         .ov-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
@@ -163,12 +150,6 @@ export default async function OverviewPage() {
         .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
         .ov-hourlabels { display: flex; gap: 2px; margin-top: 6px; }
         .ov-hourlabels span { flex: 1; min-width: 3px; font-size: 9.5px; color: var(--text-3); text-align: center; }
-        .ov-nav-links { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .ov-nav-link {
-          display: flex; align-items: center; justify-content: center; gap: 9px;
-          padding: 16px; font-size: 13.5px; font-weight: 600; color: var(--text-2);
-          text-decoration: none;
-        }
         /* A neon line lighting up left-to-right, not a blurred bar sliding
            across -- scaleX grows a SOLID line rather than translating a
            faded gradient segment, so everything behind the growing edge
@@ -179,7 +160,7 @@ export default async function OverviewPage() {
            room for the badge, which is taller than the line itself and
            needs to stay vertically centered on it throughout the draw. */
         .ov-wave {
-          position: relative; height: 22px; margin: 28px 0 20px;
+          position: relative; height: 22px; margin: 28px 0 0;
         }
         .ov-wave-line {
           position: absolute; left: 0; right: 26px; top: 50%; height: 2px;
@@ -236,7 +217,6 @@ export default async function OverviewPage() {
              targets the same visual ticks (3, 9, 15, 21) by the class
              applied in JS instead of by position. */
           .ov-hourlabel-thin { display: none; }
-          .ov-nav-links { grid-template-columns: 1fr; }
           /* Cards are narrow and only 8px apart here, so full-strength
              halos bleed into each other and read as one bright band
              behind the row rather than a glow per card. */
