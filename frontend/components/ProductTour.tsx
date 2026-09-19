@@ -6,11 +6,13 @@ type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
 type SlideId = "overview" | "calls" | "calendar" | "support";
 
-// The real dashboard screenshots don't exist yet. Until they do this section
-// renders placeholder slots and the landing page only shows it behind
-// ?tour=preview -- so no placeholder boxes ever reach the public site. Once
-// the 12 screenshots are in public/tour/<en|es|fr>/<slide>.png, flip this to
-// true (and re-tune the hotspot x/y below against the real images).
+// The real dashboard screenshots don't exist yet. Until they do, each slide
+// shows a blurred wireframe of that dashboard page (see TourMock -- abstract
+// blocks, deliberately NOT a fake screenshot) with a "screenshots coming
+// soon" badge, so the layout and the hover notes can be reviewed live.
+// When the 12 screenshots are in public/tour/<en|es|fr>/<slide>.png, flip
+// this to true: the frame, tabs and hotspots stay exactly as they are (only
+// the hotspot x/y below may need nudging onto the real images).
 export const TOUR_SCREENSHOTS_READY = false;
 
 // Width / height of the screenshots (16:10 = a 1440x900 window). Used for the
@@ -37,6 +39,7 @@ const COPY = {
   heading: { EN: "See it in action.", ES: "Míralo en acción.", FR: "Découvrez-le en action." } as L10n,
   hintDesktop: { EN: "Hover the dots to see what each part does.", ES: "Pasa el ratón por los puntos para ver qué hace cada parte.", FR: "Survolez les points pour voir à quoi sert chaque zone." } as L10n,
   hintTouch: { EN: "Tap a dot to see what each part does.", ES: "Toca un punto para ver qué hace cada parte.", FR: "Touchez un point pour voir à quoi sert chaque zone." } as L10n,
+  soon: { EN: "Screenshots coming soon", ES: "Capturas próximamente", FR: "Captures bientôt disponibles" } as L10n,
   prev: { EN: "Previous", ES: "Anterior", FR: "Précédent" } as L10n,
   next: { EN: "Next", ES: "Siguiente", FR: "Suivant" } as L10n,
 };
@@ -53,7 +56,7 @@ const SLIDES: Slide[] = [
     },
     hotspots: [
       {
-        x: 42, y: 24,
+        x: 46, y: 25,
         note: {
           EN: "Calls answered, booking requests and your booking rate, updated as calls come in.",
           ES: "Llamadas atendidas, solicitudes de cita y tu tasa de reserva, al día con cada llamada.",
@@ -89,7 +92,7 @@ const SLIDES: Slide[] = [
         },
       },
       {
-        x: 42, y: 42,
+        x: 42, y: 36,
         note: {
           EN: "A one-line AI summary of what the caller wanted, so you don't have to listen back.",
           ES: "Un resumen de una línea de lo que quería el llamante, para no tener que volver a escucharlo.",
@@ -97,7 +100,7 @@ const SLIDES: Slide[] = [
         },
       },
       {
-        x: 70, y: 38,
+        x: 76, y: 33,
         note: {
           EN: "Tags show the type of call and whether it needs your review.",
           ES: "Las etiquetas indican el tipo de llamada y si necesita tu revisión.",
@@ -125,7 +128,7 @@ const SLIDES: Slide[] = [
         },
       },
       {
-        x: 78, y: 48,
+        x: 79, y: 54,
         note: {
           EN: "Open a day to confirm or cancel each request, or jump to the call behind it.",
           ES: "Abre un día para confirmar o cancelar cada solicitud, o ir a la llamada que la originó.",
@@ -153,7 +156,7 @@ const SLIDES: Slide[] = [
         },
       },
       {
-        x: 36, y: 62,
+        x: 36, y: 65,
         note: {
           EN: "Attach a screenshot or a PDF so we can see exactly what you see.",
           ES: "Adjunta una captura o un PDF para que veamos exactamente lo mismo que tú.",
@@ -163,6 +166,81 @@ const SLIDES: Slide[] = [
     ],
   },
 ];
+
+// Abstract wireframes of the four dashboard pages, in % of the frame, laid out
+// so the hotspots above land on the matching part (stats row, chart, filter,
+// call card, calendar grid, day panel, message box, attach button).
+type Block = { x: number; y: number; w: number; h: number; k?: string };
+
+function mockBlocks(id: SlideId): Block[] {
+  const b: Block[] = [
+    { x: 0, y: 0, w: 14, h: 100, k: "side" },
+    { x: 2.6, y: 6, w: 3.6, h: 5.6, k: "jade" },
+    { x: 7.2, y: 7.6, w: 5, h: 2.4, k: "line" },
+  ];
+  const active = { overview: 0, calls: 1, calendar: 2, support: 3 }[id];
+  for (let r = 0; r < 5; r++) b.push({ x: 2.6, y: 20 + r * 8, w: 9, h: 2.8, k: r === active ? "jade" : "line" });
+
+  if (id === "overview") {
+    b.push({ x: 18, y: 9, w: 16, h: 3.4, k: "line big" }, { x: 18, y: 14, w: 11, h: 2, k: "line" });
+    for (let i = 0; i < 3; i++) {
+      const x = 18 + i * 27;
+      b.push({ x, y: 19, w: 24, h: 15, k: "card" }, { x: x + 2, y: 22, w: 9, h: 6, k: "line big" }, { x: x + 2, y: 30, w: 13, h: 2, k: "line" });
+    }
+    b.push({ x: 18, y: 38, w: 78, h: 54, k: "card" }, { x: 20.5, y: 41.5, w: 15, h: 2.6, k: "line" });
+    const hs = [3, 2, 1, 1, 0, 0, 1, 2, 5, 9, 12, 14, 11, 10, 12, 9, 6, 4, 3, 5, 3, 2, 1, 1];
+    hs.forEach((v, i) => b.push({ x: 20.5 + i * 3.05, y: 88 - v * 2.9, w: 2.3, h: v * 2.9, k: v > 10 ? "jade" : "bar" }));
+  }
+  if (id === "calls") {
+    b.push({ x: 18, y: 9, w: 15, h: 3.4, k: "line big" });
+    b.push({ x: 18, y: 15, w: 17, h: 6.5, k: "card" }, { x: 37, y: 15, w: 17, h: 6.5, k: "card" }, { x: 56, y: 15, w: 8, h: 6.5, k: "jade" });
+    for (let r = 0; r < 3; r++) {
+      const y = 27 + r * 21;
+      b.push(
+        { x: 18, y, w: 78, h: 17, k: "card" },
+        { x: 20.5, y: y + 4, w: 3.2, h: 5.2, k: "jade round" },
+        { x: 26, y: y + 4, w: 14, h: 2.6, k: "line big" }, { x: 26, y: y + 8.6, w: 10, h: 2, k: "line" },
+        { x: 20.5, y: y + 12.4, w: 58, h: 2, k: "line" },
+        { x: 73, y: y + 4, w: 9, h: 3.6, k: "line" }, { x: 84, y: y + 4, w: 10, h: 3.6, k: "jade" },
+      );
+    }
+  }
+  if (id === "calendar") {
+    b.push({ x: 18, y: 9, w: 17, h: 3.4, k: "line big" });
+    const jade = new Set(["1-2", "2-4", "3-1", "0-5"]), amber = new Set(["2-2", "3-4"]), grey = new Set(["3-5", "1-0"]);
+    for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
+      const x = 18 + c * 6.7, y = 16 + r * 14.9, key = `${r}-${c}`;
+      b.push({ x, y, w: 6.1, h: 13.4, k: "card" }, { x: x + 0.9, y: y + 1.5, w: 1.6, h: 1.6, k: "line" });
+      if (jade.has(key)) b.push({ x: x + 1.5, y: y + 6.5, w: 3, h: 2.2, k: "jade" });
+      if (amber.has(key)) b.push({ x: x + 1.5, y: y + 6.5, w: 3, h: 2.2, k: "amber" });
+      if (grey.has(key)) b.push({ x: x + 1.5, y: y + 6.5, w: 3, h: 2.2, k: "line big" });
+    }
+    b.push({ x: 68, y: 16, w: 28, h: 74, k: "card" }, { x: 70.5, y: 19.5, w: 12, h: 2.6, k: "line big" });
+    for (let i = 0; i < 2; i++) {
+      const y = 27 + i * 25;
+      b.push({ x: 70.5, y, w: 23, h: 21, k: "card" }, { x: 72, y: y + 3, w: 14, h: 2.4, k: "line big" }, { x: 72, y: y + 7.5, w: 19, h: 2, k: "line" },
+             { x: 72, y: y + 13, w: 8, h: 4.6, k: "jade" }, { x: 82, y: y + 13, w: 8, h: 4.6, k: "line" });
+    }
+  }
+  if (id === "support") {
+    b.push({ x: 18, y: 9, w: 12, h: 3.4, k: "line big" }, { x: 18, y: 14, w: 26, h: 2, k: "line" });
+    b.push({ x: 22, y: 20, w: 50, h: 72, k: "card" }, { x: 25, y: 24, w: 16, h: 2.4, k: "line" },
+           { x: 25, y: 28, w: 44, h: 26, k: "card" }, { x: 27, y: 31, w: 34, h: 2, k: "line" }, { x: 27, y: 35, w: 26, h: 2, k: "line" },
+           { x: 25, y: 58, w: 14, h: 2.2, k: "line" }, { x: 25, y: 62, w: 17, h: 6, k: "card" }, { x: 25, y: 71, w: 28, h: 2, k: "line" },
+           { x: 25, y: 78, w: 44, h: 7, k: "jade" });
+  }
+  return b;
+}
+
+function TourMock({ id }: { id: SlideId }) {
+  return (
+    <div className="tour-mock" aria-hidden="true">
+      {mockBlocks(id).map((b, i) => (
+        <i key={i} className={b.k} style={{ left: `${b.x}%`, top: `${b.y}%`, width: `${b.w}%`, height: `${b.h}%` }} />
+      ))}
+    </div>
+  );
+}
 
 export default function ProductTour({ lang }: { lang: Lang }) {
   const [idx, setIdx] = useState(0);
@@ -254,8 +332,12 @@ export default function ProductTour({ lang }: { lang: Lang }) {
                   onError={() => setFailed((f) => ({ ...f, [src]: true }))}
                 />
               ) : (
-                <div className="tour-ph" role="img" aria-label={`${slide.label[lang]} (placeholder)`}>
-                  <span>{slide.id} · {lang} — screenshot goes here</span>
+                <div className="tour-ph" role="img" aria-label={`${slide.label[lang]}: ${COPY.soon[lang]}`}>
+                  <TourMock id={slide.id} />
+                  <span className="tour-soon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
+                    {COPY.soon[lang]}
+                  </span>
                 </div>
               )}
 
@@ -342,14 +424,32 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour-chrome i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.14); }
         .tour-shot { position: relative; border-radius: 0 0 15px 15px; }
         .tour-shot img { display: block; width: 100%; height: auto; border-radius: 0 0 15px 15px; user-select: none; }
+        /* "Coming soon" state: a blurred wireframe of the page (not a fake
+           screenshot) under a veil, with a badge. */
         .tour-ph {
-          aspect-ratio: var(--tour-aspect); display: grid; place-items: center; border-radius: 0 0 15px 15px;
-          background:
-            repeating-linear-gradient(0deg, transparent 0 39px, rgba(255,255,255,.035) 39px 40px),
-            repeating-linear-gradient(90deg, transparent 0 39px, rgba(255,255,255,.035) 39px 40px),
-            linear-gradient(135deg, rgba(18,185,129,.12), rgba(255,255,255,.02));
+          position: relative; aspect-ratio: var(--tour-aspect); overflow: hidden; border-radius: 0 0 15px 15px;
+          background: linear-gradient(160deg, rgba(18,185,129,.09), rgba(255,255,255,.015) 60%);
         }
-        .tour-ph span { font-size: 13px; color: var(--text-3); letter-spacing: .04em; text-transform: uppercase; }
+        .tour-mock { position: absolute; inset: 0; filter: blur(1.4px); opacity: .95; }
+        .tour-mock i { position: absolute; border-radius: 5px; background: rgba(255,255,255,.075); }
+        .tour-mock i.side { border-radius: 0; background: rgba(255,255,255,.028); border-right: 1px solid rgba(255,255,255,.06); }
+        .tour-mock i.card { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.075); border-radius: 9px; }
+        .tour-mock i.line { background: rgba(255,255,255,.11); border-radius: 3px; }
+        .tour-mock i.big { background: rgba(255,255,255,.2); }
+        .tour-mock i.bar { background: rgba(255,255,255,.13); border-radius: 3px 3px 0 0; }
+        .tour-mock i.jade { background: rgba(55,226,155,.5); }
+        .tour-mock i.amber { background: rgba(255,193,120,.55); }
+        .tour-mock i.round { border-radius: 50%; }
+        .tour-ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,10,14,.05), rgba(8,10,14,.42)); pointer-events: none; }
+        .tour-soon {
+          position: absolute; left: 50%; bottom: 5%; transform: translateX(-50%); z-index: 1;
+          display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
+          padding: 9px 16px; border-radius: var(--r-pill); font-size: 13px; font-weight: 600; color: var(--text);
+          background: rgba(12,15,20,.82); border: 1px solid rgba(55,226,155,.35);
+          box-shadow: 0 14px 34px -14px rgba(0,0,0,.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+          pointer-events: none;
+        }
+        .tour-soon svg { width: 15px; height: 15px; stroke: var(--jade); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
         .hs { position: absolute; transform: translate(-50%, -50%); z-index: 2; }
         .hs.open { z-index: 5; }

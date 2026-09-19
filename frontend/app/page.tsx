@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import ProductTour, { TOUR_SCREENSHOTS_READY } from "@/components/ProductTour";
-import VoiceSamples, { VOICE_SAMPLES_READY } from "@/components/VoiceSamples";
+import ProductTour from "@/components/ProductTour";
+import VoiceSamples from "@/components/VoiceSamples";
 import BusinessTypes from "@/components/BusinessTypes";
 
 const SPOKES = 44;
@@ -22,7 +22,7 @@ const TIERS = [
 type Feat = { t: string; soon?: boolean };
 
 type Dict = {
-  navProduct: string; navPricing: string; navContact: string;
+  navProduct: string; navTypes: string; navPricing: string; navContact: string;
   navLogin: string; navStart: string; langName: string;
   badge: string; h1a: string; h1bPre: string; h1bWord: string; lede: string;
   heroCta: string; heroCta2: string;
@@ -43,7 +43,7 @@ type Dict = {
 
 const T: Record<LangCode, Dict> = {
   EN: {
-    navProduct: "Product", navPricing: "Pricing", navContact: "Contact",
+    navProduct: "Product", navTypes: "Business types", navPricing: "Pricing", navContact: "Contact",
     navLogin: "Client access", navStart: "Get started", langName: "English",
     badge: "AI receptionist · Multilingual",
     h1a: "Never miss", h1bPre: "another ", h1bWord: "customer",
@@ -96,7 +96,7 @@ const T: Record<LangCode, Dict> = {
     cSend: "Send", cSending: "Sending…", cSent: "Sent", cError: "Couldn't send, try again", cTrust: "Built in Europe",
   },
   ES: {
-    navProduct: "Producto", navPricing: "Precios", navContact: "Contacto",
+    navProduct: "Producto", navTypes: "Tipos de negocio", navPricing: "Precios", navContact: "Contacto",
     navLogin: "Acceso de clientes", navStart: "Empezar", langName: "Español",
     badge: "Recepcionista IA · Multilingüe",
     h1a: "Nunca pierdas", h1bPre: "a otro ", h1bWord: "cliente",
@@ -149,7 +149,7 @@ const T: Record<LangCode, Dict> = {
     cSend: "Enviar", cSending: "Enviando…", cSent: "Enviado", cError: "No se pudo enviar, inténtalo de nuevo", cTrust: "Hecho en Europa",
   },
   FR: {
-    navProduct: "Produit", navPricing: "Tarifs", navContact: "Contact",
+    navProduct: "Produit", navTypes: "Types d'entreprise", navPricing: "Tarifs", navContact: "Contact",
     navLogin: "Espace client", navStart: "Commencer", langName: "Français",
     badge: "Réceptionniste IA · Multilingue",
     h1a: "Ne manquez plus", h1bPre: "un seul ", h1bWord: "client",
@@ -231,11 +231,6 @@ export default function Home() {
   const [activeSec, setActiveSec] = useState("product");
   const [cueGone, setCueGone] = useState(false);
   const [sendState, setSendState] = useState<SendState>("idle");
-  // The dashboard tour and voice samples have placeholder slots until the
-  // real screenshots / audio exist, so both are hidden from the public site
-  // unless ?tour=preview.
-  const [tourPreview, setTourPreview] = useState(false);
-  useEffect(() => { setTourPreview(new URLSearchParams(window.location.search).has("tour")); }, []);
 
   const t = T[lang];
   const langRefLive = useRef<LangCode>(lang);
@@ -278,7 +273,7 @@ export default function Home() {
       setStuck(y > 24);
       setCueGone(y > 40);
       let active = "product";
-      for (const id of ["product", "pricing", "contact"]) {
+      for (const id of ["product", "types", "pricing", "contact"]) {
         const el = document.getElementById(id);
         if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.4) active = id;
       }
@@ -492,6 +487,7 @@ export default function Home() {
 
             <div className="nav-links">
               <a href="#product" className={activeSec === "product" ? "active" : undefined}>{t.navProduct}</a>
+              <a href="#types" className={activeSec === "types" ? "active" : undefined}>{t.navTypes}</a>
               <a href="#pricing" className={activeSec === "pricing" ? "active" : undefined}>{t.navPricing}</a>
               <a href="#contact" className={activeSec === "contact" ? "active" : undefined}>{t.navContact}</a>
             </div>
@@ -553,6 +549,7 @@ export default function Home() {
                 </button>
                 <div className={`mobile-nav${navOpen ? " open" : ""}`}>
                   <a href="#product" onClick={() => setNavOpen(false)}>{t.navProduct}</a>
+                  <a href="#types" onClick={() => setNavOpen(false)}>{t.navTypes}</a>
                   <a href="#pricing" onClick={() => setNavOpen(false)}>{t.navPricing}</a>
                   <a href="#contact" onClick={() => setNavOpen(false)}>{t.navContact}</a>
                   <a href="/login" onClick={() => setNavOpen(false)}>{t.navLogin}</a>
@@ -679,8 +676,13 @@ export default function Home() {
       </div>
       {/* ===== end app-shell ===== */}
 
-      {(TOUR_SCREENSHOTS_READY || tourPreview) && <ProductTour lang={lang} />}
-      {(VOICE_SAMPLES_READY || tourPreview) && <VoiceSamples lang={lang} />}
+      {/* Product: the dashboard tour and voice samples. Each shows a
+          "coming soon" state until its TOUR_SCREENSHOTS_READY /
+          VOICE_SAMPLES_READY flag is flipped (inside the component). */}
+      <ProductTour lang={lang} />
+      <VoiceSamples lang={lang} />
+
+      <BusinessTypes lang={lang} />
 
       <section className="sec" id="pricing">
         <div className="wrap">
@@ -719,8 +721,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-
-          <BusinessTypes lang={lang} />
         </div>
       </section>
 

@@ -5,11 +5,11 @@ import { useEffect, useRef, useState } from "react";
 type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
 
-// The real clips don't exist yet (being generated separately). Until they do
-// this section renders disabled placeholder players and the landing page only
-// shows it behind ?tour=preview -- so no dead players ever reach the public
-// site. Once public/tour/<en|es|fr>/welcome.<AUDIO_EXT> are in place, flip
-// this to true.
+// The real clips don't exist yet (being generated separately). Until they do,
+// the players render disabled with a "recordings coming soon" state, so the
+// section reads as intentional on the live page. Once
+// public/tour/<en|es|fr>/welcome.<AUDIO_EXT> are in place, flip this to true
+// -- that is the only change needed (the layout doesn't change).
 export const VOICE_SAMPLES_READY = false;
 const AUDIO_EXT = "mp3";
 
@@ -34,6 +34,7 @@ const COPY = {
   play: { EN: "Play", ES: "Reproducir", FR: "Lire" } as L10n,
   pause: { EN: "Pause", ES: "Pausa", FR: "Pause" } as L10n,
   seek: { EN: "Position", ES: "Posición", FR: "Position" } as L10n,
+  soon: { EN: "Recordings coming soon", ES: "Grabaciones próximamente", FR: "Enregistrements bientôt disponibles" } as L10n,
 };
 
 // Fixed, decorative bar heights (a waveform look, not the real waveform) --
@@ -141,11 +142,16 @@ function VoiceCard({
           />
         </div>
 
-        <span className="vs-time">{usable ? `${fmt(time)} / ${fmt(duration)}` : "0:00"}</span>
+        <span className="vs-time">{usable ? `${fmt(time)} / ${fmt(duration)}` : "–:––"}</span>
       </div>
 
       {TRANSCRIPT[code] && <p className="vs-text">{TRANSCRIPT[code]}</p>}
-      {!usable && <p className="vs-ph">Audio goes here</p>}
+      {!usable && (
+        <p className="vs-soon">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
+          {COPY.soon[uiLang]}
+        </p>
+      )}
     </li>
   );
 }
@@ -186,7 +192,7 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
       <style>{`
         /* A compact band, not a full-screen section: it's one row of players,
            so forcing 100svh would just be empty space. */
-        .sec.voice { min-height: 0; justify-content: flex-start; padding: clamp(56px, 8vh, 96px) 0; }
+        .sec.voice { min-height: 0; justify-content: flex-start; padding: clamp(56px, 8vh, 96px) 0 0; }
         .voice .sec-h { min-height: 0; }
         .voice .sec-sub { min-height: 0; }
         .vs-top, .vs-grid { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
@@ -233,7 +239,13 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .vs-time { flex: none; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-3); min-width: 6.4em; text-align: right; }
 
         .vs-text { font-size: 13px; line-height: 1.55; color: var(--text-2); font-style: italic; }
-        .vs-ph { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); }
+        .vs-soon {
+          display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
+          font-size: 12.5px; font-weight: 500; color: var(--text-2);
+          padding: 6px 12px; border-radius: var(--r-pill);
+          background: rgba(55,226,155,.07); border: 1px solid rgba(55,226,155,.22);
+        }
+        .vs-soon svg { width: 14px; height: 14px; stroke: var(--jade); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
         @media (max-width: 1000px) {
           .vs-grid { grid-template-columns: 1fr; max-width: 520px; }
