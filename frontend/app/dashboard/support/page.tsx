@@ -1,10 +1,8 @@
-import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import SupportForm from "@/components/SupportForm";
 
 export default async function SupportPage() {
-  const { user } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
 
@@ -22,7 +20,6 @@ export default async function SupportPage() {
             attachLabel: t.supAttachLabel, attachBtn: t.supAttachBtn, attachHint: t.supAttachHint, remove: t.supRemove,
             send: t.supSend, sending: t.supSending, sent: t.supSent, sentNote: t.supSentNote, error: t.supError,
             errTooBig: t.supErrTooBig, errType: t.supErrType, errTooMany: t.supErrTooMany,
-            replyNote: user?.email ? t.supReplyNote(user.email) : "",
           }}
         />
       </div>

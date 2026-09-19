@@ -18,7 +18,6 @@ export type SupportLabels = {
   attachLabel: string; attachBtn: string; attachHint: string; remove: string;
   send: string; sending: string; sent: string; sentNote: string; error: string;
   errTooBig: string; errType: string; errTooMany: string;
-  replyNote: string;
 };
 
 function formatSize(bytes: number) {
@@ -129,9 +128,7 @@ export default function SupportForm({ labels }: { labels: SupportLabels }) {
           </span>
         </button>
 
-        {sendState === "sent"
-          ? <p className="sup-note ok" role="status">{labels.sentNote}</p>
-          : labels.replyNote && <p className="sup-note">{labels.replyNote}</p>}
+        {sendState === "sent" && <p className="sup-note ok" role="status">{labels.sentNote}</p>}
       </form>
 
       <style>{`
