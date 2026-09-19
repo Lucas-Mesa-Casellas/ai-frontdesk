@@ -362,22 +362,24 @@ export default function ProductTour({ lang }: { lang: Lang }) {
               ))}
             </div>
           </div>
-
-          <p className={`tour-cap${activeNote ? " has-note" : ""}`} aria-live="polite">
-            <span className="cap-hint cap-hint-d">{COPY.hintDesktop[lang]}</span>
-            <span className="cap-hint cap-hint-t">{COPY.hintTouch[lang]}</span>
-            {activeNote && <span className="cap-note">{activeNote}</span>}
-          </p>
           </div>
         </div>
+
+        {/* Outside the two-column slide so it centers on the page axis (like
+            the heading and tabs), not under the screenshot alone. */}
+        <p className={`tour-cap${activeNote ? " has-note" : ""}`} aria-live="polite">
+          <span className="cap-hint cap-hint-d">{COPY.hintDesktop[lang]}</span>
+          <span className="cap-hint cap-hint-t">{COPY.hintTouch[lang]}</span>
+          {activeNote && <span className="cap-note">{activeNote}</span>}
+        </p>
       </div>
 
       <style>{`
         .tour { justify-content: center; }
         .tour-head { margin-bottom: 14px; }
         .tour-head .sec-h { min-height: 0; font-size: clamp(1.9rem, 2.9vw, 2.5rem); }
-        .tour-head, .tour-nav, .tour-slide { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
-        .tour.seen .tour-head, .tour.seen .tour-nav, .tour.seen .tour-slide { opacity: 1; transform: none; }
+        .tour-head, .tour-nav, .tour-slide, .tour-cap { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
+        .tour.seen .tour-head, .tour.seen .tour-nav, .tour.seen .tour-slide, .tour.seen .tour-cap { opacity: 1; transform: none; }
         .tour.seen .tour-nav { transition-delay: .08s; }
         .tour.seen .tour-slide { transition-delay: .14s; }
 
@@ -411,7 +413,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
            still lets the image track shrink on a narrower window. */
         .tour-slide {
           display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, calc((100svh - 385px) * var(--tour-aspect)));
-          gap: 34px; align-items: center; justify-content: center; max-width: 1240px; margin-inline: auto;
+          gap: clamp(48px, 6.5vw, 110px); align-items: center; justify-content: center; max-width: 1360px; margin-inline: auto;
         }
         .tour-copy h3 { font-size: 24px; font-weight: 600; letter-spacing: -.03em; line-height: 1.15; margin-bottom: 10px; }
         .tour-copy p { font-size: 15px; line-height: 1.6; color: var(--text-2); }
@@ -521,7 +523,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           .tour-arrow { display: none; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .tour-head, .tour-nav, .tour-slide { transition: none; opacity: 1; transform: none; }
+          .tour-head, .tour-nav, .tour-slide, .tour-cap { transition: none; opacity: 1; transform: none; }
           .tour.seen .tour-slide { animation: none; }
           .hs-ring { animation: none; }
         }
