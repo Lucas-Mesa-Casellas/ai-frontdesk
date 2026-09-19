@@ -51,7 +51,12 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  if ((pathname === "/login" || pathname === "/") && user) {
+  // The dashboard's Home link goes to "/?marketing=1" on purpose: without
+  // this bypass, "/" for a signed-in visitor would redirect straight back
+  // into the dashboard, so Home would never actually reach the marketing
+  // page. Typing or bookmarking plain "/" still resumes the dashboard.
+  const wantsMarketing = pathname === "/" && request.nextUrl.searchParams.has("marketing");
+  if ((pathname === "/login" || pathname === "/") && user && !wantsMarketing) {
     const lastPath = request.cookies.get(LAST_PATH_COOKIE)?.value;
     const target = lastPath?.startsWith("/dashboard") ? lastPath : "/dashboard";
     return NextResponse.redirect(new URL(target, request.url));
