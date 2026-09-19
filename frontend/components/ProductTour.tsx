@@ -36,7 +36,7 @@ type Slide = {
 
 const COPY = {
   tag: { EN: "Dashboard", ES: "Panel de control", FR: "Tableau de bord" } as L10n,
-  heading: { EN: "See it in action.", ES: "Míralo en acción.", FR: "Découvrez-le en action." } as L10n,
+  heading: { EN: "This is what you'll have access to.", ES: "Esto es a lo que tendrás acceso.", FR: "Voici à quoi vous aurez accès." } as L10n,
   hintDesktop: { EN: "Hover the dots to see what each part does.", ES: "Pasa el ratón por los puntos para ver qué hace cada parte.", FR: "Survolez les points pour voir à quoi sert chaque zone." } as L10n,
   hintTouch: { EN: "Tap a dot to see what each part does.", ES: "Toca un punto para ver qué hace cada parte.", FR: "Touchez un point pour voir à quoi sert chaque zone." } as L10n,
   soon: { EN: "Screenshots coming soon", ES: "Capturas próximamente", FR: "Captures bientôt disponibles" } as L10n,
