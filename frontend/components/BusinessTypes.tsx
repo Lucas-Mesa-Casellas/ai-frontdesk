@@ -138,6 +138,11 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
           box-shadow: 0 14px 30px -16px rgba(18,185,129,.7), 0 1px 0 rgba(255,255,255,.06) inset;
         }
         .bt-ic svg { width: 30px; height: 30px; }
+        .bt-ic { transition: box-shadow .4s var(--e-out), border-color .4s var(--e-out); }
+        .bt-card:hover .bt-ic {
+          border-color: rgba(55,226,155,.42);
+          box-shadow: 0 16px 36px -12px rgba(18,185,129,.95), 0 0 22px -4px rgba(55,226,155,.35), 0 1px 0 rgba(255,255,255,.08) inset;
+        }
         .bt-card h3 { position: relative; font-size: clamp(1.5rem, 2.2vw, 1.85rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.1; margin-bottom: 10px; }
         .bt-line { position: relative; font-size: 16px; line-height: 1.55; color: var(--text-2); max-width: 42ch; margin-bottom: 22px; min-height: 3.1em; }
         /* The description reserves two lines (min-height above) so the divider
