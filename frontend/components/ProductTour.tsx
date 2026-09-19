@@ -315,14 +315,14 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           </button>
         </div>
 
-        <div className="tour-slide" key={`${slide.id}-${lang}`} role="tabpanel">
+        <div className="tour-slide" key={`${slide.id}-${lang}`} role="tabpanel" style={{ ["--tour-aspect" as string]: ASPECT }}>
           <div className="tour-copy">
             <h3>{slide.title[lang]}</h3>
             <p>{slide.blurb[lang]}</p>
           </div>
 
           <div className="tour-stage">
-          <div className="tour-frame" style={{ ["--tour-aspect" as string]: ASPECT }}>
+          <div className="tour-frame">
             <div className="tour-chrome" aria-hidden="true"><i /><i /><i /></div>
             <div className="tour-shot" onClick={(e) => { if (e.target === e.currentTarget) setActive(null); }}>
               {showReal ? (
@@ -401,8 +401,18 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour.seen .tour-slide { animation: tourIn .5s var(--e-out); }
         @keyframes tourIn { from { opacity: .0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
         /* Wide screens: title + blurb sit beside the screenshot instead of
-           stacked above it, so the frame gets the vertical space. */
-        .tour-slide { display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, 1fr); gap: 34px; align-items: center; max-width: 1240px; margin-inline: auto; }
+           stacked above it, so the frame gets the vertical space.
+           Both tracks have a bounded size -- the image track is exactly the
+           frame's own width formula (below), not 1fr -- so the pair is a
+           fixed-size unit that justify-content centers as a whole, the way
+           the tabs above it are centered. (With 1fr the image track
+           stretched to fill the row and the frame floated inside it, so the
+           text-to-image gap grew and the pair sat off-center.) minmax(0, X)
+           still lets the image track shrink on a narrower window. */
+        .tour-slide {
+          display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, calc((100svh - 385px) * var(--tour-aspect)));
+          gap: 34px; align-items: center; justify-content: center; max-width: 1240px; margin-inline: auto;
+        }
         .tour-copy h3 { font-size: 24px; font-weight: 600; letter-spacing: -.03em; line-height: 1.15; margin-bottom: 10px; }
         .tour-copy p { font-size: 15px; line-height: 1.6; color: var(--text-2); }
         .tour-stage { min-width: 0; }
