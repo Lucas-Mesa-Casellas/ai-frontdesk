@@ -413,7 +413,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
            still lets the image track shrink on a narrower window. */
         .tour-slide {
           display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, calc((100svh - 385px) * var(--tour-aspect)));
-          gap: clamp(48px, 6.5vw, 110px); align-items: center; justify-content: center; max-width: 1360px; margin-inline: auto;
+          gap: clamp(64px, 9vw, 170px); align-items: center; justify-content: center; max-width: 1420px; margin-inline: auto;
         }
         .tour-copy h3 { font-size: 24px; font-weight: 600; letter-spacing: -.03em; line-height: 1.15; margin-bottom: 10px; }
         .tour-copy p { font-size: 15px; line-height: 1.6; color: var(--text-2); }
