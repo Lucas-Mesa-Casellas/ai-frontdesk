@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import ProductTour, { TOUR_SCREENSHOTS_READY } from "@/components/ProductTour";
 
 const SPOKES = 44;
 type LangCode = "EN" | "ES" | "FR";
@@ -233,6 +234,10 @@ export default function Home() {
   const [activeSec, setActiveSec] = useState("product");
   const [cueGone, setCueGone] = useState(false);
   const [sendState, setSendState] = useState<SendState>("idle");
+  // The dashboard tour has placeholder slots until the real screenshots
+  // exist, so it is hidden from the public site unless ?tour=preview.
+  const [tourPreview, setTourPreview] = useState(false);
+  useEffect(() => { setTourPreview(new URLSearchParams(window.location.search).has("tour")); }, []);
 
   const t = T[lang];
   const langRefLive = useRef<LangCode>(lang);
@@ -675,6 +680,8 @@ export default function Home() {
         </div>
       </div>
       {/* ===== end app-shell ===== */}
+
+      {(TOUR_SCREENSHOTS_READY || tourPreview) && <ProductTour lang={lang} />}
 
       <section className="sec" id="pricing">
         <div className="wrap">
