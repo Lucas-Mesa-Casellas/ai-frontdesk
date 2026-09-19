@@ -51,11 +51,7 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
-  // The dashboard's logo link deliberately opens the marketing site while
-  // signed in (?marketing=1) -- without this bypass "/" would immediately
-  // redirect that tab straight back into the dashboard.
-  const wantsMarketing = pathname === "/" && request.nextUrl.searchParams.has("marketing");
-  if ((pathname === "/login" || pathname === "/") && user && !wantsMarketing) {
+  if ((pathname === "/login" || pathname === "/") && user) {
     const lastPath = request.cookies.get(LAST_PATH_COOKIE)?.value;
     const target = lastPath?.startsWith("/dashboard") ? lastPath : "/dashboard";
     return NextResponse.redirect(new URL(target, request.url));

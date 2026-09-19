@@ -20,16 +20,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", display: "flex" }}>
       <DashboardSidebar>
-        {/* Opens the marketing site in a new tab so a client's active
-            dashboard session isn't navigated away from. Lives on the brand
-            mark rather than in the nav list on purpose: a nav item labeled
-            "Home" read as the dashboard's home while actually leaving it. */}
-        <a
-          href="/?marketing=1"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ padding: "22px 20px", display: "flex", alignItems: "center", gap: 10, color: "inherit", textDecoration: "none" }}
-        >
+        <div style={{ padding: "22px 20px", display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{
             width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
             background: "linear-gradient(155deg,var(--jade),var(--jade-deep))",
@@ -40,13 +31,27 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             </svg>
           </span>
           <span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em" }}>LMC Agents</span>
-        </a>
+        </div>
 
         <div role="navigation" aria-label="Dashboard" style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 2 }}>
           <NavLink href="/dashboard"><IconOverview width={17} height={17} />{t.navOverview}</NavLink>
           <NavLink href="/dashboard/calls"><IconPhone width={17} height={17} />{t.navCalls}</NavLink>
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
+          <a href="/"
+            className="nav-link"
+            style={{
+              display: "flex", alignItems: "center", gap: 11, padding: "10px 12px",
+              marginTop: 8, paddingTop: 18, borderTop: "1px solid var(--hair)",
+              borderRadius: 10, fontSize: 13.5, fontWeight: 500, textDecoration: "none",
+            }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 11.5 12 4l9 7.5" />
+              <path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9" />
+            </svg>
+            {t.navHome}
+          </a>
         </div>
       </DashboardSidebar>
 
