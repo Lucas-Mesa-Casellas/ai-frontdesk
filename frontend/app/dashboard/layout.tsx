@@ -20,7 +20,16 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", display: "flex" }}>
       <DashboardSidebar>
-        <div style={{ padding: "22px 20px", display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Opens the marketing site in a new tab so a client's active
+            dashboard session isn't navigated away from. Lives on the brand
+            mark rather than in the nav list on purpose: a nav item labeled
+            "Home" read as the dashboard's home while actually leaving it. */}
+        <a
+          href="/?marketing=1"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ padding: "22px 20px", display: "flex", alignItems: "center", gap: 10, color: "inherit", textDecoration: "none" }}
+        >
           <span style={{
             width: 28, height: 28, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center",
             background: "linear-gradient(155deg,var(--jade),var(--jade-deep))",
@@ -31,7 +40,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             </svg>
           </span>
           <span style={{ fontSize: 14.5, fontWeight: 600, letterSpacing: "-0.01em" }}>LMC Agents</span>
-        </div>
+        </a>
 
         <div role="navigation" aria-label="Dashboard" style={{ flex: 1, padding: "8px 12px", display: "flex", flexDirection: "column", gap: 2 }}>
           <NavLink href="/dashboard"><IconOverview width={17} height={17} />{t.navOverview}</NavLink>
