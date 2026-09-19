@@ -620,21 +620,6 @@ nav.stuck{
 .d1{transition-delay:.06s}.d2{transition-delay:.12s}
 .d3{transition-delay:.18s}.d4{transition-delay:.24s}
 
-/* ---------- offer banner (above the cards) ---------- */
-.offer{
-  display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;
-  margin-bottom:10px;padding:11px 20px;border-radius:var(--r-pill);
-  background:linear-gradient(180deg,rgba(18,185,129,.075),rgba(18,185,129,.028));
-  border:1px solid rgba(55,226,155,.2);
-  width:fit-content;margin-inline:auto;
-}
-.offer-dot{width:6px;height:6px;border-radius:50%;background:var(--jade);flex:none;
-  box-shadow:0 0 9px rgba(55,226,155,.85);animation:offerPulse 2.8s var(--e-out) infinite}
-@keyframes offerPulse{0%,100%{opacity:1}50%{opacity:.45}}
-.offer-k{font-size:13.5px;font-weight:500;color:var(--text)}
-.offer-v{font-size:16px;font-weight:700;color:var(--jade)}
-.offer-b{font-size:13.5px;font-weight:600;color:var(--jade)}
-
 /* ---------- pricing cards (design locked from v5) ---------- */
 .tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
 .tier-note{margin-top:14px;text-align:center;font-size:12.5px;color:var(--text-3)}
@@ -783,18 +768,15 @@ nav.stuck{
   .tier{padding:28px 24px 26px}
   .tier-f{min-height:0}
   .sec-h{max-width:none}
-  .offer{width:100%;justify-content:flex-start;border-radius:var(--r-lg)}
 }
 @media (max-width:560px){
   .tier{padding:24px 20px 22px}
   .cta-card{padding:26px 22px 24px;border-radius:22px}
   .fld-2{grid-template-columns:1fr;gap:0}
-  .offer{gap:9px;padding:12px 16px;font-size:13px}
 }
 @media (prefers-reduced-motion:reduce){
   .cue{display:none}
   .env .mesh{animation:none}
-  .offer-dot{animation:none}
   .tier:hover{transform:none}
   .send:hover:not(:disabled){transform:none}
 }

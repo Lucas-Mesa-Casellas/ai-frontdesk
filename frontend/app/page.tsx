@@ -9,7 +9,6 @@ const SPOKES = 44;
 type LangCode = "EN" | "ES" | "FR";
 const ORDER: LangCode[] = ["EN", "ES", "FR"];
 const SHOW_SOON = true;
-const SPOTS_LEFT = 5;
 
 const TIER_CTA_STYLE = ["outline", "outline", "outline"];
 
@@ -31,7 +30,6 @@ type Dict = {
   outcomes: [string, string][];
   chip1: string; chip2: string; c0: string; c1: string; c2: string; cue: string;
   pTag: string; pH: string;
-  oK: string; oB: (n: number) => string;
   tName: [string, string, string]; tPin: string; tMo: string; tCalls: string;
   tOver: string; tOverSuf: string; tInh: (n: string) => string; soon: string;
   tCta: [string, string, string]; soonGroup: string;
@@ -63,7 +61,6 @@ const T: Record<LangCode, Dict> = {
     c0: "Incoming call", c1: "AI understands", c2: "Action taken", cue: "Scroll",
 
     pTag: "Pricing", pH: "Pricing that scales with you.",
-    oK: "Setup and configuration", oB: (n) => `Free for the next ${n} clients`,
     tName: ["Starter", "Pro", "Premium"],
     tPin: "Most chosen", tMo: "/month", tCalls: "calls a month",
     tCta: ["Get started", "Get started", "Get started"], soonGroup: "Coming next quarter",
@@ -117,7 +114,6 @@ const T: Record<LangCode, Dict> = {
     c0: "Llamada entrante", c1: "La IA entiende", c2: "Acción ejecutada", cue: "Desliza",
 
     pTag: "Precios", pH: "Precios que crecen contigo.",
-    oK: "Configuración inicial", oB: (n) => `Gratis para los próximos ${n} clientes`,
     tName: ["Básico", "Pro", "Premium"],
     tPin: "El más elegido", tMo: "/mes", tCalls: "llamadas al mes",
     tCta: ["Empezar", "Empezar", "Empezar"], soonGroup: "Próximo trimestre",
@@ -171,7 +167,6 @@ const T: Record<LangCode, Dict> = {
     c0: "Appel entrant", c1: "L'IA comprend", c2: "Action exécutée", cue: "Défiler",
 
     pTag: "Tarifs", pH: "Des tarifs qui évoluent avec vous.",
-    oK: "Mise en place et configuration", oB: (n) => `Offerte pour les ${n} prochains clients`,
     tName: ["Essentiel", "Pro", "Premium"],
     tPin: "Le plus choisi", tMo: "/mois", tCalls: "appels par mois",
     tCta: ["Commencer", "Commencer", "Commencer"], soonGroup: "Prochain trimestre",
@@ -689,12 +684,6 @@ export default function Home() {
           <div className="sec-head mid">
             <div className="sec-tag up">{t.pTag}</div>
             <h2 className="sec-h"><span className="msk"><span>{t.pH}</span></span></h2>
-          </div>
-
-          <div className="offer up d1">
-            <span className="offer-dot" />
-            <span className="offer-k">{t.oK}</span>
-            <span className="offer-v">390€</span>
           </div>
 
           <div className="tiers">
