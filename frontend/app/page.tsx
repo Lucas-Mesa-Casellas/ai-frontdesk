@@ -439,9 +439,6 @@ export default function Home() {
       gsap.from(".copy .badge", { opacity: 0, y: 14, duration: 0.7, delay: 0.05 });
       gsap.from("h1 .l>span", { yPercent: 105, duration: 1.05, stagger: 0.085, delay: 0.1, ease: "power4.out" });
       gsap.from(".lede", { opacity: 0, y: 14, duration: 0.85, delay: 0.34 });
-      // The wrapper, not the buttons: .btn-primary has a CSS transition on
-      // transform, which fights GSAP's inline transform and leaves it stuck.
-      gsap.from(".cta", { opacity: 0, y: 14, duration: 0.8, delay: 0.46 });
       gsap.from(".stage", { opacity: 0, y: 28, scale: 0.97, duration: 1.15, delay: 0.2, ease: "power3.out" });
     }, rootRef);
 
@@ -592,15 +589,12 @@ export default function Home() {
 
             <p className="lede">{t.lede}</p>
 
-            <div className="cta">
-              <a className="btn-primary" href="#contact">
-                {t.heroCta}
-                <svg className="ar" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </a>
-              <a className="btn-ghost" href="#pricing">{t.heroCta2}</a>
-            </div>
+            {/* CTA slot: intentionally empty. The buttons were tried and
+                removed -- the hero reads better without them, and the nav's
+                "Client access" plus the pricing CTAs already cover it.
+                t.heroCta / t.heroCta2 and .btn-primary / .btn-ghost stay
+                defined so bringing them back is a small change. */}
+            <div className="cta-slot" aria-hidden="true" />
           </div>
 
           <div className="stage">
