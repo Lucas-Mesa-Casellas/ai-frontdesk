@@ -390,7 +390,9 @@ export default function ProductTour({ lang }: { lang: Lang }) {
       <style>{`
         .tour { justify-content: center; }
         .tour-head { margin-bottom: 14px; }
-        .tour-head .sec-h { min-height: 0; font-size: clamp(1.9rem, 2.9vw, 2.5rem); }
+        /* No font-size override: every section heading uses the one .sec-h
+           scale, so Product doesn't read a size smaller than the rest. */
+        .tour-head .sec-h { min-height: 0; }
         .tour-head, .tour-nav, .tour-slide, .tour-cap { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
         .tour.seen .tour-head, .tour.seen .tour-nav, .tour.seen .tour-slide, .tour.seen .tour-cap { opacity: 1; transform: none; }
         .tour.seen .tour-nav { transition-delay: .08s; }
@@ -425,7 +427,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
            text-to-image gap grew and the pair sat off-center.) minmax(0, X)
            still lets the image track shrink on a narrower window. */
         .tour-slide {
-          display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, calc((100svh - 385px) * var(--tour-aspect)));
+          display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, calc((100svh - 397px) * var(--tour-aspect)));
           gap: clamp(64px, 9vw, 170px); align-items: center; justify-content: center; max-width: 1420px; margin-inline: auto;
         }
         .tour-copy h3 { font-size: 24px; font-weight: 600; letter-spacing: -.03em; line-height: 1.15; margin-bottom: 10px; }
@@ -438,7 +440,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           /* 100svh minus everything above/below the screenshot (nav, heading,
              tabs, caption, padding) minus the 30px window chrome, times the
              aspect ratio: keeps the whole slide on one screen. */
-          width: min(100%, calc((100svh - 385px) * var(--tour-aspect)));
+          width: min(100%, calc((100svh - 397px) * var(--tour-aspect)));
           min-width: min(100%, 520px);
           margin: 0 auto; border-radius: 16px; overflow: visible;
           background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.016));
@@ -524,7 +526,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           .tour-copy p { font-size: 14px; max-width: 62ch; margin: 0 auto; }
           /* Height-aware here too, so the stacked slide is still one screen
              (title + blurb above the frame need ~365px of the height). */
-          .tour-frame { width: min(100%, max(320px, calc((100svh - 365px) * var(--tour-aspect)))); min-width: 0; }
+          .tour-frame { width: min(100%, max(320px, calc((100svh - 377px) * var(--tour-aspect)))); min-width: 0; }
         }
         /* Phones: no hover, and a floating note would run off a 375px screen,
            so the note shows in a caption under the screenshot instead. */

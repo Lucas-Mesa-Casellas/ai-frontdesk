@@ -106,11 +106,11 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
       </div>
 
       <style>{`
-        /* Centered in its screen like the hero, rather than top-aligned with
-           an empty bottom half -- there's less content here than in Pricing --
-           then nudged up: the extra bottom padding lifts the block above the
-           true centre (desktop only; mobile stacks and just centers). */
-        .sec.types { justify-content: center; padding-bottom: 12vh; }
+        /* Sits a little above the true centre. Done with a transform, not
+           extra bottom padding: padding adds to the section's height, which
+           pushed this past one screen on short viewports (665px at 640). */
+        .sec.types { justify-content: center; }
+        .types > .wrap { transform: translateY(-4vh); }
         .types .sec-h { min-height: 0; }
         .types .sec-head { margin-bottom: 34px; }
 
@@ -155,7 +155,8 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
         }
 
         @media (max-width: 1000px) {
-          .sec.types { justify-content: center; padding-bottom: clamp(72px, 9vh, 96px); }
+          .sec.types { justify-content: center; }
+          .types > .wrap { transform: none; }
           .bt-card { padding: 28px 24px 24px; }
         }
         @media (max-width: 560px) {

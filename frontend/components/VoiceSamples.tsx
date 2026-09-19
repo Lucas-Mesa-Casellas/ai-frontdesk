@@ -89,7 +89,10 @@ function VoiceCard({
   const progress = duration > 0 ? time / duration : 0;
 
   return (
-    <li className={`vs-card${uiLang === code ? " here" : ""}${usable ? "" : " off"}`}>
+    // "here" marks the clip that's actually playing. It used to mark the card
+    // matching the site's language, which just looked like one card was
+    // highlighted for no reason.
+    <li className={`vs-card${playing ? " here" : ""}${usable ? "" : " off"}`}>
       {usable && (
         <audio
           ref={audioRef}
@@ -146,12 +149,6 @@ function VoiceCard({
       </div>
 
       {TRANSCRIPT[code] && <p className="vs-text">{TRANSCRIPT[code]}</p>}
-      {!usable && (
-        <p className="vs-soon">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
-          {COPY.soon[uiLang]}
-        </p>
-      )}
     </li>
   );
 }
@@ -187,6 +184,15 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
             <VoiceCard key={c} code={c} uiLang={lang} current={current} onStart={setCurrent} />
           ))}
         </ul>
+
+        {/* Once, under the grid -- it applies to all three cards, and the same
+            pill repeated inside each one was just noise. */}
+        {!VOICE_SAMPLES_READY && (
+          <p className="vs-soon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
+            {COPY.soon[lang]}
+          </p>
+        )}
       </div>
 
       <style>{`
@@ -195,18 +201,20 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .sec.voice { justify-content: center; }
         .voice .sec-h { min-height: 0; }
         .voice .sec-sub { min-height: 0; }
-        .vs-top, .vs-grid { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
-        .voice.seen .vs-top, .voice.seen .vs-grid { opacity: 1; transform: none; }
+        .vs-top, .vs-grid, .vs-soon { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
+        .voice.seen .vs-top, .voice.seen .vs-grid, .voice.seen .vs-soon { opacity: 1; transform: none; }
         .voice.seen .vs-grid { transition-delay: .1s; }
+        .voice.seen .vs-soon { transition-delay: .18s; }
 
         .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; }
         .vs-card {
-          display: flex; flex-direction: column; gap: 16px; padding: 20px 20px 18px; border-radius: var(--r-xl);
+          display: flex; flex-direction: column; gap: 18px; padding: 24px 22px 22px; border-radius: var(--r-xl);
           background: linear-gradient(180deg, rgba(255,255,255,.042), rgba(255,255,255,.014));
           border: 1px solid var(--hair); box-shadow: 0 34px 70px -40px rgba(0,0,0,.9);
-          transition: border-color .4s var(--e-out);
+          transition: border-color .4s var(--e-out), transform .4s var(--e-out), box-shadow .4s var(--e-out);
         }
-        .vs-card.here { border-color: rgba(55,226,155,.26); }
+        .vs-card:not(.off):hover { transform: translateY(-3px); border-color: var(--hair-2); box-shadow: 0 42px 84px -42px rgba(0,0,0,.95); }
+        .vs-card.here { border-color: rgba(55,226,155,.3); box-shadow: 0 34px 70px -40px rgba(0,0,0,.9), 0 0 0 1px rgba(55,226,155,.08); }
         .vs-head { display: flex; align-items: center; gap: 12px; }
         .vs-code {
           font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--jade);
@@ -228,7 +236,7 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .vs-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
         .vs-btn svg.play { fill: currentColor; stroke: none; margin-left: 2px; }
 
-        .vs-wave { position: relative; flex: 1; min-width: 0; height: 40px; border-radius: 8px; }
+        .vs-wave { position: relative; flex: 1; min-width: 0; height: 52px; border-radius: 8px; }
         .vs-wave:focus-within { outline: 2px solid rgba(55,226,155,.55); outline-offset: 3px; }
         .vs-bars { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; }
         .vs-bars i { flex: 1; min-width: 1px; border-radius: 2px; background: rgba(255,255,255,.16); transition: background .15s; }
@@ -240,10 +248,10 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
 
         .vs-text { font-size: 13px; line-height: 1.55; color: var(--text-2); font-style: italic; }
         .vs-soon {
-          display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
+          display: flex; width: fit-content; margin: 22px auto 0; align-items: center; gap: 7px;
           font-size: 12.5px; font-weight: 500; color: var(--text-2);
-          padding: 6px 12px; border-radius: var(--r-pill);
-          background: rgba(55,226,155,.07); border: 1px solid rgba(55,226,155,.22);
+          padding: 7px 14px; border-radius: var(--r-pill);
+          background: rgba(255,255,255,.035); border: 1px solid var(--hair);
         }
         .vs-soon svg { width: 14px; height: 14px; stroke: var(--jade); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
@@ -257,7 +265,8 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
           .vs-wave { height: 44px; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .vs-top, .vs-grid { transition: none; opacity: 1; transform: none; }
+          .vs-top, .vs-grid, .vs-soon { transition: none; opacity: 1; transform: none; }
+          .vs-card:not(.off):hover { transform: none; }
         }
       `}</style>
     </section>
