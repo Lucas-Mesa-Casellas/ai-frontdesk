@@ -37,6 +37,11 @@ export type DashDict = {
   setDanger: string; setDangerSub: string; setSignOut: string;
 
   statusNew: string; statusReview: string; statusRequested: string;
+  navSupport: string;
+  supTitle: string; supSub: string; supReplyNote: (email: string) => string;
+  supMsgLabel: string; supMsgPh: string; supAttachLabel: string; supAttachBtn: string; supAttachHint: string; supRemove: string;
+  supSend: string; supSending: string; supSent: string; supSentNote: string; supError: string;
+  supErrTooBig: string; supErrType: string; supErrTooMany: string;
 
   langName: string; navHome: string;
 };
@@ -92,6 +97,13 @@ export const DASH_T: Record<Locale, DashDict> = {
     setDanger: "Account", setDangerSub: "You can log back in anytime with your email.", setSignOut: "Sign out",
 
     statusNew: "new", statusReview: "needs review", statusRequested: "requested",
+    navSupport: "Support",
+    supTitle: "Support", supSub: "Something not working, or need a hand? Tell us and we'll get back to you by email.",
+    supReplyNote: (email) => `We'll reply to ${email}.`,
+    supMsgLabel: "How can we help?", supMsgPh: "Describe the issue or your question. The more detail, the faster we can help.",
+    supAttachLabel: "Attachments (optional)", supAttachBtn: "Add files", supAttachHint: "Images or PDFs, up to 3 files and 4 MB in total.", supRemove: "Remove",
+    supSend: "Send", supSending: "Sending…", supSent: "Sent", supSentNote: "Thanks, we've got your message and will reply by email.", supError: "Couldn't send, try again",
+    supErrTooBig: "Attachments are over the 4 MB limit.", supErrType: "Only images (PNG, JPG, WebP, GIF) and PDFs are supported.", supErrTooMany: "You can attach up to 3 files.",
     navHome: "Home",
     langName: "English",
   },
@@ -145,6 +157,13 @@ export const DASH_T: Record<Locale, DashDict> = {
     setDanger: "Cuenta", setDangerSub: "Puedes volver a entrar cuando quieras con tu email.", setSignOut: "Cerrar sesión",
 
     statusNew: "nueva", statusReview: "revisar", statusRequested: "solicitada",
+    navSupport: "Soporte",
+    supTitle: "Soporte", supSub: "¿Algo no funciona o necesitas ayuda? Cuéntanoslo y te responderemos por email.",
+    supReplyNote: (email) => `Te responderemos a ${email}.`,
+    supMsgLabel: "¿En qué podemos ayudarte?", supMsgPh: "Describe el problema o tu duda. Cuanto más detalle, más rápido podremos ayudarte.",
+    supAttachLabel: "Archivos adjuntos (opcional)", supAttachBtn: "Añadir archivos", supAttachHint: "Imágenes o PDF, hasta 3 archivos y 4 MB en total.", supRemove: "Quitar",
+    supSend: "Enviar", supSending: "Enviando…", supSent: "Enviado", supSentNote: "Gracias, hemos recibido tu mensaje y te responderemos por email.", supError: "No se pudo enviar, inténtalo de nuevo",
+    supErrTooBig: "Los adjuntos superan el límite de 4 MB.", supErrType: "Solo se admiten imágenes (PNG, JPG, WebP, GIF) y PDF.", supErrTooMany: "Puedes adjuntar hasta 3 archivos.",
     navHome: "Inicio",
     langName: "Español",
   },
@@ -198,6 +217,13 @@ export const DASH_T: Record<Locale, DashDict> = {
     setDanger: "Compte", setDangerSub: "Vous pouvez vous reconnecter à tout moment avec votre email.", setSignOut: "Déconnexion",
 
     statusNew: "nouveau", statusReview: "à vérifier", statusRequested: "demandée",
+    navSupport: "Assistance",
+    supTitle: "Assistance", supSub: "Un problème ou besoin d'un coup de main ? Écrivez-nous, nous vous répondrons par email.",
+    supReplyNote: (email) => `Nous vous répondrons à ${email}.`,
+    supMsgLabel: "Comment pouvons-nous vous aider ?", supMsgPh: "Décrivez le problème ou votre question. Plus il y a de détails, plus vite nous pouvons vous aider.",
+    supAttachLabel: "Pièces jointes (facultatif)", supAttachBtn: "Ajouter des fichiers", supAttachHint: "Images ou PDF, 3 fichiers maximum et 4 Mo au total.", supRemove: "Retirer",
+    supSend: "Envoyer", supSending: "Envoi…", supSent: "Envoyé", supSentNote: "Merci, nous avons bien reçu votre message et vous répondrons par email.", supError: "Échec de l'envoi, réessayez",
+    supErrTooBig: "Les pièces jointes dépassent la limite de 4 Mo.", supErrType: "Seuls les images (PNG, JPG, WebP, GIF) et les PDF sont acceptés.", supErrTooMany: "Vous pouvez joindre 3 fichiers maximum.",
     navHome: "Accueil",
     langName: "Français",
   },

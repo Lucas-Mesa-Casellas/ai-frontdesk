@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 import LangSwitcher from "@/components/LangSwitcher";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import NavLink from "@/components/NavLink";
-import { IconOverview, IconPhone, IconCalendar, IconGear } from "@/components/icons";
+import { IconOverview, IconPhone, IconCalendar, IconGear, IconSupport } from "@/components/icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, business } = await getAuthedBusiness();
@@ -37,6 +37,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <NavLink href="/dashboard"><IconOverview width={17} height={17} />{t.navOverview}</NavLink>
           <NavLink href="/dashboard/calls"><IconPhone width={17} height={17} />{t.navCalls}</NavLink>
           <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
+          <NavLink href="/dashboard/support"><IconSupport width={17} height={17} />{t.navSupport}</NavLink>
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
           <a href="/?marketing=1"
             className="nav-link"
