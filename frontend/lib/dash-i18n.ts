@@ -13,6 +13,8 @@ export type DashDict = {
   noCalls: string; unknown: string;
   hourChartTitle: string; hourChartSub: string;
   chartTooltip: (label: string, count: number) => string;
+  ovLatest: string; ovViewAll: string;
+  cmdPlaceholder: string; cmdEmpty: string; cmdOpen: string;
 
   callsTitle: string; callsSub: string; callsEmptyTitle: string; callsEmptySub: string;
   noPhone: string; back: string;
@@ -64,6 +66,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     noCalls: "No calls yet.", unknown: "Unknown",
     hourChartTitle: "Calls by hour of day", hourChartSub: "When your calls tend to come in.",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "call" : "calls"}`,
+    ovLatest: "Latest calls", ovViewAll: "View all",
+    cmdPlaceholder: "Jump to…", cmdEmpty: "No results", cmdOpen: "Search",
 
     callsTitle: "Call history", callsSub: "Every call your AI receptionist has handled.",
     callsEmptyTitle: "No calls yet", callsEmptySub: "Calls will appear here once your AI starts answering.",
@@ -123,6 +127,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     noCalls: "Aún no hay llamadas.", unknown: "Desconocido",
     hourChartTitle: "Llamadas por hora del día", hourChartSub: "Cuándo suelen llegar tus llamadas.",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
+    ovLatest: "Últimas llamadas", ovViewAll: "Ver todas",
+    cmdPlaceholder: "Ir a…", cmdEmpty: "Sin resultados", cmdOpen: "Buscar",
 
     callsTitle: "Historial de llamadas", callsSub: "Todas las llamadas gestionadas por tu IA.",
     callsEmptyTitle: "Aún no hay llamadas", callsEmptySub: "Las llamadas aparecerán aquí en cuanto tu IA empiece a contestar.",
@@ -182,6 +188,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     noCalls: "Aucun appel pour l'instant.", unknown: "Inconnu",
     hourChartTitle: "Appels par heure de la journée", hourChartSub: "À quel moment vos appels arrivent le plus souvent.",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "appel" : "appels"}`,
+    ovLatest: "Derniers appels", ovViewAll: "Voir tout",
+    cmdPlaceholder: "Aller à…", cmdEmpty: "Aucun résultat", cmdOpen: "Rechercher",
 
     callsTitle: "Historique des appels", callsSub: "Tous les appels gérés par votre IA.",
     callsEmptyTitle: "Aucun appel pour l'instant", callsEmptySub: "Les appels apparaîtront ici dès que votre IA commencera à répondre.",

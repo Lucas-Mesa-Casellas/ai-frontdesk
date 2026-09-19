@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import LangSwitcher from "@/components/LangSwitcher";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import NavLink from "@/components/NavLink";
+import CommandPalette from "@/components/CommandPalette";
 import { IconOverview, IconPhone, IconCalendar, IconGear, IconSupport } from "@/components/icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
@@ -61,6 +62,17 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 14,
           padding: "14px 28px", borderBottom: "1px solid var(--hair)",
         }}>
+          <CommandPalette
+            items={[
+              { href: "/dashboard", label: t.navOverview },
+              { href: "/dashboard/calls", label: t.navCalls },
+              { href: "/dashboard/calendar", label: t.navCalendar },
+              { href: "/dashboard/support", label: t.navSupport },
+              { href: "/dashboard/settings", label: t.navSettings },
+              { href: "/?marketing=1", label: t.navHome },
+            ]}
+            placeholder={t.cmdPlaceholder} empty={t.cmdEmpty} openLabel={t.cmdOpen}
+          />
           <LangSwitcher current={locale} />
           <div style={{
             display: "flex", alignItems: "center", gap: 10, padding: "7px 12px 7px 7px",

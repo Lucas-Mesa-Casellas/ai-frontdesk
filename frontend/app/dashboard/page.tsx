@@ -3,7 +3,13 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { BUSINESS_TZ, madridHour, zonedTimeToUtc } from "@/lib/tz";
 import AnimateOnRouteEntry from "@/components/AnimateOnRouteEntry";
- 
+import CountUp from "@/components/CountUp";
+import AutoRefresh from "@/components/AutoRefresh";
+import TranslatedField from "@/components/TranslatedField";
+import { resolveTranslatable } from "@/lib/translate-helpers";
+import { IconPhone } from "@/components/icons";
+import Link from "next/link";
+
 export default async function OverviewPage() {
   const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
@@ -16,6 +22,7 @@ export default async function OverviewPage() {
     { count: totalBookings },
     { data: bookedCallIds },
     { data: allCallTimes },
+    { data: latestCalls },
   ] = await Promise.all([
     supabase.from("calls").select("*", { count: "exact", head: true }).eq("business_id", businessId),
     // Every booking request ever captured, which is what the "Booking
@@ -34,6 +41,9 @@ export default async function OverviewPage() {
     supabase.from("bookings").select("call_id")
       .eq("business_id", businessId).not("call_id", "is", null),
     supabase.from("calls").select("created_at").eq("business_id", businessId),
+    // The five most recent, for the "Latest calls" strip under the chart.
+    supabase.from("calls").select("id, caller_name, caller_phone, created_at, summary, translations")
+      .eq("business_id", businessId).order("created_at", { ascending: false }).limit(5),
   ]);
 
   const distinctBookedCalls = new Set((bookedCallIds || []).map((b) => b.call_id)).size;
@@ -58,17 +68,17 @@ export default async function OverviewPage() {
 
       <div className="ov-stats">
         <div className="dash-card dash-in d1 ov-stat-card">
-          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{totalCalls ?? 0}</p>
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}><CountUp value={totalCalls ?? 0} locale={locale} /></p>
           <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statCalls}</p>
         </div>
 
         <div className="dash-card dash-card-highlight dash-in d2 ov-stat-card">
-          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{totalBookings ?? 0}</p>
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}><CountUp value={totalBookings ?? 0} locale={locale} /></p>
           <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statBookings}</p>
         </div>
 
         <div className="dash-card dash-in d3 ov-stat-card">
-          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}>{conv}%</p>
+          <p className="ov-stat-num" style={{ fontWeight: 600, letterSpacing: "-0.03em", marginBottom: 4, lineHeight: 1 }}><CountUp value={conv} locale={locale} suffix="%" /></p>
           <p className="ov-stat-label" style={{ color: "var(--text-3)" }}>{t.statConv}</p>
         </div>
       </div>
@@ -83,14 +93,26 @@ export default async function OverviewPage() {
         ) : (
           <>
             <div className="ov-hourbars">
-              {hourCounts.map((count, h) => (
-                <div
-                  key={h}
-                  className="ov-hourbar"
-                  title={t.chartTooltip(hourLabel(h), count)}
-                  style={{ height: count > 0 ? `${Math.max((count / maxHourCount) * 100, 8)}%` : 2 }}
-                />
-              ))}
+              {/* Each hour is a full-height column (the bar sits in its
+                  bottom), so an empty hour is still hoverable -- the bar
+                  alone is 2px tall when there are no calls. */}
+              {hourCounts.map((count, h) => {
+                const tip = t.chartTooltip(hourLabel(h), count);
+                return (
+                  <div
+                    key={h}
+                    className={`ov-hourcol${h < 3 ? " edge-l" : h > 20 ? " edge-r" : ""}`}
+                    data-tip={tip}
+                    role="img"
+                    aria-label={tip}
+                  >
+                    <div
+                      className="ov-hourbar"
+                      style={{ height: count > 0 ? `${Math.max((count / maxHourCount) * 100, 8)}%` : 2 }}
+                    />
+                  </div>
+                );
+              })}
             </div>
             <div className="ov-hourlabels">
               {/* One span per hour, same flex/gap sizing as .ov-hourbars,
@@ -110,6 +132,44 @@ export default async function OverviewPage() {
           </>
         )}
       </div>
+
+      {!!latestCalls?.length && (
+        <div className="dash-card dash-in d5 ov-panel ov-latest">
+          <div className="ov-latest-head">
+            <h2 style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--text-3)" }}>{t.ovLatest}</h2>
+            <Link href="/dashboard/calls" className="link-quiet" style={{ fontSize: 12.5 }}>{t.ovViewAll} →</Link>
+          </div>
+          <div className="ov-latest-list">
+            {latestCalls.map((c) => {
+              const summary = resolveTranslatable(c.summary, c.translations, "summary", locale, business?.language ?? "es");
+              const when = new Date(c.created_at);
+              return (
+                <Link key={c.id} href={`/dashboard/calls/${c.id}`} className="ov-latest-row">
+                  <span className="ov-latest-ic"><IconPhone width={13} height={13} /></span>
+                  <span className="ov-latest-main">
+                    <b>{c.caller_name || t.unknown}</b>
+                    {summary.text && (
+                      <span className="ov-latest-sum">
+                        {summary.needsFetch
+                          ? <TranslatedField callId={c.id} locale={locale} field="summary" initialText={summary.text} />
+                          : summary.text}
+                      </span>
+                    )}
+                  </span>
+                  <time className="ov-latest-when" dateTime={c.created_at}>
+                    {when.toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: BUSINESS_TZ })}
+                    {" · "}
+                    {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
+                  </time>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Keeps the "live" figures at most a minute old while the tab is open. */}
+      <AutoRefresh seconds={60} />
 
       <AnimateOnRouteEntry
         className="ov-wave" activeClassName="ov-wave-animate" doneClassName="ov-wave-done"
@@ -143,11 +203,43 @@ export default async function OverviewPage() {
           background: radial-gradient(closest-side, transparent 55%, rgba(55,226,155,.16) 100%);
           filter: blur(10px); opacity: .1; z-index: -1; pointer-events: none;
         }
-        .ov-stat-num { font-size: 28px; }
+        .ov-stat-num { font-size: 28px; font-variant-numeric: tabular-nums; }
         .ov-stat-label { font-size: 12px; }
         .ov-panel { position: relative; padding: 24px; }
         .ov-hourbars { display: flex; align-items: flex-end; gap: 2px; height: 80px; border-bottom: 1px solid var(--hair); }
-        .ov-hourbar { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); }
+        .ov-hourcol { position: relative; flex: 1; min-width: 3px; height: 100%; display: flex; align-items: flex-end; }
+        .ov-hourbar { width: 100%; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep)); transition: opacity .18s var(--e-out), filter .18s var(--e-out); }
+        /* Hover one hour: the rest dim, and a tooltip with the exact count
+           appears (the first / last few anchor to the edge so it can't run off the card). */
+        .ov-hourbars:hover .ov-hourbar { opacity: .35; }
+        .ov-hourbars .ov-hourcol:hover .ov-hourbar { opacity: 1; filter: brightness(1.15); }
+        .ov-hourcol::after {
+          content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translate(-50%, 4px);
+          white-space: nowrap; padding: 6px 10px; border-radius: 8px; font-size: 11.5px; line-height: 1.2; color: var(--text);
+          background: rgba(13,16,21,.98); border: 1px solid var(--hair-2); box-shadow: 0 14px 30px -12px rgba(0,0,0,.9);
+          opacity: 0; pointer-events: none; z-index: 5; transition: opacity .16s var(--e-out), transform .16s var(--e-out);
+        }
+        .ov-hourcol.edge-l::after { left: 0; transform: translate(0, 4px); }
+        .ov-hourcol.edge-r::after { left: auto; right: 0; transform: translate(0, 4px); }
+        .ov-hourcol:hover::after { opacity: 1; transform: translate(-50%, 0); }
+        .ov-hourcol.edge-l:hover::after, .ov-hourcol.edge-r:hover::after { transform: translate(0, 0); }
+        .ov-latest { margin-top: 16px; }
+        .ov-latest-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+        .ov-latest-list { display: flex; flex-direction: column; }
+        .ov-latest-row {
+          display: flex; align-items: center; gap: 12px; padding: 11px 10px; margin: 0 -10px; border-radius: 12px;
+          color: inherit; text-decoration: none; transition: background .2s var(--e-out);
+        }
+        .ov-latest-row + .ov-latest-row { border-top: 1px solid var(--hair); border-top-left-radius: 0; border-top-right-radius: 0; }
+        .ov-latest-row:hover { background: rgba(255,255,255,.04); }
+        .ov-latest-ic {
+          width: 30px; height: 30px; border-radius: 50%; flex: none; display: grid; place-items: center;
+          background: rgba(55,226,155,.1); border: 1px solid rgba(55,226,155,.2); color: var(--jade);
+        }
+        .ov-latest-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .ov-latest-main b { font-size: 13.5px; font-weight: 500; }
+        .ov-latest-sum { font-size: 12.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .ov-latest-when { flex: none; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
         .ov-hourlabels { display: flex; gap: 2px; margin-top: 6px; }
         .ov-hourlabels span { flex: 1; min-width: 3px; font-size: 9.5px; color: var(--text-3); text-align: center; }
         /* A neon line lighting up left-to-right, not a blurred bar sliding
