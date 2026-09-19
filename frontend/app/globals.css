@@ -577,10 +577,21 @@ nav.stuck{
      no forced height, the page ran out of scroll room below it, so
      clicking "Contact" clamped to the bottom instead of aligning
      under the nav. Reverted. Uneven gaps are the accepted trade-off
-     of keeping every section reliably full-screen. */
+     of keeping every section reliably full-screen.
+
+     19 Sep 2026: content is centered for EVERY section now, not just the
+     ones that opted in (tour/voice/types). Pricing and Contact were
+     flex-start, and at shorter viewports their own top padding
+     (nav + 6px - 4vh = 42px at 800px tall) came out SMALLER than the
+     fixed nav (70px), so landing on either section put its tag and the
+     top of its heading behind the nav. The padding below is now floored
+     at nav + 12px so that can't happen at any height, and centering
+     keeps short sections optically balanced. min-height is a floor, so
+     a section taller than the screen just grows -- centering never has
+     negative free space to split, and so never clips upward. */
   position:relative;z-index:3;
-  min-height:100svh;display:flex;flex-direction:column;justify-content:flex-start;
-  padding:calc(var(--nav-h) + var(--sp-top) + -4vh) 0 var(--sp-bottom);
+  min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+  padding:max(calc(var(--nav-h) + 12px),calc(var(--nav-h) + var(--sp-top) - 4vh)) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
 /* ---------- slides ----------
@@ -588,26 +599,26 @@ nav.stuck{
    the hero's size: one screen (min-height:100svh here, .app-shell for the
    hero). Keep it that way for anything added later.
 
-   Backgrounds: the hero and the whole Product part (#tour + #voice) share the
-   untinted ambient background. Each later part gets its own tone, taken from
-   the site's own palette (jade accent, the slate of the ambient beam, a deep
-   green-black), so the page never leaves its colours. The change between two
-   parts is a thin fade (48px) plus a hairline on the edge: a clear
-   separation, not a wash. Each part fades in from the previous one's tone.
-   z-index:-1 stays inside .sec's own stacking context: under the content,
-   over the fixed ambient glow. */
+   Backgrounds are neutral only -- no hue, just the near-black lifted or
+   deepened. Three steps, in DOM order:
+     hero + Product (#tour, #voice)   base (untinted ambient background)
+     Pricing + Business types         one continuous lifted block: they read
+                                      as one part, so the tone changes once,
+                                      at Pricing's top, and #types simply
+                                      continues it with no new edge
+     Contact                          deepened, to close the page
+   The change is a short fade (--slide-fade) and nothing else: no hairline,
+   no line of any kind between sections. z-index:-1 keeps the tint inside
+   .sec's own stacking context: under the content, over the ambient glow. */
 :root{
-  --slide-pricing:rgba(18,185,129,.075);   /* jade                      */
-  --slide-types:rgba(120,140,180,.095);    /* slate (ambient beam)      */
-  --slide-contact:rgba(3,30,22,.6);        /* deep green-black          */
-  --slide-fade:48px;
+  --slide-lift:rgba(255,255,255,.026);
+  --slide-deep:rgba(0,0,0,.34);
+  --slide-fade:64px;
 }
-.sec::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
-#pricing::before{background:linear-gradient(180deg,transparent,var(--slide-pricing) var(--slide-fade))}
-#types::before{background:linear-gradient(180deg,var(--slide-pricing),var(--slide-types) var(--slide-fade))}
-#contact::before{background:linear-gradient(180deg,var(--slide-types),var(--slide-contact) var(--slide-fade))}
-/* Product (#tour + #voice) is untinted, so no hairline inside it either. */
-#tour::before,#voice::before{box-shadow:none}
+.sec::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
+#pricing::before{background:linear-gradient(180deg,transparent,var(--slide-lift) var(--slide-fade))}
+#types::before{background:var(--slide-lift)}
+#contact::before{background:linear-gradient(180deg,var(--slide-lift),var(--slide-deep) var(--slide-fade))}
 .sec-head{margin-bottom:var(--sp-head)}
 /* tag -> heading -> subtitle rhythm, tightened */
 /* Pricing's head is now just the centred tag (no heading) — the next
@@ -902,9 +913,9 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 
 @media (max-width:560px){.send{width:100%}}
 
-/* ---- hero CTA (.cta in app/page.tsx): primary "Request a demo" -> #contact,
-   secondary "See pricing" -> #pricing. These later rules win over the earlier
-   .btn-primary above. */
+/* ---- hero CTA: styled and ready, but the hero renders an empty .cta-slot --
+   the buttons were tried and removed. Kept so bringing them back is a small
+   change, not a redesign. These later rules win over the earlier .btn-primary. */
 .btn-primary{
   position:relative;display:inline-flex;align-items:center;gap:9px;overflow:hidden;
   font-size:15px;font-weight:600;letter-spacing:-.01em;color:#04140D;
