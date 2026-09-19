@@ -583,6 +583,21 @@ nav.stuck{
   padding:calc(var(--nav-h) + var(--sp-top) + -4vh) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
+/* Each section is its own "slide": a full-width tint over the shared ambient
+   glow, alternating darker / lighter so every section reads as distinct from
+   the one before it (hero stays untinted). The hairline on top marks the
+   edge. z-index:-1 stays inside .sec's own stacking context, so the tint
+   sits under the content but over the fixed background. */
+.sec::before{
+  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+}
+#tour::before,#types::before,#contact::before{
+  background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.26));
+}
+#voice::before,#pricing::before{
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
+}
 .sec-head{margin-bottom:var(--sp-head)}
 /* tag -> heading -> subtitle rhythm, tightened */
 /* Pricing's head is now just the centred tag (no heading) — the next
