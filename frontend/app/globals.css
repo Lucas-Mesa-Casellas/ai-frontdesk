@@ -596,29 +596,16 @@ nav.stuck{
 }
 /* ---------- slides ----------
    Every part of the landing page is one "slide" and every slide is exactly
-   the hero's size: one screen (min-height:100svh here, .app-shell for the
+   the hero's size: one screen (min-height:100svh above, .app-shell for the
    hero). Keep it that way for anything added later.
 
-   Backgrounds are neutral only -- no hue, just the near-black lifted or
-   deepened. Three steps, in DOM order:
-     hero + Product (#tour, #voice)   base (untinted ambient background)
-     Pricing + Business types         one continuous lifted block: they read
-                                      as one part, so the tone changes once,
-                                      at Pricing's top, and #types simply
-                                      continues it with no new edge
-     Contact                          deepened, to close the page
-   The change is a short fade (--slide-fade) and nothing else: no hairline,
-   no line of any kind between sections. z-index:-1 keeps the tint inside
-   .sec's own stacking context: under the content, over the ambient glow. */
-:root{
-  --slide-lift:rgba(255,255,255,.026);
-  --slide-deep:rgba(0,0,0,.34);
-  --slide-fade:64px;
-}
-.sec::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
-#pricing::before{background:linear-gradient(180deg,transparent,var(--slide-lift) var(--slide-fade))}
-#types::before{background:var(--slide-lift)}
-#contact::before{background:linear-gradient(180deg,var(--slide-lift),var(--slide-deep) var(--slide-fade))}
+   There is NO per-section background. The whole page is the one near-black
+   surface, with the ambient glow behind it and nothing else -- no tint, no
+   step between light and dark, no hairline, no divider. Section tints were
+   tried three times (hue, then neutral light/dark, then a single lifted
+   block) and removed each time. Sections are told apart by their content and
+   the space around it, which is what the rest of the page's restraint is
+   built on. Don't reintroduce a tint here. */
 .sec-head{margin-bottom:var(--sp-head)}
 /* tag -> heading -> subtitle rhythm, tightened */
 /* Pricing's head is now just the centred tag (no heading) — the next
