@@ -902,10 +902,9 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 
 @media (max-width:560px){.send{width:100%}}
 
-/* ---- hero CTA: styled and ready, JSX commented out until the demo exists ----
-   Dormant — nothing renders these until app/page.tsx uncomments the block
-   in .cta-slot. Kept here so uncommenting is a one-line change, not a
-   redesign. */
+/* ---- hero CTA (.cta in app/page.tsx): primary "Request a demo" -> #contact,
+   secondary "See pricing" -> #pricing. These later rules win over the earlier
+   .btn-primary above. */
 .btn-primary{
   position:relative;display:inline-flex;align-items:center;gap:9px;overflow:hidden;
   font-size:15px;font-weight:600;letter-spacing:-.01em;color:#04140D;
