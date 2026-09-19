@@ -6,8 +6,8 @@ type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
 
 // The real clips don't exist yet (being generated separately). Until they do,
-// the players render disabled with a "recordings coming soon" state, so the
-// section reads as intentional on the live page. Once
+// the players render disabled: the card, the waveform and the timer are all
+// there, the play button just doesn't respond. No "coming soon" label. Once
 // public/tour/<en|es|fr>/welcome.<AUDIO_EXT> are in place, flip this to true
 // -- that is the only change needed (the layout doesn't change).
 export const VOICE_SAMPLES_READY = false;
@@ -34,7 +34,6 @@ const COPY = {
   play: { EN: "Play", ES: "Reproducir", FR: "Lire" } as L10n,
   pause: { EN: "Pause", ES: "Pausa", FR: "Pause" } as L10n,
   seek: { EN: "Position", ES: "Posición", FR: "Position" } as L10n,
-  soon: { EN: "Recordings coming soon", ES: "Grabaciones próximamente", FR: "Enregistrements bientôt disponibles" } as L10n,
 };
 
 // Fixed, decorative bar heights (a waveform look, not the real waveform) --
@@ -185,14 +184,6 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
           ))}
         </ul>
 
-        {/* Once, under the grid -- it applies to all three cards, and the same
-            pill repeated inside each one was just noise. */}
-        {!VOICE_SAMPLES_READY && (
-          <p className="vs-soon">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
-            {COPY.soon[lang]}
-          </p>
-        )}
       </div>
 
       <style>{`
@@ -201,10 +192,9 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .sec.voice { justify-content: center; }
         .voice .sec-h { min-height: 0; }
         .voice .sec-sub { min-height: 0; }
-        .vs-top, .vs-grid, .vs-soon { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
-        .voice.seen .vs-top, .voice.seen .vs-grid, .voice.seen .vs-soon { opacity: 1; transform: none; }
+        .vs-top, .vs-grid { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
+        .voice.seen .vs-top, .voice.seen .vs-grid { opacity: 1; transform: none; }
         .voice.seen .vs-grid { transition-delay: .1s; }
-        .voice.seen .vs-soon { transition-delay: .18s; }
 
         .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; }
         .vs-card {
@@ -247,13 +237,6 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .vs-time { flex: none; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-3); min-width: 6.4em; text-align: right; }
 
         .vs-text { font-size: 13px; line-height: 1.55; color: var(--text-2); font-style: italic; }
-        .vs-soon {
-          display: flex; width: fit-content; margin: 22px auto 0; align-items: center; gap: 7px;
-          font-size: 12.5px; font-weight: 500; color: var(--text-2);
-          padding: 7px 14px; border-radius: var(--r-pill);
-          background: rgba(255,255,255,.035); border: 1px solid var(--hair);
-        }
-        .vs-soon svg { width: 14px; height: 14px; stroke: var(--jade); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
         @media (max-width: 1000px) {
           .vs-grid { grid-template-columns: 1fr; max-width: 520px; }
@@ -265,7 +248,7 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
           .vs-wave { height: 44px; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .vs-top, .vs-grid, .vs-soon { transition: none; opacity: 1; transform: none; }
+          .vs-top, .vs-grid { transition: none; opacity: 1; transform: none; }
           .vs-card:not(.off):hover { transform: none; }
         }
       `}</style>
