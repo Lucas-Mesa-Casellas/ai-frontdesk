@@ -190,9 +190,9 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
       </div>
 
       <style>{`
-        /* A compact band, not a full-screen section: it's one row of players,
-           so forcing 100svh would just be empty space. */
-        .sec.voice { min-height: 0; justify-content: flex-start; padding: clamp(56px, 8vh, 96px) 0 0; }
+        /* Same size as every other slide (one screen), content centered
+           like Business types. */
+        .sec.voice { justify-content: center; }
         .voice .sec-h { min-height: 0; }
         .voice .sec-sub { min-height: 0; }
         .vs-top, .vs-grid { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }

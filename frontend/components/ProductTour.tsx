@@ -503,7 +503,9 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           .tour-copy { text-align: center; margin-bottom: 14px; }
           .tour-copy h3 { font-size: 19px; margin-bottom: 4px; }
           .tour-copy p { font-size: 14px; max-width: 62ch; margin: 0 auto; }
-          .tour-frame { width: 100%; min-width: 0; }
+          /* Height-aware here too, so the stacked slide is still one screen
+             (title + blurb above the frame need ~365px of the height). */
+          .tour-frame { width: min(100%, max(320px, calc((100svh - 365px) * var(--tour-aspect)))); min-width: 0; }
         }
         /* Phones: no hover, and a floating note would run off a 375px screen,
            so the note shows in a caption under the screenshot instead. */

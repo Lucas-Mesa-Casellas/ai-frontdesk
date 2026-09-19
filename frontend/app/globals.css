@@ -583,21 +583,47 @@ nav.stuck{
   padding:calc(var(--nav-h) + var(--sp-top) + -4vh) 0 var(--sp-bottom);
   scroll-margin-top:calc(var(--nav-h) + 8px);
 }
-/* Each section is its own "slide": a full-width tint over the shared ambient
-   glow, alternating darker / lighter so every section reads as distinct from
-   the one before it (hero stays untinted). The hairline on top marks the
-   edge. z-index:-1 stays inside .sec's own stacking context, so the tint
-   sits under the content but over the fixed background. */
-.sec::before{
-  content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+/* ---------- slides ----------
+   Every part of the landing page is one "slide" and every slide is exactly
+   the hero's size: one screen (min-height:100svh here, .app-shell for the
+   hero). Keep it that way for anything added later.
+
+   Backgrounds: the hero and the whole Product part (#tour + #voice) share the
+   untinted ambient background. Each later part has its own hue (no
+   dark/light alternation), and its top blends in from the previous part's
+   hue, so the change is a smooth wash instead of a hard edge. z-index:-1 stays
+   inside .sec's own stacking context: under the content, over the fixed
+   ambient glow. */
+:root{
+  --slide-types:rgba(28,104,158,.17);    /* blue    */
+  --slide-pricing:rgba(98,74,196,.17);   /* violet  */
+  --slide-contact:rgba(196,88,116,.14);  /* rose    */
 }
-#tour::before,#types::before,#contact::before{
-  background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.26));
+.sec::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
+#types::before{background:linear-gradient(180deg,transparent,var(--slide-types) 32%)}
+#pricing::before{background:linear-gradient(180deg,var(--slide-types),var(--slide-pricing) 32%)}
+#contact::before{background:linear-gradient(180deg,var(--slide-pricing),var(--slide-contact) 32%)}
+
+/* Product is one background, so the seam between the dashboard and the voice
+   samples is drawn instead: a soft green line with two slow sine waves
+   drifting across it. */
+#voice::before{
+  inset:0 0 auto 0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(55,226,155,.55) 50%,transparent);
+  box-shadow:0 0 26px 2px rgba(55,226,155,.16);
 }
-#voice::before,#pricing::before{
-  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
+#voice::after{
+  content:"";position:absolute;left:0;right:0;top:-15px;height:30px;z-index:1;pointer-events:none;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='30' viewBox='0 0 160 30'%3E%3Cpath d='M0 15Q20 -1 40 15T80 15T120 15T160 15' fill='none' stroke='%2337E29B' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x 0 50% / 160px 30px,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='30' viewBox='0 0 240 30'%3E%3Cpath d='M0 15Q30 5 60 15T120 15T180 15T240 15' fill='none' stroke='%2337E29B' stroke-opacity='.45' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x 0 50% / 240px 30px;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent);
+  opacity:.8;
+  animation:secWave 9s linear infinite;
 }
+@keyframes secWave{to{background-position:160px 50%,-240px 50%}}
+@media (prefers-reduced-motion:reduce){#voice::after{animation:none}}
 .sec-head{margin-bottom:var(--sp-head)}
 /* tag -> heading -> subtitle rhythm, tightened */
 /* Pricing's head is now just the centred tag (no heading) — the next
@@ -776,7 +802,7 @@ nav.stuck{
   .fld textarea{min-height:48px}
 }
 @media (max-width:1000px){
-  .sec{min-height:0;padding:clamp(72px,9vh,96px) 0;justify-content:center}
+  .sec{padding:clamp(72px,9vh,96px) 0;justify-content:center}  /* still >= one screen, like the hero */
   main{padding-bottom:64px}
   .sec-h,.sec-sub{min-height:0}
   .tiers{grid-template-columns:1fr;gap:14px}
