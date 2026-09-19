@@ -589,41 +589,25 @@ nav.stuck{
    hero). Keep it that way for anything added later.
 
    Backgrounds: the hero and the whole Product part (#tour + #voice) share the
-   untinted ambient background. Each later part has its own hue (no
-   dark/light alternation), and its top blends in from the previous part's
-   hue, so the change is a smooth wash instead of a hard edge. z-index:-1 stays
-   inside .sec's own stacking context: under the content, over the fixed
-   ambient glow. */
+   untinted ambient background. Each later part gets its own tone, taken from
+   the site's own palette (jade accent, the slate of the ambient beam, a deep
+   green-black), so the page never leaves its colours. The change between two
+   parts is a thin fade (48px) plus a hairline on the edge: a clear
+   separation, not a wash. Each part fades in from the previous one's tone.
+   z-index:-1 stays inside .sec's own stacking context: under the content,
+   over the fixed ambient glow. */
 :root{
-  --slide-types:rgba(28,104,158,.17);    /* blue    */
-  --slide-pricing:rgba(98,74,196,.17);   /* violet  */
-  --slide-contact:rgba(196,88,116,.14);  /* rose    */
+  --slide-pricing:rgba(18,185,129,.075);   /* jade                      */
+  --slide-types:rgba(120,140,180,.095);    /* slate (ambient beam)      */
+  --slide-contact:rgba(3,30,22,.6);        /* deep green-black          */
+  --slide-fade:48px;
 }
-.sec::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none}
-#types::before{background:linear-gradient(180deg,transparent,var(--slide-types) 32%)}
-#pricing::before{background:linear-gradient(180deg,var(--slide-types),var(--slide-pricing) 32%)}
-#contact::before{background:linear-gradient(180deg,var(--slide-pricing),var(--slide-contact) 32%)}
-
-/* Product is one background, so the seam between the dashboard and the voice
-   samples is drawn instead: a soft green line with two slow sine waves
-   drifting across it. */
-#voice::before{
-  inset:0 0 auto 0;height:1px;
-  background:linear-gradient(90deg,transparent,rgba(55,226,155,.55) 50%,transparent);
-  box-shadow:0 0 26px 2px rgba(55,226,155,.16);
-}
-#voice::after{
-  content:"";position:absolute;left:0;right:0;top:-15px;height:30px;z-index:1;pointer-events:none;
-  background:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='30' viewBox='0 0 160 30'%3E%3Cpath d='M0 15Q20 -1 40 15T80 15T120 15T160 15' fill='none' stroke='%2337E29B' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x 0 50% / 160px 30px,
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='30' viewBox='0 0 240 30'%3E%3Cpath d='M0 15Q30 5 60 15T120 15T180 15T240 15' fill='none' stroke='%2337E29B' stroke-opacity='.45' stroke-width='1' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x 0 50% / 240px 30px;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent);
-  opacity:.8;
-  animation:secWave 9s linear infinite;
-}
-@keyframes secWave{to{background-position:160px 50%,-240px 50%}}
-@media (prefers-reduced-motion:reduce){#voice::after{animation:none}}
+.sec::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
+#pricing::before{background:linear-gradient(180deg,transparent,var(--slide-pricing) var(--slide-fade))}
+#types::before{background:linear-gradient(180deg,var(--slide-pricing),var(--slide-types) var(--slide-fade))}
+#contact::before{background:linear-gradient(180deg,var(--slide-types),var(--slide-contact) var(--slide-fade))}
+/* Product (#tour + #voice) is untinted, so no hairline inside it either. */
+#tour::before,#voice::before{box-shadow:none}
 .sec-head{margin-bottom:var(--sp-head)}
 /* tag -> heading -> subtitle rhythm, tightened */
 /* Pricing's head is now just the centred tag (no heading) — the next
