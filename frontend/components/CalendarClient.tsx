@@ -154,13 +154,17 @@ export default function CalendarClient({
                   <>
                     <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>{day}</span>
                     {bookings.length > 0 && (
-                      // A flex row centered as a group, one number per
-                      // distinct status color that day (not a single
-                      // merged count) -- gap keeps them from touching
-                      // when more than one renders.
-                      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 4, marginTop: 4, width: "100%" }}>
+                      // One row per distinct status color that day, stacked
+                      // top to bottom in DAY_COLOR_PRIORITY order: the
+                      // count next to a short line in that status's color
+                      // (echoing the legend's line swatches). The stack is
+                      // centered as a group in the cell.
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0, marginTop: 1, width: "100%" }}>
                         {dayColorGroups(bookings).map(([color, count]) => (
-                          <span key={color} style={{ fontSize: 13, fontWeight: 700, color }}>{count}</span>
+                          <div key={color} style={{ display: "flex", alignItems: "center", gap: 3, lineHeight: 1.05 }}>
+                            <span style={{ fontSize: 11, fontWeight: 700, color }}>{count}</span>
+                            <span style={{ width: 11, height: 2, borderRadius: 2, background: color, flex: "none" }} />
+                          </div>
                         ))}
                       </div>
                     )}
