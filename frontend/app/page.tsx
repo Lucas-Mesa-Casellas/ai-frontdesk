@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import ProductTour, { TOUR_SCREENSHOTS_READY } from "@/components/ProductTour";
+import VoiceSamples, { VOICE_SAMPLES_READY } from "@/components/VoiceSamples";
 import BusinessTypes from "@/components/BusinessTypes";
 
 const SPOKES = 44;
@@ -230,8 +231,9 @@ export default function Home() {
   const [activeSec, setActiveSec] = useState("product");
   const [cueGone, setCueGone] = useState(false);
   const [sendState, setSendState] = useState<SendState>("idle");
-  // The dashboard tour has placeholder slots until the real screenshots
-  // exist, so it is hidden from the public site unless ?tour=preview.
+  // The dashboard tour and voice samples have placeholder slots until the
+  // real screenshots / audio exist, so both are hidden from the public site
+  // unless ?tour=preview.
   const [tourPreview, setTourPreview] = useState(false);
   useEffect(() => { setTourPreview(new URLSearchParams(window.location.search).has("tour")); }, []);
 
@@ -678,6 +680,7 @@ export default function Home() {
       {/* ===== end app-shell ===== */}
 
       {(TOUR_SCREENSHOTS_READY || tourPreview) && <ProductTour lang={lang} />}
+      {(VOICE_SAMPLES_READY || tourPreview) && <VoiceSamples lang={lang} />}
 
       <section className="sec" id="pricing">
         <div className="wrap">
