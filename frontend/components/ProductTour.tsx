@@ -39,8 +39,6 @@ type Slide = {
 const COPY = {
   tag: { EN: "Dashboard", ES: "Panel de control", FR: "Tableau de bord" } as L10n,
   heading: { EN: "This is what you'll have access to.", ES: "Esto es a lo que tendrás acceso.", FR: "Voici à quoi vous aurez accès." } as L10n,
-  hintDesktop: { EN: "Hover the dots to see what each part does.", ES: "Pasa el ratón por los puntos para ver qué hace cada parte.", FR: "Survolez les points pour voir à quoi sert chaque zone." } as L10n,
-  hintTouch: { EN: "Tap a dot to see what each part does.", ES: "Toca un punto para ver qué hace cada parte.", FR: "Touchez un point pour voir à quoi sert chaque zone." } as L10n,
   soon: { EN: "Illustrative preview", ES: "Vista ilustrativa", FR: "Aperçu illustratif" } as L10n,
   prev: { EN: "Previous", ES: "Anterior", FR: "Précédent" } as L10n,
   next: { EN: "Next", ES: "Siguiente", FR: "Suivant" } as L10n,
@@ -378,11 +376,10 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           </div>
         </div>
 
-        {/* Outside the two-column slide so it centers on the page axis (like
-            the heading and tabs), not under the screenshot alone. */}
+        {/* Only carries the tapped hotspot's note, and only on phones (where
+            the floating tooltips are hidden). It collapses to nothing the
+            rest of the time -- there's no standing instruction line. */}
         <p className={`tour-cap${activeNote ? " has-note" : ""}`} aria-live="polite">
-          <span className="cap-hint cap-hint-d">{COPY.hintDesktop[lang]}</span>
-          <span className="cap-hint cap-hint-t">{COPY.hintTouch[lang]}</span>
           {activeNote && <span className="cap-note">{activeNote}</span>}
         </p>
       </div>
@@ -417,21 +414,18 @@ export default function ProductTour({ lang }: { lang: Lang }) {
 
         .tour.seen .tour-slide { animation: tourIn .5s var(--e-out); }
         @keyframes tourIn { from { opacity: .0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-        /* Wide screens: title + blurb sit beside the screenshot instead of
-           stacked above it, so the frame gets the vertical space.
-           Both tracks have a bounded size -- the image track is exactly the
-           frame's own width formula (below), not 1fr -- so the pair is a
-           fixed-size unit that justify-content centers as a whole, the way
-           the tabs above it are centered. (With 1fr the image track
-           stretched to fill the row and the frame floated inside it, so the
-           text-to-image gap grew and the pair sat off-center.) minmax(0, X)
-           still lets the image track shrink on a narrower window. */
-        .tour-slide {
-          display: grid; grid-template-columns: minmax(220px, 300px) minmax(0, calc((100svh - 397px) * var(--tour-aspect)));
-          gap: clamp(64px, 9vw, 170px); align-items: center; justify-content: center; max-width: 1420px; margin-inline: auto;
-        }
-        .tour-copy h3 { font-size: 24px; font-weight: 600; letter-spacing: -.03em; line-height: 1.15; margin-bottom: 10px; }
-        .tour-copy p { font-size: 15px; line-height: 1.6; color: var(--text-2); }
+        /* One centred column: tag, heading, tabs, the slide's own title and
+           line, then the screenshot. It used to be a two-column grid with the
+           title/blurb in a narrow left column beside the frame, which put an
+           off-centre block under a centred heading and centred tabs. Stacked
+           and centred, the whole section reads down one axis and the frame
+           gets the full width instead of sharing the row. */
+        .tour-slide { display: block; }
+        .tour-copy { text-align: center; max-width: 60ch; margin: 0 auto 16px; }
+        .tour-copy h3 { font-size: 20px; font-weight: 600; letter-spacing: -.03em; line-height: 1.2; margin-bottom: 4px; }
+        /* Two lines reserved: the blurbs differ in length, and without this
+           the frame below would jump as you move between tabs. */
+        .tour-copy p { font-size: 15px; line-height: 1.6; color: var(--text-2); min-height: 3.2em; }
         .tour-stage { min-width: 0; }
 
         /* Sized so the whole slide fits one screen on desktop: width follows
@@ -440,7 +434,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           /* 100svh minus everything above/below the screenshot (nav, heading,
              tabs, caption, padding) minus the 30px window chrome, times the
              aspect ratio: keeps the whole slide on one screen. */
-          width: min(100%, calc((100svh - 397px) * var(--tour-aspect)));
+          width: min(100%, calc((100svh - 409px) * var(--tour-aspect)));
           min-width: min(100%, 520px);
           margin: 0 auto; border-radius: 16px; overflow: visible;
           background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.016));
@@ -515,18 +509,17 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .hs.open .hs-note { opacity: 1; transform: translateY(-50%) scale(1); }
         .hs.open .hs-note.u { transform: translateY(0) scale(1); }
 
-        .tour-cap { margin-top: 14px; text-align: center; font-size: 12.5px; color: var(--text-3); min-height: 1.5em; }
-        .cap-hint-t, .cap-note { display: none; }
+        /* No height of its own: empty on desktop, and on phones it only grows
+           when a dot has been tapped. */
+        .tour-cap { text-align: center; font-size: 12.5px; color: var(--text-3); }
+        .cap-note { display: none; }
 
-        /* Not enough width for the side column: stack it, centered. */
         @media (max-width: 1100px) {
-          .tour-slide { display: block; }
-          .tour-copy { text-align: center; margin-bottom: 14px; }
+          .tour-copy { margin-bottom: 14px; }
           .tour-copy h3 { font-size: 19px; margin-bottom: 4px; }
-          .tour-copy p { font-size: 14px; max-width: 62ch; margin: 0 auto; }
-          /* Height-aware here too, so the stacked slide is still one screen
-             (title + blurb above the frame need ~365px of the height). */
-          .tour-frame { width: min(100%, max(320px, calc((100svh - 377px) * var(--tour-aspect)))); min-width: 0; }
+          .tour-copy p { font-size: 14px; max-width: 62ch; min-height: 3em; }
+          /* Height-aware here too, so the slide is still one screen. */
+          .tour-frame { width: min(100%, max(320px, calc((100svh - 425px) * var(--tour-aspect)))); min-width: 0; }
         }
         /* Phones: no hover, and a floating note would run off a 375px screen,
            so the note shows in a caption under the screenshot instead. */
@@ -537,9 +530,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           .hs-note { display: none; }
           .hs-dot { width: 32px; height: 32px; font-size: 12.5px; }
           .hs-dot::after { content: ""; position: absolute; inset: -7px; } /* 46px tap target */
-          .cap-hint-d { display: none; }
-          .cap-hint-t { display: inline; }
-          .tour-cap.has-note .cap-hint { display: none; }
+          .tour-cap.has-note { margin-top: 14px; }
           .cap-note { display: block; font-size: 14px; line-height: 1.55; color: var(--text); padding: 12px 14px; border-radius: 12px; text-align: left; background: rgba(55,226,155,.07); border: 1px solid rgba(55,226,155,.2); }
         }
         @media (max-width: 480px) {
