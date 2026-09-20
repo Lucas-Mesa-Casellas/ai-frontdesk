@@ -23,7 +23,7 @@ const LANG_NAME: L10n = { EN: "English", ES: "Español", FR: "Français" };
 const TRANSCRIPT: L10n = { EN: "", ES: "", FR: "" };
 
 const COPY = {
-  tag: { EN: "Voice", ES: "Voz", FR: "Voix" } as L10n,
+  tag: { EN: "Voice & languages", ES: "Voz e idiomas", FR: "Voix et langues" } as L10n,
   heading: { EN: "Hear how it answers.", ES: "Escucha cómo contesta.", FR: "Écoutez comment il répond." } as L10n,
   sub: {
     EN: "The welcome message your callers hear, in each language.",
@@ -111,7 +111,9 @@ function VoiceCard({
         <span className="vs-code">{code}</span>
         <span className="vs-names">
           <b>{LANG_NAME[code]}</b>
-          <span>{COPY.label[uiLang]}</span>
+          {/* In the card's own language: the Spanish card says "Mensaje de
+              bienvenida", the French one "Message d'accueil". */}
+          <span>{COPY.label[code]}</span>
         </span>
       </div>
 
@@ -173,7 +175,7 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
     <section ref={rootRef} className={`sec voice${seen ? " seen" : ""}`} id="voice" aria-label={COPY.heading[lang]}>
       <div className="wrap">
         <div className="sec-head mid vs-top">
-          <div className="sec-tag">{COPY.tag[lang]}</div>
+          <div className="sec-tag">3 / 6 — {COPY.tag[lang]}</div>
           <h2 className="sec-h">{COPY.heading[lang]}</h2>
           <p className="sec-sub">{COPY.sub[lang]}</p>
         </div>
@@ -199,11 +201,11 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; }
         .vs-card {
           display: flex; flex-direction: column; gap: 18px; padding: 24px 22px 22px; border-radius: var(--r-xl);
-          background: linear-gradient(180deg, rgba(255,255,255,.042), rgba(255,255,255,.014));
-          border: 1px solid var(--hair); box-shadow: 0 34px 70px -40px rgba(0,0,0,.9);
+          background: linear-gradient(180deg, rgba(18,185,129,.05), rgba(255,255,255,.014) 60%);
+          border: 1px solid rgba(55,226,155,.14); box-shadow: 0 34px 70px -40px rgba(0,0,0,.9);
           transition: border-color .4s var(--e-out), transform .4s var(--e-out), box-shadow .4s var(--e-out);
         }
-        .vs-card:not(.off):hover { transform: translateY(-3px); border-color: var(--hair-2); box-shadow: 0 42px 84px -42px rgba(0,0,0,.95); }
+        .vs-card:not(.off):hover { transform: translateY(-3px); border-color: rgba(55,226,155,.3); box-shadow: 0 42px 84px -42px rgba(0,0,0,.95); }
         .vs-card.here { border-color: rgba(55,226,155,.3); box-shadow: 0 34px 70px -40px rgba(0,0,0,.9), 0 0 0 1px rgba(55,226,155,.08); }
         .vs-head { display: flex; align-items: center; gap: 12px; }
         .vs-code {
@@ -217,21 +219,22 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .vs-player { display: flex; align-items: center; gap: 12px; }
         .vs-btn {
           flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
-          color: #04140D; background: linear-gradient(180deg, #5CEBAF, var(--jade-2));
-          box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 10px 24px -10px rgba(18,185,129,.65);
-          transition: transform .24s var(--e-out), box-shadow .24s var(--e-out), opacity .2s;
+          color: var(--jade); background: rgba(55,226,155,.06); border: 1.5px solid rgba(55,226,155,.7);
+          box-shadow: 0 0 22px -8px rgba(18,185,129,.6);
+          transition: transform .24s var(--e-out), box-shadow .24s var(--e-out), opacity .2s, background .2s, color .2s;
         }
-        .vs-btn:hover:not(:disabled) { transform: translateY(-1.5px); }
-        .vs-btn:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+        .vs-btn:hover:not(:disabled) { transform: translateY(-1.5px); background: rgba(55,226,155,.14); }
+        .vs-btn.on { color: #04140D; background: linear-gradient(180deg, #5CEBAF, var(--jade-2)); border-color: transparent; }
+        .vs-btn:disabled { opacity: .55; cursor: default; }
         .vs-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
         .vs-btn svg.play { fill: currentColor; stroke: none; margin-left: 2px; }
 
         .vs-wave { position: relative; flex: 1; min-width: 0; height: 52px; border-radius: 8px; }
         .vs-wave:focus-within { outline: 2px solid rgba(55,226,155,.55); outline-offset: 3px; }
         .vs-bars { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; }
-        .vs-bars i { flex: 1; min-width: 1px; border-radius: 2px; background: rgba(255,255,255,.16); transition: background .15s; }
+        .vs-bars i { flex: 1; min-width: 1px; border-radius: 2px; background: rgba(55,226,155,.42); transition: background .15s; }
         .vs-bars i.done { background: var(--jade); }
-        .vs-card.off .vs-bars i { background: rgba(255,255,255,.08); }
+        .vs-card.off .vs-bars i { background: rgba(55,226,155,.34); }
         .vs-wave input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
         .vs-wave input:disabled { cursor: default; }
         .vs-time { flex: none; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-3); min-width: 6.4em; text-align: right; }

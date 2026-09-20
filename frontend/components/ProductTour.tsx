@@ -39,6 +39,8 @@ type Slide = {
 const COPY = {
   tag: { EN: "Dashboard", ES: "Panel de control", FR: "Tableau de bord" } as L10n,
   heading: { EN: "This is what you'll have access to.", ES: "Esto es a lo que tendrás acceso.", FR: "Voici à quoi vous aurez accès." } as L10n,
+  peak: { EN: "Peak time", ES: "Hora punta", FR: "Heure de pointe" } as L10n,
+  peakSub: { EN: "Most calls answered", ES: "Más llamadas atendidas", FR: "Le plus d'appels traités" } as L10n,
   soon: { EN: "Illustrative preview", ES: "Vista ilustrativa", FR: "Aperçu illustratif" } as L10n,
   prev: { EN: "Previous", ES: "Anterior", FR: "Précédent" } as L10n,
   next: { EN: "Next", ES: "Siguiente", FR: "Suivant" } as L10n,
@@ -177,23 +179,46 @@ type Block = { x: number; y: number; w: number; h: number; k?: string; t?: strin
 function mockBlocks(id: SlideId, lang: Lang, title: string): Block[] {
   const d = DASH_T[lang.toLowerCase() as "en" | "es" | "fr"];
   const b: Block[] = [
-    { x: 0, y: 0, w: 14, h: 100, k: "side" },
-    { x: 2.6, y: 6, w: 3.6, h: 5.6, k: "jade" },
-    { x: 7.2, y: 7.6, w: 5, h: 2.4, k: "line" },
+    { x: 0, y: 0, w: 15, h: 100, k: "side" },
+    { x: 2.4, y: 6, w: 3.4, h: 5.4, k: "jade" },
+    { x: 6.6, y: 7.4, w: 8, h: 3, k: "t b", t: "LMC Agents", fs: 1.15 },
   ];
   const active = { overview: 0, calls: 1, calendar: 2, support: 3 }[id];
-  for (let r = 0; r < 5; r++) b.push({ x: 2.6, y: 20 + r * 8, w: 9, h: 2.8, k: r === active ? "jade" : "line" });
+  // the same five pages, in the same order, as the real dashboard sidebar
+  const nav = [d.navOverview, d.navCalls, d.navCalendar, d.navSupport, d.navSettings];
+  nav.forEach((label, r) => {
+    const y = 19 + r * 7.4;
+    if (r === active) b.push({ x: 1.2, y: y - 0.9, w: 12.6, h: 5.6, k: "navon" });
+    b.push({ x: 2.6, y, w: 10.6, h: 3.8, k: r === active ? "t nav on" : "t nav", t: label, fs: 1.2 });
+  });
 
   if (id === "overview") {
     b.push({ x: 18, y: 8, w: 40, h: 5, k: "t b", t: title, fs: 2.5 }, { x: 18, y: 13.6, w: 40, h: 3, k: "t m", t: d.ovSub, fs: 1.3 });
     const nums = ["128", "34", "27%"], labels = [d.statCalls, d.statBookings, d.statConv];
     for (let i = 0; i < 3; i++) {
       const x = 18 + i * 27;
-      b.push({ x, y: 19, w: 24, h: 15, k: "card" }, { x: x + 2, y: 21.5, w: 20, h: 7, k: "t b", t: nums[i], fs: 3.6 }, { x: x + 2, y: 29.6, w: 21, h: 3, k: "t m", t: labels[i], fs: 1.25 });
+      b.push(
+        { x, y: 19, w: 24, h: 15, k: "card" },
+        { x: x + 2, y: 22.4, w: 4.6, h: 7.2, k: "ic" },
+        { x: x + 8, y: 21.5, w: 15, h: 7, k: "t b", t: nums[i], fs: 3.4 },
+        { x: x + 8, y: 29.6, w: 15.5, h: 3, k: "t m", t: labels[i], fs: 1.15 },
+      );
     }
-    b.push({ x: 18, y: 38, w: 78, h: 54, k: "card" }, { x: 20.5, y: 40.8, w: 50, h: 3, k: "t m up", t: d.hourChartTitle.toUpperCase(), fs: 1.05 });
+    b.push({ x: 18, y: 38, w: 78, h: 51, k: "card" }, { x: 20.5, y: 40.8, w: 50, h: 3, k: "t m up", t: d.hourChartTitle.toUpperCase(), fs: 1.05 });
     const hs = [3, 2, 1, 1, 0, 0, 1, 2, 5, 9, 12, 14, 11, 10, 12, 9, 6, 4, 3, 5, 3, 2, 1, 1];
-    hs.forEach((v, i) => b.push({ x: 20.5 + i * 3.05, y: 88 - v * 2.9, w: 2.3, h: v * 2.9, k: v > 10 ? "jade" : "bar" }));
+    hs.forEach((v, i) => b.push({ x: 20.5 + i * 3.05, y: 84.6 - v * 2.7, w: 2.3, h: v * 2.7, k: v > 10 ? "jade" : "bar" }));
+    // x axis
+    [0, 6, 12, 18, 24].forEach((h) => b.push({ x: 19.4 + h * 3.05, y: 85.9, w: 7, h: 2.6, k: "t m ax", t: `${String(h).padStart(2, "0")}:00`, fs: 0.9 }));
+    // peak callout, computed from the sample bars above (the tallest one)
+    const pk = hs.indexOf(Math.max(...hs));
+    const hh = (n: number) => `${String(n).padStart(2, "0")}:00`;
+    b.push(
+      { x: 74, y: 41.5, w: 20, h: 13.5, k: "peak" },
+      { x: 76.4, y: 44.6, w: 5, h: 8, k: "ic round" },
+      { x: 83, y: 43.6, w: 11, h: 3, k: "t b", t: COPY.peak[lang], fs: 1.1 },
+      { x: 83, y: 47, w: 11, h: 3, k: "t", t: `${hh(pk)} – ${hh(pk + 1)}`, fs: 1.05 },
+      { x: 83, y: 50.6, w: 11.5, h: 3, k: "t m", t: COPY.peakSub[lang], fs: 0.85 },
+    );
   }
   if (id === "calls") {
     b.push({ x: 18, y: 8, w: 40, h: 5, k: "t b", t: title, fs: 2.5 });
@@ -303,8 +328,12 @@ export default function ProductTour({ lang }: { lang: Lang }) {
     >
       <div className="wrap">
         <div className="sec-head mid tour-head">
-          <div className="sec-tag">{COPY.tag[lang]}</div>
+          <div className="sec-tag">2 / 6 — {COPY.tag[lang]}</div>
           <h2 className="sec-h">{COPY.heading[lang]}</h2>
+          {/* The current tab's one-liner, under the heading like the subline
+              of any section. Two lines reserved so the frame below doesn't
+              jump between tabs. */}
+          <p className="sec-sub tour-sub" key={`${slide.id}-${lang}`}>{slide.blurb[lang]}</p>
         </div>
 
         <div className="tour-nav">
@@ -327,11 +356,6 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         </div>
 
         <div className="tour-slide" key={`${slide.id}-${lang}`} role="tabpanel" style={{ ["--tour-aspect" as string]: ASPECT }}>
-          <div className="tour-copy">
-            <h3>{slide.title[lang]}</h3>
-            <p>{slide.blurb[lang]}</p>
-          </div>
-
           <div className="tour-stage">
           <div className="tour-frame">
             <div className="tour-chrome" aria-hidden="true"><i /><i /><i /></div>
@@ -421,11 +445,10 @@ export default function ProductTour({ lang }: { lang: Lang }) {
            and centred, the whole section reads down one axis and the frame
            gets the full width instead of sharing the row. */
         .tour-slide { display: block; }
-        .tour-copy { text-align: center; max-width: 60ch; margin: 0 auto 16px; }
-        .tour-copy h3 { font-size: 20px; font-weight: 600; letter-spacing: -.03em; line-height: 1.2; margin-bottom: 4px; }
-        /* Two lines reserved: the blurbs differ in length, and without this
-           the frame below would jump as you move between tabs. */
-        .tour-copy p { font-size: 15px; line-height: 1.6; color: var(--text-2); min-height: 3.2em; }
+        .tour-head { margin-bottom: 18px; }
+        /* .tour prefix: the global .sec-head.mid .sec-sub sets min-height and
+           margin, and outranks a bare class. */
+        .tour .sec-head.mid .tour-sub { max-width: 60ch; margin: 10px auto 0; min-height: 3.2em; }
         .tour-stage { min-width: 0; }
 
         /* Sized so the whole slide fits one screen on desktop: width follows
@@ -434,7 +457,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           /* 100svh minus everything above/below the screenshot (nav, heading,
              tabs, caption, padding) minus the 30px window chrome, times the
              aspect ratio: keeps the whole slide on one screen. */
-          width: min(100%, calc((100svh - 409px) * var(--tour-aspect)));
+          width: min(100%, calc((100svh - 386px) * var(--tour-aspect)));
           min-width: min(100%, 520px);
           margin: 0 auto; border-radius: 16px; overflow: visible;
           background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.016));
@@ -461,6 +484,13 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour-mock i.jade { background: rgba(55,226,155,.5); }
         .tour-mock i.amber { background: rgba(255,193,120,.55); }
         .tour-mock i.round { border-radius: 50%; }
+        .tour-mock i.ic { background: rgba(55,226,155,.13); border: 1px solid rgba(55,226,155,.28); border-radius: 22%; }
+        .tour-mock i.ic.round { border-radius: 50%; }
+        .tour-mock i.navon { background: rgba(55,226,155,.1); border-radius: 7px; box-shadow: inset 2px 0 0 var(--jade); }
+        .tour-mock i.peak { background: rgba(55,226,155,.05); border: 1px solid rgba(55,226,155,.22); border-radius: 9px; }
+        .tour-mock i.t.nav { color: var(--text-2); font-weight: 500; }
+        .tour-mock i.t.nav.on { color: var(--jade); }
+        .tour-mock i.t.ax { color: var(--text-3); }
         /* sample text: font size is --fs in % of the frame width (cqw), so it scales with the frame */
         .tour-mock i.t { display: flex; align-items: center; border-radius: 0; background: none; border: 0; font-style: normal; white-space: nowrap; color: var(--text); font-size: calc(var(--fs) * 1cqw); line-height: 1; letter-spacing: -.02em; }
         .tour-mock i.t.b { font-weight: 600; }
@@ -469,7 +499,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour-mock i.t.c { justify-content: center; color: var(--jade); font-weight: 600; letter-spacing: 0; }
         .tour-ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,10,14,0), rgba(8,10,14,.26)); pointer-events: none; }
         .tour-soon {
-          position: absolute; left: 50%; bottom: 5%; transform: translateX(-50%); z-index: 1;
+          position: absolute; left: 50%; bottom: 2%; transform: translateX(-50%); z-index: 1;
           display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
           padding: 9px 16px; border-radius: var(--r-pill); font-size: 13px; font-weight: 600; color: var(--text);
           background: rgba(12,15,20,.82); border: 1px solid rgba(55,226,155,.35);
@@ -515,9 +545,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .cap-note { display: none; }
 
         @media (max-width: 1100px) {
-          .tour-copy { margin-bottom: 14px; }
-          .tour-copy h3 { font-size: 19px; margin-bottom: 4px; }
-          .tour-copy p { font-size: 14px; max-width: 62ch; min-height: 3em; }
+          .tour .sec-head.mid .tour-sub { font-size: 14px; min-height: 3em; }
           /* Height-aware here too, so the slide is still one screen. */
           .tour-frame { width: min(100%, max(320px, calc((100svh - 425px) * var(--tour-aspect)))); min-width: 0; }
         }

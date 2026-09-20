@@ -34,8 +34,15 @@ const COPY = {
   } as L10n,
 };
 
+// Photo slots. No photos ship yet, so the cards are icon-only. To turn them on
+// add public/business/trades.jpg and public/business/real-estate.jpg
+// (landscape, ~1600x900, dark and moody -- the cards darken them further so
+// the text stays readable) and flip this to true. Nothing else changes.
+const HAS_PHOTOS = false;
+
 type Vertical = {
   id: string;
+  photo: string;
   icons: ReactNode[];
   label: L10n;
   line: L10n;
@@ -49,6 +56,7 @@ type Vertical = {
 const VERTICALS: Vertical[] = [
   {
     id: "trades",
+    photo: "/business/trades.jpg",
     icons: [<Droplet key="d" />, <Bolt key="b" />, <Flame key="f" />],
     label: { EN: "Trades", ES: "Oficios", FR: "Artisans" },
     line: {
@@ -64,6 +72,7 @@ const VERTICALS: Vertical[] = [
   },
   {
     id: "property",
+    photo: "/business/real-estate.jpg",
     icons: [<Building key="b" />, <Key key="k" />],
     label: { EN: "Real estate", ES: "Inmobiliaria", FR: "Immobilier" },
     line: {
@@ -84,14 +93,17 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
     <section className="sec types" id="types">
       <div className="wrap">
         <div className="sec-head mid">
-          <div className="sec-tag up">{COPY.tag[lang]}</div>
+          <div className="sec-tag up">5 / 6 — {COPY.tag[lang]}</div>
           <h2 className="sec-h"><span className="msk"><span>{COPY.heading[lang]}</span></span></h2>
           <p className="sec-sub up d1">{COPY.sub[lang]}</p>
         </div>
 
         <ul className="bt-grid">
           {VERTICALS.map((v, i) => (
-            <li key={v.id} className={`bt-card up d${i + 1}`}>
+            <li
+              key={v.id} className={`bt-card up d${i + 1}${HAS_PHOTOS ? " has-img" : ""}`}
+              style={HAS_PHOTOS ? ({ ["--bt-img" as string]: `url(${v.photo})` }) : undefined}
+            >
               <span className="bt-icons">
                 {v.icons.map((icon, k) => <span key={k} className="bt-ic">{icon}</span>)}
               </span>
@@ -121,13 +133,21 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
         .bt-card {
           position: relative; display: flex; flex-direction: column; padding: 34px 34px 30px; border-radius: var(--r-xl);
           background: linear-gradient(180deg, rgba(255,255,255,.048), rgba(255,255,255,.014));
-          border: 1px solid var(--hair);
+          border: 1px solid rgba(55,226,155,.14);
           box-shadow: 0 40px 80px -44px rgba(0,0,0,.95);
           transition: opacity .9s var(--e-out), transform .4s var(--e-out), border-color .4s var(--e-out), box-shadow .4s var(--e-out);
         }
         .bt-card::before {
           content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
           background: radial-gradient(120% 70% at 0% 0%, rgba(55,226,155,.10), transparent 55%);
+        }
+        .bt-card.has-img { overflow: hidden; }
+        /* ::before (not ::after): it comes first in paint order, so the text,
+           which is position:relative, paints over it. Replaces the jade glow. */
+        .bt-card.has-img::before {
+          background:
+            linear-gradient(180deg, rgba(7,11,10,.5) 0%, rgba(7,11,10,.88) 62%, rgba(7,11,10,.96) 100%),
+            var(--bt-img) center / cover no-repeat;
         }
         .bt-card:hover { transform: translateY(-4px); border-color: rgba(55,226,155,.3); box-shadow: 0 54px 100px -46px rgba(0,0,0,.98); }
 
