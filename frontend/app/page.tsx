@@ -30,7 +30,7 @@ type Dict = {
   consoleAria: string;
   r0b: string; r0s: string; r1b: string; r1s: string;
   outcomes: [string, string][];
-  chip1: string; chip2: string; c0: string; c1: string; c2: string; cue: string;
+  chip1: string; chip2: string; chipT1: string; chipT2: string; c0: string; c1: string; c2: string; cue: string;
   pTag: string; pH: string;
   tName: [string, string, string]; tPin: string; tMo: string; tCalls: string;
   tOver: string; tOverSuf: string; tInh: (n: string) => string; soon: string;
@@ -62,6 +62,7 @@ const T: Record<LangCode, Dict> = {
       ["Opening hours confirmed", "No call needed from you"],
     ],
     chip1: "Details captured", chip2: "You're notified",
+    chipT1: "Call answered", chipT2: "New booking request",
     c0: "Incoming call", c1: "AI understands", c2: "Action taken", cue: "Scroll",
 
     pTag: "Pricing", pH: "Pricing that scales with you.",
@@ -118,6 +119,7 @@ const T: Record<LangCode, Dict> = {
       ["Horario de atención confirmado", "Sin que tengas que llamar"],
     ],
     chip1: "Datos recogidos", chip2: "Te avisamos",
+    chipT1: "Llamada atendida", chipT2: "Nueva solicitud de cita",
     c0: "Llamada entrante", c1: "La IA entiende", c2: "Acción ejecutada", cue: "Desliza",
 
     pTag: "Precios", pH: "Precios que crecen contigo.",
@@ -174,6 +176,7 @@ const T: Record<LangCode, Dict> = {
       ["Horaires confirmés à l'appelant", "Sans que vous ayez à rappeler"],
     ],
     chip1: "Détails recueillis", chip2: "Vous êtes prévenu",
+    chipT1: "Appel traité", chipT2: "Nouvelle demande de rendez-vous",
     c0: "Appel entrant", c1: "L'IA comprend", c2: "Action exécutée", cue: "Défiler",
 
     pTag: "Tarifs", pH: "Des tarifs qui évoluent avec vous.",
@@ -628,12 +631,35 @@ export default function Home() {
               <div className="a-bright" />
             </div>
 
+            {/* Two thin glowing arcs sweeping round the sphere, as in the
+                reference. Decorative; drawn in a 760x520 box whose sphere
+                (centre 380,260, r 220) lines up with the console. */}
+            <svg className="orbit-lines" viewBox="0 0 760 520" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="olA" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
+                  <stop offset=".35" stopColor="#37E29B" stopOpacity=".75" />
+                  <stop offset=".8" stopColor="#8BF0C6" stopOpacity=".55" />
+                  <stop offset="1" stopColor="#37E29B" stopOpacity="0" />
+                </linearGradient>
+                <linearGradient id="olB" x1="0" y1="1" x2="1" y2="0">
+                  <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
+                  <stop offset=".6" stopColor="#37E29B" stopOpacity=".5" />
+                  <stop offset="1" stopColor="#37E29B" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d="M-10 452C120 508 330 512 508 446S735 300 780 176" stroke="url(#olA)" strokeWidth="1.6" strokeLinecap="round" />
+              <path d="M-4 380C110 470 300 492 470 452" stroke="url(#olA)" strokeWidth=".8" strokeLinecap="round" opacity=".55" />
+              <path d="M22 214C66 132 168 70 282 44" stroke="url(#olB)" strokeWidth="1.1" strokeLinecap="round" />
+            </svg>
+
             <div
               className="console glass"
               id="console"
               role="img"
               aria-label={t.consoleAria}
             >
+              <div className="console-in">
               <div className="orb">
                 <div className="ripple" id="rip1" />
                 <div className="ripple" id="rip2" />
@@ -661,16 +687,23 @@ export default function Home() {
               </div>
 
               <div className="prog"><i /><i /><i /></div>
+              </div>
             </div>
 
             <div className="chips" aria-hidden="true">
               <div className="chip chip-1">
-                <span className="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg></span>
-                {t.chip1}
+                <span className="ci-ic"><svg viewBox="0 0 24 24"><path d="M6.6 3.8h3.1l1.5 4-2 1.5a11.2 11.2 0 0 0 5.5 5.5l1.5-2 4 1.5v3.1a2 2 0 0 1-2.2 2A15.6 15.6 0 0 1 4.6 6a2 2 0 0 1 2-2.2Z" /></svg></span>
+                <span className="ci-tx">
+                  <b>{t.chipT1}</b>
+                  <em><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg>{t.chip1}</em>
+                </span>
               </div>
               <div className="chip chip-2">
-                <span className="tick"><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg></span>
-                {t.chip2}
+                <span className="ci-ic"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5" /><path d="M8 3.5v4M16 3.5v4M4 10h16" /></svg></span>
+                <span className="ci-tx">
+                  <b>{t.chipT2}</b>
+                  <em><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg>{t.chip2}</em>
+                </span>
               </div>
             </div>
 

@@ -1387,3 +1387,77 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   .contact-list,.contact-globe{display:none}
   .contact-copy .page-foot{order:3;justify-content:center;margin-top:24px}
 }
+
+/* ================= hero orbit =================
+   The console is now a sphere: dark disc, a bright uneven rim (the .glass
+   ring, recoloured), a jade halo, thin arcs sweeping round it. Everything
+   that used to sit in the card -- the spoke orb, the readout, the progress
+   dashes -- sits inside it and animates exactly as before (the GSAP timeline
+   targets ids/classes, not the shape). --d is the sphere's diameter and --k
+   the scale of what's inside; both step down on short and narrow screens. */
+.stage{--d:440px;--k:1}
+@media (max-height:800px){.stage{--d:400px;--k:.91}}
+@media (max-height:720px){.stage{--d:360px;--k:.82}}
+@media (max-width:560px){.stage{--d:340px;--k:.77}}
+
+.console{
+  width:min(var(--d),100%);aspect-ratio:1;padding:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 50% 38%,rgba(14,30,26,.94),rgba(4,9,8,.97) 66%);
+  backdrop-filter:none;-webkit-backdrop-filter:none;
+  box-shadow:
+    inset 0 0 70px rgba(18,185,129,.10),
+    inset 0 -30px 64px -28px rgba(55,226,155,.30),
+    0 0 96px -20px rgba(18,185,129,.42),
+    0 50px 90px -40px rgba(0,0,0,.95);
+}
+.console::before{
+  padding:1.6px;
+  background:conic-gradient(from 205deg,rgba(160,255,220,.95),rgba(55,226,155,.10) 30%,rgba(55,226,155,.04) 54%,rgba(55,226,155,.55) 78%,rgba(160,255,220,.95));
+}
+.console-in{width:100%;display:flex;flex-direction:column;align-items:center;transform:scale(var(--k))}
+.console .orb{width:172px;height:172px;margin:0 auto 24px}
+.console .readout{width:320px;max-width:100%}
+.console .prog{margin-top:20px}
+
+.aura{width:calc(var(--d)*1.4);height:calc(var(--d)*1.4);top:calc(var(--d)/2)}
+@media (min-width:1001px){
+  .aura{right:calc(var(--d)/2)}
+  .caption{right:calc(var(--d)/2)}
+  .chips{width:min(var(--d),100%)}
+}
+
+.orbit-lines{
+  position:absolute;left:50%;top:calc(var(--d)/2);width:calc(var(--d)*1.727);aspect-ratio:760/520;height:auto;
+  transform:translate(-50%,-50%);pointer-events:none;overflow:visible;
+  filter:drop-shadow(0 0 6px rgba(55,226,155,.5));
+}
+@media (min-width:1001px){.orbit-lines{left:auto;right:calc(var(--d)/2);transform:translate(50%,-50%)}}
+
+/* floating cards: icon tile + title + a jade sub-line */
+.chip{
+  gap:12px;padding:12px 17px 12px 12px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(16,27,24,.95),rgba(8,14,12,.95));
+  border:1px solid rgba(55,226,155,.24);
+}
+.chip .ci-ic{
+  width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;
+  color:var(--jade);background:rgba(55,226,155,.10);border:1px solid rgba(55,226,155,.26);
+}
+.chip .ci-ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.chip .ci-tx{display:flex;flex-direction:column;gap:3px;text-align:left}
+.chip .ci-tx b{font-size:13.5px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.chip .ci-tx em{display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:12.5px;font-weight:500;color:var(--jade)}
+.chip .ci-tx em svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.chip-1{top:5%;left:auto;right:-10%}
+.chip-2{top:auto;bottom:9%;left:auto;right:-13%}
+@media (max-width:1000px){
+  .chip-1{top:2%;right:0}
+  .chip-2{bottom:5%;right:0}
+}
+@media (max-width:430px){
+  .chip{font-size:12px;padding:9px 12px 9px 9px}
+  .chip .ci-ic{width:30px;height:30px}
+  .chip .ci-tx b{font-size:12px}.chip .ci-tx em{font-size:11px}
+  .chip-1{top:0;right:0}.chip-2{bottom:2%;right:0}
+}
