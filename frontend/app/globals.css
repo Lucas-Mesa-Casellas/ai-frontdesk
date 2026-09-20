@@ -1305,3 +1305,85 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   }
 }
 
+
+/* ================= design pass from the reference mockup =================
+   Hero button + feature row, pricing cards, and a three-column contact. */
+
+/* nav "Client access" gets the arrow */
+.btn-login{display:inline-flex;align-items:center;gap:7px}
+.btn-login .ar{transition:transform .28s var(--e-out)}
+.btn-login:hover .ar{transform:translateX(3px)}
+
+/* hero: the last grid row -- what the product does, at a glance */
+@media (min-width:1001px){.hero{row-gap:36px}}
+.hero-feats{
+  grid-column:1/-1;list-style:none;display:flex;flex-wrap:wrap;gap:14px 46px;
+  padding-top:22px;
+}
+.hero-feats li{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--text-2);letter-spacing:-.004em}
+.hero-feats .fi{
+  width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;
+  color:var(--jade);background:rgba(55,226,155,.08);border:1px solid rgba(55,226,155,.22);
+}
+.hero-feats .fi svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:1000px){.hero-feats{gap:14px 28px;padding-top:6px}}
+
+/* pricing: green-edged cards, filled checks, the CTA at the bottom, and Pro
+   picked out as the recommended plan */
+.tier{border-color:rgba(55,226,155,.14)}
+.tier:hover{border-color:rgba(55,226,155,.3)}
+.tier-on{
+  border-color:rgba(55,226,155,.46);
+  background:linear-gradient(180deg,rgba(18,185,129,.11),rgba(255,255,255,.016) 58%);
+  box-shadow:0 40px 84px -40px rgba(0,0,0,.95),0 0 0 1px rgba(55,226,155,.1),0 0 64px -22px rgba(18,185,129,.45);
+}
+.tier-on:hover{border-color:rgba(55,226,155,.62)}
+.tier-pin{background:linear-gradient(180deg,#5CEBAF,var(--jade-2));color:#04140D;border-color:transparent}
+.tier-f .ck{background:linear-gradient(180deg,#5CEBAF,var(--jade-2))}
+.tier:hover .tier-f .ck{background:linear-gradient(180deg,#5CEBAF,var(--jade-2))}
+.tier-f .ck svg{stroke:#04140D}
+.tier-cta{margin-top:18px;padding:11px 18px}
+.tier-cta .ar{transition:transform .28s var(--e-out);flex:none}
+.tier-cta:hover .ar{transform:translateX(3px)}
+
+/* contact: copy | form | globe */
+.cta-card{border-color:rgba(55,226,155,.14)}
+.contact-grid{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,540px) minmax(0,1fr);
+  gap:clamp(32px,4.5vw,72px);align-items:center;
+}
+.contact-copy{min-width:0}
+.contact-copy .sec-head{text-align:left;margin-bottom:28px}
+.contact-copy .sec-h{min-height:0}
+.contact-copy .sec-sub{max-width:34ch;margin-top:12px;min-height:0}
+.contact-list{list-style:none;display:flex;flex-direction:column;gap:14px}
+.contact-list li{display:flex;align-items:center;gap:14px;font-size:14.5px;color:var(--text-2);letter-spacing:-.004em}
+.contact-list .ci{
+  width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;
+  color:var(--jade);background:rgba(55,226,155,.07);border:1px solid rgba(55,226,155,.24);
+}
+.contact-list .ci svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.contact-copy .page-foot{justify-content:flex-start;margin-top:40px}
+.contact-grid .cta-col{margin:0}
+.contact-globe{position:relative;width:min(100%,340px);aspect-ratio:1;justify-self:center;color:rgba(55,226,155,.34)}
+.contact-globe::before{
+  content:"";position:absolute;inset:-10%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(55,226,155,.16),transparent 62%);
+}
+.contact-globe svg{position:relative;width:100%;height:100%;filter:drop-shadow(0 0 14px rgba(55,226,155,.28))}
+.contact-globe p{
+  position:absolute;left:50%;top:58%;width:64%;transform:translate(-50%,-50%);
+  text-align:center;font-size:15px;font-weight:500;line-height:1.35;letter-spacing:-.01em;color:var(--text);
+}
+/* narrower than three columns: heading, form, footer in one centred column.
+   .contact-copy dissolves (display:contents) so its parts can be re-ordered
+   around the form; the bullets and globe drop out. */
+@media (max-width:1180px){
+  .contact-grid{grid-template-columns:minmax(0,540px);justify-content:center;gap:0}
+  .contact-copy{display:contents}
+  .contact-copy .sec-head{order:1;text-align:center;margin-bottom:var(--sp-head)}
+  .contact-copy .sec-sub{margin-inline:auto}
+  .contact-grid .cta-col{order:2}
+  .contact-list,.contact-globe{display:none}
+  .contact-copy .page-foot{order:3;justify-content:center;margin-top:24px}
+}

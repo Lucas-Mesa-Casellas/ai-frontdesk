@@ -9,13 +9,13 @@ import BusinessTypes from "@/components/BusinessTypes";
 const SPOKES = 44;
 type LangCode = "EN" | "ES" | "FR";
 const ORDER: LangCode[] = ["EN", "ES", "FR"];
-const SHOW_SOON = true;
+const SHOW_SOON = false; // upcoming-feature rows (SMS confirmation) stay out of the cards
 
-const TIER_CTA_STYLE = ["outline", "outline", "outline"];
+const TIER_CTA_STYLE = ["outline", "solid", "outline"];
 
 const TIERS = [
   { price: "99", calls: 50, over: "1,40€", on: false },
-  { price: "199", calls: 150, over: "1,20€", on: false },
+  { price: "199", calls: 150, over: "1,20€", on: true },
   { price: "399", calls: 400, over: "0,95€", on: false },
 ];
 
@@ -26,6 +26,7 @@ type Dict = {
   navLogin: string; navStart: string; langName: string;
   badge: string; h1a: string; h1bPre: string; h1bWord: string; lede: string;
   heroCta: string; heroCta2: string;
+  feat24: string; featLang: string; featCal: string;
   consoleAria: string;
   r0b: string; r0s: string; r1b: string; r1s: string;
   outcomes: [string, string][];
@@ -39,6 +40,7 @@ type Dict = {
   fName: string; fBiz: string; fEmail: string; fPhone: string;
   fMsg: string; fMsgPh: string;
   cSend: string; cSending: string; cSent: string; cError: string; cTrust: string;
+  cb1: string; cb2: string; cb3: string; cTagline: string;
 };
 
 const T: Record<LangCode, Dict> = {
@@ -49,6 +51,7 @@ const T: Record<LangCode, Dict> = {
     h1a: "Never miss", h1bPre: "another ", h1bWord: "customer",
     lede: "LMC Agents answers every call, understands what the caller needs, acts on it, then tells you what happened. Day and night.",
     heroCta: "Request a demo", heroCta2: "See pricing",
+    feat24: "24/7 availability", featLang: "Multiple languages", featCal: "Requests land in your calendar",
     consoleAria: "A call comes in, the AI understands it, and the right action is taken.",
     r0b: "Incoming call", r0s: "··· ··· ··· 214",
     r1b: "Understanding the request", r1s: "Intent, details and context captured",
@@ -63,7 +66,7 @@ const T: Record<LangCode, Dict> = {
 
     pTag: "Pricing", pH: "Pricing that scales with you.",
     tName: ["Starter", "Pro", "Premium"],
-    tPin: "Most chosen", tMo: "/month", tCalls: "calls a month",
+    tPin: "Recommended", tMo: "/month", tCalls: "calls a month",
     tCta: ["Get started", "Get started", "Get started"], soonGroup: "Coming next quarter",
     tOver: "then", tOverSuf: "per extra call",
     tInh: (n) => `Everything in ${n}, plus`, soon: "Soon",
@@ -93,7 +96,9 @@ const T: Record<LangCode, Dict> = {
     fName: "Your name", fBiz: "Business", fEmail: "Email", fPhone: "Phone",
     fMsg: "Message",
     fMsgPh: "Tell us a little about your business and how you handle the phone today.",
-    cSend: "Send", cSending: "Sending…", cSent: "Sent", cError: "Couldn't send, try again", cTrust: "Built in Europe",
+    cSend: "Send message", cSending: "Sending…", cSent: "Sent", cError: "Couldn't send, try again", cTrust: "Built in Europe",
+    cb1: "Get a demo", cb2: "Ask a question", cb3: "See if it's a fit for your business",
+    cTagline: "Smarter calls. Happier customers.",
   },
   ES: {
     navProduct: "Producto", navPricing: "Precios", navContact: "Contacto",
@@ -102,6 +107,7 @@ const T: Record<LangCode, Dict> = {
     h1a: "Nunca pierdas", h1bPre: "a otro ", h1bWord: "cliente",
     lede: "LMC Agents contesta cada llamada, entiende qué necesita el llamante, actúa en consecuencia, y te informa de lo que ha pasado. De día y de noche.",
     heroCta: "Solicitar una demo", heroCta2: "Ver precios",
+    feat24: "Disponible 24/7", featLang: "Varios idiomas", featCal: "Las solicitudes llegan a tu calendario",
     consoleAria: "Entra una llamada, la IA la entiende, y se ejecuta la acción correcta.",
     r0b: "Llamada entrante", r0s: "··· ··· ··· 214",
     r1b: "Entendiendo la solicitud", r1s: "Intención, datos y contexto identificados",
@@ -116,7 +122,7 @@ const T: Record<LangCode, Dict> = {
 
     pTag: "Precios", pH: "Precios que crecen contigo.",
     tName: ["Básico", "Pro", "Premium"],
-    tPin: "El más elegido", tMo: "/mes", tCalls: "llamadas al mes",
+    tPin: "Recomendado", tMo: "/mes", tCalls: "llamadas al mes",
     tCta: ["Empezar", "Empezar", "Empezar"], soonGroup: "Próximo trimestre",
     tOver: "luego", tOverSuf: "por llamada extra",
     tInh: (n) => `Todo lo de ${n}, y además`, soon: "Pronto",
@@ -146,7 +152,9 @@ const T: Record<LangCode, Dict> = {
     fName: "Tu nombre", fBiz: "Negocio", fEmail: "Email", fPhone: "Teléfono",
     fMsg: "Mensaje",
     fMsgPh: "Cuéntanos un poco sobre tu negocio y cómo atiendes el teléfono hoy.",
-    cSend: "Enviar", cSending: "Enviando…", cSent: "Enviado", cError: "No se pudo enviar, inténtalo de nuevo", cTrust: "Hecho en Europa",
+    cSend: "Enviar mensaje", cSending: "Enviando…", cSent: "Enviado", cError: "No se pudo enviar, inténtalo de nuevo", cTrust: "Hecho en Europa",
+    cb1: "Pide una demo", cb2: "Haz una pregunta", cb3: "Comprueba si encaja con tu negocio",
+    cTagline: "Llamadas más inteligentes. Clientes más contentos.",
   },
   FR: {
     navProduct: "Produit", navPricing: "Tarifs", navContact: "Contact",
@@ -155,6 +163,7 @@ const T: Record<LangCode, Dict> = {
     h1a: "Ne manquez plus", h1bPre: "un seul ", h1bWord: "client",
     lede: "LMC Agents répond à chaque appel, comprend ce dont l'appelant a besoin, agit en conséquence, puis vous informe de ce qui s'est passé. De jour comme de nuit.",
     heroCta: "Demander une démo", heroCta2: "Voir les tarifs",
+    feat24: "Disponible 24h/24, 7j/7", featLang: "Plusieurs langues", featCal: "Les demandes arrivent dans votre calendrier",
     consoleAria: "Un appel arrive, l'IA le comprend, et la bonne action est exécutée.",
     r0b: "Appel entrant", r0s: "··· ··· ··· 214",
     r1b: "Compréhension de la demande", r1s: "Intention, détails et contexte identifiés",
@@ -169,7 +178,7 @@ const T: Record<LangCode, Dict> = {
 
     pTag: "Tarifs", pH: "Des tarifs qui évoluent avec vous.",
     tName: ["Essentiel", "Pro", "Premium"],
-    tPin: "Le plus choisi", tMo: "/mois", tCalls: "appels par mois",
+    tPin: "Recommandé", tMo: "/mois", tCalls: "appels par mois",
     tCta: ["Commencer", "Commencer", "Commencer"], soonGroup: "Prochain trimestre",
     tOver: "puis", tOverSuf: "par appel supplémentaire",
     tInh: (n) => `Tout de ${n}, et en plus`, soon: "Bientôt",
@@ -199,7 +208,9 @@ const T: Record<LangCode, Dict> = {
     fName: "Votre nom", fBiz: "Entreprise", fEmail: "Email", fPhone: "Téléphone",
     fMsg: "Message",
     fMsgPh: "Parlez-nous de votre activité et de la façon dont vous gérez le téléphone aujourd'hui.",
-    cSend: "Envoyer", cSending: "Envoi…", cSent: "Envoyé", cError: "Échec de l'envoi, réessayez", cTrust: "Conçu en Europe",
+    cSend: "Envoyer le message", cSending: "Envoi…", cSent: "Envoyé", cError: "Échec de l'envoi, réessayez", cTrust: "Conçu en Europe",
+    cb1: "Obtenir une démo", cb2: "Poser une question", cb3: "Voyez si cela convient à votre activité",
+    cTagline: "Des appels plus intelligents. Des clients plus satisfaits.",
   },
 };
 
@@ -439,6 +450,10 @@ export default function Home() {
       gsap.from(".copy .badge", { opacity: 0, y: 14, duration: 0.7, delay: 0.05 });
       gsap.from("h1 .l>span", { yPercent: 105, duration: 1.05, stagger: 0.085, delay: 0.1, ease: "power4.out" });
       gsap.from(".lede", { opacity: 0, y: 14, duration: 0.85, delay: 0.34 });
+      // Wrappers, not the button: .btn-primary has a CSS transition on
+      // transform, which fights GSAP's inline transform and leaves it stuck.
+      gsap.from(".cta", { opacity: 0, y: 14, duration: 0.8, delay: 0.46 });
+      gsap.from(".hero-feats li", { opacity: 0, y: 12, duration: 0.7, delay: 0.6, stagger: 0.09 });
       gsap.from(".stage", { opacity: 0, y: 28, scale: 0.97, duration: 1.15, delay: 0.2, ease: "power3.out" });
     }, rootRef);
 
@@ -533,7 +548,12 @@ export default function Home() {
                 </div>
               </div>
 
-              <a className="btn-login" href="/login">{t.navLogin}</a>
+              <a className="btn-login" href="/login">
+                {t.navLogin}
+                <svg className="ar" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
 
               <div ref={mobileNavRef}>
                 <button
@@ -589,12 +609,16 @@ export default function Home() {
 
             <p className="lede">{t.lede}</p>
 
-            {/* CTA slot: intentionally empty. The buttons were tried and
-                removed -- the hero reads better without them, and the nav's
-                "Client access" plus the pricing CTAs already cover it.
-                t.heroCta / t.heroCta2 and .btn-primary / .btn-ghost stay
-                defined so bringing them back is a small change. */}
-            <div className="cta-slot" aria-hidden="true" />
+            {/* One primary button. (No "Watch demo": there is no demo to
+                watch.) t.heroCta / t.heroCta2 stay defined, unused. */}
+            <div className="cta">
+              <a className="btn-primary" href="#contact">
+                {t.navStart}
+                <svg className="ar" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </a>
+            </div>
           </div>
 
           <div className="stage">
@@ -656,6 +680,23 @@ export default function Home() {
               <b data-c="2">{t.c2}</b>
             </div>
           </div>
+
+          {/* What the product does, in one row under the hero. Full width:
+              it's the last row of the hero grid. */}
+          <ul className="hero-feats">
+            <li>
+              <span className="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg></span>
+              {t.feat24}
+            </li>
+            <li>
+              <span className="fi"><Globe /></span>
+              {t.featLang}
+            </li>
+            <li>
+              <span className="fi"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.5" width="16" height="14" rx="2.5" /><path d="M8 3.5v4M16 3.5v4M4 10h16" /></svg></span>
+              {t.featCal}
+            </li>
+          </ul>
         </div>
 
         </main>
@@ -676,7 +717,7 @@ export default function Home() {
       <section className="sec" id="pricing">
         <div className="wrap">
           <div className="sec-head mid">
-            <div className="sec-tag up">{t.pTag}</div>
+            <div className="sec-tag up">4 / 6 — {t.pTag}</div>
             <h2 className="sec-h"><span className="msk"><span>{t.pH}</span></span></h2>
           </div>
 
@@ -692,7 +733,6 @@ export default function Home() {
                 </div>
                 <div className="tier-vol"><b>{x.calls}</b><span>{t.tCalls}</span></div>
                 <div className="tier-over">{t.tOver} {x.over} {t.tOverSuf}</div>
-                <a className={`tier-cta ${TIER_CTA_STYLE[i]}`} href="#contact">{t.tCta[i]}</a>
                 <div className="tier-rule" />
                 <ul className="tier-f">
                   {t.feats[i].filter((f) => !f.soon).map((f) => (
@@ -703,10 +743,18 @@ export default function Home() {
                       {t.soonGroup}<span className="soon-pill">{t.soon}</span>
                     </li>
                   )}
-                  {t.feats[i].filter((f) => f.soon).map((f) => (
+                  {SHOW_SOON && t.feats[i].filter((f) => f.soon).map((f) => (
                     <li key={f.t} className="is-soon"><Ck /><span>{f.t}</span></li>
                   ))}
                 </ul>
+                {/* At the bottom of every card, so the three buttons line up
+                    whatever the length of the list above. */}
+                <a className={`tier-cta ${TIER_CTA_STYLE[i]}`} href="#contact">
+                  {t.tCta[i]}
+                  <svg className="ar" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                  </svg>
+                </a>
               </div>
             ))}
           </div>
@@ -718,10 +766,34 @@ export default function Home() {
 
       <section className="sec" id="contact">
         <div className="wrap">
-          <div className="sec-head mid">
-            <div className="sec-tag up">{t.cTag}</div>
-            <h2 className="sec-h"><span className="msk"><span>{t.cH}</span></span></h2>
-            <p className="sec-sub up d1">{t.cSub}</p>
+         <div className="contact-grid">
+          <div className="contact-copy">
+            <div className="sec-head">
+              <div className="sec-tag up">6 / 6 — {t.cTag}</div>
+              <h2 className="sec-h"><span className="msk"><span>{t.cH}</span></span></h2>
+              <p className="sec-sub up d1">{t.cSub}</p>
+            </div>
+
+            <ul className="contact-list up d2">
+              <li>
+                <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M10.2 8.6v6.8l5.6-3.4-5.6-3.4Z" /></svg></span>
+                {t.cb1}
+              </li>
+              <li>
+                <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5h-7l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z" /></svg></span>
+                {t.cb2}
+              </li>
+              <li>
+                <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="m8.4 12.3 2.6 2.6 4.8-5.2" /></svg></span>
+                {t.cb3}
+              </li>
+            </ul>
+
+            <div className="page-foot">
+              <span>© 2026 LMC Agents</span>
+              <span className="foot-dot" />
+              <span className="foot-eu"><Globe />{t.cTrust}</span>
+            </div>
           </div>
 
           <div className="cta-col">
@@ -771,11 +843,20 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="page-foot">
-            <span>© 2026 LMC Agents</span>
-            <span className="foot-dot" />
-            <span className="foot-eu"><Globe />{t.cTrust}</span>
+          {/* Decorative: a wireframe globe (meridians + parallels) with the
+              tagline over it. Hidden below 1180px, where the form takes the
+              width. */}
+          <div className="contact-globe" aria-hidden="true">
+            <svg viewBox="-100 -100 200 200" fill="none" stroke="currentColor" strokeWidth=".55">
+              <circle r="92" />
+              <ellipse rx="92" ry="30" /><ellipse rx="92" ry="60" />
+              <ellipse rx="30" ry="92" /><ellipse rx="60" ry="92" />
+              <path d="M-92 0H92" /><path d="M0-92V92" />
+              <path d="M-80-46H80M-80 46H80M-58-72H58M-58 72H58" />
+            </svg>
+            <p>{t.cTagline}</p>
           </div>
+         </div>
         </div>
       </section>
 
