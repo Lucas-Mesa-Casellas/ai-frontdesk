@@ -98,67 +98,47 @@ export default async function CallsPage({
           <p style={{ fontSize: 13, color: "var(--text-3)" }}>{isFiltered ? t.callsFilterEmptySub : t.callsEmptySub}</p>
         </div>
       ) : (
-         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {calls.map((c, i) => {
+        <div className="dash-card dash-in calls-table">
+          <div className="call-row call-thead" aria-hidden="true">
+            <span>{t.colCaller}</span>
+            <span>{t.colNumber}</span>
+            <span>{t.colSummary}</span>
+            <span>{t.colOutcome}</span>
+            <span>{t.colWhen}</span>
+          </div>
+          {calls.map((c) => {
             const s = STATUS_STYLE[c.status] || STATUS_STYLE.needs_review;
             const statusLabel = c.status === "request_captured" ? t.callStatusCaptured : t.callStatusReview;
-            const delayClass = `d${Math.min(i + 1, 6)}`;
             const summaryResolved = resolveTranslatable(c.summary, c.translations, "summary", locale, business?.language ?? "es");
+            const when = new Date(c.created_at);
             return (
-              <Link
-                key={c.id}
-                href={`/dashboard/calls/${c.id}`}
-                className={`dash-card ${delayClass} dash-in call-card`}
-                style={{ display: "block", textDecoration: "none", color: "inherit" }}
-              >
-                <div className="call-card-head" style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", rowGap: 8, marginBottom: 10 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 11 }}>
-                    <span style={{
-                      width: 34, height: 34, borderRadius: "50%", flex: "none",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      background: "rgba(55,226,155,.1)", border: "1px solid rgba(55,226,155,.2)", color: "var(--jade)",
-                    }}>
-                      <IconPhone width={14} height={14} />
-                    </span>
-                    <div>
-                      <p style={{ fontSize: 14, fontWeight: 500 }}>{c.caller_name || t.unknown}</p>
-                      <p style={{ fontSize: 12, color: "var(--text-3)" }}>{c.caller_phone || t.noPhone}</p>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <p style={{ fontSize: 12, color: "var(--text-3)" }}>
-                      {new Date(c.created_at).toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: BUSINESS_TZ })}
-                    </p>
-                    <p style={{ fontSize: 12, color: "var(--text-3)" }}>
-                      {new Date(c.created_at).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
-                    </p>
-                  </div>
-                </div>
-                {summaryResolved.text && (
-                  <p style={{ fontSize: 13, color: "var(--text-2)", marginBottom: 10, lineHeight: 1.5 }}>
-                    {summaryResolved.needsFetch ? (
+              <Link key={c.id} href={`/dashboard/calls/${c.id}`} className="call-row call-tr">
+                <span className="cr-caller">
+                  <span className="cr-ic"><IconPhone width={14} height={14} /></span>
+                  <b>{c.caller_name || t.unknown}</b>
+                </span>
+                <span className="cr-num">{c.caller_phone || t.noPhone}</span>
+                <span className="cr-sum">
+                  {summaryResolved.text && (
+                    summaryResolved.needsFetch ? (
                       <TranslatedField callId={c.id} locale={locale} field="summary" initialText={summaryResolved.text} />
                     ) : (
                       summaryResolved.text
-                    )}
-                  </p>
-                )}
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {c.intent && intentLabel[c.intent] && (
-                    <span style={{
-                      fontSize: 11, padding: "4px 10px", borderRadius: 999,
-                      background: "rgba(255,255,255,.04)", border: "1px solid var(--hair)", color: "var(--text-2)",
-                    }}>
-                      {intentLabel[c.intent]}
-                    </span>
+                    )
                   )}
-                  <span style={{
-                    fontSize: 11, padding: "4px 10px", borderRadius: 999,
-                    background: s.bg, border: `1px solid ${s.border}`, color: s.color,
-                  }}>
+                </span>
+                <span className="cr-out">
+                  <span className="cr-pill" style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
                     {statusLabel}
                   </span>
-                </div>
+                  {c.intent && intentLabel[c.intent] && (
+                    <span className="cr-pill cr-pill-n">{intentLabel[c.intent]}</span>
+                  )}
+                </span>
+                <span className="cr-when">
+                  <b>{when.toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: BUSINESS_TZ })}</b>
+                  <span>{when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}</span>
+                </span>
               </Link>
             );
           })}
@@ -174,17 +154,61 @@ export default async function CallsPage({
            taller. Reverts to normal page scroll at the same 700px
            breakpoint the calendar uses -- a pinned inner scroll area is
            awkward on a phone. */
-        .calls-wrap { height: calc(100vh - 76px); display: flex; flex-direction: column; padding: 28px 32px; max-width: 760px; }
+        .calls-wrap { height: calc(100vh - 76px); display: flex; flex-direction: column; padding: 28px 32px; max-width: 1180px; }
         .calls-list { flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; }
-        .call-card { padding: 18px; }
         .calls-filter { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; flex: none; }
+
+        /* the table: one card, a header row, then a row per call */
+        .calls-table { padding: 0; overflow: hidden; }
+        .calls-table:hover { transform: none; box-shadow: none; }
+        .call-row {
+          display: grid; align-items: center; column-gap: 18px;
+          grid-template-columns: minmax(150px, 1.1fr) minmax(120px, .8fr) minmax(180px, 2fr) minmax(150px, 1.05fr) 96px;
+          padding: 13px 20px; text-decoration: none; color: inherit;
+        }
+        .call-thead {
+          position: sticky; top: 0; z-index: 1; padding-top: 14px; padding-bottom: 12px;
+          font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3);
+          background: rgba(10,14,13,.92); border-bottom: 1px solid var(--hair);
+        }
+        .call-tr { border-bottom: 1px solid var(--hair); transition: background .2s var(--e-out); }
+        .call-tr:last-child { border-bottom: 0; }
+        .call-tr:hover { background: rgba(55,226,155,.045); }
+        .cr-caller { display: flex; align-items: center; gap: 11px; min-width: 0; }
+        .cr-caller b { font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cr-ic {
+          width: 32px; height: 32px; border-radius: 50%; flex: none; display: grid; place-items: center;
+          background: rgba(55,226,155,.1); border: 1px solid rgba(55,226,155,.2); color: var(--jade);
+        }
+        .cr-num { font-size: 12.5px; color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cr-sum { font-size: 12.5px; line-height: 1.5; color: var(--text-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .cr-out { display: flex; flex-wrap: wrap; gap: 6px; }
+        .cr-pill { font-size: 11px; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+        .cr-pill-n { background: rgba(255,255,255,.04); border: 1px solid var(--hair); color: var(--text-2); }
+        .cr-when { display: flex; flex-direction: column; gap: 1px; text-align: right; }
+        .cr-when b { font-size: 12.5px; font-weight: 500; }
+        .cr-when span { font-size: 12px; color: var(--text-3); }
+
+        /* not enough width for five columns: each call becomes a small card
+           (caller + time on top, then the summary, then the tags) */
+        @media (max-width: 1000px) {
+          .call-thead { display: none; }
+          .call-row {
+            grid-template-columns: minmax(0, 1fr) auto; row-gap: 8px;
+            grid-template-areas: "caller when" "num num" "sum sum" "out out";
+            padding: 16px;
+          }
+          .cr-caller { grid-area: caller; }
+          .cr-when { grid-area: when; }
+          .cr-num { grid-area: num; }
+          .cr-sum { grid-area: sum; -webkit-line-clamp: 3; }
+          .cr-out { grid-area: out; }
+        }
         @media (max-width: 700px) {
           .calls-wrap { height: auto; padding: 18px 16px; }
           .calls-list { overflow-y: visible; min-height: auto; padding-right: 0; }
         }
         @media (max-width: 480px) {
-          .call-card { padding: 14px; }
-          .call-card-head { gap: 8px; }
           .calls-filter { flex-direction: column; align-items: stretch; }
         }
       `}</style>

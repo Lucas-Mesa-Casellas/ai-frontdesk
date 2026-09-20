@@ -1461,3 +1461,17 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   .chip .ci-tx b{font-size:12px}.chip .ci-tx em{font-size:11px}
   .chip-1{top:0;right:0}.chip-2{bottom:2%;right:0}
 }
+
+/* ================= dashboard cards: a faint jade edge, like the landing =================
+   .dash-card is the one card class every dashboard page uses, so this restyles
+   Overview, Calls, Calendar, Support and Settings together. */
+.dash-card{
+  background:linear-gradient(180deg,rgba(18,185,129,.05),rgba(255,255,255,.012) 62%);
+  border-color:rgba(55,226,155,.13);
+}
+.dash-card:hover{border-color:rgba(55,226,155,.28)}
+.dash-card-highlight{
+  background:linear-gradient(180deg,rgba(18,185,129,.10),rgba(255,255,255,.012) 58%);
+  border-color:rgba(55,226,155,.30);
+}
+.dash-card-highlight:hover{border-color:rgba(55,226,155,.46)}

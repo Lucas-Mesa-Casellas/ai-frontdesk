@@ -15,6 +15,9 @@ export type DashDict = {
   chartTooltip: (label: string, count: number) => string;
   ovLatest: string; ovViewAll: string;
   cmdPlaceholder: string; cmdEmpty: string; cmdOpen: string;
+  greetMorning: string; greetAfternoon: string; greetEvening: string; ovWelcome: string;
+  bizAccount: string; aiTitle: string; aiSub: string;
+  colCaller: string; colNumber: string; colSummary: string; colOutcome: string; colWhen: string;
 
   callsTitle: string; callsSub: string; callsEmptyTitle: string; callsEmptySub: string;
   noPhone: string; back: string;
@@ -68,6 +71,10 @@ export const DASH_T: Record<Locale, DashDict> = {
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "call" : "calls"}`,
     ovLatest: "Latest calls", ovViewAll: "View all",
     cmdPlaceholder: "Jump to…", cmdEmpty: "No results", cmdOpen: "Search",
+    greetMorning: "Good morning", greetAfternoon: "Good afternoon", greetEvening: "Good evening",
+    ovWelcome: "Your AI receptionist is working. Here's what's happening.",
+    bizAccount: "Business account", aiTitle: "AI receptionist", aiSub: "Answering calls 24/7",
+    colCaller: "Caller", colNumber: "Number", colSummary: "Summary", colOutcome: "Outcome", colWhen: "Date & time",
 
     callsTitle: "Call history", callsSub: "Every call your AI receptionist has handled.",
     callsEmptyTitle: "No calls yet", callsEmptySub: "Calls will appear here once your AI starts answering.",
@@ -129,6 +136,10 @@ export const DASH_T: Record<Locale, DashDict> = {
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
     ovLatest: "Últimas llamadas", ovViewAll: "Ver todas",
     cmdPlaceholder: "Ir a…", cmdEmpty: "Sin resultados", cmdOpen: "Buscar",
+    greetMorning: "Buenos días", greetAfternoon: "Buenas tardes", greetEvening: "Buenas noches",
+    ovWelcome: "Tu recepcionista IA está trabajando. Esto es lo que está pasando.",
+    bizAccount: "Cuenta de empresa", aiTitle: "Recepcionista IA", aiSub: "Atendiendo llamadas 24/7",
+    colCaller: "Llamante", colNumber: "Número", colSummary: "Resumen", colOutcome: "Resultado", colWhen: "Fecha y hora",
 
     callsTitle: "Historial de llamadas", callsSub: "Todas las llamadas gestionadas por tu IA.",
     callsEmptyTitle: "Aún no hay llamadas", callsEmptySub: "Las llamadas aparecerán aquí en cuanto tu IA empiece a contestar.",
@@ -190,6 +201,10 @@ export const DASH_T: Record<Locale, DashDict> = {
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "appel" : "appels"}`,
     ovLatest: "Derniers appels", ovViewAll: "Voir tout",
     cmdPlaceholder: "Aller à…", cmdEmpty: "Aucun résultat", cmdOpen: "Rechercher",
+    greetMorning: "Bonjour", greetAfternoon: "Bon après-midi", greetEvening: "Bonsoir",
+    ovWelcome: "Votre réceptionniste IA travaille. Voici ce qui se passe.",
+    bizAccount: "Compte entreprise", aiTitle: "Réceptionniste IA", aiSub: "Répond aux appels 24h/24, 7j/7",
+    colCaller: "Appelant", colNumber: "Numéro", colSummary: "Résumé", colOutcome: "Résultat", colWhen: "Date et heure",
 
     callsTitle: "Historique des appels", callsSub: "Tous les appels gérés par votre IA.",
     callsEmptyTitle: "Aucun appel pour l'instant", callsEmptySub: "Les appels apparaîtront ici dès que votre IA commencera à répondre.",

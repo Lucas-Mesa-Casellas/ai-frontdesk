@@ -55,6 +55,21 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             {t.navHome}
           </a>
         </div>
+
+        {/* What the product is doing for this business, pinned to the foot of
+            the sidebar. Informational only (not a live status indicator). */}
+        <div className="ai-card">
+          <span className="ai-card-ic">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <path d="M17.6 5.6a9 9 0 1 0 2.2 3.6" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+              <circle cx="18.6" cy="5.4" r="2.85" fill="currentColor" />
+            </svg>
+          </span>
+          <span className="ai-card-tx">
+            <b>{t.aiTitle}</b>
+            <span>{t.aiSub}</span>
+          </span>
+        </div>
       </DashboardSidebar>
 
       <div role="main" className="dash-main" style={{ flex: 1 }}>
@@ -86,9 +101,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             }}>
               {initial}
             </span>
-            <p style={{ fontSize: 13, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 160 }}>
-              {business?.name || user.email}
-            </p>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.25, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 160 }}>
+                {business?.name || user.email}
+              </p>
+              <p style={{ fontSize: 11, lineHeight: 1.25, color: "var(--text-3)" }}>{t.bizAccount}</p>
+            </div>
           </div>
         </div>
         {children}
@@ -99,7 +117,25 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         .nav-link:hover { background: rgba(255,255,255,.055); color: var(--text); }
         .nav-link.active { background: rgba(55,226,155,.1); color: var(--jade); }
         .nav-link.active::before { content: ""; position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: var(--jade); box-shadow: 0 0 12px rgba(55,226,155,.5); }
-        .dash-main { margin-left: 248px; }
+        /* a faint jade glow in two corners, so the page isn't flat black */
+        .dash-main {
+          margin-left: 248px;
+          background:
+            radial-gradient(52% 38% at 96% 0%, rgba(18,185,129,.10), transparent 70%),
+            radial-gradient(46% 36% at 0% 100%, rgba(18,185,129,.07), transparent 70%);
+        }
+        .ai-card {
+          margin: 8px 12px 14px; padding: 12px; border-radius: 14px; display: flex; align-items: center; gap: 11px;
+          background: linear-gradient(180deg, rgba(18,185,129,.09), rgba(255,255,255,.015));
+          border: 1px solid rgba(55,226,155,.2);
+        }
+        .ai-card-ic {
+          width: 34px; height: 34px; border-radius: 50%; flex: none; display: grid; place-items: center;
+          color: var(--jade); background: rgba(55,226,155,.1); border: 1px solid rgba(55,226,155,.28);
+        }
+        .ai-card-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+        .ai-card-tx b { font-size: 12.5px; font-weight: 600; }
+        .ai-card-tx span { font-size: 11px; color: var(--text-3); line-height: 1.3; }
         .dash-aside {
           width: 248px; border-right: 1px solid var(--hair); background: rgba(255,255,255,.018);
           display: flex; flex-direction: column; position: fixed; height: 100%; z-index: 35;
