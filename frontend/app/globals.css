@@ -40,7 +40,7 @@
 
   --e-out:cubic-bezier(.22,.9,.24,1);
   --maxw:1680px;
-  --maxw-hero:1280px;
+  --maxw-hero:1360px;
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -251,22 +251,14 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
 .mobile-nav a:hover{background:rgba(255,255,255,.07);color:var(--text)}
 
 main{flex:1;display:flex;align-items:center;padding:8px 0 34px}
-.hero{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:clamp(30px,4vw,64px);align-items:center;width:100%}
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(30px,4vw,64px);align-items:center;width:100%}
+/* The copy is stacked above the stage: the orbit may reach behind it, the text always wins. */
+.copy{position:relative;z-index:4}
 
-.badge{
-  display:inline-flex;align-items:center;gap:9px;
-  padding:7px 15px 7px 11px;border-radius:999px;
-  font-size:12.5px;font-weight:500;letter-spacing:.01em;color:var(--text-2);
-  border:1px solid var(--hair);background:rgba(255,255,255,.04);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.09);
-  margin-bottom:28px;
-}
-.badge .pip{position:relative;width:7px;height:7px;border-radius:50%;background:var(--jade);flex:none;box-shadow:0 0 10px rgba(55,226,155,.9)}
-.badge .pip::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid var(--jade);animation:ping 2.6s var(--e-out) infinite}
 @keyframes ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(3);opacity:0}}
 
 h1{
-  font-size:clamp(2.6rem,4.55vw,4rem);
+  font-size:clamp(2.7rem,5.2vw,4.9rem);
   line-height:1.0;letter-spacing:-.045em;font-weight:600;
   margin-bottom:22px;
 }
@@ -277,7 +269,7 @@ h1 .l>span{display:block}
   -webkit-background-clip:text;background-clip:text;color:transparent;
 }
 
-.lede{max-width:41ch;font-size:clamp(15.5px,1.15vw,17px);line-height:1.62;color:var(--text-2)}
+.lede{max-width:46ch;font-size:clamp(15.5px,1.15vw,17px);line-height:1.62;color:var(--text-2)}
 
 .cta{display:flex;align-items:center;gap:14px;margin-top:32px;flex-wrap:wrap}
 
@@ -378,9 +370,15 @@ h1 .l>span{display:block}
   margin-top:24px;display:flex;align-items:center;justify-content:center;gap:9px;
   font-size:13px;color:var(--text-3);white-space:nowrap;
 }
-.caption b{font-weight:500;transition:color .5s var(--e-out);white-space:nowrap}
+.caption{gap:0}
+.caption b{position:relative;padding:12px 26px 0;font-weight:500;transition:color .5s var(--e-out);white-space:nowrap}
+.caption b::before{
+  content:"";position:absolute;top:0;left:26px;right:26px;height:2px;border-radius:2px;
+  background:rgba(255,255,255,.14);transition:background .5s var(--e-out),box-shadow .5s var(--e-out);
+}
 .caption b.on{color:var(--text)}
-.caption em{width:16px;height:1px;background:var(--hair-2);font-style:normal;flex:none}
+.caption b.on::before{background:var(--jade);box-shadow:0 0 10px rgba(55,226,155,.5)}
+.caption em{display:none}
 @media (min-width:1001px){
   .caption{left:auto;right:216px;transform:translateX(50%)}
 }
@@ -389,7 +387,6 @@ h1 .l>span{display:block}
 @media (max-height:800px){
   main{padding:0 0 18px}
   nav{padding:14px 0}
-  .badge{margin-bottom:20px}
   h1{margin-bottom:16px}
   .cta{margin-top:24px}
   .orb{width:148px;height:148px;margin-bottom:20px}
@@ -415,8 +412,9 @@ h1 .l>span{display:block}
   .aura{width:330px;height:330px}
   .readout{height:58px}
   .line b{font-size:17.5px}
-  .caption{font-size:11.5px;gap:6px}
-  .caption em{width:10px}
+  .caption{font-size:11.5px}
+  .caption b{padding:11px 11px 0}
+  .caption b::before{left:11px;right:11px}
   .btn-login{padding:8px 12px;font-size:13.5px;border-color:transparent;background:transparent}
   .btn-start{padding:9px 15px;font-size:13.5px}
   .lang-btn{padding:8px 9px;font-size:12.5px;gap:5px}
@@ -498,15 +496,16 @@ html,body{height:auto;min-height:100%}
 
 /* the hero owns exactly one screen, minus the fixed nav above it */
 .app-shell{
-  min-height:min(100svh,900px);padding-top:var(--nav-h);
-  justify-content:center;      /* centre the hero explicitly ... */
+  min-height:min(100svh,780px);padding-top:var(--nav-h);
+  justify-content:flex-start;  /* the hero starts right under the nav, not centred low */
+  overflow-x:clip;             /* the orbit rings may run past the viewport edge */
 }
 main{flex:0 0 auto;width:100%} /* ... instead of relying on flex:1 stretching */
 
 /* .caption is absolute at top:100% and hangs ~44px below the stage box,
    so flex centring alone leaves the hero looking top-heavy. This pays
    that overhang back and centres it optically. */
-main{padding-bottom:24px}
+main{padding-top:clamp(20px,5vh,60px);padding-bottom:24px}
 
 /* Hero balance. At >=1400px the 1280px cap already centres the hero with
    generous margins — untouched. Between 1001 and 1400px the viewport is
@@ -894,6 +893,8 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 }
 .btn-primary:hover{transform:translateY(-2px) scale(1.015);
   box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 20px 42px -16px rgba(18,185,129,.85)}
+.hero .cta .btn-primary{padding:16px 30px;font-size:16.5px;border-radius:14px;box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 32px -14px rgba(18,185,129,.6)}
+.hero .cta .btn-primary:hover{box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 18px 40px -14px rgba(18,185,129,.75)}
 .btn-primary .ar{transition:transform .28s var(--e-out)}
 .btn-primary:hover .ar{transform:translateX(3px)}
 /* ========== DASHBOARD PREMIUM LAYER ========== */
@@ -1335,16 +1336,22 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 /* hero: the last grid row -- what the product does, at a glance */
 @media (min-width:1001px){.hero{row-gap:36px}}
 .hero-feats{
-  grid-column:1/-1;list-style:none;display:flex;flex-wrap:wrap;gap:14px 46px;
-  padding-top:22px;
+  grid-column:1/-1;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:14px 0;
+  padding-top:18px;
 }
-.hero-feats li{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--text-2);letter-spacing:-.004em}
+.hero-feats li{display:flex;align-items:center;gap:12px;padding:0 28px;font-size:14px;color:var(--text-2);letter-spacing:-.004em}
+.hero-feats li:first-child{padding-left:0}
+.hero-feats li+li{border-left:1px solid var(--border-strong)}
 .hero-feats .fi{
   width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;
   color:var(--jade);background:rgba(55,226,155,.08);border:1px solid rgba(55,226,155,.22);
 }
 .hero-feats .fi svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-@media (max-width:1000px){.hero-feats{gap:14px 28px;padding-top:6px}}
+@media (max-width:1000px){
+  .hero-feats{flex-direction:column;align-items:flex-start;gap:14px;padding-top:6px}
+  .hero-feats li{padding:0}
+  .hero-feats li+li{border-left:0}
+}
 
 /* pricing: green-edged cards, filled checks, the CTA at the bottom, and Pro
    picked out as the recommended plan */
@@ -1413,10 +1420,14 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
    dashes -- sits inside it and animates exactly as before (the GSAP timeline
    targets ids/classes, not the shape). --d is the sphere's diameter and --k
    the scale of what's inside; both step down on short and narrow screens. */
-.stage{--d:440px;--k:1}
-@media (max-height:800px){.stage{--d:400px;--k:.91}}
-@media (max-height:720px){.stage{--d:360px;--k:.82}}
+.stage{--d:520px;--k:1.16}
+@media (max-height:860px){.stage{--d:470px;--k:1.05}}
+@media (max-height:800px){.stage{--d:420px;--k:.95}}
+@media (max-height:720px){.stage{--d:370px;--k:.84}}
 @media (max-width:560px){.stage{--d:340px;--k:.77}}
+/* the sphere sits a little towards the centre of the hero, leaving room on the right for the cards */
+@media (min-width:1241px){.stage{margin-left:-64px;margin-right:64px}}
+@media (min-width:1001px) and (max-width:1240px){.stage{margin-left:-24px;margin-right:24px}}
 
 .console{
   width:min(var(--d),100%);aspect-ratio:1;padding:0;border-radius:50%;
@@ -1434,9 +1445,10 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
   background:conic-gradient(from 205deg,rgba(160,255,220,.95),rgba(55,226,155,.10) 30%,rgba(55,226,155,.04) 54%,rgba(55,226,155,.55) 78%,rgba(160,255,220,.95));
 }
 .console-in{width:100%;display:flex;flex-direction:column;align-items:center;transform:scale(var(--k))}
-.console .orb{width:172px;height:172px;margin:0 auto 24px}
-.console .readout{width:320px;max-width:100%}
-.console .prog{margin-top:20px}
+.console .orb{width:164px;height:164px;margin:0 auto 22px}
+.console .readout{width:340px;max-width:100%}
+/* the three-step progress now lives under the sphere (.caption); the in-sphere dashes would repeat it */
+.console .prog{display:none}
 
 .aura{width:calc(var(--d)*1.4);height:calc(var(--d)*1.4);top:calc(var(--d)/2)}
 @media (min-width:1001px){
@@ -1448,30 +1460,36 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .orbit-lines{
   position:absolute;left:50%;top:calc(var(--d)/2);width:calc(var(--d)*1.727);aspect-ratio:760/520;height:auto;
   transform:translate(-50%,-50%);pointer-events:none;overflow:visible;
-  filter:drop-shadow(0 0 6px rgba(55,226,155,.5));
+  filter:drop-shadow(0 0 3px rgba(55,226,155,.4));
 }
 @media (min-width:1001px){.orbit-lines{left:auto;right:calc(var(--d)/2);transform:translate(50%,-50%)}}
 
 /* floating cards: icon tile + title + a jade sub-line */
 .chip{
-  gap:12px;padding:12px 17px 12px 12px;border-radius:16px;
-  background:linear-gradient(180deg,rgba(16,27,24,.95),rgba(8,14,12,.95));
-  border:1px solid rgba(55,226,155,.24);
+  gap:13px;padding:13px 20px 13px 13px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(15,24,22,.94),rgba(8,13,12,.94));
+  border:1px solid rgba(55,226,155,.3);
+  box-shadow:0 22px 44px -20px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.07);
 }
 .chip .ci-ic{
-  width:36px;height:36px;border-radius:11px;flex:none;display:grid;place-items:center;
+  width:40px;height:40px;border-radius:12px;flex:none;display:grid;place-items:center;
   color:var(--jade);background:rgba(55,226,155,.10);border:1px solid rgba(55,226,155,.26);
 }
 .chip .ci-ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .chip .ci-tx{display:flex;flex-direction:column;gap:3px;text-align:left}
-.chip .ci-tx b{font-size:13.5px;font-weight:600;color:var(--text);letter-spacing:-.01em}
-.chip .ci-tx em{display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:12.5px;font-weight:500;color:var(--jade)}
+.chip .ci-tx b{font-size:14.5px;font-weight:600;color:var(--text);letter-spacing:-.01em}
+.chip .ci-tx em{display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:13px;font-weight:500;color:var(--jade)}
 .chip .ci-tx em svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
-.chip-1{top:5%;left:auto;right:-10%}
-.chip-2{top:auto;bottom:9%;left:auto;right:-22%}
+.chip-1{top:3%;left:auto;right:-16%}
+/* bottom edge follows the sphere: the card always sits below the status readout, whatever --d is */
+.chip-2{top:auto;bottom:max(0px,calc(var(--d)*.22 - 82px));left:auto;right:-23%}
+@media (min-width:1001px) and (max-width:1240px){
+  .chip-1{right:-8%}.chip-2{right:-10%}
+}
 @media (max-width:1000px){
   .chip-1{top:2%;right:0}
   .chip-2{bottom:5%;right:0}
+  .orbit-lines .or-far{display:none}
 }
 @media (max-width:430px){
   .chip{font-size:12px;padding:9px 12px 9px 9px}
@@ -1499,9 +1517,23 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 /* A faint waveform behind the readout, fading out towards the rim so it reads
    as energy inside the sphere rather than a chart. */
 .console-in{position:relative}
+.console-dots{
+  position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(circle,rgba(120,255,205,.6) 0 .9px,transparent 1.3px);
+  background-size:9px 9px;
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 50%,rgba(0,0,0,.85) 86%,transparent 100%);
+          mask-image:radial-gradient(circle at 50% 50%,transparent 50%,rgba(0,0,0,.85) 86%,transparent 100%);
+}
+/* The status text is the point of the hero: a soft dark backing keeps it clear of the waveform. */
+.console .readout::before{
+  content:"";position:absolute;inset:-20px -44px -16px;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(3,8,7,.86),rgba(3,8,7,.55) 58%,transparent 100%);
+}
+.console .line b{font-size:21px;color:#fff;text-shadow:0 1px 14px rgba(0,0,0,.7)}
+.console .line span{font-size:14.5px;color:var(--jade-bright)}
 .console-wave{
-  position:absolute;left:12%;right:12%;top:50%;height:34%;transform:translateY(-50%);
-  display:flex;align-items:center;gap:3px;pointer-events:none;opacity:.14;
+  position:absolute;left:11%;right:11%;top:45%;height:32%;transform:translateY(-50%);
+  display:flex;align-items:center;gap:3px;pointer-events:none;opacity:.3;
   -webkit-mask-image:radial-gradient(ellipse 60% 100% at 50% 50%,#000 30%,transparent 100%);
           mask-image:radial-gradient(ellipse 60% 100% at 50% 50%,#000 30%,transparent 100%);
 }
@@ -1529,4 +1561,6 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
   .chip{opacity:1}
   .prog i::after{width:100%}
   .caption b{color:var(--text-2)}
+  .caption b[data-c="2"]{color:var(--text)}
+  .caption b[data-c="2"]::before{background:var(--jade)}
 }

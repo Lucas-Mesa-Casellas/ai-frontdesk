@@ -453,7 +453,6 @@ export default function Home() {
       }
 
       /* entrance */
-      gsap.from(".copy .badge", { opacity: 0, y: 14, duration: 0.7, delay: 0.05 });
       gsap.from("h1 .l>span", { yPercent: 105, duration: 1.05, stagger: 0.085, delay: 0.1, ease: "power4.out" });
       gsap.from(".lede", { opacity: 0, y: 14, duration: 0.85, delay: 0.34 });
       // Wrappers, not the button: .btn-primary has a CSS transition on
@@ -606,8 +605,6 @@ export default function Home() {
         <main>
         <div className="wrap hero">
           <div className="copy">
-            <div className="badge"><span className="pip" />{t.badge}</div>
-
             <h1>
               <span className="l"><span>{t.h1a}</span></span>
               <span className="l"><span>{t.h1bPre}<span className="grad">{t.h1bWord}</span>.</span></span>
@@ -635,34 +632,53 @@ export default function Home() {
             </div>
 
             {/* Orbital rings, drawn in a 760x520 box whose sphere (centre 380,260,
-                r 220) lines up with the console. Three thin ellipses at different
-                tilts; the band that passes BEHIND the sphere is this layer (the
-                console covers it), the band that passes in FRONT is the second
-                svg further down. Small points travel along them. All decorative
-                and slow; they stop under prefers-reduced-motion. */}
+                r 220) lines up with the console. Four ellipses at different
+                tilts and sizes: three round the sphere and one large, faded one
+                (.or-far) that reaches out to the left, behind the headline (the
+                copy is stacked above the stage, so the text always wins). This
+                layer is what passes BEHIND the sphere; the second svg after the
+                console redraws the near halves of two rings in front of it.
+                Small points travel along the paths. Decorative and slow; they
+                stop under prefers-reduced-motion. */}
             <svg className="orbit-lines" viewBox="0 0 760 520" fill="none" aria-hidden="true">
               <defs>
                 <linearGradient id="orA" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
-                  <stop offset=".3" stopColor="#37E29B" stopOpacity=".7" />
-                  <stop offset=".75" stopColor="#8BF0C6" stopOpacity=".5" />
+                  <stop offset=".28" stopColor="#5CEBAF" stopOpacity=".95" />
+                  <stop offset=".72" stopColor="#8BF0C6" stopOpacity=".75" />
                   <stop offset="1" stopColor="#37E29B" stopOpacity="0" />
                 </linearGradient>
+                <linearGradient id="orFar" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
+                  <stop offset=".2" stopColor="#37E29B" stopOpacity=".32" />
+                  <stop offset=".46" stopColor="#5CEBAF" stopOpacity=".8" />
+                  <stop offset=".85" stopColor="#8BF0C6" stopOpacity=".7" />
+                  <stop offset="1" stopColor="#37E29B" stopOpacity=".15" />
+                </linearGradient>
               </defs>
+              <g className="or-far" transform="rotate(20 380 260)">
+                <ellipse cx="380" cy="260" rx="640" ry="128" stroke="url(#orFar)" strokeWidth="1.4" />
+                <circle r="3.4" fill="#8BF0C6" className="or-dot">
+                  <animateMotion dur="76s" repeatCount="indefinite" path="M-260 260A640 128 0 1 1 1020 260A640 128 0 1 1 -260 260Z" />
+                </circle>
+              </g>
               <g transform="rotate(-16 380 260)">
-                <ellipse cx="380" cy="260" rx="318" ry="104" stroke="url(#orA)" strokeWidth="1.1" />
-                <circle r="3.1" fill="#8BF0C6" className="or-dot">
-                  <animateMotion dur="34s" repeatCount="indefinite" path="M62 260A318 104 0 1 1 698 260A318 104 0 1 1 62 260Z" />
+                <ellipse cx="380" cy="260" rx="330" ry="112" stroke="url(#orA)" strokeWidth="1.5" />
+                <circle r="3.6" fill="#8BF0C6" className="or-dot">
+                  <animateMotion dur="38s" repeatCount="indefinite" path="M50 260A330 112 0 1 1 710 260A330 112 0 1 1 50 260Z" />
                 </circle>
               </g>
-              <g transform="rotate(22 380 260)">
-                <ellipse cx="380" cy="260" rx="342" ry="142" stroke="rgba(255,255,255,.2)" strokeWidth=".8" strokeDasharray="1 9" className="or-dash" />
-                <circle r="2.4" fill="#fff" fillOpacity=".7" className="or-dot">
-                  <animateMotion dur="46s" repeatCount="indefinite" path="M38 260A342 142 0 1 0 722 260A342 142 0 1 0 38 260Z" />
+              <g transform="rotate(24 380 260)">
+                <ellipse cx="380" cy="260" rx="352" ry="150" stroke="rgba(255,255,255,.36)" strokeWidth="1" strokeDasharray="2 7" className="or-dash" />
+                <circle r="2.8" fill="#fff" fillOpacity=".85" className="or-dot">
+                  <animateMotion dur="52s" repeatCount="indefinite" path="M28 260A352 150 0 1 0 732 260A352 150 0 1 0 28 260Z" />
                 </circle>
               </g>
-              <g transform="rotate(7 380 260)">
-                <ellipse cx="380" cy="260" rx="270" ry="66" stroke="rgba(55,226,155,.34)" strokeWidth=".9" strokeDasharray="3 10" className="or-dash or-dash-rev" />
+              <g transform="rotate(6 380 260)">
+                <ellipse cx="380" cy="260" rx="285" ry="72" stroke="rgba(55,226,155,.55)" strokeWidth="1" strokeDasharray="4 9" className="or-dash or-dash-rev" />
+                <circle r="2.6" fill="#5CEBAF" className="or-dot">
+                  <animateMotion dur="60s" repeatCount="indefinite" path="M95 260A285 72 0 1 1 665 260A285 72 0 1 1 95 260Z" />
+                </circle>
               </g>
             </svg>
 
@@ -672,7 +688,11 @@ export default function Home() {
               role="img"
               aria-label={t.consoleAria}
             >
-              {/* A faint audio waveform behind the readout: heights are fixed
+              {/* Fine dot texture concentrated towards the rim: the "technological
+                  object" surface. Pure decoration. */}
+              <div className="console-dots" aria-hidden="true" />
+
+              {/* An audio waveform behind the readout: heights are fixed
                   (deterministic, so server and client agree), the motion is CSS. */}
               <div className="console-wave" aria-hidden="true">
                 {WAVE.map((h, i) => (
@@ -712,11 +732,26 @@ export default function Home() {
             </div>
 
             <svg className="orbit-lines orbit-front" viewBox="0 0 760 520" fill="none" aria-hidden="true">
-              <g transform="rotate(-16 380 260)">
-                <path d="M62 260A318 104 0 0 0 698 260" stroke="url(#orA)" strokeWidth="1.1" />
-              </g>
-              <g transform="rotate(22 380 260)">
-                <path d="M38 260A342 142 0 0 0 722 260" stroke="rgba(255,255,255,.2)" strokeWidth=".8" strokeDasharray="1 9" className="or-dash" />
+              <defs>
+                <radialGradient id="orHole" cx="50%" cy="50%" r="50%">
+                  <stop offset="0" stopColor="#000" />
+                  <stop offset=".8" stopColor="#000" />
+                  <stop offset="1" stopColor="#000" stopOpacity="0" />
+                </radialGradient>
+                <mask id="orFrontMask" maskUnits="userSpaceOnUse" x="-300" y="-300" width="1360" height="1120">
+                  <rect x="-300" y="-300" width="1360" height="1120" fill="#fff" />
+                  <ellipse cx="380" cy="312" rx="215" ry="135" fill="url(#orHole)" />
+                </mask>
+              </defs>
+              {/* the near halves of two rings, faded out over the readout so the
+                  status text is never crossed by a line */}
+              <g mask="url(#orFrontMask)">
+                <g transform="rotate(-16 380 260)">
+                  <path d="M50 260A330 112 0 0 0 710 260" stroke="url(#orA)" strokeWidth="1.5" />
+                </g>
+                <g transform="rotate(24 380 260)">
+                  <path d="M28 260A352 150 0 0 0 732 260" stroke="rgba(255,255,255,.36)" strokeWidth="1" strokeDasharray="2 7" className="or-dash" />
+                </g>
               </g>
             </svg>
 
