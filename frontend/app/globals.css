@@ -496,8 +496,8 @@ html,body{height:auto;min-height:100%}
 
 /* the hero owns exactly one screen, minus the fixed nav above it */
 .app-shell{
-  min-height:min(100svh,780px);padding-top:var(--nav-h);
-  justify-content:flex-start;  /* the hero starts right under the nav, not centred low */
+  min-height:100svh;padding-top:var(--nav-h);
+  justify-content:center;      /* centred in the first screen, below the nav */
   overflow-x:clip;             /* the orbit rings may run past the viewport edge */
 }
 main{flex:0 0 auto;width:100%} /* ... instead of relying on flex:1 stretching */
@@ -505,7 +505,7 @@ main{flex:0 0 auto;width:100%} /* ... instead of relying on flex:1 stretching */
 /* .caption is absolute at top:100% and hangs ~44px below the stage box,
    so flex centring alone leaves the hero looking top-heavy. This pays
    that overhang back and centres it optically. */
-main{padding-top:clamp(20px,5vh,60px);padding-bottom:24px}
+main{padding-top:0;padding-bottom:24px}
 
 /* Hero balance. At >=1400px the 1280px cap already centres the hero with
    generous margins — untouched. Between 1001 and 1400px the viewport is
@@ -1514,8 +1514,6 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .orbit-front{filter:drop-shadow(0 0 5px rgba(55,226,155,.4))}
 .or-dot{filter:drop-shadow(0 0 4px rgba(139,240,198,.9))}
 
-/* A faint waveform behind the readout, fading out towards the rim so it reads
-   as energy inside the sphere rather than a chart. */
 .console-in{position:relative}
 .console-dots{
   position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:.55;
@@ -1524,32 +1522,20 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
   -webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 50%,rgba(0,0,0,.85) 86%,transparent 100%);
           mask-image:radial-gradient(circle at 50% 50%,transparent 50%,rgba(0,0,0,.85) 86%,transparent 100%);
 }
-/* The status text is the point of the hero: a soft dark backing keeps it clear of the waveform. */
+/* The status text is the point of the hero: a soft dark backing keeps it crisp against the sphere. */
 .console .readout::before{
   content:"";position:absolute;inset:-20px -44px -16px;z-index:-1;pointer-events:none;
   background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(3,8,7,.86),rgba(3,8,7,.55) 58%,transparent 100%);
 }
 .console .line b{font-size:21px;color:#fff;text-shadow:0 1px 14px rgba(0,0,0,.7)}
 .console .line span{font-size:14.5px;color:var(--jade-bright)}
-.console-wave{
-  position:absolute;left:11%;right:11%;top:45%;height:32%;transform:translateY(-50%);
-  display:flex;align-items:center;gap:3px;pointer-events:none;opacity:.3;
-  -webkit-mask-image:radial-gradient(ellipse 60% 100% at 50% 50%,#000 30%,transparent 100%);
-          mask-image:radial-gradient(ellipse 60% 100% at 50% 50%,#000 30%,transparent 100%);
-}
-.console-wave i{
-  flex:1;min-width:0;border-radius:3px;background:linear-gradient(180deg,var(--jade),rgba(55,226,155,.15));
-  transform-origin:50% 50%;animation:waveBob 3.4s ease-in-out infinite;animation-delay:calc(var(--i)*-.13s);
-}
-@keyframes waveBob{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
 
 /* Reduced motion: the hero is a still frame, fully visible. The GSAP timeline
    doesn't run (see page.tsx), so nothing would ever reveal the elements the
    CSS starts hidden -- show the finished state instead: the "booked" outcome,
    the check mark, both status cards, the jade glow. */
 @media (prefers-reduced-motion:reduce){
-  .console-wave i,.or-dash,.chip-float{animation:none}
-  .console-wave i{transform:scaleY(.7)}
+  .or-dash,.chip-float{animation:none}
   .or-dot{display:none}
   .aura .a-jade{opacity:.55}
   .radial{opacity:.5}

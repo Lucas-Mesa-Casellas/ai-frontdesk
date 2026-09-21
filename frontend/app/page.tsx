@@ -7,9 +7,6 @@ import VoiceSamples from "@/components/VoiceSamples";
 import BusinessTypes from "@/components/BusinessTypes";
 
 const SPOKES = 44;
-// Bar heights (%) for the faint waveform inside the sphere. Fixed, so the
-// server and client render the same thing.
-const WAVE = Array.from({ length: 34 }, (_, i) => Math.round(18 + 62 * Math.abs(Math.sin(i * 0.62) * Math.cos(i * 0.21))));
 type LangCode = "EN" | "ES" | "FR";
 const ORDER: LangCode[] = ["EN", "ES", "FR"];
 const SHOW_SOON = false; // upcoming-feature rows (SMS confirmation) stay out of the cards
@@ -691,14 +688,6 @@ export default function Home() {
               {/* Fine dot texture concentrated towards the rim: the "technological
                   object" surface. Pure decoration. */}
               <div className="console-dots" aria-hidden="true" />
-
-              {/* An audio waveform behind the readout: heights are fixed
-                  (deterministic, so server and client agree), the motion is CSS. */}
-              <div className="console-wave" aria-hidden="true">
-                {WAVE.map((h, i) => (
-                  <i key={i} style={{ height: `${h}%`, ["--i" as string]: i }} />
-                ))}
-              </div>
 
               <div className="console-in">
               <div className="orb">
