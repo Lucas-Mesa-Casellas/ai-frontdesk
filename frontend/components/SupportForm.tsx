@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Card from "./ui/Card";
+import Field from "./ui/Field";
 
-// Same look and same send-button states (idle / sending / sent / error) as
-// the landing page's contact form -- .cta-card, .fld and .send come from
-// globals.css. Only the fields differ: no name/email/business here, since
-// the sender is already signed in and the API route reads those from the
-// session.
+// The sender is already signed in, so there are no name/email/business fields:
+// the API route reads those from the session. Only `message` and
+// `attachments` are posted -- the contract with app/api/support/route.ts.
+// Styling uses the shared ui-* classes (the landing page's contact form keeps
+// its own), so changing one no longer changes the other.
 const MAX_FILES = 3;
 const MAX_TOTAL_BYTES = 4_000_000; // keep in sync with app/api/support/route.ts
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif", "application/pdf"];
@@ -67,31 +69,30 @@ export default function SupportForm({ labels }: { labels: SupportLabels }) {
   }
 
   return (
-    <div className="cta-card sup-card">
+    <Card as="section" className="sup-card">
       <form onSubmit={submit}>
-        <div className="fld">
-          <label htmlFor="sup-msg">{labels.msgLabel}</label>
+        <Field label={labels.msgLabel} htmlFor="sup-msg" className="sup-block">
           <textarea
             id="sup-msg" name="message" required maxLength={5000}
-            placeholder={labels.msgPh} style={{ minHeight: 140 }}
+            placeholder={labels.msgPh} className="ui-input sup-msg"
           />
-        </div>
+        </Field>
 
-        <div className="fld">
-          <label htmlFor="sup-files">{labels.attachLabel}</label>
+        <div className="sup-block">
+          <label className="ui-label" htmlFor="sup-files">{labels.attachLabel}</label>
           <input
             ref={inputRef} id="sup-files" type="file" multiple
             accept=".png,.jpg,.jpeg,.webp,.gif,.pdf,image/png,image/jpeg,image/webp,image/gif,application/pdf"
             onChange={(e) => addFiles(e.target.files)}
             style={{ display: "none" }}
           />
-          <button type="button" className="sup-attach" onClick={() => inputRef.current?.click()}>
+          <button type="button" className="ui-btn ui-btn--secondary" onClick={() => inputRef.current?.click()}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="m20 11.2-8.3 8.3a5 5 0 0 1-7.1-7.1l8.6-8.6a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9" />
             </svg>
             {labels.attachBtn}
           </button>
-          <p className="sup-hint">{labels.attachHint}</p>
+          <p className="ui-hint">{labels.attachHint}</p>
           {fileError && <p className="sup-err" role="alert">{fileError}</p>}
           {files.length > 0 && (
             <ul className="sup-files">
@@ -111,61 +112,61 @@ export default function SupportForm({ labels }: { labels: SupportLabels }) {
           )}
         </div>
 
-        <button
-          className={`send${sendState === "sent" ? " ok" : ""}${sendState === "sending" ? " busy" : ""}${sendState === "error" ? " err" : ""}`}
-          type="submit"
-          disabled={sendState === "sending"}
-        >
-          <span className="spin" aria-hidden="true" />
-          <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 12.5 9.5 18 20 6.5" />
-          </svg>
-          <span>
-            {sendState === "sending" ? labels.sending
-              : sendState === "sent" ? labels.sent
-              : sendState === "error" ? labels.error
-              : labels.send}
-          </span>
-        </button>
-
-        {sendState === "sent" && <p className="sup-note ok" role="status">{labels.sentNote}</p>}
+        <div className="sup-actions">
+          <button
+            className={`ui-btn ${sendState === "error" ? "ui-btn--warning" : "ui-btn--primary"} sup-send`}
+            type="submit"
+            disabled={sendState === "sending"}
+          >
+            {sendState === "sending" && <span className="sup-spin" aria-hidden="true" />}
+            {sendState === "sent" && (
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5" /></svg>
+            )}
+            <span>
+              {sendState === "sending" ? labels.sending
+                : sendState === "sent" ? labels.sent
+                : sendState === "error" ? labels.error
+                : labels.send}
+            </span>
+          </button>
+          {sendState === "sent" && <p className="sup-note" role="status">{labels.sentNote}</p>}
+        </div>
       </form>
 
       <style>{`
         /* contain: inline-size stops a long unbreakable attachment filename
            from stretching this card (and the whole flex column around it)
            past the viewport on a phone -- the name truncates instead. */
-        .sup-card { max-width: 560px; contain: inline-size; }
-        .sup-attach {
-          display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
-          font-size: 13.5px; font-weight: 500; color: var(--text-2);
-          padding: 10px 16px; border-radius: var(--r-pill);
-          background: rgba(255,255,255,.035); border: 1px solid var(--hair-2);
-          transition: background .22s var(--e-out), color .22s var(--e-out), border-color .22s var(--e-out);
-        }
-        .sup-attach:hover { background: rgba(255,255,255,.075); color: var(--text); border-color: rgba(255,255,255,.2); }
-        .sup-hint { margin-top: 8px; font-size: 12px; color: var(--text-3); }
+        .sup-card { padding: 30px; contain: inline-size; }
+        .sup-card:hover { transform: none; }
+        .sup-block { margin-bottom: 24px; }
+        .sup-msg { min-height: 180px; font-size: 14.5px; padding: 15px 16px; }
         .sup-err { margin-top: 8px; font-size: 12.5px; color: #E5877B; }
-        .sup-files { list-style: none; margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+        .sup-files { list-style: none; margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
         .sup-files li {
-          display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 12px;
-          border-radius: var(--r-md); background: rgba(255,255,255,.028); border: 1px solid var(--hair);
+          display: flex; align-items: center; gap: 10px; padding: 9px 9px 9px 14px;
+          border-radius: var(--radius-control); background: rgba(255,255,255,.028); border: 1px solid var(--border);
           font-size: 13px; color: var(--text-2);
         }
         .sup-fname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .sup-fsize { flex: none; font-size: 11.5px; color: var(--text-3); }
         .sup-x {
-          flex: none; width: 26px; height: 26px; border-radius: 8px; font-size: 17px; line-height: 1;
+          flex: none; width: 28px; height: 28px; border-radius: 8px; font-size: 17px; line-height: 1;
           color: var(--text-3); transition: background .18s var(--e-out), color .18s var(--e-out);
         }
         .sup-x:hover { background: rgba(255,255,255,.08); color: var(--text); }
-        .sup-note { margin-top: 12px; text-align: center; font-size: 12.5px; color: var(--text-3); }
-        .sup-note.ok { color: var(--jade); }
+        .sup-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 22px; border-top: 1px solid var(--border); }
+        .sup-send { min-width: 170px; height: 44px; }
+        .sup-spin {
+          width: 15px; height: 15px; border-radius: 50%; flex: none;
+          border: 2px solid rgba(4,20,13,.25); border-top-color: #04140D; animation: spin .7s linear infinite;
+        }
+        .sup-note { font-size: 13px; color: var(--text-2); }
         @media (max-width: 560px) {
-          .sup-attach { width: 100%; justify-content: center; padding: 12px 16px; }
-          .sup-x { width: 34px; height: 34px; }
+          .sup-card { padding: 20px; }
+          .sup-send { width: 100%; }
         }
       `}</style>
-    </div>
+    </Card>
   );
 }

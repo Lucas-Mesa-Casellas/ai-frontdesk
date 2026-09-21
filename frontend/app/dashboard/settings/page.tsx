@@ -2,6 +2,11 @@ import { createClient } from "@/lib/supabase-server";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { redirect } from "next/navigation";
+import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
+import Field from "@/components/ui/Field";
+import Button from "@/components/ui/Button";
+import PageHeader from "@/components/ui/PageHeader";
  
 export default async function SettingsPage({
   searchParams,
@@ -40,82 +45,56 @@ export default async function SettingsPage({
     redirect("/login");
   }
 
-  const field: React.CSSProperties = {
-    width: "100%", fontSize: 14, color: "var(--text)",
-    background: "rgba(255,255,255,.028)", border: "1px solid var(--hair-2)",
-    borderRadius: 11, padding: "11px 13px",
-  };
-  const label: React.CSSProperties = { display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-3)", marginBottom: 7 };
-
   return (
-    <div className="set-wrap">
-      <div className="dash-in" style={{ marginBottom: 26 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.setTitle}</h1>
-        <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.setSub}</p>
-      </div>
+    <div className="ui-page ui-page--md">
+      <PageHeader eyebrow={<Badge tone="jade" dot>{t.navSettings}</Badge>} title={t.setTitle} lede={t.setSub} />
 
       <div className="settings-grid">
-        <div className="dash-card dash-in d1 set-card">
-          <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>{t.setBizInfo}</h2>
-          <form action={updateSettings} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <div>
-              <label style={label}>{t.setBizName}</label>
-              <input defaultValue={business?.name} disabled style={{ ...field, opacity: 0.5 }} />
+        <Card as="section" className="dash-in d1 set-card">
+          <h2 className="set-title">{t.setBizInfo}</h2>
+          <form action={updateSettings} className="set-form">
+            <Field label={t.setBizName} htmlFor="set-name">
+              <input id="set-name" defaultValue={business?.name} disabled className="ui-input" />
+            </Field>
+            <Field label={t.setEmail} htmlFor="set-email">
+              <input id="set-email" type="email" name="notification_email" defaultValue={business?.notification_email} className="ui-input" />
+            </Field>
+            <Field label={t.setPhone} htmlFor="set-phone">
+              <input id="set-phone" type="tel" name="phone_number" defaultValue={business?.phone_number} className="ui-input" />
+            </Field>
+            <div className="set-actions">
+              <Button type="submit" variant="primary">{t.setSave}</Button>
+              {updated === "true" && <p className="set-msg set-ok" role="status">{t.setSaved}</p>}
+              {updated === "false" && <p className="set-msg set-bad" role="alert">{t.setSaveFailed}</p>}
             </div>
-            <div>
-              <label style={label}>{t.setEmail}</label>
-              <input type="email" name="notification_email" defaultValue={business?.notification_email} style={field} />
-            </div>
-            <div>
-              <label style={label}>{t.setPhone}</label>
-              <input type="tel" name="phone_number" defaultValue={business?.phone_number} style={field} />
-            </div>
-            <button
-              type="submit"
-              className="btn-jade"
-              style={{
-                alignSelf: "flex-start", padding: "10px 22px", borderRadius: 11, border: "none",
-                fontSize: 13.5, fontWeight: 600, color: "#04140D", cursor: "pointer",
-                background: "linear-gradient(180deg,#5CEBAF,var(--jade-2))",
-              }}
-            >
-              {t.setSave}
-            </button>
-            {updated === "true" && <p style={{ fontSize: 13, color: "var(--jade)" }}>{t.setSaved}</p>}
-            {updated === "false" && <p style={{ fontSize: 13, color: "#E5877B" }}>{t.setSaveFailed}</p>}
           </form>
-        </div>
+        </Card>
 
-        <div className="dash-card dash-in d2 set-card" style={{ borderColor: "rgba(179,38,30,.25)" }}>
-          <h2 style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t.setDanger}</h2>
-          <p style={{ fontSize: 12.5, color: "var(--text-3)", marginBottom: 14 }}>{t.setDangerSub}</p>
+        <Card as="section" className="dash-in d2 set-card">
+          <h2 className="set-title">{t.setDanger}</h2>
+          <p className="set-sub">{t.setDangerSub}</p>
           <form action={signOut}>
-            <button
-              type="submit"
-              className="btn-danger"
-              style={{
-                padding: "9px 18px", borderRadius: 11, fontSize: 13, color: "#E5877B",
-                border: "1px solid rgba(239,68,68,.28)", background: "rgba(239,68,68,.06)", cursor: "pointer",
-              }}
-            >
-              {t.setSignOut}
-            </button>
+            <Button type="submit" variant="danger">{t.setSignOut}</Button>
           </form>
-        </div>
+        </Card>
       </div>
 
       <style>{`
-        .set-wrap { padding: 28px 32px; max-width: 920px; }
-        .set-card { padding: 22px; }
-        .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-        @media (max-width: 800px) {
-          .settings-grid { grid-template-columns: 1fr; }
-        }
-        @media (max-width: 700px) {
-          .set-wrap { padding: 18px 16px; }
+        .settings-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
+        .set-card { padding: 28px; }
+        .set-card:hover { transform: none; }
+        .set-title { font-size: 15px; font-weight: 600; letter-spacing: -.015em; margin-bottom: 20px; }
+        .set-sub { font-size: 13px; line-height: 1.55; color: var(--text-3); margin: -10px 0 18px; }
+        .set-form { display: flex; flex-direction: column; gap: 18px; }
+        .set-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 6px; }
+        .set-msg { font-size: 13px; }
+        .set-ok { color: var(--jade); }
+        .set-bad { color: #E5877B; }
+        @media (max-width: 860px) {
+          .settings-grid { grid-template-columns: minmax(0, 1fr); }
         }
         @media (max-width: 480px) {
-          .set-card { padding: 16px; }
+          .set-card { padding: 20px; }
         }
       `}</style>
     </div>

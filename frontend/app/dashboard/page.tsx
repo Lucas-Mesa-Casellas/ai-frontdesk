@@ -6,6 +6,8 @@ import AnimateOnRouteEntry from "@/components/AnimateOnRouteEntry";
 import CountUp from "@/components/CountUp";
 import AutoRefresh from "@/components/AutoRefresh";
 import TranslatedField from "@/components/TranslatedField";
+import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import { IconPhone, IconCalendar } from "@/components/icons";
 import Link from "next/link";
@@ -75,54 +77,57 @@ export default async function OverviewPage() {
 
   return (
     <div className="ov-wrap">
-      <div className="dash-in" style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 26, fontWeight: 600, letterSpacing: "-0.025em", marginBottom: 6 }}>
-          {greeting}{business?.name ? `, ${business.name}` : ""}
-        </h1>
-        <p style={{ color: "var(--text-3)", fontSize: 13.5, display: "flex", alignItems: "center", gap: 8 }}>
-          <span className="live-dot" />
-          {t.ovWelcome}
+      <header className="ov-head dash-in">
+        <Badge tone="jade" dot live>{t.ovSub}</Badge>
+        <h1 className="ov-title">{t.ovTitle}</h1>
+        <p className="ov-lede">
+          {greeting}{business?.name ? `, ${business.name}` : ""}. {t.ovWelcome}
         </p>
-      </div>
+      </header>
 
       <div className="ov-stats">
-        <div className="dash-card dash-in d1 ov-stat-card">
+        <Card className="dash-in d1 ov-stat-card">
           <span className="ov-stat-ic"><IconPhone width={20} height={20} /></span>
           <div className="ov-stat-tx">
-            <p className="ov-stat-num"><CountUp value={totalCalls ?? 0} locale={locale} /></p>
             <p className="ov-stat-label">{t.statCalls}</p>
+            <p className="ov-stat-num"><CountUp value={totalCalls ?? 0} locale={locale} /></p>
           </div>
-        </div>
+        </Card>
 
-        <div className="dash-card dash-card-highlight dash-in d2 ov-stat-card">
+        <Card accent className="dash-in d2 ov-stat-card">
           <span className="ov-stat-ic"><IconCalendar width={20} height={20} /></span>
           <div className="ov-stat-tx">
-            <p className="ov-stat-num"><CountUp value={totalBookings ?? 0} locale={locale} /></p>
             <p className="ov-stat-label">{t.statBookings}</p>
+            <p className="ov-stat-num"><CountUp value={totalBookings ?? 0} locale={locale} /></p>
           </div>
-        </div>
+        </Card>
 
-        <div className="dash-card dash-in d3 ov-stat-card">
+        <Card className="dash-in d3 ov-stat-card">
           <span className="ov-stat-ic">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M6 20V12M12 20V5M18 20v-6" />
             </svg>
           </span>
           <div className="ov-stat-tx">
-            <p className="ov-stat-num"><CountUp value={conv} locale={locale} suffix="%" /></p>
             <p className="ov-stat-label">{t.statConv}</p>
+            <p className="ov-stat-num"><CountUp value={conv} locale={locale} suffix="%" /></p>
           </div>
-        </div>
+        </Card>
       </div>
 
       <div className="ov-row">
-        <div className="dash-card dash-in d4 ov-panel ov-chartcard">
-          <div style={{ marginBottom: 18 }}>
-            <h2 className="ov-h2">{t.hourChartTitle}</h2>
-            <p style={{ fontSize: 12, color: "var(--text-3)", marginTop: 2 }}>{t.hourChartSub}</p>
+        <Card as="section" className="dash-in d4 ov-panel ov-chartcard">
+          <div className="ov-panel-head">
+            <div>
+              <h2 className="ov-h2">{t.hourChartTitle}</h2>
+              <p className="ov-sub">{t.hourChartSub}</p>
+            </div>
           </div>
           {!totalCalls ? (
-            <Empty text={t.noCalls} />
+            <EmptyState
+              icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 20V11M10 20V6M15 20v-7M20 20V9" /></svg>}
+              title={t.noCalls}
+            />
           ) : (
             <>
               <div className="ov-chart">
@@ -146,7 +151,7 @@ export default async function OverviewPage() {
                           aria-label={tip}
                         >
                           <div
-                            className="ov-hourbar"
+                            className={`ov-hourbar${count > 0 && count === maxHourCount ? " is-peak" : ""}`}
                             style={{ height: count > 0 ? `${Math.max((count / niceMax) * 100, 4)}%` : 2 }}
                           />
                         </div>
@@ -167,21 +172,32 @@ export default async function OverviewPage() {
               </div>
             </>
           )}
-        </div>
+        </Card>
 
-        {!!latestCalls?.length && (
-          <div className="dash-card dash-in d5 ov-panel ov-latest">
-            <div className="ov-latest-head">
-              <h2 className="ov-h2">{t.ovLatest}</h2>
-              <Link href="/dashboard/calls" className="link-quiet" style={{ fontSize: 12.5 }}>{t.ovViewAll} →</Link>
-            </div>
+        <Card as="section" className="dash-in d5 ov-panel ov-latest">
+          <div className="ov-panel-head">
+            <h2 className="ov-h2">{t.ovLatest}</h2>
+            {!!latestCalls?.length && (
+              <Link href="/dashboard/calls" className="ov-viewall">{t.ovViewAll} →</Link>
+            )}
+          </div>
+          {!latestCalls?.length ? (
+            <EmptyState
+              icon={<IconPhone width={22} height={22} />}
+              title={t.callsEmptyTitle}
+              sub={t.callsEmptySub}
+            />
+          ) : (
             <div className="ov-latest-list">
               {latestCalls.map((c) => {
                 const summary = resolveTranslatable(c.summary, c.translations, "summary", locale, business?.language ?? "es");
                 const when = new Date(c.created_at);
+                const initial = (c.caller_name || "").trim().charAt(0).toUpperCase();
                 return (
                   <Link key={c.id} href={`/dashboard/calls/${c.id}`} className="ov-latest-row">
-                    <span className="ov-latest-ic"><IconPhone width={14} height={14} /></span>
+                    <span className="ov-latest-av" aria-hidden="true">
+                      {initial || <IconPhone width={14} height={14} />}
+                    </span>
                     <span className="ov-latest-main">
                       <b>{c.caller_name || t.unknown}</b>
                       {summary.text && (
@@ -202,8 +218,8 @@ export default async function OverviewPage() {
                 );
               })}
             </div>
-          </div>
-        )}
+          )}
+        </Card>
       </div>
 
       {/* Keeps the "live" figures at most a minute old while the tab is open. */}
@@ -223,15 +239,27 @@ export default async function OverviewPage() {
       </AnimateOnRouteEntry>
 
       <style>{`
-        .ov-wrap { position: relative; padding: 32px 36px; max-width: 1180px; isolation: isolate; }
-        .ov-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 16px; }
-        .ov-stat-card { position: relative; padding: 20px; display: flex; align-items: center; gap: 15px; }
+        /* Uses the space it's given: centred, up to 1320px, generous gutters. */
+        .ov-wrap { position: relative; padding: 36px 40px 44px; max-width: 1320px; margin-inline: auto; isolation: isolate; }
+
+        /* header: live badge -> title -> one supporting line */
+        .ov-head { margin-bottom: 30px; }
+        .ov-title { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; margin: 14px 0 8px; }
+        .ov-lede { font-size: 14px; line-height: 1.55; color: var(--text-3); max-width: 62ch; }
+
+        /* KPI row: icon tile, small label, large value */
+        .ov-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+        .ov-stat-card { position: relative; padding: 22px; display: flex; align-items: center; gap: 16px; }
         .ov-stat-ic {
-          width: 46px; height: 46px; border-radius: 14px; flex: none; display: grid; place-items: center;
-          color: var(--jade); background: rgba(55,226,155,.10); border: 1px solid rgba(55,226,155,.26);
-          box-shadow: 0 12px 26px -14px rgba(18,185,129,.7);
+          width: 48px; height: 48px; border-radius: 14px; flex: none; display: grid; place-items: center;
+          color: var(--jade); background: rgba(55,226,155,.09); border: 1px solid rgba(55,226,155,.22);
         }
         .ov-stat-tx { min-width: 0; }
+        .ov-stat-label { font-size: 12.5px; font-weight: 500; color: var(--text-3); margin-bottom: 6px; }
+        .ov-stat-num { font-size: 32px; font-weight: 600; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+        /* The one accent card in the row gets a brighter tile as well as the edge. */
+        .dash-card-highlight .ov-stat-ic { background: rgba(55,226,155,.14); border-color: rgba(55,226,155,.34); box-shadow: 0 12px 26px -14px rgba(18,185,129,.75); }
+
         /* Adapted from the landing page's .aura treatment (globals.css):
            a blurred jade field sitting behind the subject, bleeding out
            past its edges. There the console covers the middle, so only the
@@ -247,60 +275,77 @@ export default async function OverviewPage() {
           background: radial-gradient(closest-side, transparent 55%, rgba(55,226,155,.16) 100%);
           filter: blur(10px); opacity: .1; z-index: -1; pointer-events: none;
         }
-        .ov-stat-num { font-size: 28px; font-weight: 600; letter-spacing: -.03em; line-height: 1; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
-        .ov-stat-label { font-size: 12.5px; color: var(--text-3); }
-        .ov-row { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
-        .ov-panel { position: relative; padding: 24px; }
-        .ov-h2 { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); }
+
+        /* chart + latest calls */
+        .ov-row { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+        .ov-panel { position: relative; padding: 26px; display: flex; flex-direction: column; }
+        .ov-panel:hover { transform: none; } /* big surfaces stay put; only the KPI cards lift */
+        .ov-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+        .ov-h2 { font-size: 15px; font-weight: 600; letter-spacing: -.015em; color: var(--text); }
+        .ov-sub { font-size: 12.5px; color: var(--text-3); margin-top: 3px; }
+        .ov-viewall { font-size: 12.5px; color: var(--text-3); white-space: nowrap; transition: color .2s var(--e-out); }
+        .ov-viewall:hover { color: var(--jade); }
 
         /* chart: y axis + gridlines, bars scaled to the axis */
-        .ov-chartcard { display: flex; flex-direction: column; }
-        .ov-chart { display: flex; gap: 10px; flex: 1; min-height: 150px; }
+        .ov-chart { display: flex; gap: 12px; flex: 1; min-height: 210px; }
         .ov-yaxis { position: relative; width: 22px; flex: none; }
-        .ov-yaxis span { position: absolute; right: 0; transform: translateY(-50%); font-size: 10px; line-height: 1; color: var(--text-3); font-variant-numeric: tabular-nums; }
+        .ov-yaxis span { position: absolute; right: 0; transform: translateY(-50%); font-size: 10.5px; line-height: 1; color: var(--text-3); font-variant-numeric: tabular-nums; }
         .ov-plot { position: relative; flex: 1; min-width: 0; }
         .ov-gridlines { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; pointer-events: none; }
-        .ov-gridlines i { display: block; height: 1px; background: rgba(255,255,255,.06); }
-        .ov-hourbars { position: relative; display: flex; align-items: flex-end; gap: 2px; height: 100%; }
+        .ov-gridlines i { display: block; height: 1px; background: rgba(255,255,255,.055); }
+        .ov-gridlines i:last-child { background: rgba(255,255,255,.11); }
+        .ov-hourbars { position: relative; display: flex; align-items: flex-end; gap: 3px; height: 100%; }
         .ov-hourcol { position: relative; flex: 1; min-width: 3px; height: 100%; display: flex; align-items: flex-end; }
         .ov-hourbar {
-          width: 100%; border-radius: 2px 2px 0 0; background: linear-gradient(180deg, var(--jade), var(--jade-deep));
-          box-shadow: 0 0 14px -4px rgba(55,226,155,.5);
+          width: 100%; border-radius: 3px 3px 0 0;
+          background: linear-gradient(180deg, rgba(55,226,155,.78), rgba(5,150,105,.5));
           transition: opacity .18s var(--e-out), filter .18s var(--e-out);
         }
+        /* the busiest hour(s): brighter, with a soft glow */
+        .ov-hourbar.is-peak { background: linear-gradient(180deg, var(--jade-bright), var(--jade)); box-shadow: 0 0 18px -4px rgba(55,226,155,.65); }
         /* Hover one hour: the rest dim, and a tooltip with the exact count
            appears (the first / last few anchor to the edge so it can't run off the card). */
-        .ov-hourbars:hover .ov-hourbar { opacity: .35; }
+        .ov-hourbars:hover .ov-hourbar { opacity: .32; }
         .ov-hourbars .ov-hourcol:hover .ov-hourbar { opacity: 1; filter: brightness(1.15); }
         .ov-hourcol::after {
           content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translate(-50%, 4px);
           white-space: nowrap; padding: 6px 10px; border-radius: 8px; font-size: 11.5px; line-height: 1.2; color: var(--text);
-          background: rgba(13,16,21,.98); border: 1px solid var(--hair-2); box-shadow: 0 14px 30px -12px rgba(0,0,0,.9);
+          background: rgba(13,16,21,.98); border: 1px solid var(--border-strong); box-shadow: 0 14px 30px -12px rgba(0,0,0,.9);
           opacity: 0; pointer-events: none; z-index: 5; transition: opacity .16s var(--e-out), transform .16s var(--e-out);
         }
         .ov-hourcol.edge-l::after { left: 0; transform: translate(0, 4px); }
         .ov-hourcol.edge-r::after { left: auto; right: 0; transform: translate(0, 4px); }
         .ov-hourcol:hover::after { opacity: 1; transform: translate(-50%, 0); }
         .ov-hourcol.edge-l:hover::after, .ov-hourcol.edge-r:hover::after { transform: translate(0, 0); }
-        .ov-hourlabels { display: flex; gap: 2px; margin: 8px 0 0 32px; }
-        .ov-hourlabels span { flex: 1; min-width: 3px; display: flex; justify-content: center; white-space: nowrap; font-size: 9.5px; color: var(--text-3); }
+        .ov-hourlabels { display: flex; gap: 3px; margin: 10px 0 0 34px; }
+        .ov-hourlabels span { flex: 1; min-width: 3px; display: flex; justify-content: center; white-space: nowrap; font-size: 10px; color: var(--text-3); }
 
-        .ov-latest-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
-        .ov-latest-list { display: flex; flex-direction: column; }
+        /* latest calls: one surface, rows divided by hairlines (not a stack of cards) */
+        .ov-latest-list { display: flex; flex-direction: column; margin: 0 -12px; }
         .ov-latest-row {
-          display: flex; align-items: center; gap: 12px; padding: 12px 10px; margin: 0 -10px; border-radius: 12px;
+          display: flex; align-items: center; gap: 13px; padding: 14px 12px; border-radius: 12px;
           color: inherit; text-decoration: none; transition: background .2s var(--e-out);
         }
-        .ov-latest-row + .ov-latest-row { border-top: 1px solid var(--hair); border-top-left-radius: 0; border-top-right-radius: 0; }
-        .ov-latest-row:hover { background: rgba(255,255,255,.04); }
-        .ov-latest-ic {
-          width: 34px; height: 34px; border-radius: 10px; flex: none; display: grid; place-items: center;
-          background: rgba(55,226,155,.10); border: 1px solid rgba(55,226,155,.22); color: var(--jade);
+        .ov-latest-row + .ov-latest-row { border-top: 1px solid var(--border); border-top-left-radius: 0; border-top-right-radius: 0; }
+        .ov-latest-row:hover { background: rgba(55,226,155,.05); }
+        .ov-latest-av {
+          width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center;
+          font-size: 13px; font-weight: 600; color: var(--jade);
+          background: rgba(55,226,155,.09); border: 1px solid rgba(55,226,155,.22);
         }
-        .ov-latest-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+        .ov-latest-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
         .ov-latest-main b { font-size: 13.5px; font-weight: 500; }
         .ov-latest-sum { font-size: 12.5px; color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .ov-latest-when { flex: none; font-size: 12px; color: var(--text-3); white-space: nowrap; }
+
+        /* empty states: an icon tile, the existing sentence, nothing invented */
+        .ov-empty { flex: 1; min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 12px; }
+        .ov-empty-ic {
+          width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 8px;
+          color: var(--jade); background: rgba(55,226,155,.08); border: 1px solid rgba(55,226,155,.2);
+        }
+        .ov-empty p { font-size: 14px; color: var(--text-2); }
+        .ov-empty p + p { font-size: 12.5px; color: var(--text-3); max-width: 34ch; }
 
         /* A neon line lighting up left-to-right, not a blurred bar sliding
            across -- scaleX grows a SOLID line rather than translating a
@@ -354,29 +399,31 @@ export default async function OverviewPage() {
           .ov-wave-line { transform: translateY(-50%) scaleX(1); animation: none; }
           .ov-wave-badge { opacity: 1; transform: scale(1); animation: none; }
         }
+
+        @media (min-width: 1500px) {
+          .ov-row { grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); }
+        }
         @media (max-width: 1100px) {
           .ov-row { grid-template-columns: minmax(0, 1fr); }
         }
-        @media (max-width: 700px) {
-          .ov-wrap { padding: 20px 18px; }
+        /* Narrow: the KPIs stack one per row (icon + text side by side) rather
+           than three cramped columns, and the gutters tighten. */
+        @media (max-width: 760px) {
+          .ov-wrap { padding: 22px 18px 32px; }
+          .ov-stats { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+          .ov-stat-card { padding: 18px; }
+          .ov-title { font-size: 26px; }
+          .ov-panel { padding: 20px; }
         }
         @media (max-width: 480px) {
-          .ov-stats { gap: 8px; }
-          .ov-stat-card { padding: 12px; display: block; }
-          .ov-stat-ic { display: none; }
-          .ov-stat-num { font-size: 20px; }
-          .ov-stat-label { font-size: 10.5px; }
-          .ov-panel { padding: 14px; }
           .ov-yaxis { width: 16px; }
-          .ov-hourlabels { margin-left: 26px; }
+          .ov-hourlabels { margin-left: 28px; }
+          .ov-hourbars, .ov-hourlabels { gap: 2px; }
           /* Was :nth-child(2n) against 8 label spans (every other tick) --
              now there are 24 spans (one per hour, for alignment), so this
              targets the same visual ticks (3, 9, 15, 21) by the class
              applied in JS instead of by position. */
           .ov-hourlabel-thin { display: none; }
-          /* Cards are narrow and only 8px apart here, so full-strength
-             halos bleed into each other and read as one bright band
-             behind the row rather than a glow per card. */
           .ov-stat-card::after { inset: -8px; border-radius: 20px; filter: blur(7px); opacity: .07; }
         }
       `}</style>
@@ -384,6 +431,13 @@ export default async function OverviewPage() {
   );
 }
 
-function Empty({ text }: { text: string }) {
-  return <p style={{ color: "var(--text-3)", fontSize: 13 }}>{text}</p>;
+// A quiet empty state: an icon tile plus the sentence(s) the app already has.
+function EmptyState({ icon, title, sub }: { icon: React.ReactNode; title: string; sub?: string }) {
+  return (
+    <div className="ov-empty">
+      <span className="ov-empty-ic">{icon}</span>
+      <p>{title}</p>
+      {sub && <p>{sub}</p>}
+    </div>
+  );
 }

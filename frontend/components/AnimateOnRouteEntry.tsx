@@ -1,7 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+
+const noopSubscribe = () => () => {};
 
 // A CSS animation that's simply declared on an element (present from that
 // element's very first computed style) doesn't reliably replay when Next's
@@ -35,13 +37,29 @@ export default function AnimateOnRouteEntry({
   children?: React.ReactNode;
 }) {
   const pathname = usePathname();
-  // Captured once at mount via the lazy initializer, not recomputed on every
-  // render -- otherwise the moment the effect below marks storageKey as
-  // played, THIS SAME first-ever mount would immediately reread that as
-  // "already played" and skip straight to doneClassName, killing the
-  // animation it had just started.
-  const [alreadyPlayed] = useState(
-    () => !!(once && storageKey && typeof window !== "undefined" && sessionStorage.getItem(storageKey) === "1")
+  // Captured once per mount and then frozen, not recomputed on every render
+  // -- otherwise the moment the effect below marks storageKey as played,
+  // THIS SAME first-ever mount would immediately reread that as "already
+  // played" and skip straight to doneClassName, killing the animation it had
+  // just started. The ref holds that first reading.
+  //
+  // Read through useSyncExternalStore rather than in a lazy useState
+  // initializer: sessionStorage only exists in the browser, so reading it
+  // while rendering made the server HTML ("not played") differ from the first
+  // client render ("played") and logged a hydration mismatch. Here the server
+  // value is always false, and on a client-side navigation (no hydration) the
+  // real value is used immediately, so there is still no flash of the
+  // un-animated state.
+  const firstRead = useRef<boolean | null>(null);
+  const alreadyPlayed = useSyncExternalStore(
+    noopSubscribe,
+    () => {
+      if (firstRead.current === null) {
+        firstRead.current = !!(once && storageKey && sessionStorage.getItem(storageKey) === "1");
+      }
+      return firstRead.current;
+    },
+    () => false,
   );
   const [active, setActive] = useState(false);
 

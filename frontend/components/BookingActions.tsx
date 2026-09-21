@@ -42,40 +42,30 @@ export default function BookingActions({
   if (!editing && settledKind) {
     const Icon = settledKind === "confirm" ? IconCheck : IconX;
     return (
-      <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+      <div className="ba-row">
         {/* Status is plain text, not a button -- only "Change" below is
             clickable, so clicking the settled status itself does nothing. */}
-        <span style={{
-          display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600,
-          color: settledKind === "confirm" ? "var(--jade)" : "var(--text-3)",
-        }}>
-          <Icon width={13} height={13} />
+        <span className={`ui-badge ${settledKind === "confirm" ? "ui-badge--jade" : ""}`}>
+          <Icon width={12} height={12} />
           {settledKind === "confirm" ? confirmedLabel : cancelledLabel}
         </span>
-        <button
-          onClick={() => setEditing(true)}
-          className="cal-link-box"
-          style={{ fontSize: 11, fontWeight: 500 }}
-        >
+        <button onClick={() => setEditing(true)} className="cal-link-box ba-change">
           {changeLabel}
         </button>
       </div>
     );
   }
 
+  // Confirm is the one primary (jade) action; Cancel is a restrained amber.
+  // While a request is running, the button that isn't running dims.
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <div style={{ display: "flex", gap: 8 }}>
+    <div className="ba-col">
+      <div className="ba-row">
         <button
           disabled={pending}
           onClick={() => run("confirm")}
-          className="ba-confirm-btn"
-          style={{
-            display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600,
-            color: "#04140D", padding: "7px 13px", borderRadius: 9, border: "none",
-            cursor: pending ? "default" : "pointer",
-            opacity: pending && action !== "confirm" ? 0.5 : 1,
-          }}
+          className="ui-btn ui-btn--primary ui-btn--sm"
+          style={{ opacity: pending && action !== "confirm" ? 0.5 : 1 }}
         >
           <IconCheck width={13} height={13} />
           {pending && action === "confirm" ? confirmingLabel : confirmLabel}
@@ -83,20 +73,15 @@ export default function BookingActions({
         <button
           disabled={pending}
           onClick={() => run("cancel")}
-          className="ba-cancel-btn"
-          style={{
-            display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 600,
-            color: "var(--text-2)", padding: "7px 13px", borderRadius: 9,
-            border: "1px solid var(--hair)", cursor: pending ? "default" : "pointer",
-            opacity: pending && action !== "cancel" ? 0.5 : 1,
-          }}
+          className="ui-btn ui-btn--warning ui-btn--sm"
+          style={{ opacity: pending && action !== "cancel" ? 0.5 : 1 }}
         >
           <IconX width={13} height={13} />
           {pending && action === "cancel" ? cancellingLabel : cancelLabel}
         </button>
       </div>
       {failed && (
-        <p style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "#E5877B" }}>
+        <p className="ba-error">
           <IconX width={11} height={11} />
           {errorLabel}
         </p>
@@ -104,3 +89,5 @@ export default function BookingActions({
     </div>
   );
 }
+// .ba-row / .ba-col / .ba-change / .ba-error are styled in CalendarClient.tsx,
+// the only place this component is rendered.

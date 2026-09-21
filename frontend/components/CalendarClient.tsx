@@ -5,6 +5,8 @@ import Link from "next/link";
 import BookingActions from "./BookingActions";
 import DeleteButton from "./DeleteButton";
 import TranslatedField from "./TranslatedField";
+import Card from "./ui/Card";
+import Badge from "./ui/Badge";
 import { deleteBooking } from "@/lib/dash-actions";
 import { BUSINESS_TZ } from "@/lib/tz";
 
@@ -92,47 +94,78 @@ export default function CalendarClient({
       label={labels.calDelete}
       confirmMessage={labels.calDeleteConfirm}
       errorLabel={labels.calActionError}
-      className="cal-link-box-danger"
-      style={{ fontSize: 11.5 }}
+      className="ui-btn ui-btn--sm cal-delete"
     />
   );
 
+  // One request, dated or undated: who, what they asked, its status, and the
+  // actions. Hierarchy: customer -> summary -> status -> actions.
+  const renderRequest = (
+    b: { id: string; customer_name: string | null; customer_phone: string | null; summary: string | null; summaryNeedsTranslation: boolean; call_id: string | null; status: string },
+    time: string | null,
+    urgent: boolean,
+  ) => (
+    <Card key={b.id} className="cal-req">
+      <div className="cal-req-top">
+        <div className="cal-req-who">
+          {time && <span className="cal-req-time">{time}</span>}
+          <b>{b.customer_name || labels.unknown}</b>
+          {b.customer_phone && <span className="cal-req-phone">{b.customer_phone}</span>}
+        </div>
+        {urgent && <Badge tone="danger">{legend.urgency}</Badge>}
+      </div>
+      <p className="cal-req-sum">
+        {b.summary ? (
+          b.summaryNeedsTranslation && b.call_id ? (
+            <TranslatedField callId={b.call_id} locale={dashboardLocale} field="summary" initialText={b.summary} />
+          ) : (
+            b.summary
+          )
+        ) : (
+          labels.calNoReason
+        )}
+      </p>
+      <div className="cal-req-actions">
+        {renderActions(b)}
+        <span className="cal-req-more">
+          {b.call_id && (
+            <Link href={`/dashboard/calls/${b.call_id}`} className="ui-btn ui-btn--secondary ui-btn--sm">
+              {labels.calSeeCall} →
+            </Link>
+          )}
+          {renderDelete(b.id)}
+        </span>
+      </div>
+    </Card>
+  );
+
   return (
-    <div className="cal-layout" style={{ width: "100%" }}>
-      <div className="cal-grid-col">
-        <div className="cal-grid-head" style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", rowGap: 8, flex: "none" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <Link href={prevHref} className="cal-nav" style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 14, color: "var(--text-2)", textDecoration: "none" }}>‹</Link>
-            <span style={{ fontSize: 13, fontWeight: 600, textTransform: "capitalize", minWidth: 110, textAlign: "center" }}>{monthTitle}</span>
-            <Link href={nextHref} className="cal-nav" style={{ padding: "4px 10px", borderRadius: 8, border: "1px solid var(--hair)", fontSize: 14, color: "var(--text-2)", textDecoration: "none" }}>›</Link>
+    <div className="cal-layout">
+      {/* ---- the month ---- */}
+      <Card as="section" className="dash-in d1 cal-card">
+        <div className="cal-head">
+          <div className="cal-nav-group">
+            <Link href={prevHref} className="cal-nav" aria-label="Previous month">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m14.5 6-6 6 6 6" /></svg>
+            </Link>
+            <span className="cal-month">{monthTitle}</span>
+            <Link href={nextHref} className="cal-nav" aria-label="Next month">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9.5 6 6 6-6 6" /></svg>
+            </Link>
           </div>
-          <div style={{ display: "flex", gap: 12, fontSize: 11, color: "var(--text-3)", alignItems: "center", flexWrap: "wrap", rowGap: 4 }}>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "#FFC178" }} />
-              {legend.pending}
-            </span>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "var(--jade)" }} />
-              {legend.confirmed}
-            </span>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "var(--text-3)" }} />
-              {legend.cancelled}
-            </span>
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ width: 14, height: 2.5, borderRadius: 2, background: "#FF6B6B" }} />
-              {legend.urgency}
-            </span>
+          <div className="cal-legend">
+            <span style={{ ["--c" as string]: "#FFC178" }}>{legend.pending}</span>
+            <span style={{ ["--c" as string]: "var(--jade)" }}>{legend.confirmed}</span>
+            <span style={{ ["--c" as string]: "var(--text-3)" }}>{legend.cancelled}</span>
+            <span style={{ ["--c" as string]: "#FF6B6B" }}>{legend.urgency}</span>
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 3, flex: "none" }}>
-          {weekdayLabels.map((w) => (
-            <div key={w} style={{ fontSize: 9.5, fontWeight: 600, color: "var(--text-3)", textAlign: "center", textTransform: "uppercase", padding: "0 0 4px", letterSpacing: "0.04em" }}>{w}</div>
-          ))}
+        <div className="cal-weekdays">
+          {weekdayLabels.map((w) => <div key={w}>{w}</div>)}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gridTemplateRows: `repeat(${cells.length / 7}, minmax(44px, 1fr))`, gap: 3, flex: 1, minHeight: 0 }}>
+        <div className="cal-grid">
           {cells.map((day, i) => {
             const isToday = day !== null && todayKey === `${year}-${month}-${day}`;
             const isSelected = day !== null && day === selectedDay;
@@ -142,31 +175,25 @@ export default function CalendarClient({
                 key={i}
                 disabled={day === null}
                 onClick={() => day !== null && setSelectedDay(day === selectedDay ? null : day)}
-                className={`cal-cell ${isToday ? "today" : ""} ${isSelected ? "selected" : ""}`}
-                style={{
-                  borderRadius: 8, padding: 4, textAlign: "left", cursor: day === null ? "default" : "pointer",
-                  border: `1px solid ${isSelected ? "var(--jade)" : isToday ? "rgba(55,226,155,.45)" : "var(--hair)"}`,
-                  background: day === null ? "transparent" : isSelected ? "rgba(55,226,155,.08)" : "rgba(255,255,255,.018)",
-                  transition: "all .15s var(--e-out)", overflow: "hidden",
-                }}
+                className={`cal-cell${day === null ? " empty" : ""}${isToday ? " today" : ""}${isSelected ? " selected" : ""}`}
+                aria-pressed={day !== null ? isSelected : undefined}
               >
                 {day !== null && (
                   <>
-                    <span style={{ fontSize: 10, color: isToday ? "var(--jade)" : "var(--text-3)", fontWeight: isToday ? 700 : 500 }}>{day}</span>
+                    <span className="cal-day">{day}</span>
                     {bookings.length > 0 && (
                       // One row per distinct status color that day, stacked
                       // top to bottom in DAY_COLOR_PRIORITY order: the
                       // count next to a short line in that status's color
-                      // (echoing the legend's line swatches). The stack is
-                      // centered as a group in the cell.
-                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 0, marginTop: 1, width: "100%" }}>
+                      // (echoing the legend's swatches).
+                      <span className="cal-inds">
                         {dayColorGroups(bookings).map(([color, count]) => (
-                          <div key={color} style={{ display: "flex", alignItems: "center", gap: 3, lineHeight: 1.05 }}>
-                            <span style={{ fontSize: 11, fontWeight: 700, color }}>{count}</span>
-                            <span style={{ width: 11, height: 2, borderRadius: 2, background: color, flex: "none" }} />
-                          </div>
+                          <span key={color} className="cal-ind" style={{ ["--c" as string]: color }}>
+                            <b>{count}</b>
+                            <i />
+                          </span>
                         ))}
-                      </div>
+                      </span>
                     )}
                   </>
                 )}
@@ -174,131 +201,137 @@ export default function CalendarClient({
             );
           })}
         </div>
-      </div>
+      </Card>
 
-      <div className="cal-agenda-col" style={{ display: "flex", flexDirection: "column", minHeight: 0 }}>
-        <div style={{
-          display: "flex", gap: 16, padding: "10px 14px", borderRadius: 12, marginBottom: 10, flex: "none",
-          border: "1px solid var(--hair)", background: "rgba(255,255,255,.022)",
-        }}>
+      {/* ---- the selected day's requests (or the undated ones) ---- */}
+      <div className="cal-side">
+        <Card className="dash-in d2 cal-stats">
           <div>
-            <p style={{ fontSize: 17, fontWeight: 600, lineHeight: 1 }}>{stats.total}</p>
-            <p style={{ fontSize: 10.5, color: "var(--text-3)", marginTop: 3 }}>{labels.statThisMonth}</p>
+            <p className="cal-stat-n">{stats.total}</p>
+            <p className="cal-stat-l">{labels.statThisMonth}</p>
           </div>
-          <div style={{ width: 1, background: "var(--hair)" }} />
+          <span className="cal-stat-sep" />
           <div>
-            <p style={{ fontSize: 17, fontWeight: 600, lineHeight: 1, color: "var(--jade)" }}>{stats.confirmed}</p>
-            <p style={{ fontSize: 10.5, color: "var(--text-3)", marginTop: 3 }}>{labels.statConfirmed}</p>
+            <p className="cal-stat-n cal-stat-ok">{stats.confirmed}</p>
+            <p className="cal-stat-l">{labels.statConfirmed}</p>
           </div>
-        </div>
+        </Card>
 
-        <p style={{ fontSize: 11, fontWeight: 600, color: "var(--text-3)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.04em", flex: "none" }}>
+        <p className="cal-side-title">
           {selectedDay !== null ? selectedDateLabel : labels.calUndatedTitle}
         </p>
 
-        <div className="cal-agenda-list" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        <div className="cal-list">
           {selectedDay !== null ? (
             !selected || selected.length === 0 ? (
-              <div className="dash-card" style={{ padding: 12, borderRadius: 12 }}>
-                <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>{labels.calDayEmpty}</p>
-              </div>
+              <Card className="cal-note"><p>{labels.calDayEmpty}</p></Card>
             ) : (
               selected.map((b) => {
                 const time = b.start_time
                   ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ }).format(new Date(b.start_time))
                   : null;
-                return (
-                  <div key={b.id} className="dash-card cal-booking-card" style={{ padding: 10, borderRadius: 12 }}>
-                    <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
-                      {time && <span style={{ fontWeight: 600, marginRight: 6 }}>{time}</span>}
-                      {b.customer_name || labels.unknown}
-                      {b.customer_phone && (
-                        <span style={{ fontWeight: 400, fontSize: 12, color: "var(--text-3)" }}> · {b.customer_phone}</span>
-                      )}
-                    </p>
-                    <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 10 }}>
-                      {b.summary ? (
-                        b.summaryNeedsTranslation && b.call_id ? (
-                          <TranslatedField callId={b.call_id} locale={dashboardLocale} field="summary" initialText={b.summary} />
-                        ) : (
-                          b.summary
-                        )
-                      ) : (
-                        labels.calNoReason
-                      )}
-                    </p>
-                    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 18 }}>
-                      {renderActions(b)}
-                      {b.call_id && (
-                        <Link href={`/dashboard/calls/${b.call_id}`} className="cal-link-box" style={{ fontSize: 11.5 }}>
-                          {labels.calSeeCall} →
-                        </Link>
-                      )}
-                      {renderDelete(b.id)}
-                    </div>
-                  </div>
-                );
+                return renderRequest(b, time, b.urgency === "high" && b.status === "pending");
               })
             )
           ) : undated.length === 0 ? (
-            <div className="dash-card" style={{ padding: 12, borderRadius: 12 }}>
-              <p style={{ fontSize: 12.5, color: "var(--text-3)" }}>{labels.calSelectDay}</p>
-            </div>
+            <Card className="cal-note"><p>{labels.calSelectDay}</p></Card>
           ) : (
-            undated.map((b) => (
-              <div key={b.id} className="dash-card cal-booking-card" style={{ padding: 10, borderRadius: 12 }}>
-                <p style={{ fontSize: 13, fontWeight: 500, marginBottom: 4 }}>
-                  {b.customer_name || labels.unknown}
-                  {b.customer_phone && (
-                    <span style={{ fontWeight: 400, fontSize: 12, color: "var(--text-3)" }}> · {b.customer_phone}</span>
-                  )}
-                </p>
-                <p style={{ fontSize: 12, color: "var(--text-3)", marginBottom: 10 }}>
-                  {b.summary ? (
-                    b.summaryNeedsTranslation && b.call_id ? (
-                      <TranslatedField callId={b.call_id} locale={dashboardLocale} field="summary" initialText={b.summary} />
-                    ) : (
-                      b.summary
-                    )
-                  ) : (
-                    labels.calNoReason
-                  )}
-                </p>
-                <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 18 }}>
-                  {renderActions(b)}
-                  {b.call_id && (
-                    <Link href={`/dashboard/calls/${b.call_id}`} className="cal-link-box" style={{ fontSize: 11.5 }}>
-                      {labels.calSeeCall} →
-                    </Link>
-                  )}
-                  {renderDelete(b.id)}
-                </div>
-              </div>
-            ))
+            undated.map((b) => renderRequest(b, null, false))
           )}
         </div>
       </div>
 
       <style>{`
-        .cal-layout { display: flex; gap: 18px; flex: 1; min-height: 0; }
-        .cal-grid-col { flex: 1.4 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
-        .cal-agenda-col { flex: 1 1 0; min-width: 220px; }
-        .cal-agenda-list { overflow-y: auto; min-height: 0; }
-        /* .dash-card:hover (globals.css) lifts the card with translateY(-2px)
-           -- fine for clickable cards elsewhere, but these booking-detail
-           boxes aren't clickable themselves (just a container around the
-           Confirm/Cancel buttons), so the shift read as spurious movement.
-           Cancels only the transform; border-color/box-shadow hover
-           feedback from .dash-card:hover still applies untouched. Combined
-           selector (not a bare .cal-booking-card:hover) so specificity
-           beats .dash-card:hover regardless of source order. */
-        .dash-card.cal-booking-card:hover { transform: none; }
+        /* ---------- layout: month on the left, requests on the right ---------- */
+        .cal-layout { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr); gap: 16px; align-items: start; }
+        .cal-card { padding: 22px; }
+        .cal-card:hover { transform: none; }
+        .cal-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; position: sticky; top: 20px; }
+
+        /* ---------- month header ---------- */
+        .cal-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; margin-bottom: 18px; }
+        .cal-nav-group { display: flex; align-items: center; gap: 10px; }
+        .cal-nav {
+          width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--text-2);
+          border: 1px solid var(--border); background: rgba(255,255,255,.02); text-decoration: none;
+          transition: background .2s var(--e-out), border-color .2s var(--e-out), color .2s var(--e-out);
+        }
+        .cal-nav:hover { background: rgba(255,255,255,.06); border-color: var(--border-strong); color: var(--text); }
+        .cal-month { min-width: 150px; text-align: center; font-size: 17px; font-weight: 600; letter-spacing: -.02em; text-transform: capitalize; }
+        .cal-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 11.5px; color: var(--text-3); }
+        .cal-legend span { display: inline-flex; align-items: center; gap: 7px; }
+        .cal-legend span::before { content: ""; width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
+
+        /* ---------- the grid: dark cells, hairlines, room to breathe ---------- */
+        .cal-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
+        .cal-weekdays div { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); text-align: left; padding: 0 4px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(88px, auto); gap: 6px; }
+        .cal-grid .cal-cell {
+          position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 6px;
+          min-width: 0; padding: 9px 10px; border-radius: 12px; text-align: left; overflow: hidden;
+          background: rgba(255,255,255,.02); border: 1px solid var(--border); cursor: pointer; transform: none;
+          transition: background .18s var(--e-out), border-color .18s var(--e-out), box-shadow .18s var(--e-out);
+        }
+        .cal-grid .cal-cell:hover:not(:disabled) { background: rgba(255,255,255,.05); border-color: var(--border-strong); transform: none; }
+        .cal-grid .cal-cell.empty { background: transparent; border-color: transparent; cursor: default; }
+        .cal-grid .cal-cell.today { border-color: rgba(55,226,155,.4); }
+        .cal-grid .cal-cell.selected { background: rgba(55,226,155,.075); border-color: var(--jade); box-shadow: 0 0 0 1px rgba(55,226,155,.25), 0 0 26px -14px rgba(55,226,155,.7); }
+        .cal-day { font-size: 12.5px; font-weight: 500; color: var(--text-2); font-variant-numeric: tabular-nums; }
+        .cal-cell.today .cal-day { display: inline-grid; place-items: center; min-width: 24px; height: 24px; padding: 0 6px; margin: -3px 0 -3px -4px; border-radius: 999px; color: #04140D; font-weight: 700; background: var(--jade); }
+        .cal-inds { display: flex; flex-direction: column; gap: 3px; width: 100%; }
+        .cal-ind { display: flex; align-items: center; gap: 6px; color: var(--c); line-height: 1; }
+        .cal-ind b { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .cal-ind i { flex: none; width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
+
+        /* ---------- side: stats, then the requests ---------- */
+        .cal-stats { display: flex; align-items: center; gap: 22px; padding: 16px 20px; }
+        .cal-stats:hover { transform: none; }
+        .cal-stat-n { font-size: 24px; font-weight: 600; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+        .cal-stat-ok { color: var(--jade); }
+        .cal-stat-l { font-size: 12px; color: var(--text-3); margin-top: 5px; }
+        .cal-stat-sep { width: 1px; align-self: stretch; background: var(--border); }
+        .cal-side-title { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin: 6px 2px 0; }
+        .cal-list { display: flex; flex-direction: column; gap: 10px; }
+        .cal-note { padding: 18px; }
+        .cal-note:hover { transform: none; }
+        .cal-note p { font-size: 13px; color: var(--text-3); }
+
+        .cal-req { padding: 18px; }
+        .cal-req:hover { transform: none; }
+        .cal-req-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+        .cal-req-who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; min-width: 0; }
+        .cal-req-time { font-size: 12.5px; font-weight: 600; color: var(--jade); font-variant-numeric: tabular-nums; }
+        .cal-req-who b { font-size: 14.5px; font-weight: 600; letter-spacing: -.01em; }
+        .cal-req-phone { font-size: 12.5px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+        .cal-req-sum { font-size: 13px; line-height: 1.55; color: var(--text-2); margin-bottom: 14px; }
+        .cal-req-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+        .cal-req-more { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        /* Delete is the quietest control: no fill, no border, muted red on hover. */
+        .cal-delete { color: #E5877B; background: transparent; border-color: transparent; }
+        .cal-delete:hover:not(:disabled) { background: rgba(239,68,68,.1); }
+
+        /* BookingActions (rendered only here) */
+        .ba-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .ba-col { display: flex; flex-direction: column; gap: 6px; }
+        .ba-change { font-size: 12px; font-weight: 500; }
+        .ba-error { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #E5877B; }
+
+        /* ---------- narrower: recompose, don't just shrink ---------- */
+        @media (max-width: 1100px) {
+          .cal-layout { grid-template-columns: minmax(0, 1fr); }
+          .cal-side { position: static; }
+        }
         @media (max-width: 700px) {
-          .cal-layout { flex-direction: column; gap: 16px; }
-          .cal-grid-col { flex: none; width: 100%; }
-          .cal-agenda-col { flex: none; width: 100%; min-width: 0; }
-          .cal-agenda-list { overflow-y: visible; min-height: auto; }
-          .cal-grid-head { gap: 6px 12px; }
+          .cal-card { padding: 14px; }
+          .cal-grid { gap: 4px; grid-auto-rows: minmax(58px, auto); }
+          .cal-weekdays { gap: 4px; }
+          .cal-weekdays div { text-align: center; padding: 0; font-size: 9.5px; letter-spacing: .04em; }
+          .cal-grid .cal-cell { padding: 6px 4px; gap: 3px; align-items: center; border-radius: 10px; }
+          .cal-day { font-size: 11.5px; }
+          .cal-ind { gap: 3px; }
+          .cal-ind i { width: 9px; }
+          .cal-month { min-width: 0; font-size: 15px; }
+          .cal-legend { gap: 4px 12px; }
         }
       `}</style>
     </div>

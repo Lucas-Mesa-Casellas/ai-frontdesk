@@ -12,6 +12,32 @@
   --amber:#FFC178;
   --hair:rgba(255,255,255,.09);
   --hair-2:rgba(255,255,255,.16);
+
+  /* ---- semantic tokens (the dashboard's design foundation) ----
+     Mostly names for values that already existed, so a redesign changes one
+     line instead of a hunt through the file:
+       background      --bg              text  --text / --text-2 / --text-3
+       borders         --border, --border-strong, --border-jade
+       surfaces        --surface (cards, sidebar), --surface-2 (raised)
+       accent          --jade, --jade-bright, --jade-dark
+       states          --success, --warning, --danger
+       depth           --shadow-card, --glow-jade
+       shape           --radius-card, --radius-control */
+  --surface:#0B0E12;
+  --surface-2:#10141A;
+  --border:var(--hair);
+  --border-strong:var(--hair-2);
+  --border-jade:rgba(55,226,155,.22);
+  --jade-bright:#5CEBAF;
+  --jade-dark:#12B981;
+  --success:var(--jade);
+  --warning:var(--amber);
+  --danger:#FF6B6B;
+  --shadow-card:0 30px 60px -36px rgba(0,0,0,.85);
+  --glow-jade:0 0 0 1px rgba(55,226,155,.08),0 0 44px -16px rgba(18,185,129,.5);
+  --radius-card:18px;
+  --radius-control:12px;
+
   --e-out:cubic-bezier(.22,.9,.24,1);
   --maxw:1680px;
   --maxw-hero:1280px;
@@ -254,7 +280,6 @@ h1 .l>span{display:block}
 .lede{max-width:41ch;font-size:clamp(15.5px,1.15vw,17px);line-height:1.62;color:var(--text-2)}
 
 .cta{display:flex;align-items:center;gap:14px;margin-top:32px;flex-wrap:wrap}
-.cta-slot{height:22px}
 
 .btn-primary{
   position:relative;display:inline-flex;align-items:center;gap:10px;
@@ -272,18 +297,6 @@ h1 .l>span{display:block}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 18px 42px -10px rgba(18,185,129,.75),0 2px 8px -2px rgba(0,0,0,.6)}
 .btn-primary:hover::after{left:115%}
 .btn-primary svg{width:16px;height:16px;flex:none}
-
-.btn-second{
-  display:inline-flex;align-items:center;gap:9px;
-  font-size:15.5px;font-weight:500;color:var(--text);
-  padding:15px 24px;border-radius:999px;
-  border:1px solid var(--hair-2);background:rgba(255,255,255,.05);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
-  transition:background .24s var(--e-out),border-color .24s var(--e-out),transform .24s var(--e-out);
-}
-.btn-second:hover{background:rgba(255,255,255,.095);border-color:rgba(255,255,255,.3);transform:translateY(-1px)}
-.btn-second .a{transition:transform .3s var(--e-out)}
-.btn-second:hover .a{transform:translateX(4px)}
 
 .stage{position:relative;display:flex;flex-direction:column;align-items:center;perspective:1400px}
 @media (min-width:1001px){
@@ -414,7 +427,7 @@ h1 .l>span{display:block}
 }
 @media (max-width:430px){
   .wrap{padding:0 16px}
-  .btn-primary,.btn-second{padding:14px 20px;font-size:14.5px}
+  .btn-primary{padding:14px 20px;font-size:14.5px}
   .chip{font-size:12px;padding:9px 12px}
   .chip-1{top:0;right:-2%}.chip-2{top:0;left:-2%}
 }
@@ -485,7 +498,7 @@ html,body{height:auto;min-height:100%}
 
 /* the hero owns exactly one screen, minus the fixed nav above it */
 .app-shell{
-  min-height:100svh;padding-top:var(--nav-h);
+  min-height:min(100svh,900px);padding-top:var(--nav-h);
   justify-content:center;      /* centre the hero explicitly ... */
 }
 main{flex:0 0 auto;width:100%} /* ... instead of relying on flex:1 stretching */
@@ -506,14 +519,16 @@ main{padding-bottom:24px}
 /* ---------- nav: fixed, always reachable ---------- */
 nav{
   position:fixed;top:0;left:0;right:0;z-index:60;
+  background:rgba(8,9,12,.42);
+  backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);
   transition:background .34s var(--e-out),border-color .34s var(--e-out),
              box-shadow .34s var(--e-out);
   border-bottom:1px solid transparent;
 }
 nav.stuck{
-  background:rgba(8,9,12,.76);
+  background:rgba(8,9,12,.82);
   backdrop-filter:blur(22px) saturate(1.25);-webkit-backdrop-filter:blur(22px) saturate(1.25);
-  border-bottom-color:var(--hair);
+  border-bottom-color:var(--border);
   box-shadow:0 12px 32px -20px rgba(0,0,0,.9);
 }
 .nav-links a{letter-spacing:-.01em}
@@ -557,55 +572,24 @@ nav.stuck{
 @keyframes cueRun{0%{top:-100%}60%,100%{top:100%}}
 @media (max-height:860px){.cue{display:none}}
 
-/* ---------- section shell ---------- */
-.sec{
-  /* Both min-height:100svh and plain block flow have been tried here.
-     Block flow (no forced height) fixed an earlier bug where centering
-     was splitting every padding cut in half — correct at the time,
-     because content genuinely overflowed one screen back then.
-     Several rounds of trimming since have made the content comfortably
-     shorter than one viewport (~530px vs 700-900px+ available), so the
-     ORIGINAL problem no longer applies, and centering is now what's
-     needed: it makes each section fill exactly one screen like the
-     hero, and stops the next section's tag from bleeding into view
-     early. min-height is a floor, not a cap — if content ever exceeds
-     it on some edge case, the box just grows to fit (nothing clips),
-     so this is safe in both directions.
-
-     08 Aug 2026: tried dropping min-height for equal-gap spacing —
-     broke anchor-scroll on Contact (the last, shortest section): with
-     no forced height, the page ran out of scroll room below it, so
-     clicking "Contact" clamped to the bottom instead of aligning
-     under the nav. Reverted. Uneven gaps are the accepted trade-off
-     of keeping every section reliably full-screen.
-
-     19 Sep 2026: content is centered for EVERY section now, not just the
-     ones that opted in (tour/voice/types). Pricing and Contact were
-     flex-start, and at shorter viewports their own top padding
-     (nav + 6px - 4vh = 42px at 800px tall) came out SMALLER than the
-     fixed nav (70px), so landing on either section put its tag and the
-     top of its heading behind the nav. The padding below is now floored
-     at nav + 12px so that can't happen at any height, and centering
-     keeps short sections optically balanced. min-height is a floor, so
-     a section taller than the screen just grows -- centering never has
-     negative free space to split, and so never clips upward. */
-  position:relative;z-index:3;
-  min-height:100svh;display:flex;flex-direction:column;justify-content:center;
-  padding:max(calc(var(--nav-h) + 12px),calc(var(--nav-h) + var(--sp-top) - 4vh)) 0 var(--sp-bottom);
-  scroll-margin-top:calc(var(--nav-h) + 8px);
-}
-/* ---------- slides ----------
-   Every part of the landing page is one "slide" and every slide is exactly
-   the hero's size: one screen (min-height:100svh above, .app-shell for the
-   hero). Keep it that way for anything added later.
+/* ---------- section shell ----------
+   Sections take the height of their content. They used to be forced to one
+   viewport each (min-height:100svh), which left the short ones (Voice,
+   Business types) floating in empty black. Now every section has generous,
+   even vertical padding and the page breathes through spacing. The top
+   padding is never less than the nav + 24px, so an anchor jump can't put a
+   heading behind the fixed nav.
 
    There is NO per-section background. The whole page is the one near-black
    surface, with the ambient glow behind it and nothing else -- no tint, no
-   step between light and dark, no hairline, no divider. Section tints were
-   tried three times (hue, then neutral light/dark, then a single lifted
-   block) and removed each time. Sections are told apart by their content and
-   the space around it, which is what the rest of the page's restraint is
-   built on. Don't reintroduce a tint here. */
+   step between light and dark, no hairline, no divider. (Tints were tried
+   three times and removed each time; sections are told apart by their content
+   and the space around it.) */
+.sec{
+  position:relative;z-index:3;
+  padding:max(calc(var(--nav-h) + 24px),clamp(72px,10vh,120px)) 0 clamp(72px,10vh,120px);
+  scroll-margin-top:0;
+}
 .sec-head{margin-bottom:var(--sp-head)}
 /* tag -> heading -> subtitle rhythm, tightened */
 /* Pricing's head is now just the centred tag (no heading) — the next
@@ -640,8 +624,8 @@ nav.stuck{
 .up{opacity:0;transform:translateY(16px);
     transition:opacity .9s var(--e-out),transform .9s var(--e-out)}
 .up.in{opacity:1;transform:none}
-.d1{transition-delay:.06s}.d2{transition-delay:.12s}
-.d3{transition-delay:.18s}.d4{transition-delay:.24s}
+.up.d1{transition-delay:.06s}.up.d2{transition-delay:.12s}
+.up.d3{transition-delay:.18s}.up.d4{transition-delay:.24s}
 
 /* ---------- pricing cards (design locked from v5) ---------- */
 .tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
@@ -768,8 +752,7 @@ nav.stuck{
 .foot-eu svg{width:11px;height:11px;stroke:var(--text-3);stroke-width:1.7;fill:none;flex:none}
 
 /* ============================================================
-   RESPONSIVE — every section fits one screen
-   Height queries compress the rhythm before anything overflows.
+   RESPONSIVE — short viewports tighten the rhythm a little
    ============================================================ */
 @media (max-height:760px){
   :root{--nav-h:60px;--sp-top:6px;--sp-bottom:14px;--sp-head:10px}
@@ -784,7 +767,7 @@ nav.stuck{
   .fld textarea{min-height:48px}
 }
 @media (max-width:1000px){
-  .sec{padding:clamp(72px,9vh,96px) 0;justify-content:center}  /* still >= one screen, like the hero */
+  .sec{padding:max(calc(var(--nav-h) + 20px),clamp(64px,8vh,88px)) 0 clamp(64px,8vh,88px)}
   main{padding-bottom:64px}
   .sec-h,.sec-sub{min-height:0}
   .tiers{grid-template-columns:1fr;gap:14px}
@@ -900,9 +883,7 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 
 @media (max-width:560px){.send{width:100%}}
 
-/* ---- hero CTA: styled and ready, but the hero renders an empty .cta-slot --
-   the buttons were tried and removed. Kept so bringing them back is a small
-   change, not a redesign. These later rules win over the earlier .btn-primary. */
+/* ---- hero CTA: these later rules win over the earlier .btn-primary. */
 .btn-primary{
   position:relative;display:inline-flex;align-items:center;gap:9px;overflow:hidden;
   font-size:15px;font-weight:600;letter-spacing:-.01em;color:#04140D;
@@ -915,14 +896,6 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 20px 42px -16px rgba(18,185,129,.85)}
 .btn-primary .ar{transition:transform .28s var(--e-out)}
 .btn-primary:hover .ar{transform:translateX(3px)}
-.btn-ghost{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:15px;font-weight:500;color:var(--text-2);
-  padding:13px 20px;border-radius:12px;border:1px solid var(--hair-2);
-  transition:color .22s var(--e-out),border-color .22s var(--e-out),background .22s var(--e-out);
-}
-.btn-ghost:hover{color:var(--text);border-color:rgba(55,226,155,.4);background:rgba(55,226,155,.06)}
-
 /* ========== DASHBOARD PREMIUM LAYER ========== */
 @keyframes dashIn {
   from { opacity: 0; transform: translateY(16px); }
@@ -954,12 +927,18 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   opacity: 0;
   animation: dashInScale .28s var(--e-out) forwards;
 }
-.d1 { animation-delay: .02s; }
-.d2 { animation-delay: .04s; }
-.d3 { animation-delay: .06s; }
-.d4 { animation-delay: .08s; }
-.d5 { animation-delay: .10s; }
-.d6 { animation-delay: .12s; }
+/* The entrance animations are what bring these to opacity 1. The global
+   reduced-motion rule turns every animation off, which would leave the
+   content invisible -- so under reduced motion, just show it. */
+@media (prefers-reduced-motion: reduce) {
+  .dash-in, .dash-in-scale { opacity: 1; }
+}
+.dash-in.d1 { animation-delay: .02s; }
+.dash-in.d2 { animation-delay: .04s; }
+.dash-in.d3 { animation-delay: .06s; }
+.dash-in.d4 { animation-delay: .08s; }
+.dash-in.d5 { animation-delay: .10s; }
+.dash-in.d6 { animation-delay: .12s; }
 
 .live-dot {
   width: 6px;
@@ -970,12 +949,20 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   flex: none;
 }
 
-/* Glass card for dashboard panels */
+/* Card for dashboard panels. One definition, built from the tokens at the
+   top of this file (--surface, --border, --border-jade, --radius-card,
+   --shadow-card, --glow-jade). The <Card> primitive (components/ui/Card.tsx)
+   renders exactly these classes; older pages use them directly.
+   Default: a dark surface with a hairline that carries a faint jade tint.
+   .dash-card-highlight: the one accent card in a set -- a stronger jade edge. */
 .dash-card {
   position: relative;
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
-  border: 1px solid var(--hair);
-  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(18,185,129,.05), rgba(255,255,255,.012) 62%),
+    var(--surface);
+  border: 1px solid rgba(55,226,155,.12);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   transition: transform .28s var(--e-out), box-shadow .28s var(--e-out), border-color .28s var(--e-out);
 }
 .dash-card::before {
@@ -984,7 +971,7 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   inset: 0;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.03) 45%, transparent);
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 45%, transparent);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -993,18 +980,87 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 }
 .dash-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255,255,255,.13);
-  box-shadow: 0 28px 56px -22px rgba(0,0,0,.65);
+  border-color: rgba(55,226,155,.26);
+  box-shadow: 0 34px 64px -34px rgba(0,0,0,.9);
 }
 
 .dash-card-highlight {
-  border-color: rgba(55,226,155,.22);
-  background: linear-gradient(180deg, rgba(18,185,129,.07), rgba(255,255,255,.01) 55%);
+  border-color: rgba(55,226,155,.30);
+  background:
+    linear-gradient(180deg, rgba(18,185,129,.10), rgba(255,255,255,.012) 58%),
+    var(--surface);
+  box-shadow: var(--shadow-card), var(--glow-jade);
 }
 .dash-card-highlight:hover {
-  border-color: rgba(55,226,155,.38);
-  box-shadow: 0 28px 56px -22px rgba(0,0,0,.7), 0 0 0 1px rgba(55,226,155,.06);
+  border-color: rgba(55,226,155,.46);
+  box-shadow: 0 34px 64px -34px rgba(0,0,0,.9), var(--glow-jade);
 }
+
+/* Badge: a small pill for a label or state (components/ui/Badge.tsx). */
+.ui-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 5px 11px; border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 500; line-height: 1; white-space: nowrap;
+  color: var(--text-2); background: rgba(255,255,255,.04); border: 1px solid var(--border);
+}
+.ui-badge--jade { color: var(--jade); background: rgba(55,226,155,.08); border-color: var(--border-jade); }
+.ui-badge--warning { color: var(--warning); background: rgba(255,193,120,.08); border-color: rgba(255,193,120,.24); }
+.ui-badge--danger { color: var(--danger); background: rgba(255,107,107,.08); border-color: rgba(255,107,107,.24); }
+.ui-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex: none; }
+.ui-badge-dot--live { animation: livePulse 2.2s ease-in-out infinite; }
+
+/* Page container + header (components/ui/PageHeader.tsx). One rhythm for every
+   dashboard page: centred, generous gutters, badge -> title -> one line. */
+.ui-page { position: relative; padding: 36px 40px 48px; max-width: 1320px; margin-inline: auto; }
+.ui-page--md { max-width: 1080px; }
+.ui-page--sm { max-width: 860px; }
+.ui-page-head { margin-bottom: 26px; }
+.ui-page-head .ui-badge { margin-bottom: 14px; }
+.ui-h1 { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 8px; }
+.ui-lede { font-size: 14px; line-height: 1.55; color: var(--text-3); max-width: 64ch; }
+@media (max-width: 760px) {
+  .ui-page { padding: 22px 18px 36px; }
+  .ui-h1 { font-size: 26px; }
+}
+
+/* Buttons (components/ui/Button.tsx). Jade is reserved for the one primary
+   action on a screen; everything else is quiet. */
+.ui-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 40px; padding: 0 18px; border-radius: var(--radius-control);
+  font-size: 13.5px; font-weight: 600; letter-spacing: -.005em; white-space: nowrap; text-decoration: none;
+  border: 1px solid transparent; cursor: pointer;
+  transition: transform .2s var(--e-out), box-shadow .2s var(--e-out), background .2s var(--e-out), border-color .2s var(--e-out), color .2s var(--e-out);
+}
+.ui-btn:disabled { opacity: .55; cursor: default; }
+.ui-btn--sm { height: 34px; padding: 0 13px; font-size: 12.5px; border-radius: 10px; }
+.ui-btn--primary {
+  color: #04140D; background: linear-gradient(180deg, var(--jade-bright), var(--jade-dark));
+  box-shadow: 0 1px 0 rgba(255,255,255,.45) inset, 0 10px 24px -12px rgba(18,185,129,.7);
+}
+.ui-btn--primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 1px 0 rgba(255,255,255,.45) inset, 0 16px 30px -12px rgba(18,185,129,.8); }
+.ui-btn--secondary { color: var(--text-2); background: rgba(255,255,255,.035); border-color: var(--border-strong); }
+.ui-btn--secondary:hover:not(:disabled) { color: var(--text); background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.24); }
+.ui-btn--warning { color: var(--warning); background: rgba(255,193,120,.05); border-color: rgba(255,193,120,.24); }
+.ui-btn--warning:hover:not(:disabled) { background: rgba(255,193,120,.11); border-color: rgba(255,193,120,.4); }
+.ui-btn--danger { color: #E5877B; background: rgba(239,68,68,.06); border-color: rgba(239,68,68,.26); }
+.ui-btn--danger:hover:not(:disabled) { background: rgba(239,68,68,.13); border-color: rgba(239,68,68,.4); }
+
+/* Fields (components/ui/Field.tsx). Dark surface, hairline, a jade focus ring. */
+.ui-field { display: block; }
+.ui-label { display: block; font-size: 12.5px; font-weight: 500; color: var(--text-3); margin-bottom: 8px; }
+.ui-hint { margin-top: 8px; font-size: 12px; color: var(--text-3); }
+.ui-input {
+  width: 100%; font: inherit; font-size: 14px; color: var(--text);
+  background: rgba(255,255,255,.028); border: 1px solid var(--border-strong); border-radius: var(--radius-control);
+  padding: 12px 14px;
+  transition: border-color .2s var(--e-out), background .2s var(--e-out), box-shadow .2s var(--e-out);
+}
+.ui-input::placeholder { color: var(--text-3); opacity: .7; }
+.ui-input:hover { border-color: rgba(255,255,255,.24); }
+.ui-input:focus { outline: none; border-color: rgba(55,226,155,.5); background: rgba(255,255,255,.04); box-shadow: 0 0 0 3px rgba(18,185,129,.12); }
+.ui-input:disabled { opacity: .5; cursor: not-allowed; }
+textarea.ui-input { resize: vertical; line-height: 1.55; }
 
 /* Row items (calls, bookings lists) */
 .dash-row {
@@ -1115,23 +1171,6 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   .datefilter-nav { width: 34px; height: 34px; font-size: 16px; }
 }
 
-/* Buttons */
-.btn-jade {
-  transition: transform .24s var(--e-out), box-shadow .24s var(--e-out), filter .24s var(--e-out);
-  box-shadow: 0 1px 0 rgba(255,255,255,.45) inset, 0 8px 22px -10px rgba(18,185,129,.6);
-}
-.btn-jade:hover {
-  transform: translateY(-1.5px);
-  box-shadow: 0 1px 0 rgba(255,255,255,.45) inset, 0 14px 32px -12px rgba(18,185,129,.75);
-}
-.btn-danger {
-  transition: background .2s var(--e-out), transform .2s var(--e-out);
-}
-.btn-danger:hover {
-  background: rgba(239,68,68,.14) !important;
-  transform: translateY(-1px);
-}
-
 /* Calendar */
 .cal-grid {
   display: grid;
@@ -1161,13 +1200,6 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .cal-cell.selected {
   border-color: var(--jade);
   background: rgba(55,226,155,.08);
-}
-.cal-day-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-3);
-  text-align: center;
-  padding: 6px 0;
 }
 .cal-nav {
   transition: background .2s var(--e-out), border-color .2s var(--e-out);
@@ -1213,20 +1245,6 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   transition: color .2s var(--e-out);
 }
 .link-quiet:hover { color: var(--text); text-decoration: underline; }
-
-/* Bordered ghost buttons: transparent fill, hairline border. Reuses the
-   same overlay as .ba-cancel-btn so the two read as one family. */
-.dash-ghost-btn {
-  color: var(--text-2);
-  background: transparent;
-  border: 1px solid var(--hair);
-  transition: background .22s var(--e-out), border-color .22s var(--e-out), color .22s var(--e-out);
-}
-.dash-ghost-btn:hover:not(:disabled) {
-  background: rgba(255,255,255,.055);
-  border-color: var(--hair-2);
-  color: var(--text);
-}
 
 /* Calendar's "See call" and "Change" hover: a background pill, same visual
    language as the sidebar's own active state below (rgba(55,226,155,.1))
@@ -1450,7 +1468,7 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .chip .ci-tx em{display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:12.5px;font-weight:500;color:var(--jade)}
 .chip .ci-tx em svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .chip-1{top:5%;left:auto;right:-10%}
-.chip-2{top:auto;bottom:9%;left:auto;right:-13%}
+.chip-2{top:auto;bottom:9%;left:auto;right:-22%}
 @media (max-width:1000px){
   .chip-1{top:2%;right:0}
   .chip-2{bottom:5%;right:0}
@@ -1462,16 +1480,53 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   .chip-1{top:0;right:0}.chip-2{bottom:2%;right:0}
 }
 
-/* ================= dashboard cards: a faint jade edge, like the landing =================
-   .dash-card is the one card class every dashboard page uses, so this restyles
-   Overview, Calls, Calendar, Support and Settings together. */
-.dash-card{
-  background:linear-gradient(180deg,rgba(18,185,129,.05),rgba(255,255,255,.012) 62%);
-  border-color:rgba(55,226,155,.13);
+/* The card's content sits in a wrapper so it can float on its own: GSAP owns
+   the .chip element (entrance/exit transform + opacity), this inner span only
+   drifts a few pixels, so the two never fight over one transform. */
+.chip-float{display:flex;align-items:center;gap:12px;animation:chipFloat 7s ease-in-out infinite}
+.chip-float-2{animation-duration:8.5s;animation-delay:-3.2s}
+@keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media (max-width:430px){.chip-float{gap:10px}}
+
+/* Orbit: the dashed rings crawl slowly, one direction each. The front svg
+   repeats the lower halves of two rings so they pass over the sphere. */
+.or-dash{animation:orbitDash 60s linear infinite}
+.or-dash-rev{animation-direction:reverse;animation-duration:80s}
+@keyframes orbitDash{to{stroke-dashoffset:-220}}
+.orbit-front{filter:drop-shadow(0 0 5px rgba(55,226,155,.4))}
+.or-dot{filter:drop-shadow(0 0 4px rgba(139,240,198,.9))}
+
+/* A faint waveform behind the readout, fading out towards the rim so it reads
+   as energy inside the sphere rather than a chart. */
+.console-in{position:relative}
+.console-wave{
+  position:absolute;left:12%;right:12%;top:50%;height:34%;transform:translateY(-50%);
+  display:flex;align-items:center;gap:3px;pointer-events:none;opacity:.14;
+  -webkit-mask-image:radial-gradient(ellipse 60% 100% at 50% 50%,#000 30%,transparent 100%);
+          mask-image:radial-gradient(ellipse 60% 100% at 50% 50%,#000 30%,transparent 100%);
 }
-.dash-card:hover{border-color:rgba(55,226,155,.28)}
-.dash-card-highlight{
-  background:linear-gradient(180deg,rgba(18,185,129,.10),rgba(255,255,255,.012) 58%);
-  border-color:rgba(55,226,155,.30);
+.console-wave i{
+  flex:1;min-width:0;border-radius:3px;background:linear-gradient(180deg,var(--jade),rgba(55,226,155,.15));
+  transform-origin:50% 50%;animation:waveBob 3.4s ease-in-out infinite;animation-delay:calc(var(--i)*-.13s);
 }
-.dash-card-highlight:hover{border-color:rgba(55,226,155,.46)}
+@keyframes waveBob{0%,100%{transform:scaleY(.45)}50%{transform:scaleY(1)}}
+
+/* Reduced motion: the hero is a still frame, fully visible. The GSAP timeline
+   doesn't run (see page.tsx), so nothing would ever reveal the elements the
+   CSS starts hidden -- show the finished state instead: the "booked" outcome,
+   the check mark, both status cards, the jade glow. */
+@media (prefers-reduced-motion:reduce){
+  .console-wave i,.or-dash,.chip-float{animation:none}
+  .console-wave i{transform:scaleY(.7)}
+  .or-dot{display:none}
+  .aura .a-jade{opacity:.55}
+  .radial{opacity:.5}
+  .spoke i{transform:scaleY(.55)}
+  .orb-core .icon-phone{opacity:0}
+  .orb-core .icon-check{opacity:1}
+  .icon-check path{stroke-dashoffset:0}
+  .line[data-i="2"]{opacity:1}
+  .chip{opacity:1}
+  .prog i::after{width:100%}
+  .caption b{color:var(--text-2)}
+}

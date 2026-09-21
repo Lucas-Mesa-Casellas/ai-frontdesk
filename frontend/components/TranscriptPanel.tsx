@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { translateTranscript } from "@/lib/translate-actions";
 import { IconGlobe } from "./icons";
+import TranscriptView from "./ui/TranscriptView";
 
 // Only rendered by the call detail page when the dashboard locale differs
 // from the business's own language -- when they match, the page renders
@@ -51,46 +52,27 @@ export default function TranscriptPanel({
 
   const displayedText = showingTranslated && translated ? translated : originalTranscript;
 
+  // .cd-head / .cd-title / .cd-body are the call detail page's shared block
+  // styles (defined in that page), so both transcript branches look the same.
   return (
     <div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, gap: 10, flexWrap: "wrap" }}>
-        <h2 style={{ fontSize: 13, fontWeight: 600 }}>{titleLabel}</h2>
+      <div className="cd-head">
+        <h2 className="cd-title">{titleLabel}</h2>
         {translated ? (
-          <button
-            onClick={() => setShowingTranslated((v) => !v)}
-            className="dash-ghost-btn"
-            style={{
-              display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 500,
-              padding: "6px 11px", borderRadius: 8, cursor: "pointer",
-            }}
-          >
-            <IconGlobe width={12} height={12} />
+          <button onClick={() => setShowingTranslated((v) => !v)} className="ui-btn ui-btn--secondary ui-btn--sm">
+            <IconGlobe width={13} height={13} />
             {showingTranslated ? showOriginalLabel : showTranslatedLabel}
           </button>
         ) : (
-          <button
-            onClick={handleTranslate}
-            disabled={loading}
-            className="dash-ghost-btn"
-            style={{
-              display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 500,
-              padding: "6px 11px", borderRadius: 8,
-              cursor: loading ? "default" : "pointer", opacity: loading ? 0.6 : 1,
-            }}
-          >
-            <IconGlobe width={12} height={12} />
+          <button onClick={handleTranslate} disabled={loading} className="ui-btn ui-btn--secondary ui-btn--sm">
+            <IconGlobe width={13} height={13} />
             {loading ? translatingLabel : translateLabel}
           </button>
         )}
       </div>
-      {failed && <p style={{ fontSize: 12, color: "#E5877B", marginBottom: 8 }}>{errorLabel}</p>}
-      <div style={{
-        padding: 14, borderRadius: 12, background: "rgba(255,255,255,.028)", border: "1px solid rgba(255,255,255,.04)",
-        fontSize: 13.5, color: "var(--text-2)", lineHeight: 1.6, maxHeight: 340, overflowY: "auto",
-      }}>
-        {displayedText.split("\n").map((line, i) => (
-          <p key={i} style={{ marginBottom: 8 }}>{line}</p>
-        ))}
+      {failed && <p className="cd-error">{errorLabel}</p>}
+      <div className="cd-body cd-scroll">
+        <TranscriptView text={displayedText} />
       </div>
     </div>
   );

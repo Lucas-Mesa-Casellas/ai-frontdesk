@@ -1,12 +1,23 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase-client";
 import { DASH_T } from "@/lib/dash-i18n";
 import type { Locale } from "@/lib/locale";
+import Card from "@/components/ui/Card";
+import Field from "@/components/ui/Field";
 
 type Status = "idle" | "sending" | "sent" | "err";
 const LANGS: Locale[] = ["en", "es", "fr"];
+
+// Whether the URL says the sign-in link was expired/used (?error=link).
+// Read through useSyncExternalStore so the server render and the first client
+// render agree (both "false"), and the real value is applied right after
+// hydration -- reading window.location directly during render made the two
+// disagree whenever the query string was present.
+const noopSubscribe = () => () => {};
+const readExpired = () => new URLSearchParams(window.location.search).get("error") === "link";
+const serverExpired = () => false;
 
 export default function LoginPage() {
   const [lang, setLang] = useState<Locale>("en");
@@ -37,9 +48,7 @@ export default function LoginPage() {
     setMenuOpen(false);
   }
 
-  const expired =
-    typeof window !== "undefined" &&
-    new URLSearchParams(window.location.search).get("error") === "link";
+  const expired = useSyncExternalStore(noopSubscribe, readExpired, serverExpired);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -103,76 +112,85 @@ export default function LoginPage() {
         </div>
       </nav>
 
-      <div style={{ minHeight: "100svh", background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px" }}>
-        <div style={{ position: "fixed", inset: 0, pointerEvents: "none", overflow: "hidden" }}>
-          <div style={{ position: "absolute", top: "20%", left: "50%", transform: "translateX(-50%)", width: 600, height: 400, background: "radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18,185,129,.08), transparent 65%)" }} />
+      <div className="login-shell">
+        {/* atmosphere: a soft jade glow and two very faint orbit rings */}
+        <div className="login-atmos" aria-hidden="true">
+          <span className="login-glow" />
+          <span className="login-ring login-ring-1" />
+          <span className="login-ring login-ring-2" />
         </div>
 
-        <div style={{ position: "relative", width: "100%", maxWidth: 400 }}>
+        <Card as="section" className="login-card">
+          {status === "sent" ? (
+            <div className="login-sent">
+              <span className="login-ic">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 7.5h18v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5Z" />
+                  <path d="m3.5 8 8.5 6 8.5-6" />
+                </svg>
+              </span>
+              <h1 className="login-title">{t.loginSentTitle}</h1>
+              <p className="login-sub">{t.loginSentSub(email)}</p>
+            </div>
+          ) : (
+            <>
+              <h1 className="login-title">{t.loginTitle}</h1>
+              <p className="login-sub">{t.loginSub}</p>
 
-        {status === "sent" ? (
-          <div style={{ textAlign: "center" }}>
-            <span style={{
-              display: "inline-flex", alignItems: "center", justifyContent: "center",
-              width: 52, height: 52, borderRadius: "50%", marginBottom: 20,
-              background: "rgba(55,226,155,.12)", border: "1px solid rgba(55,226,155,.26)",
-            }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#37E29B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 7.5h18v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5Z" />
-                <path d="m3.5 8 8.5 6 8.5-6" />
-              </svg>
-            </span>
-            <h1 style={{ color: "var(--text)", fontSize: 22, fontWeight: 600, marginBottom: 10 }}>{t.loginSentTitle}</h1>
-            <p style={{ color: "var(--text-2)", fontSize: 14, lineHeight: 1.6 }}>{t.loginSentSub(email)}</p>
-          </div>
-        ) : (
-          <>
-            <h1 style={{ color: "var(--text)", fontSize: 26, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 10 }}>
-              {t.loginTitle}
-            </h1>
-            <p style={{ color: "var(--text-2)", fontSize: 14, lineHeight: 1.6, marginBottom: 26 }}>{t.loginSub}</p>
+              <form onSubmit={handleSubmit} className="login-form">
+                <Field label={t.loginLabel} htmlFor="login-email">
+                  <input
+                    id="login-email"
+                    type="email"
+                    required
+                    autoFocus
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t.loginPh}
+                    className="ui-input login-input"
+                  />
+                </Field>
+                <button type="submit" disabled={status === "sending"} className="ui-btn ui-btn--primary login-btn">
+                  {status === "sending" ? t.loginSending : t.loginCta}
+                </button>
+                {status === "err" && <p className="login-msg" role="alert">{t.loginErr}</p>}
+                {expired && status === "idle" && <p className="login-msg" role="alert">{t.loginExpired}</p>}
+              </form>
 
-            <form onSubmit={handleSubmit}>
-              <label style={{ display: "block", fontSize: 12, fontWeight: 500, color: "var(--text-3)", marginBottom: 8 }}>
-                {t.loginLabel}
-              </label>
-              <input
-                type="email"
-                required
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t.loginPh}
-                style={{
-                  width: "100%", fontSize: 15, color: "var(--text)",
-                  background: "rgba(255,255,255,.028)", border: "1px solid var(--hair-2)",
-                  borderRadius: 12, padding: "13px 15px", marginBottom: 16,
-                }}
-              />
-              <button
-                type="submit"
-                disabled={status === "sending"}
-                style={{
-                  width: "100%", fontSize: 15, fontWeight: 600, color: "#04140D",
-                  padding: "14px 26px", borderRadius: 12, border: "none", cursor: "pointer",
-                  background: "linear-gradient(180deg,#5CEBAF,var(--jade-2))",
-                  boxShadow: "0 1px 0 rgba(255,255,255,.5) inset, 0 12px 32px -13px rgba(18,185,129,.62)",
-                  opacity: status === "sending" ? 0.6 : 1,
-                }}
-              >
-                {status === "sending" ? t.loginSending : t.loginCta}
-              </button>
-              {status === "err" && <p style={{ color: "#FFC178", fontSize: 13.5, marginTop: 12 }}>{t.loginErr}</p>}
-              {expired && status === "idle" && <p style={{ color: "#FFC178", fontSize: 13.5, marginTop: 12 }}>{t.loginExpired}</p>}
-            </form>
-
-            <a href="/" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13.5, color: "var(--text-3)", marginTop: 22, textDecoration: "none" }}>
-              ← {t.loginBack}
-            </a>
-          </>
-        )}
+              <a href="/" className="login-back">← {t.loginBack}</a>
+            </>
+          )}
+        </Card>
       </div>
-    </div>
+
+      <style>{`
+        .login-shell { position: relative; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 96px 20px 40px; background: var(--bg); overflow: hidden; }
+        .login-atmos { position: absolute; inset: 0; pointer-events: none; }
+        .login-glow { position: absolute; left: 50%; top: 42%; width: 760px; height: 520px; transform: translate(-50%, -50%); background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18,185,129,.11), transparent 68%); }
+        .login-ring { position: absolute; left: 50%; top: 44%; border-radius: 50%; border: 1px solid rgba(55,226,155,.08); transform: translate(-50%, -50%); }
+        .login-ring-1 { width: 620px; height: 620px; }
+        .login-ring-2 { width: 900px; height: 900px; border-color: rgba(55,226,155,.045); }
+        .login-card { position: relative; width: 100%; max-width: 420px; padding: 36px 34px 30px; }
+        .login-card:hover { transform: none; }
+        .login-title { font-size: 26px; font-weight: 600; letter-spacing: -.025em; line-height: 1.15; margin: 0 0 10px; }
+        .login-sub { font-size: 14px; line-height: 1.6; color: var(--text-2); margin-bottom: 26px; }
+        .login-form { display: flex; flex-direction: column; gap: 16px; }
+        .login-input { font-size: 15px; padding: 14px 15px; }
+        .login-btn { width: 100%; height: 48px; font-size: 15px; }
+        .login-msg { font-size: 13.5px; color: var(--warning); }
+        .login-back { display: inline-flex; align-items: center; gap: 6px; margin-top: 22px; font-size: 13.5px; color: var(--text-3); text-decoration: none; transition: color .2s var(--e-out); }
+        .login-back:hover { color: var(--text); }
+        .login-sent { text-align: center; }
+        .login-sent .login-sub { margin-bottom: 0; }
+        .login-ic {
+          display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; margin-bottom: 20px;
+          color: var(--jade); background: rgba(55,226,155,.09); border: 1px solid rgba(55,226,155,.24);
+        }
+        @media (max-width: 480px) {
+          .login-shell { padding-top: 84px; }
+          .login-card { padding: 28px 22px 24px; }
+        }
+      `}</style>
     </>
   );
 }

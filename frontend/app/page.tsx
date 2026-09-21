@@ -7,6 +7,9 @@ import VoiceSamples from "@/components/VoiceSamples";
 import BusinessTypes from "@/components/BusinessTypes";
 
 const SPOKES = 44;
+// Bar heights (%) for the faint waveform inside the sphere. Fixed, so the
+// server and client render the same thing.
+const WAVE = Array.from({ length: 34 }, (_, i) => Math.round(18 + 62 * Math.abs(Math.sin(i * 0.62) * Math.cos(i * 0.21))));
 type LangCode = "EN" | "ES" | "FR";
 const ORDER: LangCode[] = ["EN", "ES", "FR"];
 const SHOW_SOON = false; // upcoming-feature rows (SMS confirmation) stay out of the cards
@@ -631,26 +634,36 @@ export default function Home() {
               <div className="a-bright" />
             </div>
 
-            {/* Two thin glowing arcs sweeping round the sphere, as in the
-                reference. Decorative; drawn in a 760x520 box whose sphere
-                (centre 380,260, r 220) lines up with the console. */}
+            {/* Orbital rings, drawn in a 760x520 box whose sphere (centre 380,260,
+                r 220) lines up with the console. Three thin ellipses at different
+                tilts; the band that passes BEHIND the sphere is this layer (the
+                console covers it), the band that passes in FRONT is the second
+                svg further down. Small points travel along them. All decorative
+                and slow; they stop under prefers-reduced-motion. */}
             <svg className="orbit-lines" viewBox="0 0 760 520" fill="none" aria-hidden="true">
               <defs>
-                <linearGradient id="olA" x1="0" y1="0" x2="1" y2="0">
+                <linearGradient id="orA" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
-                  <stop offset=".35" stopColor="#37E29B" stopOpacity=".75" />
-                  <stop offset=".8" stopColor="#8BF0C6" stopOpacity=".55" />
-                  <stop offset="1" stopColor="#37E29B" stopOpacity="0" />
-                </linearGradient>
-                <linearGradient id="olB" x1="0" y1="1" x2="1" y2="0">
-                  <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
-                  <stop offset=".6" stopColor="#37E29B" stopOpacity=".5" />
+                  <stop offset=".3" stopColor="#37E29B" stopOpacity=".7" />
+                  <stop offset=".75" stopColor="#8BF0C6" stopOpacity=".5" />
                   <stop offset="1" stopColor="#37E29B" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              <path d="M-10 452C120 508 330 512 508 446S735 300 780 176" stroke="url(#olA)" strokeWidth="1.6" strokeLinecap="round" />
-              <path d="M-4 380C110 470 300 492 470 452" stroke="url(#olA)" strokeWidth=".8" strokeLinecap="round" opacity=".55" />
-              <path d="M22 214C66 132 168 70 282 44" stroke="url(#olB)" strokeWidth="1.1" strokeLinecap="round" />
+              <g transform="rotate(-16 380 260)">
+                <ellipse cx="380" cy="260" rx="318" ry="104" stroke="url(#orA)" strokeWidth="1.1" />
+                <circle r="3.1" fill="#8BF0C6" className="or-dot">
+                  <animateMotion dur="34s" repeatCount="indefinite" path="M62 260A318 104 0 1 1 698 260A318 104 0 1 1 62 260Z" />
+                </circle>
+              </g>
+              <g transform="rotate(22 380 260)">
+                <ellipse cx="380" cy="260" rx="342" ry="142" stroke="rgba(255,255,255,.2)" strokeWidth=".8" strokeDasharray="1 9" className="or-dash" />
+                <circle r="2.4" fill="#fff" fillOpacity=".7" className="or-dot">
+                  <animateMotion dur="46s" repeatCount="indefinite" path="M38 260A342 142 0 1 0 722 260A342 142 0 1 0 38 260Z" />
+                </circle>
+              </g>
+              <g transform="rotate(7 380 260)">
+                <ellipse cx="380" cy="260" rx="270" ry="66" stroke="rgba(55,226,155,.34)" strokeWidth=".9" strokeDasharray="3 10" className="or-dash or-dash-rev" />
+              </g>
             </svg>
 
             <div
@@ -659,6 +672,14 @@ export default function Home() {
               role="img"
               aria-label={t.consoleAria}
             >
+              {/* A faint audio waveform behind the readout: heights are fixed
+                  (deterministic, so server and client agree), the motion is CSS. */}
+              <div className="console-wave" aria-hidden="true">
+                {WAVE.map((h, i) => (
+                  <i key={i} style={{ height: `${h}%`, ["--i" as string]: i }} />
+                ))}
+              </div>
+
               <div className="console-in">
               <div className="orb">
                 <div className="ripple" id="rip1" />
@@ -690,19 +711,32 @@ export default function Home() {
               </div>
             </div>
 
+            <svg className="orbit-lines orbit-front" viewBox="0 0 760 520" fill="none" aria-hidden="true">
+              <g transform="rotate(-16 380 260)">
+                <path d="M62 260A318 104 0 0 0 698 260" stroke="url(#orA)" strokeWidth="1.1" />
+              </g>
+              <g transform="rotate(22 380 260)">
+                <path d="M38 260A342 142 0 0 0 722 260" stroke="rgba(255,255,255,.2)" strokeWidth=".8" strokeDasharray="1 9" className="or-dash" />
+              </g>
+            </svg>
+
             <div className="chips" aria-hidden="true">
               <div className="chip chip-1">
+                <span className="chip-float">
                 <span className="ci-ic"><svg viewBox="0 0 24 24"><path d="M6.6 3.8h3.1l1.5 4-2 1.5a11.2 11.2 0 0 0 5.5 5.5l1.5-2 4 1.5v3.1a2 2 0 0 1-2.2 2A15.6 15.6 0 0 1 4.6 6a2 2 0 0 1 2-2.2Z" /></svg></span>
                 <span className="ci-tx">
                   <b>{t.chipT1}</b>
                   <em><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg>{t.chip1}</em>
                 </span>
+                </span>
               </div>
               <div className="chip chip-2">
+                <span className="chip-float chip-float-2">
                 <span className="ci-ic"><svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14" rx="2.5" /><path d="M8 3.5v4M16 3.5v4M4 10h16" /></svg></span>
                 <span className="ci-tx">
                   <b>{t.chipT2}</b>
                   <em><svg viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5" /></svg>{t.chip2}</em>
+                </span>
                 </span>
               </div>
             </div>

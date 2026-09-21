@@ -409,7 +409,6 @@ export default function ProductTour({ lang }: { lang: Lang }) {
       </div>
 
       <style>{`
-        .tour { justify-content: center; }
         .tour-head { margin-bottom: 14px; }
         /* No font-size override: every section heading uses the one .sec-h
            scale, so Product doesn't read a size smaller than the rest. */
@@ -451,14 +450,11 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour .sec-head.mid .tour-sub { max-width: 60ch; margin: 10px auto 0; min-height: 3.2em; }
         .tour-stage { min-width: 0; }
 
-        /* Sized so the whole slide fits one screen on desktop: width follows
-           the available height x the screenshot's aspect ratio. */
+        /* The frame is a showpiece, so it gets the width: as wide as its column
+           up to 1080px (the section no longer has to fit one screen, so it is no
+           longer sized from the viewport height). */
         .tour-frame {
-          /* 100svh minus everything above/below the screenshot (nav, heading,
-             tabs, caption, padding) minus the 30px window chrome, times the
-             aspect ratio: keeps the whole slide on one screen. */
-          width: min(100%, calc((100svh - 386px) * var(--tour-aspect)));
-          min-width: min(100%, 520px);
+          width: min(100%, 1080px);
           margin: 0 auto; border-radius: 16px; overflow: visible;
           background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.016));
           border: 1px solid var(--hair-2);
@@ -546,8 +542,6 @@ export default function ProductTour({ lang }: { lang: Lang }) {
 
         @media (max-width: 1100px) {
           .tour .sec-head.mid .tour-sub { font-size: 14px; min-height: 3em; }
-          /* Height-aware here too, so the slide is still one screen. */
-          .tour-frame { width: min(100%, max(320px, calc((100svh - 425px) * var(--tour-aspect)))); min-width: 0; }
         }
         /* Phones: no hover, and a floating note would run off a 375px screen,
            so the note shows in a caption under the screenshot instead. */

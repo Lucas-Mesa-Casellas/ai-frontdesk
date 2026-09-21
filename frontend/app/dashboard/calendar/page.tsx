@@ -4,6 +4,8 @@ import { DASH_T } from "@/lib/dash-i18n";
 import CalendarClient from "@/components/CalendarClient";
 import { BUSINESS_TZ, madridYMD, zonedTimeToUtc } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
+import Badge from "@/components/ui/Badge";
+import PageHeader from "@/components/ui/PageHeader";
 
 const INTL_LOCALE: Record<string, string> = { en: "en-US", es: "es-ES", fr: "fr-FR" };
 
@@ -108,68 +110,58 @@ export default async function CalendarPage({
   const confirmedCount = monthBookings.filter((b: any) => b.status === "confirmed").length;
 
   return (
-    <div className="cal-page">
-      <div className="dash-in" style={{ marginBottom: 10, flex: "none" }}>
-        <h1 style={{ fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 2 }}>{t.calTitle}</h1>
-        <p style={{ color: "var(--text-3)", fontSize: 12.5 }}>{t.calSub}</p>
-      </div>
+    <div className="ui-page">
+      <PageHeader
+        eyebrow={<Badge tone="jade" dot>{monthBookings.length} · {t.calStatsThisMonth}</Badge>}
+        title={t.calTitle}
+        lede={t.calSub}
+      />
 
-      <div className="dash-card dash-in d1 cal-page-card">
-        <CalendarClient
-          cells={cells}
-          byDay={byDay}
-          weekdayLabels={weekdayLabels}
-          monthTitle={monthTitle}
-          todayKey={todayKey}
-          year={year}
-          month={month}
-          prevHref={`/dashboard/calendar?month=${monthKey(prevMonthDate.getUTCFullYear(), prevMonthDate.getUTCMonth())}`}
-          nextHref={`/dashboard/calendar?month=${monthKey(nextMonthDate.getUTCFullYear(), nextMonthDate.getUTCMonth())}`}
-          intlLocale={intlLocale}
-          legend={{
-            pending: t.calPending,
-            confirmed: t.calConfirmed,
-            cancelled: t.calCancelled,
-            urgency: t.detailUrgent,
-          }}
-          stats={{ total: monthBookings.length, confirmed: confirmedCount }}
-          undated={undatedBookings.map((b: any) => ({
-            id: b.id, customer_name: b.customer_name, customer_phone: b.customer_phone,
-            summary: b.summary, summaryNeedsTranslation: b.summaryNeedsTranslation, status: b.status, call_id: b.call_id,
-          }))}
-          dashboardLocale={locale}
-          labels={{
-            calSelectDay: t.calSelectDay,
-            calDayEmpty: t.calDayEmpty,
-            calConfirm: t.calConfirm,
-            calConfirming: t.calConfirming,
-            calCancel: t.calCancel,
-            calCancelling: t.calCancelling,
-            calCancelled: t.calCancelled,
-            calConfirmed_: t.calConfirmed_,
-            calActionError: t.calActionError,
-            calNoDate: t.calNoDate,
-            calUndatedTitle: t.calUndatedTitle,
-            unknown: t.unknown,
-            statThisMonth: t.calStatsThisMonth,
-            statConfirmed: t.calConfirmed,
-            calNoReason: t.calNoReason,
-            calSeeCall: t.calSeeCall,
-            calChange: t.calChange,
-            calDelete: t.calDelete,
-            calDeleteConfirm: t.calDeleteConfirm,
-          }}
-        />
-      </div>
-
-      <style>{`
-        .cal-page { height: calc(100vh - 76px); display: flex; flex-direction: column; padding: 16px 24px; max-width: 1180px; }
-        .cal-page-card { padding: 14px; flex: 1; min-height: 0; display: flex; }
-        @media (max-width: 700px) {
-          .cal-page { height: auto; padding: 14px; }
-          .cal-page-card { flex: none; min-height: 0; }
-        }
-      `}</style>
+      <CalendarClient
+        cells={cells}
+        byDay={byDay}
+        weekdayLabels={weekdayLabels}
+        monthTitle={monthTitle}
+        todayKey={todayKey}
+        year={year}
+        month={month}
+        prevHref={`/dashboard/calendar?month=${monthKey(prevMonthDate.getUTCFullYear(), prevMonthDate.getUTCMonth())}`}
+        nextHref={`/dashboard/calendar?month=${monthKey(nextMonthDate.getUTCFullYear(), nextMonthDate.getUTCMonth())}`}
+        intlLocale={intlLocale}
+        legend={{
+          pending: t.calPending,
+          confirmed: t.calConfirmed,
+          cancelled: t.calCancelled,
+          urgency: t.detailUrgent,
+        }}
+        stats={{ total: monthBookings.length, confirmed: confirmedCount }}
+        undated={undatedBookings.map((b: any) => ({
+          id: b.id, customer_name: b.customer_name, customer_phone: b.customer_phone,
+          summary: b.summary, summaryNeedsTranslation: b.summaryNeedsTranslation, status: b.status, call_id: b.call_id,
+        }))}
+        dashboardLocale={locale}
+        labels={{
+          calSelectDay: t.calSelectDay,
+          calDayEmpty: t.calDayEmpty,
+          calConfirm: t.calConfirm,
+          calConfirming: t.calConfirming,
+          calCancel: t.calCancel,
+          calCancelling: t.calCancelling,
+          calCancelled: t.calCancelled,
+          calConfirmed_: t.calConfirmed_,
+          calActionError: t.calActionError,
+          calNoDate: t.calNoDate,
+          calUndatedTitle: t.calUndatedTitle,
+          unknown: t.unknown,
+          statThisMonth: t.calStatsThisMonth,
+          statConfirmed: t.calConfirmed,
+          calNoReason: t.calNoReason,
+          calSeeCall: t.calSeeCall,
+          calChange: t.calChange,
+          calDelete: t.calDelete,
+          calDeleteConfirm: t.calDeleteConfirm,
+        }}
+      />
     </div>
   );
 }

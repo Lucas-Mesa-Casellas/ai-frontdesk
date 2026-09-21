@@ -8,6 +8,9 @@ import { BUSINESS_TZ, zonedTimeToUtc } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import TranslatedField from "@/components/TranslatedField";
 import DateFilterInput from "@/components/DateFilterInput";
+import Card from "@/components/ui/Card";
+import Badge from "@/components/ui/Badge";
+import PageHeader from "@/components/ui/PageHeader";
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 function parseDateParam(v: string | undefined): [number, number, number] | null {
@@ -15,16 +18,6 @@ function parseDateParam(v: string | undefined): [number, number, number] | null 
   const [y, m, d] = v.split("-").map(Number);
   return [y, m - 1, d];
 }
-
-const STATUS_STYLE: Record<string, { bg: string; border: string; color: string }> = {
-  // Matches the only two values backend/app/routers/webhooks.py ever writes
-  // to calls.status (line ~109). The previous key here was
-  // "reservation_requested", which never matched a real value -- every
-  // successfully-captured call silently fell through to the needs_review
-  // (amber) styling below instead of its own (jade) one.
-  request_captured: { bg: "rgba(55,226,155,.1)", border: "rgba(55,226,155,.24)", color: "var(--jade)" },
-  needs_review: { bg: "rgba(255,193,120,.1)", border: "rgba(255,193,120,.24)", color: "#FFC178" },
-};
 
 export default async function CallsPage({
   searchParams,
@@ -69,13 +62,15 @@ export default async function CallsPage({
   const { data: calls } = await callsQuery;
 
   return (
-    <div className="calls-wrap">
-      <div className="dash-in" style={{ marginBottom: 20, flex: "none" }}>
-        <h1 style={{ fontSize: 24, fontWeight: 600, letterSpacing: "-0.02em", marginBottom: 4 }}>{t.callsTitle}</h1>
-        <p style={{ color: "var(--text-3)", fontSize: 13.5 }}>{t.callsSub}</p>
-      </div>
+    <div className="ui-page">
+      <PageHeader
+        eyebrow={<Badge tone="jade" dot>{calls?.length ?? 0} {t.navCalls.toLowerCase()}</Badge>}
+        title={t.navCalls}
+        lede={t.callsSub}
+      />
 
-      <form className="dash-in calls-filter">
+      {/* A plain GET form: the date inputs submit ?from=&to= to this same page. */}
+      <Card as="form" className="dash-in d1 calls-toolbar">
         {/* Keyed by the actual filter value: DateFilterInput's typed text is
             local useState seeded from defaultValue only on mount, so a soft
             navigation that changes searchParams without unmounting the
@@ -85,140 +80,144 @@ export default async function CallsPage({
             the instance, which resets that state to match. */}
         <DateFilterInput key={`from-${sp.from ?? ""}`} name="from" defaultValue={sp.from ?? ""} label={t.callsFilterFrom} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} locale={locale} />
         <DateFilterInput key={`to-${sp.to ?? ""}`} name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} locale={locale} />
-        <button type="submit" className="btn-jade" style={filterBtn}>{t.callsFilterApply}</button>
+        <button type="submit" className="ui-btn ui-btn--primary">{t.callsFilterApply}</button>
         {isFiltered && (
-          <Link href="/dashboard/calls" className="link-quiet" style={{ fontSize: 13, padding: "9px 4px" }}>{t.callsFilterClear}</Link>
+          <Link href="/dashboard/calls" className="ui-btn ui-btn--secondary">{t.callsFilterClear}</Link>
         )}
-      </form>
+      </Card>
 
-      <div className="calls-list">
-        {!calls?.length ? (
-        <div style={{ textAlign: "center", padding: "56px 20px", border: "1px solid var(--hair)", borderRadius: 18, background: "rgba(255,255,255,.024)" }}>
-          <p style={{ fontSize: 15, marginBottom: 6 }}>{isFiltered ? t.callsFilterEmptyTitle : t.callsEmptyTitle}</p>
-          <p style={{ fontSize: 13, color: "var(--text-3)" }}>{isFiltered ? t.callsFilterEmptySub : t.callsEmptySub}</p>
-        </div>
+      {!calls?.length ? (
+        <Card as="section" className="dash-in d2 calls-empty">
+          <span className="calls-empty-ic"><IconPhone width={22} height={22} /></span>
+          <p>{isFiltered ? t.callsFilterEmptyTitle : t.callsEmptyTitle}</p>
+          <p>{isFiltered ? t.callsFilterEmptySub : t.callsEmptySub}</p>
+        </Card>
       ) : (
-        <div className="dash-card dash-in calls-table">
+        <Card as="section" className="dash-in d2 calls-table">
           <div className="call-row call-thead" aria-hidden="true">
             <span>{t.colCaller}</span>
             <span>{t.colNumber}</span>
             <span>{t.colSummary}</span>
             <span>{t.colOutcome}</span>
             <span>{t.colWhen}</span>
+            <span />
           </div>
           {calls.map((c) => {
-            const s = STATUS_STYLE[c.status] || STATUS_STYLE.needs_review;
+            // calls.status only ever holds two values (see backend
+            // routers/webhooks.py): request_captured -> jade, and anything
+            // else is treated as needs_review -> amber.
             const statusLabel = c.status === "request_captured" ? t.callStatusCaptured : t.callStatusReview;
+            const statusTone = c.status === "request_captured" ? "jade" : "warning";
             const summaryResolved = resolveTranslatable(c.summary, c.translations, "summary", locale, business?.language ?? "es");
             const when = new Date(c.created_at);
+            // Older calls are anonymised in place (name/number/summary nulled),
+            // so every cell has a quiet fallback rather than an empty hole.
+            const initial = (c.caller_name || "").trim().charAt(0).toUpperCase();
             return (
               <Link key={c.id} href={`/dashboard/calls/${c.id}`} className="call-row call-tr">
                 <span className="cr-caller">
-                  <span className="cr-ic"><IconPhone width={14} height={14} /></span>
+                  <span className="cr-av" aria-hidden="true">{initial || <IconPhone width={14} height={14} />}</span>
                   <b>{c.caller_name || t.unknown}</b>
                 </span>
                 <span className="cr-num">{c.caller_phone || t.noPhone}</span>
                 <span className="cr-sum">
-                  {summaryResolved.text && (
+                  {summaryResolved.text ? (
                     summaryResolved.needsFetch ? (
                       <TranslatedField callId={c.id} locale={locale} field="summary" initialText={summaryResolved.text} />
                     ) : (
                       summaryResolved.text
                     )
+                  ) : (
+                    <span className="cr-none">—</span>
                   )}
                 </span>
                 <span className="cr-out">
-                  <span className="cr-pill" style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
-                    {statusLabel}
-                  </span>
-                  {c.intent && intentLabel[c.intent] && (
-                    <span className="cr-pill cr-pill-n">{intentLabel[c.intent]}</span>
-                  )}
+                  <Badge tone={statusTone}>{statusLabel}</Badge>
+                  {c.intent && intentLabel[c.intent] && <Badge>{intentLabel[c.intent]}</Badge>}
                 </span>
                 <span className="cr-when">
                   <b>{when.toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: BUSINESS_TZ })}</b>
                   <span>{when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}</span>
                 </span>
+                <span className="cr-chev" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9.5 6 6 6-6 6" /></svg>
+                </span>
               </Link>
             );
           })}
-        </div>
+        </Card>
       )}
-      </div>
 
       <style>{`
-        /* Same fixed-shell pattern as the calendar page: the shell owns the
-           viewport height, the title and filter row stay put, and only the
-           list scrolls. min-height: 0 is what lets the flex child actually
-           shrink below its content height instead of pushing the shell
-           taller. Reverts to normal page scroll at the same 700px
-           breakpoint the calendar uses -- a pinned inner scroll area is
-           awkward on a phone. */
-        .calls-wrap { height: calc(100vh - 76px); display: flex; flex-direction: column; padding: 28px 32px; max-width: 1180px; }
-        .calls-list { flex: 1; min-height: 0; overflow-y: auto; padding-right: 4px; }
-        .calls-filter { display: flex; align-items: flex-end; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; flex: none; }
+        /* filter toolbar: the two date fields, then the actions, on one calm row */
+        .calls-toolbar { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px; padding: 16px 18px; margin-bottom: 16px; }
+        .calls-toolbar:hover { transform: none; }
 
-        /* the table: one card, a header row, then a row per call */
+        /* the table: one surface, hairline rows, no floating cards */
         .calls-table { padding: 0; overflow: hidden; }
-        .calls-table:hover { transform: none; box-shadow: none; }
+        .calls-table:hover { transform: none; box-shadow: var(--shadow-card); }
         .call-row {
-          display: grid; align-items: center; column-gap: 18px;
-          grid-template-columns: minmax(150px, 1.1fr) minmax(120px, .8fr) minmax(180px, 2fr) minmax(150px, 1.05fr) 96px;
-          padding: 13px 20px; text-decoration: none; color: inherit;
+          display: grid; align-items: center; column-gap: 20px;
+          grid-template-columns: minmax(160px, 1.15fr) minmax(130px, .8fr) minmax(200px, 2fr) minmax(150px, 1.05fr) 96px 18px;
+          padding: 15px 24px; text-decoration: none; color: inherit;
         }
         .call-thead {
-          position: sticky; top: 0; z-index: 1; padding-top: 14px; padding-bottom: 12px;
+          padding-top: 15px; padding-bottom: 13px;
           font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3);
-          background: rgba(10,14,13,.92); border-bottom: 1px solid var(--hair);
+          background: rgba(255,255,255,.02); border-bottom: 1px solid var(--border);
         }
-        .call-tr { border-bottom: 1px solid var(--hair); transition: background .2s var(--e-out); }
+        .call-tr { border-bottom: 1px solid var(--border); transition: background .2s var(--e-out); }
         .call-tr:last-child { border-bottom: 0; }
         .call-tr:hover { background: rgba(55,226,155,.045); }
-        .cr-caller { display: flex; align-items: center; gap: 11px; min-width: 0; }
+        .call-tr:hover .cr-chev { color: var(--jade); transform: translateX(2px); }
+        .cr-caller { display: flex; align-items: center; gap: 12px; min-width: 0; }
         .cr-caller b { font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .cr-ic {
-          width: 32px; height: 32px; border-radius: 50%; flex: none; display: grid; place-items: center;
-          background: rgba(55,226,155,.1); border: 1px solid rgba(55,226,155,.2); color: var(--jade);
+        .cr-av {
+          width: 34px; height: 34px; border-radius: 50%; flex: none; display: grid; place-items: center;
+          font-size: 12.5px; font-weight: 600; color: var(--jade);
+          background: rgba(55,226,155,.09); border: 1px solid rgba(55,226,155,.22);
         }
-        .cr-num { font-size: 12.5px; color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .cr-sum { font-size: 12.5px; line-height: 1.5; color: var(--text-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .cr-num { font-size: 12.5px; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .cr-sum { font-size: 13px; line-height: 1.5; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .cr-none { color: var(--text-3); }
         .cr-out { display: flex; flex-wrap: wrap; gap: 6px; }
-        .cr-pill { font-size: 11px; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
-        .cr-pill-n { background: rgba(255,255,255,.04); border: 1px solid var(--hair); color: var(--text-2); }
-        .cr-when { display: flex; flex-direction: column; gap: 1px; text-align: right; }
+        .cr-when { display: flex; flex-direction: column; gap: 2px; text-align: right; }
         .cr-when b { font-size: 12.5px; font-weight: 500; }
         .cr-when span { font-size: 12px; color: var(--text-3); }
+        .cr-chev { color: var(--text-3); display: grid; place-items: center; transition: color .2s var(--e-out), transform .2s var(--e-out); }
 
-        /* not enough width for five columns: each call becomes a small card
-           (caller + time on top, then the summary, then the tags) */
+        .calls-empty { padding: 64px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .calls-empty:hover { transform: none; }
+        .calls-empty-ic {
+          width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; margin-bottom: 10px;
+          color: var(--jade); background: rgba(55,226,155,.08); border: 1px solid rgba(55,226,155,.2);
+        }
+        .calls-empty p:first-of-type { font-size: 15px; color: var(--text); }
+        .calls-empty p:last-of-type { font-size: 13px; color: var(--text-3); max-width: 40ch; }
+
+        /* not enough width for six columns: each call becomes a compact card
+           (caller + time on top, then number, summary and tags) */
         @media (max-width: 1000px) {
           .call-thead { display: none; }
           .call-row {
             grid-template-columns: minmax(0, 1fr) auto; row-gap: 8px;
             grid-template-areas: "caller when" "num num" "sum sum" "out out";
-            padding: 16px;
+            padding: 18px;
           }
           .cr-caller { grid-area: caller; }
           .cr-when { grid-area: when; }
           .cr-num { grid-area: num; }
           .cr-sum { grid-area: sum; -webkit-line-clamp: 3; }
           .cr-out { grid-area: out; }
+          .cr-chev { display: none; }
         }
-        @media (max-width: 700px) {
-          .calls-wrap { height: auto; padding: 18px 16px; }
-          .calls-list { overflow-y: visible; min-height: auto; padding-right: 0; }
-        }
-        @media (max-width: 480px) {
-          .calls-filter { flex-direction: column; align-items: stretch; }
+        @media (max-width: 560px) {
+          .calls-toolbar { flex-direction: column; align-items: stretch; }
+          .calls-toolbar .ui-btn { width: 100%; }
         }
       `}</style>
     </div>
   );
 }
 
-const filterLabel: React.CSSProperties = { display: "block", fontSize: 11.5, fontWeight: 500, color: "var(--text-3)", marginBottom: 6 };
-const filterBtn: React.CSSProperties = {
-  padding: "11px 20px", borderRadius: 11, border: "none",
-  fontSize: 13.5, fontWeight: 600, color: "#04140D", cursor: "pointer",
-  background: "linear-gradient(180deg,#5CEBAF,var(--jade-2))",
-};
+const filterLabel: React.CSSProperties = { display: "block", fontSize: 12.5, fontWeight: 500, color: "var(--text-3)", marginBottom: 8 };

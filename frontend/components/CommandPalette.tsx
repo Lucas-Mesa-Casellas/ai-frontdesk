@@ -98,14 +98,19 @@ export default function CommandPalette({
       )}
 
       <style>{`
+        /* A compact command control: field-width, the shortcut tucked at the right. */
         .cmdk-trigger {
-          display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px 7px 12px; border-radius: 999px;
-          font-size: 12.5px; color: var(--text-3); background: rgba(255,255,255,.035); border: 1px solid var(--hair);
+          display: inline-flex; align-items: center; gap: 9px; height: 40px; min-width: 250px; padding: 0 8px 0 13px;
+          border-radius: var(--radius-control); font-size: 13px; color: var(--text-3);
+          background: var(--surface); border: 1px solid var(--border);
           transition: color .2s var(--e-out), border-color .2s var(--e-out), background .2s var(--e-out);
         }
-        .cmdk-trigger:hover { color: var(--text); border-color: var(--hair-2); background: rgba(255,255,255,.06); }
-        .cmdk-trigger kbd { font: inherit; font-size: 11px; padding: 2px 6px; border-radius: 6px; color: var(--text-3); border: 1px solid var(--hair); }
-        @media (max-width: 700px) { .cmdk-trigger-text, .cmdk-trigger kbd { display: none; } .cmdk-trigger { padding: 8px 10px; } }
+        .cmdk-trigger:hover { color: var(--text); border-color: var(--border-strong); background: var(--surface-2); }
+        .cmdk-trigger kbd { margin-left: auto; font: inherit; font-size: 11px; padding: 3px 7px; border-radius: 7px; color: var(--text-3); border: 1px solid var(--border); background: rgba(255,255,255,.03); }
+        @media (max-width: 700px) {
+          .cmdk-trigger-text, .cmdk-trigger kbd { display: none; }
+          .cmdk-trigger { min-width: 0; width: 40px; padding: 0; justify-content: center; }
+        }
         .cmdk-scrim {
           position: fixed; inset: 0; z-index: 90; display: flex; justify-content: center; align-items: flex-start;
           padding: 14vh 16px 0; background: rgba(4,6,9,.62); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);

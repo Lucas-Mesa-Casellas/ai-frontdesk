@@ -189,9 +189,8 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
       </div>
 
       <style>{`
-        /* Same size as every other slide (one screen), content centered
-           like Business types. */
-        .sec.voice { justify-content: center; }
+        /* Natural height: the section is as tall as its three players plus the
+           shared section padding -- no artificial screen-filling. */
         .voice .sec-h { min-height: 0; }
         .voice .sec-sub { min-height: 0; }
         .vs-top, .vs-grid { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }

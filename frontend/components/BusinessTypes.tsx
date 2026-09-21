@@ -118,11 +118,7 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
       </div>
 
       <style>{`
-        /* Sits a little above the true centre. Done with a transform, not
-           extra bottom padding: padding adds to the section's height, which
-           pushed this past one screen on short viewports (665px at 640). */
-        .sec.types { justify-content: center; }
-        .types > .wrap { transform: translateY(-4vh); }
+        /* Natural height: two cards plus the shared section padding. */
         .types .sec-h { min-height: 0; }
         .types .sec-head { margin-bottom: 34px; }
 
@@ -175,8 +171,6 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
         }
 
         @media (max-width: 1000px) {
-          .sec.types { justify-content: center; }
-          .types > .wrap { transform: none; }
           .bt-card { padding: 28px 24px 24px; }
         }
         @media (max-width: 560px) {
