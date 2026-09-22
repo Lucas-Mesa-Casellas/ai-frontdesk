@@ -1336,17 +1336,21 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 /* hero: the last grid row -- what the product does, at a glance */
 @media (min-width:1001px){.hero{row-gap:36px}}
 .hero-feats{
-  grid-column:1/-1;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:14px 0;
-  padding-top:18px;
+  /* confined to the copy column (not the full hero width) and sized to its
+     own content (not stretched to the column), so its left edge lines up
+     with the headline and its right edge lands near the headline's own
+     right edge instead of reaching further right than the text does. */
+  grid-column:1;width:fit-content;max-width:100%;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 0;
+  padding-top:10px;
 }
-.hero-feats li{display:flex;align-items:center;gap:12px;padding:0 28px;font-size:14px;color:var(--text-2);letter-spacing:-.004em}
+.hero-feats li{display:flex;align-items:center;gap:8px;padding:0 14px;font-size:13.5px;color:var(--text-2);letter-spacing:-.004em}
 .hero-feats li:first-child{padding-left:0}
 .hero-feats li+li{border-left:1px solid var(--border-strong)}
 .hero-feats .fi{
-  width:38px;height:38px;border-radius:50%;flex:none;display:grid;place-items:center;
+  width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;
   color:var(--jade);background:rgba(55,226,155,.08);border:1px solid rgba(55,226,155,.22);
 }
-.hero-feats .fi svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.hero-feats .fi svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 @media (max-width:1000px){
   .hero-feats{flex-direction:column;align-items:flex-start;gap:14px;padding-top:6px}
   .hero-feats li{padding:0}
@@ -1432,12 +1436,15 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .console{
   width:min(var(--d),100%);aspect-ratio:1;padding:0;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  background:radial-gradient(circle at 50% 38%,rgba(14,30,26,.94),rgba(4,9,8,.97) 66%);
+  /* a touch brighter than the near-black page: with the orbit lines gone,
+     the sphere is the only visual here and needs to read as a shape on its
+     own, not blend into the background. */
+  background:radial-gradient(circle at 50% 38%,rgba(21,44,38,.95),rgba(6,13,11,.97) 66%);
   backdrop-filter:none;-webkit-backdrop-filter:none;
   box-shadow:
-    inset 0 0 70px rgba(18,185,129,.10),
-    inset 0 -30px 64px -28px rgba(55,226,155,.30),
-    0 0 96px -20px rgba(18,185,129,.42),
+    inset 0 0 76px rgba(18,185,129,.14),
+    inset 0 -30px 64px -28px rgba(55,226,155,.34),
+    0 0 130px -18px rgba(18,185,129,.5),
     0 50px 90px -40px rgba(0,0,0,.95);
 }
 .console::before{
@@ -1457,13 +1464,6 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
   .chips{width:min(var(--d),100%)}
 }
 
-.orbit-lines{
-  position:absolute;left:50%;top:calc(var(--d)/2);width:calc(var(--d)*1.727);aspect-ratio:760/520;height:auto;
-  transform:translate(-50%,-50%);pointer-events:none;overflow:visible;
-  filter:drop-shadow(0 0 3px rgba(55,226,155,.4));
-}
-@media (min-width:1001px){.orbit-lines{left:auto;right:calc(var(--d)/2);transform:translate(50%,-50%)}}
-
 /* floating cards: icon tile + title + a jade sub-line */
 .chip{
   gap:13px;padding:13px 20px 13px 13px;border-radius:16px;
@@ -1480,22 +1480,21 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .chip .ci-tx b{font-size:14.5px;font-weight:600;color:var(--text);letter-spacing:-.01em}
 .chip .ci-tx em{display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:13px;font-weight:500;color:var(--jade)}
 .chip .ci-tx em svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+/* the two cards mirror each other across the top of the sphere */
 .chip-1{top:3%;left:auto;right:-16%}
-/* bottom edge follows the sphere: the card always sits below the status readout, whatever --d is */
-.chip-2{top:auto;bottom:max(0px,calc(var(--d)*.22 - 82px));left:auto;right:-23%}
+.chip-2{top:3%;left:-16%;right:auto;bottom:auto}
 @media (min-width:1001px) and (max-width:1240px){
-  .chip-1{right:-8%}.chip-2{right:-10%}
+  .chip-1{right:-8%}.chip-2{left:-8%}
 }
 @media (max-width:1000px){
   .chip-1{top:2%;right:0}
-  .chip-2{bottom:5%;right:0}
-  .orbit-lines .or-far{display:none}
+  .chip-2{top:2%;left:0}
 }
 @media (max-width:430px){
   .chip{font-size:12px;padding:9px 12px 9px 9px}
   .chip .ci-ic{width:30px;height:30px}
   .chip .ci-tx b{font-size:12px}.chip .ci-tx em{font-size:11px}
-  .chip-1{top:0;right:0}.chip-2{bottom:2%;right:0}
+  .chip-1{top:0;right:0}.chip-2{top:0;left:0}
 }
 
 /* The card's content sits in a wrapper so it can float on its own: GSAP owns
@@ -1506,22 +1505,7 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 @keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @media (max-width:430px){.chip-float{gap:10px}}
 
-/* Orbit: the dashed rings crawl slowly, one direction each. The front svg
-   repeats the lower halves of two rings so they pass over the sphere. */
-.or-dash{animation:orbitDash 60s linear infinite}
-.or-dash-rev{animation-direction:reverse;animation-duration:80s}
-@keyframes orbitDash{to{stroke-dashoffset:-220}}
-.orbit-front{filter:drop-shadow(0 0 5px rgba(55,226,155,.4))}
-.or-dot{filter:drop-shadow(0 0 4px rgba(139,240,198,.9))}
-
 .console-in{position:relative}
-.console-dots{
-  position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:.55;
-  background-image:radial-gradient(circle,rgba(120,255,205,.6) 0 .9px,transparent 1.3px);
-  background-size:9px 9px;
-  -webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 50%,rgba(0,0,0,.85) 86%,transparent 100%);
-          mask-image:radial-gradient(circle at 50% 50%,transparent 50%,rgba(0,0,0,.85) 86%,transparent 100%);
-}
 /* The status text is the point of the hero: a soft dark backing keeps it crisp against the sphere. */
 .console .readout::before{
   content:"";position:absolute;inset:-20px -44px -16px;z-index:-1;pointer-events:none;
@@ -1535,8 +1519,7 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
    CSS starts hidden -- show the finished state instead: the "booked" outcome,
    the check mark, both status cards, the jade glow. */
 @media (prefers-reduced-motion:reduce){
-  .or-dash,.chip-float{animation:none}
-  .or-dot{display:none}
+  .chip-float{animation:none}
   .aura .a-jade{opacity:.55}
   .radial{opacity:.5}
   .spoke i{transform:scaleY(.55)}

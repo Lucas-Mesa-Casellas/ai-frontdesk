@@ -628,67 +628,12 @@ export default function Home() {
               <div className="a-bright" />
             </div>
 
-            {/* Orbital rings, drawn in a 760x520 box whose sphere (centre 380,260,
-                r 220) lines up with the console. Four ellipses at different
-                tilts and sizes: three round the sphere and one large, faded one
-                (.or-far) that reaches out to the left, behind the headline (the
-                copy is stacked above the stage, so the text always wins). This
-                layer is what passes BEHIND the sphere; the second svg after the
-                console redraws the near halves of two rings in front of it.
-                Small points travel along the paths. Decorative and slow; they
-                stop under prefers-reduced-motion. */}
-            <svg className="orbit-lines" viewBox="0 0 760 520" fill="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="orA" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
-                  <stop offset=".28" stopColor="#5CEBAF" stopOpacity=".95" />
-                  <stop offset=".72" stopColor="#8BF0C6" stopOpacity=".75" />
-                  <stop offset="1" stopColor="#37E29B" stopOpacity="0" />
-                </linearGradient>
-                <linearGradient id="orFar" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
-                  <stop offset=".2" stopColor="#37E29B" stopOpacity=".32" />
-                  <stop offset=".46" stopColor="#5CEBAF" stopOpacity=".8" />
-                  <stop offset=".85" stopColor="#8BF0C6" stopOpacity=".7" />
-                  <stop offset="1" stopColor="#37E29B" stopOpacity=".15" />
-                </linearGradient>
-              </defs>
-              <g className="or-far" transform="rotate(20 380 260)">
-                <ellipse cx="380" cy="260" rx="640" ry="128" stroke="url(#orFar)" strokeWidth="1.4" />
-                <circle r="3.4" fill="#8BF0C6" className="or-dot">
-                  <animateMotion dur="76s" repeatCount="indefinite" path="M-260 260A640 128 0 1 1 1020 260A640 128 0 1 1 -260 260Z" />
-                </circle>
-              </g>
-              <g transform="rotate(-16 380 260)">
-                <ellipse cx="380" cy="260" rx="330" ry="112" stroke="url(#orA)" strokeWidth="1.5" />
-                <circle r="3.6" fill="#8BF0C6" className="or-dot">
-                  <animateMotion dur="38s" repeatCount="indefinite" path="M50 260A330 112 0 1 1 710 260A330 112 0 1 1 50 260Z" />
-                </circle>
-              </g>
-              <g transform="rotate(24 380 260)">
-                <ellipse cx="380" cy="260" rx="352" ry="150" stroke="rgba(255,255,255,.36)" strokeWidth="1" strokeDasharray="2 7" className="or-dash" />
-                <circle r="2.8" fill="#fff" fillOpacity=".85" className="or-dot">
-                  <animateMotion dur="52s" repeatCount="indefinite" path="M28 260A352 150 0 1 0 732 260A352 150 0 1 0 28 260Z" />
-                </circle>
-              </g>
-              <g transform="rotate(6 380 260)">
-                <ellipse cx="380" cy="260" rx="285" ry="72" stroke="rgba(55,226,155,.55)" strokeWidth="1" strokeDasharray="4 9" className="or-dash or-dash-rev" />
-                <circle r="2.6" fill="#5CEBAF" className="or-dot">
-                  <animateMotion dur="60s" repeatCount="indefinite" path="M95 260A285 72 0 1 1 665 260A285 72 0 1 1 95 260Z" />
-                </circle>
-              </g>
-            </svg>
-
             <div
               className="console glass"
               id="console"
               role="img"
               aria-label={t.consoleAria}
             >
-              {/* Fine dot texture concentrated towards the rim: the "technological
-                  object" surface. Pure decoration. */}
-              <div className="console-dots" aria-hidden="true" />
-
               <div className="console-in">
               <div className="orb">
                 <div className="ripple" id="rip1" />
@@ -719,30 +664,6 @@ export default function Home() {
               <div className="prog"><i /><i /><i /></div>
               </div>
             </div>
-
-            <svg className="orbit-lines orbit-front" viewBox="0 0 760 520" fill="none" aria-hidden="true">
-              <defs>
-                <radialGradient id="orHole" cx="50%" cy="50%" r="50%">
-                  <stop offset="0" stopColor="#000" />
-                  <stop offset=".8" stopColor="#000" />
-                  <stop offset="1" stopColor="#000" stopOpacity="0" />
-                </radialGradient>
-                <mask id="orFrontMask" maskUnits="userSpaceOnUse" x="-300" y="-300" width="1360" height="1120">
-                  <rect x="-300" y="-300" width="1360" height="1120" fill="#fff" />
-                  <ellipse cx="380" cy="312" rx="215" ry="135" fill="url(#orHole)" />
-                </mask>
-              </defs>
-              {/* the near halves of two rings, faded out over the readout so the
-                  status text is never crossed by a line */}
-              <g mask="url(#orFrontMask)">
-                <g transform="rotate(-16 380 260)">
-                  <path d="M50 260A330 112 0 0 0 710 260" stroke="url(#orA)" strokeWidth="1.5" />
-                </g>
-                <g transform="rotate(24 380 260)">
-                  <path d="M28 260A352 150 0 0 0 732 260" stroke="rgba(255,255,255,.36)" strokeWidth="1" strokeDasharray="2 7" className="or-dash" />
-                </g>
-              </g>
-            </svg>
 
             <div className="chips" aria-hidden="true">
               <div className="chip chip-1">
