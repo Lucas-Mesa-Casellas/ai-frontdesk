@@ -328,7 +328,6 @@ export default function ProductTour({ lang }: { lang: Lang }) {
     >
       <div className="wrap">
         <div className="sec-head mid tour-head">
-          <div className="sec-tag">2 / 6 — {COPY.tag[lang]}</div>
           <h2 className="sec-h">{COPY.heading[lang]}</h2>
           {/* The current tab's one-liner, under the heading like the subline
               of any section. Two lines reserved so the frame below doesn't
@@ -450,11 +449,19 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour .sec-head.mid .tour-sub { max-width: 60ch; margin: 10px auto 0; min-height: 3.2em; }
         .tour-stage { min-width: 0; }
 
-        /* The frame is a showpiece, so it gets the width: as wide as its column
-           up to 1080px (the section no longer has to fit one screen, so it is no
-           longer sized from the viewport height). */
+        /* Unlike the other sections, the dashboard preview is meant to be
+           taken in as one screen: the section is exactly one viewport tall
+           and the frame is sized from what's left of that height once the
+           nav, heading, tabs and slide copy above it are accounted for, so
+           the whole thing -- tabs through screenshot -- is visible without
+           scrolling. 452px is that fixed overhead (nav clearance, section
+           padding, heading, tabs, two lines of blurb, window chrome, gap to
+           the caption below); only the frame's own height flexes with the
+           viewport. */
+        .sec.tour { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; }
         .tour-frame {
-          width: min(100%, 1080px);
+          width: min(100%, calc((100svh - 452px) * var(--tour-aspect)));
+          min-width: min(100%, 480px);
           margin: 0 auto; border-radius: 16px; overflow: visible;
           background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.016));
           border: 1px solid var(--hair-2);
@@ -542,6 +549,9 @@ export default function ProductTour({ lang }: { lang: Lang }) {
 
         @media (max-width: 1100px) {
           .tour .sec-head.mid .tour-sub { font-size: 14px; min-height: 3em; }
+          /* Narrower here, so the same wrap the tabs/blurb take up leaves a
+             little less height for the frame than the 452px above assumes. */
+          .tour-frame { width: min(100%, max(320px, calc((100svh - 480px) * var(--tour-aspect)))); min-width: 0; }
         }
         /* Phones: no hover, and a floating note would run off a 375px screen,
            so the note shows in a caption under the screenshot instead. */

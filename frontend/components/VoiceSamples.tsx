@@ -4,33 +4,41 @@ import { useEffect, useRef, useState } from "react";
 
 type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
+type VoiceId = "female" | "male";
 
 // The real clips don't exist yet (being generated separately). Until they do,
 // the players render disabled: the card, the waveform and the timer are all
 // there, the play button just doesn't respond. No "coming soon" label. Once
-// public/tour/<en|es|fr>/welcome.<AUDIO_EXT> are in place, flip this to true
+// public/tour/voice/<female|male>.<AUDIO_EXT> are in place, flip this to true
 // -- that is the only change needed (the layout doesn't change).
 export const VOICE_SAMPLES_READY = false;
 const AUDIO_EXT = "mp3";
 
-const LANGS: Lang[] = ["EN", "ES", "FR"];
-const LANG_NAME: L10n = { EN: "English", ES: "Español", FR: "Français" };
-
-// The exact words spoken in each clip, shown under the player once filled in
-// (text next to audio is better for accessibility and for anyone listening
-// without sound). Left empty on purpose -- it should match the recording
-// word for word, so it's filled in from the final clips, not guessed.
-const TRANSCRIPT: L10n = { EN: "", ES: "", FR: "" };
+// Two voice options rather than one card per language: every voice answers
+// in whichever language the caller used, so what a visitor actually needs to
+// compare here is the voice itself, not a language.
+type Voice = { id: VoiceId; code: string; name: L10n; note: L10n };
+const VOICES: Voice[] = [
+  {
+    id: "female", code: "F",
+    name: { EN: "Female voice", ES: "Voz femenina", FR: "Voix féminine" },
+    note: { EN: "Warm and clear", ES: "Cálida y clara", FR: "Chaleureuse et claire" },
+  },
+  {
+    id: "male", code: "M",
+    name: { EN: "Male voice", ES: "Voz masculina", FR: "Voix masculine" },
+    note: { EN: "Calm and confident", ES: "Serena y segura", FR: "Posée et assurée" },
+  },
+];
 
 const COPY = {
   tag: { EN: "Voice & languages", ES: "Voz e idiomas", FR: "Voix et langues" } as L10n,
   heading: { EN: "Hear how it answers.", ES: "Escucha cómo contesta.", FR: "Écoutez comment il répond." } as L10n,
   sub: {
-    EN: "The welcome message your callers hear, in each language.",
-    ES: "El mensaje de bienvenida que oyen tus llamantes, en cada idioma.",
-    FR: "Le message d'accueil que vos appelants entendent, dans chaque langue.",
+    EN: "Choose the voice your callers hear. Either one answers in English, Spanish and French.",
+    ES: "Elige la voz que oyen tus llamantes. Cualquiera de las dos contesta en español, inglés y francés.",
+    FR: "Choisissez la voix qu'entendent vos appelants. Chacune répond en français, anglais et espagnol.",
   } as L10n,
-  label: { EN: "Welcome message", ES: "Mensaje de bienvenida", FR: "Message d'accueil" } as L10n,
   play: { EN: "Play", ES: "Reproducir", FR: "Lire" } as L10n,
   pause: { EN: "Pause", ES: "Pausa", FR: "Pause" } as L10n,
   seek: { EN: "Position", ES: "Posición", FR: "Position" } as L10n,
@@ -47,9 +55,9 @@ function fmt(sec: number) {
 }
 
 function VoiceCard({
-  code, uiLang, current, onStart,
+  voice, uiLang, current, onStart,
 }: {
-  code: Lang; uiLang: Lang; current: Lang | null; onStart: (c: Lang) => void;
+  voice: Voice; uiLang: Lang; current: VoiceId | null; onStart: (c: VoiceId) => void;
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -71,14 +79,14 @@ function VoiceCard({
 
   // One clip at a time: starting another card pauses this one.
   useEffect(() => {
-    if (current !== code && playing) audioRef.current?.pause();
-  }, [current, code, playing]);
+    if (current !== voice.id && playing) audioRef.current?.pause();
+  }, [current, voice.id, playing]);
 
   const toggle = () => {
     const a = audioRef.current;
     if (!a || !usable) return;
     if (a.paused) {
-      onStart(code);
+      onStart(voice.id);
       a.play().catch(() => setFailed(true));
     } else {
       a.pause();
@@ -86,16 +94,15 @@ function VoiceCard({
   };
 
   const progress = duration > 0 ? time / duration : 0;
+  const name = voice.name[uiLang];
 
   return (
-    // "here" marks the clip that's actually playing. It used to mark the card
-    // matching the site's language, which just looked like one card was
-    // highlighted for no reason.
+    // "here" marks the clip that's actually playing.
     <li className={`vs-card${playing ? " here" : ""}${usable ? "" : " off"}`}>
       {usable && (
         <audio
           ref={audioRef}
-          src={`/tour/${code.toLowerCase()}/welcome.${AUDIO_EXT}`}
+          src={`/tour/voice/${voice.id}.${AUDIO_EXT}`}
           preload="metadata"
           onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
           onDurationChange={(e) => Number.isFinite(e.currentTarget.duration) && setDuration(e.currentTarget.duration)}
@@ -108,19 +115,17 @@ function VoiceCard({
       )}
 
       <div className="vs-head">
-        <span className="vs-code">{code}</span>
+        <span className="vs-code">{voice.code}</span>
         <span className="vs-names">
-          <b>{LANG_NAME[code]}</b>
-          {/* In the card's own language: the Spanish card says "Mensaje de
-              bienvenida", the French one "Message d'accueil". */}
-          <span>{COPY.label[code]}</span>
+          <b>{name}</b>
+          <span>{voice.note[uiLang]}</span>
         </span>
       </div>
 
       <div className="vs-player">
         <button
           type="button" className={`vs-btn${playing ? " on" : ""}`} onClick={toggle} disabled={!usable}
-          aria-label={`${playing ? COPY.pause[uiLang] : COPY.play[uiLang]}: ${LANG_NAME[code]}`}
+          aria-label={`${playing ? COPY.pause[uiLang] : COPY.play[uiLang]}: ${name}`}
         >
           {playing ? (
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13" /></svg>
@@ -138,7 +143,7 @@ function VoiceCard({
           {/* Invisible range input over the bars: click/drag/keyboard seeking. */}
           <input
             type="range" min={0} max={1000} step={1} value={Math.round(progress * 1000)}
-            disabled={!usable || duration === 0} aria-label={`${COPY.seek[uiLang]}: ${LANG_NAME[code]}`}
+            disabled={!usable || duration === 0} aria-label={`${COPY.seek[uiLang]}: ${name}`}
             onChange={(e) => {
               const a = audioRef.current;
               if (a && duration > 0) { a.currentTime = (Number(e.target.value) / 1000) * duration; setTime(a.currentTime); }
@@ -148,14 +153,12 @@ function VoiceCard({
 
         <span className="vs-time">{usable ? `${fmt(time)} / ${fmt(duration)}` : "–:––"}</span>
       </div>
-
-      {TRANSCRIPT[code] && <p className="vs-text">{TRANSCRIPT[code]}</p>}
     </li>
   );
 }
 
 export default function VoiceSamples({ lang }: { lang: Lang }) {
-  const [current, setCurrent] = useState<Lang | null>(null);
+  const [current, setCurrent] = useState<VoiceId | null>(null);
   const [seen, setSeen] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
 
@@ -175,21 +178,20 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
     <section ref={rootRef} className={`sec voice${seen ? " seen" : ""}`} id="voice" aria-label={COPY.heading[lang]}>
       <div className="wrap">
         <div className="sec-head mid vs-top">
-          <div className="sec-tag">3 / 6 — {COPY.tag[lang]}</div>
           <h2 className="sec-h">{COPY.heading[lang]}</h2>
           <p className="sec-sub">{COPY.sub[lang]}</p>
         </div>
 
         <ul className="vs-grid">
-          {LANGS.map((c) => (
-            <VoiceCard key={c} code={c} uiLang={lang} current={current} onStart={setCurrent} />
+          {VOICES.map((v) => (
+            <VoiceCard key={v.id} voice={v} uiLang={lang} current={current} onStart={setCurrent} />
           ))}
         </ul>
 
       </div>
 
       <style>{`
-        /* Natural height: the section is as tall as its three players plus the
+        /* Natural height: the section is as tall as its two players plus the
            shared section padding -- no artificial screen-filling. */
         .voice .sec-h { min-height: 0; }
         .voice .sec-sub { min-height: 0; }
@@ -197,7 +199,7 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .voice.seen .vs-top, .voice.seen .vs-grid { opacity: 1; transform: none; }
         .voice.seen .vs-grid { transition-delay: .1s; }
 
-        .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 1100px; margin: 0 auto; }
+        .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 720px; margin: 0 auto; }
         .vs-card {
           display: flex; flex-direction: column; gap: 18px; padding: 24px 22px 22px; border-radius: var(--r-xl);
           background: linear-gradient(180deg, rgba(18,185,129,.05), rgba(255,255,255,.014) 60%);
@@ -238,10 +240,8 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .vs-wave input:disabled { cursor: default; }
         .vs-time { flex: none; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-3); min-width: 6.4em; text-align: right; }
 
-        .vs-text { font-size: 13px; line-height: 1.55; color: var(--text-2); font-style: italic; }
-
-        @media (max-width: 1000px) {
-          .vs-grid { grid-template-columns: 1fr; max-width: 520px; }
+        @media (max-width: 640px) {
+          .vs-grid { grid-template-columns: 1fr; max-width: 420px; }
         }
         @media (max-width: 480px) {
           .vs-card { padding: 18px 16px 16px; }

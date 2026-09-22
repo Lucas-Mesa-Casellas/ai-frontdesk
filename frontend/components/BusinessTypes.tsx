@@ -34,11 +34,13 @@ const COPY = {
   } as L10n,
 };
 
-// Photo slots. No photos ship yet, so the cards are icon-only. To turn them on
-// add public/business/trades.jpg and public/business/real-estate.jpg
-// (landscape, ~1600x900, dark and moody -- the cards darken them further so
-// the text stays readable) and flip this to true. Nothing else changes.
-const HAS_PHOTOS = false;
+// Each card has a background: not a stock photo of someone's actual trades
+// van or listing (we don't have one to use honestly), but a dark, abstract
+// illustration in the site's own jade-on-near-black language -- a wrench/
+// pipe motif for Trades, a villa silhouette for Real estate -- so the card
+// still reads as "this business" at a glance. The cards darken them further
+// so the text stays readable.
+const HAS_PHOTOS = true;
 
 type Vertical = {
   id: string;
@@ -56,7 +58,7 @@ type Vertical = {
 const VERTICALS: Vertical[] = [
   {
     id: "trades",
-    photo: "/business/trades.jpg",
+    photo: "/business/trades.svg",
     icons: [<Droplet key="d" />, <Bolt key="b" />, <Flame key="f" />],
     label: { EN: "Trades", ES: "Oficios", FR: "Artisans" },
     line: {
@@ -72,7 +74,7 @@ const VERTICALS: Vertical[] = [
   },
   {
     id: "property",
-    photo: "/business/real-estate.jpg",
+    photo: "/business/real-estate.svg",
     icons: [<Building key="b" />, <Key key="k" />],
     label: { EN: "Real estate", ES: "Inmobiliaria", FR: "Immobilier" },
     line: {
@@ -93,7 +95,6 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
     <section className="sec types" id="types">
       <div className="wrap">
         <div className="sec-head mid">
-          <div className="sec-tag up">5 / 6 — {COPY.tag[lang]}</div>
           <h2 className="sec-h"><span className="msk"><span>{COPY.heading[lang]}</span></span></h2>
           <p className="sec-sub up d1">{COPY.sub[lang]}</p>
         </div>

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <defs>
+    <radialGradient id="bg" cx="72%" cy="30%" r="85%">
+      <stop offset="0%" stop-color="#132a22"/>
+      <stop offset="45%" stop-color="#0a1512"/>
+      <stop offset="100%" stop-color="#050907"/>
+    </radialGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#5CEBAF" stop-opacity=".9"/>
+      <stop offset="100%" stop-color="#12B981" stop-opacity=".55"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <!-- faint grid, the same "technical" texture as the hero sphere -->
+  <g stroke="#ffffff" stroke-opacity=".035">
+    <path d="M0 150H1600 M0 300H1600 M0 450H1600 M0 600H1600 M0 750H1600"/>
+    <path d="M200 0V900 M400 0V900 M600 0V900 M800 0V900 M1000 0V900 M1200 0V900 M1400 0V900"/>
+  </g>
+  <!-- large, soft ambient glow behind the glyphs -->
+  <circle cx="1180" cy="360" r="420" fill="#12B981" fill-opacity=".08"/>
+  <!-- an oversized wrench, drawn large and off-canvas so it reads as
+       atmosphere behind the card's own text, not a literal product photo -->
+  <g transform="translate(980 260) rotate(24)" fill="none" stroke="url(#glow)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" opacity=".8">
+    <path d="M60 40a90 90 0 1 1-14 122L-40 268a34 34 0 0 1-48-48l106-106A90 90 0 0 1 60 40Z"/>
+    <circle cx="96" cy="96" r="30" stroke-width="12"/>
+  </g>
+  <!-- a bolt, smaller, lower-left of the wrench -->
+  <g transform="translate(1220 560) scale(3.4)" fill="url(#glow)" opacity=".55">
+    <path d="M13 3 5.5 13.2h5.3L10 21l8-10.4h-5.4L13 3Z"/>
+  </g>
+  <!-- a pipe elbow, thin outline, upper right -->
+  <g transform="translate(1300 120)" fill="none" stroke="#8BF0C6" stroke-opacity=".4" stroke-width="10" stroke-linecap="round">
+    <path d="M0 160V60a60 60 0 0 1 60-60h140"/>
+  </g>
+</svg>

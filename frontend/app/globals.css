@@ -322,6 +322,13 @@ h1 .l>span{display:block}
 .icon-check path{stroke-dasharray:30;stroke-dashoffset:30}
 
 .ripple{position:absolute;left:50%;top:50%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;border:1px solid rgba(255,193,120,.55);opacity:0}
+/* The "done" burst: smaller than the incoming-call ripples (a confirmation,
+   not another ring), jade instead of amber. */
+.ripple.success{width:64px;height:64px;margin:-32px 0 0 -32px;border-color:rgba(55,226,155,.6)}
+.spark{
+  position:absolute;left:50%;top:50%;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;
+  background:var(--jade-bright);box-shadow:0 0 6px 1px rgba(55,226,155,.8);opacity:0;
+}
 
 .radial{position:absolute;inset:0;opacity:0}
 .spoke{position:absolute;left:50%;top:50%;width:3px;height:52px;margin-left:-1.5px;transform-origin:50% 0}
@@ -1386,10 +1393,10 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .tier-cta .ar{transition:transform .28s var(--e-out);flex:none}
 .tier-cta:hover .ar{transform:translateX(3px)}
 
-/* contact: copy | form | globe */
+/* contact: copy | form -- no more decorative globe on the right */
 .cta-card{border-color:rgba(55,226,155,.14)}
 .contact-grid{
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,540px) minmax(0,1fr);
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,540px);
   gap:clamp(32px,4.5vw,72px);align-items:center;
 }
 .contact-copy{min-width:0}
@@ -1405,26 +1412,16 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .contact-list .ci svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .contact-copy .page-foot{justify-content:flex-start;margin-top:40px}
 .contact-grid .cta-col{margin:0}
-.contact-globe{position:relative;width:min(100%,340px);aspect-ratio:1;justify-self:center;color:rgba(55,226,155,.34)}
-.contact-globe::before{
-  content:"";position:absolute;inset:-10%;border-radius:50%;pointer-events:none;
-  background:radial-gradient(circle,rgba(55,226,155,.16),transparent 62%);
-}
-.contact-globe svg{position:relative;width:100%;height:100%;filter:drop-shadow(0 0 14px rgba(55,226,155,.28))}
-.contact-globe p{
-  position:absolute;left:50%;top:58%;width:64%;transform:translate(-50%,-50%);
-  text-align:center;font-size:15px;font-weight:500;line-height:1.35;letter-spacing:-.01em;color:var(--text);
-}
-/* narrower than three columns: heading, form, footer in one centred column.
+/* narrower than two columns: heading, form, footer in one centred column.
    .contact-copy dissolves (display:contents) so its parts can be re-ordered
-   around the form; the bullets and globe drop out. */
+   around the form; the bullets drop out. */
 @media (max-width:1180px){
   .contact-grid{grid-template-columns:minmax(0,540px);justify-content:center;gap:0}
   .contact-copy{display:contents}
   .contact-copy .sec-head{order:1;text-align:center;margin-bottom:var(--sp-head)}
   .contact-copy .sec-sub{margin-inline:auto}
   .contact-grid .cta-col{order:2}
-  .contact-list,.contact-globe{display:none}
+  .contact-list{display:none}
   .contact-copy .page-foot{order:3;justify-content:center;margin-top:24px}
 }
 
@@ -1447,23 +1444,69 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 @media (min-width:1241px){.stage{margin-left:-64px;margin-right:64px}}
 @media (min-width:1001px) and (max-width:1240px){.stage{margin-left:-24px;margin-right:24px}}
 
+/* One AI system, one set of colour knobs: --ph-* is set on .stage from the
+   GSAP timeline (data-phase, next to the existing progress-dot toggle -- see
+   setCap in page.tsx) and everything that should react to the current beat
+   -- console fill, its rim, its glow, both orbit rings -- reads from these
+   instead of its own hard-coded colour. @property types them as <color> so
+   the plain `transition` below can crossfade between phases smoothly; no
+   phase attribute (pre-hydration, or reduced motion, where the timeline
+   never runs) falls back to the values on .stage itself, which are the
+   "action taken" jade -- the finished state reduced motion wants anyway. */
+@property --ph-a{syntax:'<color>';inherits:true;initial-value:#152c26}
+@property --ph-b{syntax:'<color>';inherits:true;initial-value:#060d0b}
+@property --ph-rim{syntax:'<color>';inherits:true;initial-value:#a0ffdc}
+@property --ph-rim-mid{syntax:'<color>';inherits:true;initial-value:#37e29b8c}
+@property --ph-glow-in{syntax:'<color>';inherits:true;initial-value:#12b98124}
+@property --ph-glow-rim{syntax:'<color>';inherits:true;initial-value:#37e29b57}
+@property --ph-glow-out{syntax:'<color>';inherits:true;initial-value:#12b98180}
+@property --ph-ring-a{syntax:'<color>';inherits:true;initial-value:#5CEBAF}
+@property --ph-ring-b{syntax:'<color>';inherits:true;initial-value:#8bf0c6}
+@property --ph-ring2{syntax:'<color>';inherits:true;initial-value:#ffffff29}
+
+.stage{
+  --ph-a:rgba(21,44,38,.95);--ph-b:rgba(6,13,11,.97);
+  --ph-rim:rgba(160,255,220,.95);--ph-rim-mid:rgba(55,226,155,.55);
+  --ph-glow-in:rgba(18,185,129,.14);--ph-glow-rim:rgba(55,226,155,.34);--ph-glow-out:rgba(18,185,129,.5);
+  --ph-ring-a:#5CEBAF;--ph-ring-b:#8BF0C6;--ph-ring2:rgba(255,255,255,.16);
+  transition:--ph-a .8s var(--e-out),--ph-b .8s var(--e-out),--ph-rim .8s var(--e-out),--ph-rim-mid .8s var(--e-out),
+             --ph-glow-in .8s var(--e-out),--ph-glow-rim .8s var(--e-out),--ph-glow-out .8s var(--e-out),
+             --ph-ring-a .8s var(--e-out),--ph-ring-b .8s var(--e-out),--ph-ring2 .8s var(--e-out);
+}
+/* incoming call: amber */
+.stage[data-phase="0"]{
+  --ph-a:rgba(46,32,18,.95);--ph-b:rgba(14,10,6,.97);
+  --ph-rim:rgba(255,224,180,.95);--ph-rim-mid:rgba(255,193,120,.55);
+  --ph-glow-in:rgba(255,193,120,.16);--ph-glow-rim:rgba(255,193,120,.32);--ph-glow-out:rgba(255,150,60,.45);
+  --ph-ring-a:#FFC178;--ph-ring-b:#FFE0B4;--ph-ring2:rgba(255,224,180,.22);
+}
+/* AI understands: cooler teal/jade, a notch under the success state below */
+.stage[data-phase="1"]{
+  --ph-a:rgba(16,36,31,.95);--ph-b:rgba(5,11,10,.97);
+  --ph-rim:rgba(140,240,205,.9);--ph-rim-mid:rgba(55,226,155,.48);
+  --ph-glow-in:rgba(18,185,129,.12);--ph-glow-rim:rgba(55,226,155,.28);--ph-glow-out:rgba(18,185,129,.4);
+  --ph-ring-a:#37E29B;--ph-ring-b:#8BF0C6;--ph-ring2:rgba(255,255,255,.18);
+}
+/* action taken (data-phase="2") uses .stage's own base values above --
+   they're already the brightest, most confident jade. */
+
 .console{
   width:min(var(--d),100%);aspect-ratio:1;padding:0;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   /* a touch brighter than the near-black page: with the orbit lines gone,
      the sphere is the only visual here and needs to read as a shape on its
      own, not blend into the background. */
-  background:radial-gradient(circle at 50% 38%,rgba(21,44,38,.95),rgba(6,13,11,.97) 66%);
+  background:radial-gradient(circle at 50% 38%,var(--ph-a),var(--ph-b) 66%);
   backdrop-filter:none;-webkit-backdrop-filter:none;
   box-shadow:
-    inset 0 0 76px rgba(18,185,129,.14),
-    inset 0 -30px 64px -28px rgba(55,226,155,.34),
-    0 0 130px -18px rgba(18,185,129,.5),
+    inset 0 0 76px var(--ph-glow-in),
+    inset 0 -30px 64px -28px var(--ph-glow-rim),
+    0 0 130px -18px var(--ph-glow-out),
     0 50px 90px -40px rgba(0,0,0,.95);
 }
 .console::before{
   padding:1.6px;
-  background:conic-gradient(from 205deg,rgba(160,255,220,.95),rgba(55,226,155,.10) 30%,rgba(55,226,155,.04) 54%,rgba(55,226,155,.55) 78%,rgba(160,255,220,.95));
+  background:conic-gradient(from 205deg,var(--ph-rim),rgba(55,226,155,.10) 30%,rgba(55,226,155,.04) 54%,var(--ph-rim-mid) 78%,var(--ph-rim));
 }
 .console-in{width:100%;display:flex;flex-direction:column;align-items:center;transform:scale(var(--k))}
 .console .orb{width:164px;height:164px;margin:0 auto 22px}
@@ -1531,6 +1574,13 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .or-dash{animation:orbitDash 70s linear infinite}
 @keyframes orbitDash{to{stroke-dashoffset:-200}}
 
+.console-dots{
+  position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:.38;
+  background-image:radial-gradient(circle,rgba(180,255,225,.55) 0 .9px,transparent 1.3px);
+  background-size:9px 9px;
+  -webkit-mask-image:radial-gradient(circle at 50% 50%,transparent 48%,rgba(0,0,0,.8) 84%,transparent 100%);
+          mask-image:radial-gradient(circle at 50% 50%,transparent 48%,rgba(0,0,0,.8) 84%,transparent 100%);
+}
 .console-in{position:relative}
 /* The status text is the point of the hero: a soft dark backing keeps it crisp against the sphere. */
 .console .readout::before{

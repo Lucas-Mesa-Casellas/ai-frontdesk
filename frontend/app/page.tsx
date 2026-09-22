@@ -13,9 +13,12 @@ const SHOW_SOON = false; // upcoming-feature rows (SMS confirmation) stay out of
 
 const TIER_CTA_STYLE = ["outline", "solid", "outline"];
 
+// No tier is picked out as "recommended" any more -- the three read as equal
+// options; the middle one keeps a solid CTA (TIER_CTA_STYLE) as its only
+// remaining distinction.
 const TIERS = [
   { price: "99", calls: 50, over: "1,40€", on: false },
-  { price: "199", calls: 150, over: "1,20€", on: true },
+  { price: "199", calls: 150, over: "1,20€", on: false },
   { price: "399", calls: 400, over: "0,95€", on: false },
 ];
 
@@ -165,7 +168,7 @@ const T: Record<LangCode, Dict> = {
     h1a: "Ne manquez plus", h1bPre: "un seul ", h1bWord: "client",
     lede: "LMC Agents répond à chaque appel, comprend ce dont l'appelant a besoin, agit en conséquence, puis vous informe de ce qui s'est passé. De jour comme de nuit.",
     heroCta: "Demander une démo", heroCta2: "Voir les tarifs",
-    feat24: "Disponible 24h/24, 7j/7", featLang: "Plusieurs langues", featCal: "Les demandes arrivent dans votre calendrier",
+    feat24: "Disponible 24/7", featLang: "Plusieurs langues", featCal: "Les demandes arrivent dans votre calendrier",
     consoleAria: "Un appel arrive, l'IA le comprend, et la bonne action est exécutée.",
     r0b: "Appel entrant", r0s: "··· ··· ··· 214",
     r1b: "Compréhension de la demande", r1s: "Intention, détails et contexte identifiés",
@@ -365,7 +368,15 @@ export default function Home() {
       const bars = qa(".spoke i");
       const cap = qa(".caption b");
       const segs = qa(".prog i");
-      const setCap = (n: number) => cap.forEach((c, k) => c.classList.toggle("on", k === n));
+      const stageEl = q(".stage");
+      // data-phase is the single hook the whole visualization's colour reads
+      // from (console fill/rim, orbit rings, glow -- see globals.css). One
+      // attribute, set alongside the existing progress dots, instead of
+      // colouring each element from its own tween.
+      const setCap = (n: number) => {
+        cap.forEach((c, k) => c.classList.toggle("on", k === n));
+        stageEl?.setAttribute("data-phase", String(n));
+      };
 
       // progress fills live inside the master timeline so they can never drift
       const fills = segs.map((seg) => {
@@ -420,6 +431,22 @@ export default function Home() {
         .to('.line[data-i="1"]', { opacity: 0, y: -12, duration: 0.42, ease: "power2.in" }, BEAT * 2 - 0.12)
         .fromTo("#icCheck", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(2.6)" }, BEAT * 2 + 0.22)
         .fromTo("#icCheck path", { strokeDashoffset: 30 }, { strokeDashoffset: 0, duration: 0.5, ease: "power2.out" }, BEAT * 2 + 0.34)
+        // A small "done" burst, timed to the checkmark landing: two quick
+        // jade ripples (smaller/faster than the incoming-call ones) and
+        // three tiny particles drifting out and fading. Restrained on
+        // purpose -- a confirmation, not a celebration.
+        .fromTo("#rip3", { opacity: 0.6, scale: 0.6 }, { opacity: 0, scale: 1.7, duration: 0.9, ease: "sine.out" }, BEAT * 2 + 0.3)
+        .fromTo("#rip4", { opacity: 0.5, scale: 0.6 }, { opacity: 0, scale: 1.7, duration: 0.9, ease: "sine.out" }, BEAT * 2 + 0.46)
+        .fromTo(
+          ".spark",
+          { opacity: 0, scale: 0.4, x: 0, y: 0 },
+          {
+            opacity: 1, scale: 1, duration: 0.35, ease: "power2.out", stagger: 0.06,
+            x: (i: number) => [16, -18, 4][i], y: (i: number) => [-20, -10, 18][i],
+          },
+          BEAT * 2 + 0.3,
+        )
+        .to(".spark", { opacity: 0, duration: 0.5, ease: "power2.in", stagger: 0.06 }, BEAT * 2 + 0.62)
         .fromTo('.line[data-i="2"]', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.65 }, BEAT * 2 + 0.42)
         // chip-1 (left, "Call answered") pops in first; chip-2 (right, "New
         // booking request") follows about half a second later. Each still
@@ -636,21 +663,24 @@ export default function Home() {
                 display in its own right. Drawn before the console in the DOM
                 so its opaque circle covers the inner portion; only the arcs
                 that clear the sphere's edge are ever visible. No dots, no
-                ring reaching out toward the copy: restrained on purpose. */}
+                ring reaching out toward the copy: restrained on purpose.
+                Their colour is driven by the same --ph-ring* custom
+                properties the console reads (see globals.css), so they shift
+                amber/jade/bright-jade together with the rest of the sphere. */}
             <svg className="orbit-lines" viewBox="0 0 760 520" fill="none" aria-hidden="true">
               <defs>
                 <linearGradient id="orA" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
-                  <stop offset=".3" stopColor="#5CEBAF" stopOpacity=".55" />
-                  <stop offset=".7" stopColor="#8BF0C6" stopOpacity=".4" />
-                  <stop offset="1" stopColor="#37E29B" stopOpacity="0" />
+                  <stop offset="0" stopColor="var(--ph-ring-a)" stopOpacity="0" />
+                  <stop offset=".3" stopColor="var(--ph-ring-a)" stopOpacity=".55" />
+                  <stop offset=".7" stopColor="var(--ph-ring-b)" stopOpacity=".4" />
+                  <stop offset="1" stopColor="var(--ph-ring-a)" stopOpacity="0" />
                 </linearGradient>
               </defs>
               <g transform="rotate(-13 380 260)">
                 <ellipse cx="380" cy="260" rx="256" ry="88" stroke="url(#orA)" strokeWidth="1" />
               </g>
               <g transform="rotate(15 380 260)">
-                <ellipse cx="380" cy="260" rx="266" ry="108" stroke="rgba(255,255,255,.16)" strokeWidth=".8" strokeDasharray="2 8" className="or-dash" />
+                <ellipse cx="380" cy="260" rx="266" ry="108" stroke="var(--ph-ring2)" strokeWidth=".8" strokeDasharray="2 8" className="or-dash" />
               </g>
             </svg>
 
@@ -660,6 +690,11 @@ export default function Home() {
               role="img"
               aria-label={t.consoleAria}
             >
+              {/* Fine dot texture concentrated towards the rim: the "technological
+                  object" surface. Pure decoration, restrained (low opacity,
+                  masked out towards the centre so it never competes with the
+                  readout). */}
+              <div className="console-dots" aria-hidden="true" />
               <div className="console-in">
               <div className="orb">
                 <div className="ripple" id="rip1" />
@@ -679,6 +714,15 @@ export default function Home() {
                     <path d="M5.5 12.4 10 17l8.5-9" />
                   </svg>
                 </div>
+                {/* A small, restrained "done" burst around the checkmark: two
+                    quick jade ripples and three tiny particles, all inert
+                    until the action-taken beat animates them. Not a GSAP
+                    target list the user asked to preserve, so free to add. */}
+                <div className="ripple success" id="rip3" />
+                <div className="ripple success" id="rip4" />
+                <span className="spark" id="spark1" />
+                <span className="spark" id="spark2" />
+                <span className="spark" id="spark3" />
               </div>
 
               <div className="readout">
@@ -755,7 +799,6 @@ export default function Home() {
       <section className="sec" id="pricing">
         <div className="wrap">
           <div className="sec-head mid">
-            <div className="sec-tag up">4 / 6 — {t.pTag}</div>
             <h2 className="sec-h"><span className="msk"><span>{t.pH}</span></span></h2>
           </div>
 
@@ -881,19 +924,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Decorative: a wireframe globe (meridians + parallels) with the
-              tagline over it. Hidden below 1180px, where the form takes the
-              width. */}
-          <div className="contact-globe" aria-hidden="true">
-            <svg viewBox="-100 -100 200 200" fill="none" stroke="currentColor" strokeWidth=".55">
-              <circle r="92" />
-              <ellipse rx="92" ry="30" /><ellipse rx="92" ry="60" />
-              <ellipse rx="30" ry="92" /><ellipse rx="60" ry="92" />
-              <path d="M-92 0H92" /><path d="M0-92V92" />
-              <path d="M-80-46H80M-80 46H80M-58-72H58M-58 72H58" />
-            </svg>
-            <p>{t.cTagline}</p>
-          </div>
          </div>
         </div>
       </section>
