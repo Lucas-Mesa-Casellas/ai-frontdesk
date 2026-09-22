@@ -251,7 +251,7 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
 .mobile-nav a:hover{background:rgba(255,255,255,.07);color:var(--text)}
 
 main{flex:1;display:flex;align-items:center;padding:8px 0 34px}
-.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(30px,4vw,64px);align-items:center;width:100%}
+.hero{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(30px,4vw,64px);align-items:center;width:100%}
 /* The copy is stacked above the stage: the orbit may reach behind it, the text always wins. */
 .copy{position:relative;z-index:4}
 
@@ -358,8 +358,8 @@ h1 .l>span{display:block}
 }
 .chip .tick{width:17px;height:17px;border-radius:50%;background:rgba(55,226,155,.16);display:grid;place-items:center;flex:none}
 .chip .tick svg{width:10px;height:10px;stroke:var(--jade);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.chip-1{top:7%;right:-7%}
-.chip-2{top:7%;left:-7%}
+.chip-1{top:7%;left:-7%}
+.chip-2{top:7%;right:-7%}
 @media (min-width:1001px){
   .chips{left:auto;right:0;transform:none}
   .aura{left:auto;right:216px;transform:translate(50%,-50%)}
@@ -402,7 +402,7 @@ h1 .l>span{display:block}
   .nav-right>.btn-login{display:none}
   main{padding:26px 0 64px}
   .lede{max-width:52ch}
-  .chip-1{right:0}.chip-2{left:0}
+  .chip-1{left:0}.chip-2{right:0}
 }
 @media (max-width:560px){
   .wrap{padding:0 20px}
@@ -427,7 +427,7 @@ h1 .l>span{display:block}
   .wrap{padding:0 16px}
   .btn-primary{padding:14px 20px;font-size:14.5px}
   .chip{font-size:12px;padding:9px 12px}
-  .chip-1{top:0;right:-2%}.chip-2{top:0;left:-2%}
+  .chip-1{top:0;left:-2%}.chip-2{top:0;right:-2%}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition-duration:.12s!important}
@@ -1333,15 +1333,15 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .btn-login .ar{transition:transform .28s var(--e-out)}
 .btn-login:hover .ar{transform:translateX(3px)}
 
-/* hero: the last grid row -- what the product does, at a glance */
-@media (min-width:1001px){.hero{row-gap:36px}}
+/* hero: what the product does, at a glance. On desktop it's pulled out of
+   the grid flow (position:absolute against .hero, which is what makes --d
+   available here -- see above) and set at the same height as the "Incoming
+   call / AI understands / Action taken" row under the sphere: var(--d) is
+   the sphere's own diameter and 24px is the caption's own margin-top, so
+   this uses the exact number the caption uses to sit at console-bottom. */
 .hero-feats{
-  /* confined to the copy column (not the full hero width) and sized to its
-     own content (not stretched to the column), so its left edge lines up
-     with the headline and its right edge lands near the headline's own
-     right edge instead of reaching further right than the text does. */
-  grid-column:1;width:fit-content;max-width:100%;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 0;
-  padding-top:10px;
+  position:absolute;left:0;top:calc(var(--d) + 24px);
+  width:fit-content;max-width:54%;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 0;
 }
 .hero-feats li{display:flex;align-items:center;gap:8px;padding:0 14px;font-size:13.5px;color:var(--text-2);letter-spacing:-.004em}
 .hero-feats li:first-child{padding-left:0}
@@ -1351,8 +1351,19 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
   color:var(--jade);background:rgba(55,226,155,.08);border:1px solid rgba(55,226,155,.22);
 }
 .hero-feats .fi svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media (min-width:1001px) and (max-width:1240px){
+  /* narrower here, so the row is more likely to fit one line (or wrap by
+     only one line) before it runs into the section below it -- absolutely
+     positioned, it no longer pushes that section down the way it used to. */
+  .hero-feats{font-size:12.5px}
+  .hero-feats li{gap:6px;padding:0 11px}
+  .hero-feats .fi{width:28px;height:28px}
+  .hero-feats .fi svg{width:13px;height:13px}
+}
 @media (max-width:1000px){
-  .hero-feats{flex-direction:column;align-items:flex-start;gap:14px;padding-top:6px}
+  /* back into normal flow: single-column hero stacks copy / stage / feats,
+     so there's no sphere geometry to line up with any more. */
+  .hero-feats{position:static;left:auto;top:auto;width:auto;max-width:none;flex-direction:column;align-items:flex-start;gap:14px;padding-top:28px}
   .hero-feats li{padding:0}
   .hero-feats li+li{border-left:0}
 }
@@ -1424,11 +1435,14 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
    dashes -- sits inside it and animates exactly as before (the GSAP timeline
    targets ids/classes, not the shape). --d is the sphere's diameter and --k
    the scale of what's inside; both step down on short and narrow screens. */
-.stage{--d:520px;--k:1.16}
-@media (max-height:860px){.stage{--d:470px;--k:1.05}}
-@media (max-height:800px){.stage{--d:420px;--k:.95}}
-@media (max-height:720px){.stage{--d:370px;--k:.84}}
-@media (max-width:560px){.stage{--d:340px;--k:.77}}
+/* --d/--k live on .hero (not .stage), so .hero-feats -- a sibling of .stage,
+   not a descendant -- can read the same custom property to line its row up
+   with the sphere's own geometry (see .hero-feats below). */
+.hero{--d:520px;--k:1.16}
+@media (max-height:860px){.hero{--d:470px;--k:1.05}}
+@media (max-height:800px){.hero{--d:420px;--k:.95}}
+@media (max-height:720px){.hero{--d:370px;--k:.84}}
+@media (max-width:560px){.hero{--d:340px;--k:.77}}
 /* the sphere sits a little towards the centre of the hero, leaving room on the right for the cards */
 @media (min-width:1241px){.stage{margin-left:-64px;margin-right:64px}}
 @media (min-width:1001px) and (max-width:1240px){.stage{margin-left:-24px;margin-right:24px}}
@@ -1481,20 +1495,20 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .chip .ci-tx em{display:inline-flex;align-items:center;gap:5px;font-style:normal;font-size:13px;font-weight:500;color:var(--jade)}
 .chip .ci-tx em svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 /* the two cards mirror each other across the top of the sphere */
-.chip-1{top:3%;left:auto;right:-16%}
-.chip-2{top:3%;left:-16%;right:auto;bottom:auto}
+.chip-1{top:3%;right:auto;left:-16%}
+.chip-2{top:3%;right:-16%;left:auto;bottom:auto}
 @media (min-width:1001px) and (max-width:1240px){
-  .chip-1{right:-8%}.chip-2{left:-8%}
+  .chip-1{left:-8%}.chip-2{right:-8%}
 }
 @media (max-width:1000px){
-  .chip-1{top:2%;right:0}
-  .chip-2{top:2%;left:0}
+  .chip-1{top:2%;left:0}
+  .chip-2{top:2%;right:0}
 }
 @media (max-width:430px){
   .chip{font-size:12px;padding:9px 12px 9px 9px}
   .chip .ci-ic{width:30px;height:30px}
   .chip .ci-tx b{font-size:12px}.chip .ci-tx em{font-size:11px}
-  .chip-1{top:0;right:0}.chip-2{top:0;left:0}
+  .chip-1{top:0;left:0}.chip-2{top:0;right:0}
 }
 
 /* The card's content sits in a wrapper so it can float on its own: GSAP owns
@@ -1504,6 +1518,18 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 .chip-float-2{animation-duration:8.5s;animation-delay:-3.2s}
 @keyframes chipFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @media (max-width:430px){.chip-float{gap:10px}}
+
+/* the two thin rings: small, close to the sphere, a hint rather than a
+   display. Sized off --d so they scale down with the sphere on short/narrow
+   screens instead of overrunning it. */
+.orbit-lines{
+  position:absolute;left:50%;top:calc(var(--d)/2);width:calc(var(--d)*1.32);aspect-ratio:760/520;height:auto;
+  transform:translate(-50%,-50%);pointer-events:none;overflow:visible;
+  filter:drop-shadow(0 0 2px rgba(55,226,155,.25));
+}
+@media (min-width:1001px){.orbit-lines{left:auto;right:calc(var(--d)/2);transform:translate(50%,-50%)}}
+.or-dash{animation:orbitDash 70s linear infinite}
+@keyframes orbitDash{to{stroke-dashoffset:-200}}
 
 .console-in{position:relative}
 /* The status text is the point of the hero: a soft dark backing keeps it crisp against the sphere. */
@@ -1519,7 +1545,7 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
    CSS starts hidden -- show the finished state instead: the "booked" outcome,
    the check mark, both status cards, the jade glow. */
 @media (prefers-reduced-motion:reduce){
-  .chip-float{animation:none}
+  .chip-float,.or-dash{animation:none}
   .aura .a-jade{opacity:.55}
   .radial{opacity:.5}
   .spoke i{transform:scaleY(.55)}

@@ -421,8 +421,12 @@ export default function Home() {
         .fromTo("#icCheck", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(2.6)" }, BEAT * 2 + 0.22)
         .fromTo("#icCheck path", { strokeDashoffset: 30 }, { strokeDashoffset: 0, duration: 0.5, ease: "power2.out" }, BEAT * 2 + 0.34)
         .fromTo('.line[data-i="2"]', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.65 }, BEAT * 2 + 0.42)
-        .fromTo(".chip-1", { opacity: 0, y: 20, x: 14, scale: 0.93 }, { opacity: 1, y: 0, x: 0, scale: 1, duration: 0.75 }, BEAT * 2 + 0.56)
-        .fromTo(".chip-2", { opacity: 0, y: 20, x: -14, scale: 0.93 }, { opacity: 1, y: 0, x: 0, scale: 1, duration: 0.75 }, BEAT * 2 + 0.74)
+        // chip-1 (left, "Call answered") pops in first; chip-2 (right, "New
+        // booking request") follows about half a second later. Each still
+        // slides in from its own outer edge -- left card from further left,
+        // right card from further right.
+        .fromTo(".chip-1", { opacity: 0, y: 20, x: -14, scale: 0.93 }, { opacity: 1, y: 0, x: 0, scale: 1, duration: 0.75 }, BEAT * 2 + 0.56)
+        .fromTo(".chip-2", { opacity: 0, y: 20, x: 14, scale: 0.93 }, { opacity: 1, y: 0, x: 0, scale: 1, duration: 0.75 }, BEAT * 2 + 1.06)
 
         /* seamless reset */
         .to(".chip-1", { opacity: 0, y: -12, duration: 0.42, ease: "power2.in" }, BEAT * 3 - 0.62)
@@ -627,6 +631,28 @@ export default function Home() {
               <div className="a-jade" />
               <div className="a-bright" />
             </div>
+
+            {/* Two thin rings hugging the sphere -- a hint of orbit, not a
+                display in its own right. Drawn before the console in the DOM
+                so its opaque circle covers the inner portion; only the arcs
+                that clear the sphere's edge are ever visible. No dots, no
+                ring reaching out toward the copy: restrained on purpose. */}
+            <svg className="orbit-lines" viewBox="0 0 760 520" fill="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="orA" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0" stopColor="#37E29B" stopOpacity="0" />
+                  <stop offset=".3" stopColor="#5CEBAF" stopOpacity=".55" />
+                  <stop offset=".7" stopColor="#8BF0C6" stopOpacity=".4" />
+                  <stop offset="1" stopColor="#37E29B" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <g transform="rotate(-13 380 260)">
+                <ellipse cx="380" cy="260" rx="256" ry="88" stroke="url(#orA)" strokeWidth="1" />
+              </g>
+              <g transform="rotate(15 380 260)">
+                <ellipse cx="380" cy="260" rx="266" ry="108" stroke="rgba(255,255,255,.16)" strokeWidth=".8" strokeDasharray="2 8" className="or-dash" />
+              </g>
+            </svg>
 
             <div
               className="console glass"
