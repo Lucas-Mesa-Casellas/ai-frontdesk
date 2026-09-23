@@ -39,6 +39,25 @@
   --radius-control:12px;
 
   --e-out:cubic-bezier(.22,.9,.24,1);
+
+  /* ---- interaction language (landing + dashboard) ----
+     One timing, one lift, one glow. Hover/press on controls uses --t-fast;
+     cards and popovers use --t-med. Primary = jade gradient that lifts 1px,
+     brightens a touch and grows its glow. Cards lift 3px and their jade
+     hairline strengthens. No sweeps, no scaling, no bounce. */
+  --t-fast:.2s;
+  --t-med:.3s;
+  --btn-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 10px 26px -12px rgba(18,185,129,.65);
+  --btn-shadow-hover:0 1px 0 rgba(255,255,255,.45) inset,0 16px 34px -12px rgba(18,185,129,.82);
+  --card-bg:linear-gradient(180deg,rgba(18,185,129,.045),rgba(255,255,255,.012) 62%);
+  --card-border:rgba(55,226,155,.14);
+  --card-border-hover:rgba(55,226,155,.3);
+  --card-shadow:0 34px 70px -40px rgba(0,0,0,.9);
+  --card-shadow-hover:0 46px 90px -42px rgba(0,0,0,.95);
+  --field-bg:rgba(255,255,255,.03);
+  --field-border:rgba(255,255,255,.12);
+  --field-border-hover:rgba(255,255,255,.2);
+  --focus-ring:0 0 0 3px rgba(18,185,129,.14);
   --maxw:1680px;
   --maxw-hero:1360px;
 }
@@ -140,13 +159,52 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
 .logo-mark svg{width:15px;height:15px;display:block}
 .logo-txt{font-size:17px;font-weight:600;letter-spacing:-.022em}
 
-.nav-links{display:flex;gap:4px;justify-self:center}
-.nav-links a{
-  font-size:15px;font-weight:450;color:var(--text-2);
-  padding:9px 17px;border-radius:10px;position:relative;
-  transition:color .22s var(--e-out),background .22s var(--e-out);
+.nav-links{display:flex;align-items:center;gap:4px;justify-self:center}
+.nav-links>a,.nav-drop-btn{
+  position:relative;display:inline-flex;align-items:center;gap:6px;
+  font-size:15px;font-weight:450;letter-spacing:-.01em;color:var(--text);
+  padding:9px 17px;border-radius:10px;opacity:.62;
+  transition:opacity var(--t-fast) var(--e-out),background var(--t-fast) var(--e-out);
 }
-.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.055)}
+.nav-links>a:hover,.nav-drop-btn:hover,.nav-drop.open .nav-drop-btn{opacity:1;background:rgba(255,255,255,.045)}
+.nav-links>a.active,.nav-drop-btn.active{opacity:1}
+.nav-links>a.active::after,.nav-drop-btn.active::after{
+  content:"";position:absolute;left:12px;right:12px;bottom:2px;height:1.5px;border-radius:2px;
+  background:linear-gradient(90deg,transparent,var(--jade),transparent);
+}
+.nav-drop{position:relative}
+.nav-drop-btn .chev{width:10px;height:10px;stroke:currentColor;stroke-width:1.8;fill:none;flex:none;transition:transform var(--t-med) var(--e-out)}
+.nav-drop.open .chev{transform:rotate(180deg)}
+/* the popover: same glass panel as the language menu. A transparent strip
+   above it (::before) bridges the gap so the pointer can travel from the
+   button into it without it closing. */
+.nav-pop{
+  position:absolute;top:calc(100% + 10px);left:50%;width:352px;padding:7px;z-index:60;
+  border-radius:var(--r-lg);
+  background:linear-gradient(180deg,rgba(20,24,31,.97),rgba(13,16,21,.97));
+  border:1px solid var(--hair-2);
+  box-shadow:0 30px 60px -22px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.09);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+  opacity:0;visibility:hidden;transform:translate(-50%,-6px) scale(.98);
+  transition:opacity var(--t-fast) var(--e-out),transform var(--t-fast) var(--e-out),visibility 0s linear var(--t-fast);
+}
+.nav-pop::before{content:"";position:absolute;left:0;right:0;top:-12px;height:12px}
+.nav-drop.open .nav-pop{opacity:1;visibility:visible;transform:translate(-50%,0);transition-delay:0s}
+.nav-pop a{
+  display:flex;align-items:center;gap:13px;padding:11px 12px;border-radius:12px;
+  transition:background var(--t-fast) var(--e-out);
+}
+.nav-pop a:hover,.nav-pop a:focus-visible{background:rgba(255,255,255,.06)}
+.np-ic{
+  width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;
+  color:var(--jade);background:rgba(55,226,155,.08);border:1px solid rgba(55,226,155,.22);
+  transition:border-color var(--t-fast) var(--e-out),background var(--t-fast) var(--e-out);
+}
+.nav-pop a:hover .np-ic{border-color:rgba(55,226,155,.4);background:rgba(55,226,155,.12)}
+.np-ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.np-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
+.np-tx b{font-size:14.5px;font-weight:600;letter-spacing:-.01em;color:var(--text)}
+.np-tx em{font-style:normal;font-size:12.5px;line-height:1.35;color:var(--text-3)}
 
 .nav-right{display:flex;align-items:center;gap:11px;justify-self:end}
 .lang{position:relative}
@@ -192,30 +250,6 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
 .lang-menu::-webkit-scrollbar{width:8px}
 .lang-menu::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:8px;border:2px solid transparent;background-clip:content-box}
 
-.btn-start{
-  position:relative;display:inline-flex;align-items:center;
-  font-size:14.5px;font-weight:600;letter-spacing:-.004em;color:#04140D;
-  padding:10px 20px;border-radius:999px;overflow:hidden;white-space:nowrap;
-  background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
-  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 8px 22px -8px rgba(18,185,129,.6);
-  transition:transform .26s var(--e-out),box-shadow .26s var(--e-out);
-}
-.btn-start::after{
-  content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
-  transform:skewX(-18deg);transition:left .6s var(--e-out);
-}
-.btn-start:hover{transform:translateY(-1.5px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 14px 32px -10px rgba(18,185,129,.75)}
-.btn-start:hover::after{left:115%}
-
-.btn-login{
-  font-size:14.5px;font-weight:500;color:var(--text);white-space:nowrap;
-  padding:9px 20px;border-radius:999px;border:1px solid var(--hair-2);
-  background:rgba(255,255,255,.055);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
-  transition:background .22s var(--e-out),border-color .22s var(--e-out),transform .22s var(--e-out);
-}
-.btn-login:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.28);transform:translateY(-1px)}
 /* mobile menu toggle — hidden on desktop, shown only under 1000px */
 .nav-toggle{
   display:none;width:38px;height:38px;border-radius:10px;flex:none;
@@ -226,6 +260,9 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
 .nav-toggle:hover{background:rgba(255,255,255,.075);border-color:var(--hair-2)}
 .nav-toggle svg{width:18px;height:18px}
 .nav-toggle line{stroke:var(--text);stroke-width:1.8;stroke-linecap:round}
+/* each line turns about its own centre (an SVG element's default origin is
+   the top-left of the whole icon, which drew a broken X) */
+.nav-toggle line{transform-box:fill-box;transform-origin:center}
 .nav-toggle .l1,.nav-toggle .l3{transition:transform .28s var(--e-out)}
 .nav-toggle .l2{transition:opacity .2s var(--e-out)}
 .nav-toggle[aria-expanded=true] .l1{transform:translateY(5px) rotate(45deg)}
@@ -235,7 +272,10 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
 .mobile-nav{
   position:absolute;top:calc(100% + 8px);left:16px;right:16px;
   border-radius:18px;padding:8px;z-index:55;
-  background:linear-gradient(180deg,rgba(20,24,31,.97),rgba(13,16,21,.97));
+  /* opaque: it sits inside the nav, whose own backdrop blur stops this
+     panel's blur from reaching the page, so a translucent fill let the
+     headline show through */
+  background:linear-gradient(180deg,#14181F,#0D1015);
   border:1px solid var(--hair-2);
   box-shadow:0 30px 60px -22px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.09);
   backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
@@ -249,6 +289,7 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
   transition:background .18s var(--e-out),color .18s var(--e-out);
 }
 .mobile-nav a:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.mobile-nav a.sub{padding:9px 16px 9px 30px;font-size:14.5px;color:var(--text-3)}
 
 main{flex:1;display:flex;align-items:center;padding:8px 0 34px}
 .hero{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(30px,4vw,64px);align-items:center;width:100%}
@@ -272,23 +313,6 @@ h1 .l>span{display:block}
 .lede{max-width:46ch;font-size:clamp(15.5px,1.15vw,17px);line-height:1.62;color:var(--text-2)}
 
 .cta{display:flex;align-items:center;gap:14px;margin-top:32px;flex-wrap:wrap}
-
-.btn-primary{
-  position:relative;display:inline-flex;align-items:center;gap:10px;
-  font-size:15.5px;font-weight:600;letter-spacing:-.005em;color:#04140D;
-  padding:15px 27px;border-radius:999px;overflow:hidden;
-  background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
-  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 10px 30px -8px rgba(18,185,129,.6),0 2px 8px -2px rgba(0,0,0,.6);
-  transition:transform .28s var(--e-out),box-shadow .28s var(--e-out);
-}
-.btn-primary::after{
-  content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
-  transform:skewX(-18deg);transition:left .65s var(--e-out);
-}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 18px 42px -10px rgba(18,185,129,.75),0 2px 8px -2px rgba(0,0,0,.6)}
-.btn-primary:hover::after{left:115%}
-.btn-primary svg{width:16px;height:16px;flex:none}
 
 .stage{position:relative;display:flex;flex-direction:column;align-items:center;perspective:1400px}
 @media (min-width:1001px){
@@ -319,6 +343,8 @@ h1 .l>span{display:block}
 .orb-core svg{width:28px;height:28px;position:absolute;opacity:0}
 .icon-phone{stroke:var(--amber);stroke-width:1.7;fill:none}
 .icon-check{stroke:var(--jade);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.orb-core .icon-ai{width:38px;height:38px;stroke:var(--jade-bright);stroke-width:1.35;fill:none;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 6px rgba(55,226,155,.5))}
 .icon-check path{stroke-dasharray:30;stroke-dashoffset:30}
 
 .ripple{position:absolute;left:50%;top:50%;width:96px;height:96px;margin:-48px 0 0 -48px;border-radius:50%;border:1px solid rgba(255,193,120,.55);opacity:0}
@@ -363,8 +389,6 @@ h1 .l>span{display:block}
   box-shadow:0 20px 40px -18px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.1);
   backdrop-filter:blur(14px);opacity:0;
 }
-.chip .tick{width:17px;height:17px;border-radius:50%;background:rgba(55,226,155,.16);display:grid;place-items:center;flex:none}
-.chip .tick svg{width:10px;height:10px;stroke:var(--jade);stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .chip-1{top:7%;left:-7%}
 .chip-2{top:7%;right:-7%}
 @media (min-width:1001px){
@@ -422,8 +446,6 @@ h1 .l>span{display:block}
   .caption{font-size:11.5px}
   .caption b{padding:11px 11px 0}
   .caption b::before{left:11px;right:11px}
-  .btn-login{padding:8px 12px;font-size:13.5px;border-color:transparent;background:transparent}
-  .btn-start{padding:9px 15px;font-size:13.5px}
   .lang-btn{padding:8px 9px;font-size:12.5px;gap:5px}
   .lang-btn .globe{width:14px;height:14px}
   .lang-btn .chev{display:none}
@@ -432,7 +454,6 @@ h1 .l>span{display:block}
 }
 @media (max-width:430px){
   .wrap{padding:0 16px}
-  .btn-primary{padding:14px 20px;font-size:14.5px}
   .chip{font-size:12px;padding:9px 12px}
   .chip-1{top:0;left:-2%}.chip-2{top:0;right:-2%}
 }
@@ -537,10 +558,6 @@ nav.stuck{
   border-bottom-color:var(--border);
   box-shadow:0 12px 32px -20px rgba(0,0,0,.9);
 }
-.nav-links a{letter-spacing:-.01em}
-.nav-links a:hover{background:rgba(255,255,255,.045)}
-.btn-login{transition:background .24s var(--e-out),border-color .24s var(--e-out),transform .24s var(--e-out),box-shadow .24s var(--e-out)}
-.btn-login:hover{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 20px -10px rgba(0,0,0,.7)}
 
 /* ---------- language selector ---------- */
 .lang-menu{
@@ -597,14 +614,9 @@ nav.stuck{
   scroll-margin-top:0;
 }
 .sec-head{margin-bottom:var(--sp-head)}
-/* tag -> heading -> subtitle rhythm, tightened */
-/* Pricing's head is now just the centred tag (no heading) — the next
-   element should sit close, the same way Contact's tag sits close to
-   its own heading. */
-#pricing .sec-h{transform:translateY(-6px)}
-.sec-head.mid{text-align:center}
-.sec-tag{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--jade);margin-bottom:10px}
+/* Every section opens the same way: a centred heading, one supporting line,
+   then the content a fixed distance below. No numbered eyebrow above it. */
+.sec-head.mid{text-align:center;margin-bottom:clamp(28px,4.4vh,44px)}
 /* min-height on both = zero vertical shift when the language changes */
 .sec-h{
   font-size:clamp(2.15rem,3.7vw,3.15rem);line-height:1.04;
@@ -612,12 +624,12 @@ nav.stuck{
   min-height:2.08em;text-wrap:balance;
 }
 .sec-head.mid .sec-h{max-width:none;margin-inline:auto}
-/* Contact's heading and sub are one line in all three languages, so the
-   two-line reserve above was pure dead space. Reserved to their real height. */
+/* Centred headings are one line in all three languages at desktop widths,
+   so only their real height is reserved. */
 .sec-head.mid .sec-h{min-height:1.04em}
 .sec-head.mid .sec-sub{min-height:1.6em}
 .sec-sub{
-  margin-top:8px;max-width:58ch;min-height:1.6em;
+  margin-top:12px;max-width:58ch;min-height:1.6em;
   font-size:clamp(15px,1.05vw,16.5px);line-height:1.6;color:var(--text-2);
   text-wrap:pretty;
 }
@@ -634,38 +646,32 @@ nav.stuck{
 .up.d3{transition-delay:.18s}.up.d4{transition-delay:.24s}
 
 /* ---------- pricing cards (design locked from v5) ---------- */
-.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
-.tier-note{margin-top:14px;text-align:center;font-size:12.5px;color:var(--text-3)}
-.tier{
-  position:relative;display:flex;flex-direction:column;
-  padding:24px 24px 22px;border-radius:var(--r-xl);
-  background:linear-gradient(180deg,rgba(255,255,255,.042),rgba(255,255,255,.014));
-  border:1px solid var(--hair);
-  box-shadow:0 34px 70px -40px rgba(0,0,0,.9);
-  transition:opacity .9s var(--e-out),transform .4s var(--e-out),border-color .4s var(--e-out),box-shadow .4s var(--e-out),background .4s var(--e-out);
+/* ============================================================
+   CARDS -- pricing tiers, voice languages and business types share one
+   surface: faint jade wash, jade hairline, deep soft shadow; on hover they
+   lift 3px and the hairline strengthens. (The form card and the dashboard
+   preview frame use the same surface but don't move.)
+   ============================================================ */
+.tier,.vs-lang,.bt-card{
+  position:relative;border-radius:var(--r-xl);
+  background:var(--card-bg);border:1px solid var(--card-border);box-shadow:var(--card-shadow);
+  transition:opacity .8s var(--e-out),transform var(--t-med) var(--e-out),border-color var(--t-med) var(--e-out),box-shadow var(--t-med) var(--e-out);
 }
-.tier:hover{
-  transform:translateY(-4px);border-color:var(--hair-2);
-  background:linear-gradient(180deg,rgba(255,255,255,.058),rgba(255,255,255,.02));
-  box-shadow:0 46px 90px -42px rgba(0,0,0,.95);
+.tier:hover,.vs-lang:hover,.bt-card:hover{
+  transform:translateY(-3px);border-color:var(--card-border-hover);box-shadow:var(--card-shadow-hover);
 }
-.tier-on{
-  border-color:rgba(55,226,155,.26);
-  background:linear-gradient(180deg,rgba(18,185,129,.085),rgba(255,255,255,.016) 58%);
-  box-shadow:0 40px 84px -40px rgba(0,0,0,.95),0 0 0 1px rgba(55,226,155,.07);
-}
-.tier-on:hover{
-  border-color:rgba(55,226,155,.42);
-  background:linear-gradient(180deg,rgba(18,185,129,.105),rgba(255,255,255,.022) 58%);
-  box-shadow:0 52px 100px -42px rgba(0,0,0,.98),0 0 0 1px rgba(55,226,155,.12);
-}
+/* once revealed, a card answers the pointer straight away (the reveal's
+   stagger delay would otherwise also delay every hover) */
+.tier.up.in,.bt-card.up.in{transition-delay:0s}
+
+/* ---------- pricing: three equal cards ---------- */
+.tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch;max-width:1180px;margin:0 auto}
+.tier{display:flex;flex-direction:column;padding:26px 26px 24px}
+/* Pro: the same card with a slightly stronger edge -- same design, just lit */
+.tier-on{border-color:rgba(55,226,155,.3);background:linear-gradient(180deg,rgba(18,185,129,.09),rgba(255,255,255,.014) 60%)}
+.tier-on:hover{border-color:rgba(55,226,155,.46)}
 .tier-top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:26px}
 .tier-name{font-size:14.5px;font-weight:500;letter-spacing:-.012em;color:var(--text-2)}
-.tier-pin{
-  font-size:10.5px;font-weight:600;letter-spacing:.045em;color:var(--jade);
-  padding:4px 11px;border-radius:var(--r-pill);white-space:nowrap;
-  background:rgba(55,226,155,.1);border:1px solid rgba(55,226,155,.22);
-}
 .tier-fig{margin-top:12px;display:flex;align-items:baseline;gap:6px}
 .tier-fig b{font-size:clamp(2.05rem,2.7vw,2.6rem);font-weight:600;letter-spacing:-.055em;line-height:1}
 .tier-fig span{font-size:13.5px;color:var(--text-3)}
@@ -673,67 +679,62 @@ nav.stuck{
 .tier-vol b{font-size:17.5px;font-weight:600;letter-spacing:-.03em;color:var(--jade)}
 .tier-vol span{font-size:13.5px;color:var(--text-2)}
 .tier-over{margin-top:8px;font-size:12.5px;color:var(--text-3)}
-.tier-rule{height:1px;margin:12px 0 10px;background:var(--hair)}
-.tier-on .tier-rule{background:rgba(55,226,155,.16)}
-.tier-inh{font-size:12.5px;color:var(--text-3);margin-bottom:14px;letter-spacing:-.004em}
-.tier-f{list-style:none;display:flex;flex-direction:column;gap:8px;flex:1;min-height:8.4em}
+.tier-rule{height:1px;margin:16px 0 14px;background:var(--hair)}
+/* flex:1 pushes the CTA to the bottom, so the three buttons line up
+   whatever the length of the list above them */
+.tier-f{list-style:none;display:flex;flex-direction:column;gap:9px;flex:1}
 .tier-f li{display:flex;gap:10px;align-items:flex-start;
   font-size:13.5px;line-height:1.42;color:var(--text-2);letter-spacing:-.008em}
 .tier-f .ck{
   width:15px;height:15px;border-radius:50%;flex:none;margin-top:1px;
-  display:grid;place-items:center;background:rgba(55,226,155,.12);
-  transition:background .4s var(--e-out);
+  display:grid;place-items:center;background:linear-gradient(180deg,var(--jade-bright),var(--jade-2));
 }
-.tier:hover .tier-f .ck{background:rgba(55,226,155,.2)}
-.tier-f .ck svg{width:8.5px;height:8.5px;stroke:var(--jade);stroke-width:2.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.tier-f .soon{
-  font-size:9.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
-  color:var(--text-3);border:1px solid var(--hair);border-radius:5px;
-  padding:1px 5px;margin-left:7px;white-space:nowrap;vertical-align:1px;
-}
+.tier-f .ck svg{width:8.5px;height:8.5px;stroke:#04140D;stroke-width:2.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
 
 
-/* ---------- contact ---------- */
-.cta-col{width:100%;max-width:540px;margin:0 auto}
+/* ---------- contact: the closing section, on one centre axis ---------- */
+.contact .sec-head.mid{margin-bottom:22px}
+.contact-list{
+  list-style:none;display:flex;justify-content:center;flex-wrap:wrap;gap:10px 28px;
+  margin:0 auto 30px;
+}
+.contact-list li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-2);letter-spacing:-.004em}
+.contact-list .ci{
+  width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;
+  color:var(--jade);background:rgba(55,226,155,.07);border:1px solid rgba(55,226,155,.24);
+}
+.contact-list .ci svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .cta-card{
-  border-radius:var(--r-xl);padding:26px 30px 22px;
-  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
-  border:1px solid var(--hair);
-  box-shadow:0 46px 96px -46px rgba(0,0,0,.95);
+  width:100%;max-width:640px;margin:0 auto;
+  border-radius:var(--r-xl);padding:28px 30px 26px;
+  background:var(--card-bg);border:1px solid var(--card-border);box-shadow:var(--card-shadow);
 }
-.fld{margin-bottom:12px}
+.contact .page-foot{margin-top:32px}
+/* the last section: the footer closes the page, so less space under it */
+.sec.contact{padding-bottom:clamp(40px,6vh,64px)}
+
+/* ---------- fields: the same surface, hairline and focus ring as the
+   dashboard's .ui-input (sizes differ, the language doesn't) ---------- */
+.fld{margin-bottom:14px}
 .fld label{display:block;font-size:12.5px;font-weight:500;color:var(--text-3);
-  margin-bottom:8px;transition:color .24s var(--e-out)}
+  margin-bottom:8px;transition:color var(--t-fast) var(--e-out)}
 .fld:focus-within label{color:var(--text-2)}
 .fld input,.fld textarea{
   width:100%;font:inherit;font-size:15px;color:var(--text);letter-spacing:-.008em;
-  background:rgba(255,255,255,.028);
-  border:1px solid var(--hair);border-radius:var(--r-md);padding:13px 15px;
-  transition:border-color .26s var(--e-out),background .26s var(--e-out),box-shadow .26s var(--e-out);
+  background:var(--field-bg);
+  border:1px solid var(--field-border);border-radius:var(--radius-control);padding:12px 14px;
+  transition:border-color var(--t-fast) var(--e-out),background var(--t-fast) var(--e-out),box-shadow var(--t-fast) var(--e-out);
 }
-.fld textarea{resize:vertical;min-height:88px;line-height:1.55}
-.fld input::placeholder,.fld textarea::placeholder{color:var(--text-3);opacity:.45}
-.fld input:hover,.fld textarea:hover{border-color:var(--hair-2)}
+.fld textarea{resize:vertical;min-height:96px;line-height:1.55}
+.fld input::placeholder,.fld textarea::placeholder{color:var(--text-3);opacity:.7}
+.fld input:hover,.fld textarea:hover{border-color:var(--field-border-hover)}
 .fld input:focus,.fld textarea:focus{
-  outline:none;border-color:rgba(55,226,155,.42);background:rgba(255,255,255,.048);
-  box-shadow:0 0 0 3px rgba(18,185,129,.11);
+  outline:none;border-color:rgba(55,226,155,.5);background:rgba(255,255,255,.045);box-shadow:var(--focus-ring);
 }
-.fld-2{display:grid;grid-template-columns:1fr 1fr;gap:15px}
-.send{
-  position:relative;display:flex;align-items:center;justify-content:center;gap:9px;
-  width:100%;margin-top:10px;overflow:hidden;
-  font-size:15.5px;font-weight:600;letter-spacing:-.008em;color:#04140D;
-  padding:15px 26px;border-radius:var(--r-pill);
-  background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
-  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 32px -13px rgba(18,185,129,.62);
-  transition:transform .28s var(--e-out),box-shadow .28s var(--e-out),opacity .2s;
-}
-.send::after{content:"";position:absolute;top:0;left:-60%;width:45%;height:100%;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);
-  transform:skewX(-18deg);transition:left .68s var(--e-out)}
-.send:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 20px 42px -15px rgba(18,185,129,.74)}
-.send:hover:not(:disabled)::after{left:115%}
-.send:active:not(:disabled){transform:translateY(0)}
+.fld-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+.send{gap:0;min-width:200px;margin:8px auto 0;padding:14px 34px;border-radius:12px;font-size:15.5px}
+.contact form{display:flex;flex-direction:column}
 .send:disabled{opacity:.5;cursor:not-allowed}
 /* the button carries its own confirmation — no extra line under it */
 .send .ico{
@@ -743,16 +744,11 @@ nav.stuck{
   transition:opacity .32s var(--e-out),transform .32s var(--e-out),width .32s var(--e-out);
 }
 .send.ok{cursor:default}
-.send.ok .ico{opacity:1;transform:scale(1);width:16px}
+.send.ok .ico{opacity:1;transform:scale(1);width:16px;margin-right:9px}
 .send.err{background:#B3261E;box-shadow:none}
 .send.err:hover:not(:disabled){box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 20px 42px -15px rgba(179,38,30,.6)}
 
 /* ---------- footer ---------- */
-.card-foot{
-  margin-top:22px;padding-top:18px;border-top:1px solid var(--hair);
-  display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
-  font-size:12px;color:var(--text-3);letter-spacing:-.004em;
-}
 .foot-dot{width:3px;height:3px;border-radius:50%;background:var(--hair-2);flex:none}
 .foot-eu{display:inline-flex;align-items:center;gap:6px}
 .foot-eu svg{width:11px;height:11px;stroke:var(--text-3);stroke-width:1.7;fill:none;flex:none}
@@ -760,17 +756,32 @@ nav.stuck{
 /* ============================================================
    RESPONSIVE — short viewports tighten the rhythm a little
    ============================================================ */
+/* laptop-height screens: pricing and contact tighten a little so each still
+   fits one screen, without shrinking any text */
+@media (max-height:820px){
+  .sec-head.mid{margin-bottom:24px}
+  .tier{padding:22px 22px 20px}
+  .tier-rule{margin:12px 0 10px}
+  .tier-cta{margin-top:16px}
+  .contact .sec-head.mid{margin-bottom:14px}
+  .contact-list{margin-bottom:18px}
+  .cta-card{padding:22px 26px 20px}
+  .fld{margin-bottom:10px}
+  .fld textarea{min-height:72px}
+  .contact .page-foot{margin-top:22px}
+}
 @media (max-height:760px){
   :root{--nav-h:60px;--sp-top:6px;--sp-bottom:14px;--sp-head:10px}
   .sec-h{font-size:clamp(1.7rem,2.6vw,2.1rem);min-height:1.9em}
   .tier{padding:18px 18px 16px}
   .tier-fig{margin-top:10px}
-  .tier-f{gap:6px;min-height:7.6em}
+  .tier-f{gap:6px}
   .tier-f li{font-size:12px;line-height:1.28}
   .tier-rule{margin:10px 0 9px}
-  .cta-card{padding:18px 22px 16px}
-  .fld{margin-bottom:8px}
-  .fld textarea{min-height:48px}
+  .cta-card{padding:20px 24px 18px}
+  .fld{margin-bottom:10px}
+  .fld textarea{min-height:64px}
+  .contact-list{margin-bottom:20px}
 }
 @media (max-width:1000px){
   .sec{padding:max(calc(var(--nav-h) + 20px),clamp(64px,8vh,88px)) 0 clamp(64px,8vh,88px)}
@@ -778,10 +789,10 @@ nav.stuck{
   .sec-h,.sec-sub{min-height:0}
   .tiers{grid-template-columns:1fr;gap:14px}
   .tier{padding:28px 24px 26px}
-  .tier-f{min-height:0}
   .sec-h{max-width:none}
 }
 @media (max-width:560px){
+  .contact-list{flex-direction:column;align-items:flex-start;width:fit-content;gap:12px}
   .tier{padding:24px 20px 22px}
   .cta-card{padding:26px 22px 24px;border-radius:22px}
   .fld-2{grid-template-columns:1fr;gap:0}
@@ -789,8 +800,8 @@ nav.stuck{
 @media (prefers-reduced-motion:reduce){
   .cue{display:none}
   .env .mesh{animation:none}
-  .tier:hover{transform:none}
-  .send:hover:not(:disabled){transform:none}
+  .tier:hover,.vs-lang:hover,.bt-card:hover{transform:none}
+  .send:hover:not(:disabled),.btn-primary:hover,.btn-login:hover,.tier-cta:hover{transform:none}
 }
 
 /* ============================================================
@@ -802,19 +813,6 @@ nav.stuck{
 
 /* ---- nav: anchored, active section, primary CTA ---- */
 nav{border-bottom:1px solid rgba(255,255,255,.04)}
-.nav-links a{position:relative;opacity:.62;transition:opacity .22s var(--e-out),color .22s var(--e-out)}
-.nav-links a:hover{opacity:1}
-.nav-links a.active{opacity:1;color:var(--text)}
-.nav-links a.active::after{
-  content:"";position:absolute;left:12px;right:12px;bottom:2px;height:1.5px;border-radius:2px;
-  background:linear-gradient(90deg,transparent,var(--jade),transparent);
-}
-.btn-login{
-  background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
-  border-color:transparent;color:#04140D;font-weight:600;
-  box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 8px 22px -12px rgba(18,185,129,.75);
-}
-.btn-login:hover{filter:brightness(1.06);transform:translateY(-1px)}
 
 /* ---- hero glow contained so it stops bleeding into the headline ---- */
 .aura{--aura-mask:radial-gradient(ellipse 62% 58% at 50% 62%,#000 30%,transparent 78%)}
@@ -823,29 +821,18 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 }
 
 /* ---- pricing ---- */
-.tier{border:1px solid rgba(255,255,255,.06)}
-.tier:not(.tier-on):hover{border-color:rgba(255,255,255,.13)}
 .tier-fig b{font-variant-numeric:tabular-nums}
 .tier-cur{font-size:.62em;font-weight:500;margin-left:1px;vertical-align:baseline}
 .tier-vol b{font-variant-numeric:tabular-nums}
 .tier-over{margin-top:4px;opacity:.8}
 
+/* Both CTA styles carry a 1px border (transparent on the solid one), so the
+   three buttons are exactly the same height and sit on one line. */
 .tier-cta{
   display:flex;align-items:center;justify-content:center;gap:8px;
-  margin-top:13px;padding:9px 18px;border-radius:11px;
-  font-size:14px;font-weight:600;letter-spacing:-.008em;
-  transition:transform .22s var(--e-out),background .22s var(--e-out),
-             border-color .22s var(--e-out),box-shadow .22s var(--e-out),filter .22s var(--e-out);
+  height:46px;margin-top:22px;padding:0 18px;border-radius:12px;
+  font-size:14.5px;font-weight:600;letter-spacing:-.008em;
 }
-.tier-cta.solid{
-  color:#04140D;background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
-  box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 10px 24px -14px rgba(18,185,129,.8);
-}
-.tier-cta.solid:hover{transform:translateY(-1.5px);box-shadow:0 1px 0 rgba(255,255,255,.45) inset,0 16px 32px -14px rgba(18,185,129,.9)}
-.tier-cta.outline{color:var(--jade);border:1px solid rgba(55,226,155,.32);background:rgba(55,226,155,.05)}
-.tier-cta.outline:hover{background:rgba(55,226,155,.11);border-color:rgba(55,226,155,.5);transform:translateY(-1.5px)}
-.tier-cta.quiet{color:var(--text);border:1px solid var(--hair-2)}
-.tier-cta.quiet:hover{border-color:rgba(255,255,255,.28);background:rgba(255,255,255,.05);transform:translateY(-1.5px)}
 
 /* upcoming features grouped under one header instead of a badge per row */
 .tier-f li.soon-head{
@@ -861,20 +848,14 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .tier-f li.is-soon .ck{background:rgba(255,255,255,.05)}
 .tier-f li.is-soon .ck svg{stroke:var(--text-3)}
 
-/* ---- contact ---- */
-.fld input,.fld textarea{border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.022)}
-.fld input::placeholder,.fld textarea::placeholder{color:var(--text-3);opacity:.62}
-.fld input:hover,.fld textarea:hover{border-color:rgba(255,255,255,.15)}
-.fld input:focus,.fld textarea:focus{border-color:rgba(55,226,155,.5);box-shadow:0 0 0 3px rgba(18,185,129,.12)}
-
-.send{width:auto;min-width:190px;margin:14px auto 0;border-radius:12px;padding:14px 34px}
+/* ---- contact: send button states ---- */
 .send.busy{opacity:.85}
 .send .spin{
   width:15px;height:15px;border-radius:50%;flex:none;
   border:2px solid rgba(4,20,13,.25);border-top-color:#04140D;
   display:none;animation:spin .7s linear infinite;
 }
-.send.busy .spin{display:block}
+.send.busy .spin{display:block;margin-right:9px}
 .send.busy .ico{display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -883,39 +864,46 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;
   font-size:12.5px;color:var(--text-3);
 }
-.page-foot .foot-dot{width:3px;height:3px;border-radius:50%;background:var(--hair-2);flex:none}
-.page-foot .foot-eu{display:inline-flex;align-items:center;gap:6px}
-.page-foot .foot-eu svg{width:11px;height:11px;stroke:var(--text-3);stroke-width:1.7;fill:none;flex:none}
 
 @media (max-width:560px){.send{width:100%}}
 
-/* ---- hero CTA: these later rules win over the earlier .btn-primary. */
-.btn-primary{
-  position:relative;display:inline-flex;align-items:center;gap:9px;overflow:hidden;
-  font-size:15px;font-weight:600;letter-spacing:-.01em;color:#04140D;
-  padding:13px 24px;border-radius:12px;
-  background:linear-gradient(180deg,#5CEBAF,var(--jade-2));
-  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 30px -14px rgba(18,185,129,.7);
-  transition:transform .24s var(--e-out),box-shadow .24s var(--e-out);
+/* ============================================================
+   BUTTONS -- one language for every primary action on the site:
+   hero CTA, nav "Client access", the pricing CTAs, the contact send
+   button (the dashboard's .ui-btn--primary follows the same rules).
+   ============================================================ */
+.btn-primary,.btn-login,.tier-cta.solid,.send{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  font-weight:600;letter-spacing:-.008em;color:#04140D;white-space:nowrap;
+  background:linear-gradient(180deg,var(--jade-bright),var(--jade-2));
+  border:1px solid transparent;
+  box-shadow:var(--btn-shadow);
+  transition:transform var(--t-fast) var(--e-out),box-shadow var(--t-fast) var(--e-out),filter var(--t-fast) var(--e-out),opacity var(--t-fast);
 }
-.btn-primary:hover{transform:translateY(-2px) scale(1.015);
-  box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 20px 42px -16px rgba(18,185,129,.85)}
-.hero .cta .btn-primary{padding:16px 30px;font-size:16.5px;border-radius:14px;box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 32px -14px rgba(18,185,129,.6)}
-.hero .cta .btn-primary:hover{box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 18px 40px -14px rgba(18,185,129,.75)}
-.btn-primary .ar{transition:transform .28s var(--e-out)}
-.btn-primary:hover .ar{transform:translateX(3px)}
+.btn-primary:hover,.btn-login:hover,.tier-cta.solid:hover,.send:hover:not(:disabled){
+  transform:translateY(-1px);filter:brightness(1.05);box-shadow:var(--btn-shadow-hover);
+}
+.btn-primary:active,.btn-login:active,.tier-cta.solid:active,.send:active:not(:disabled){transform:none;filter:none}
+/* the arrow that travels 3px on hover -- same on every CTA that has one */
+.btn-primary .ar,.btn-login .ar,.tier-cta .ar{flex:none;transition:transform var(--t-fast) var(--e-out)}
+.btn-primary:hover .ar,.btn-login:hover .ar,.tier-cta:hover .ar{transform:translateX(3px)}
+
+.btn-primary{gap:9px;font-size:15px;padding:13px 24px;border-radius:12px}
+.hero .cta .btn-primary{padding:16px 30px;font-size:16.5px;border-radius:14px}
+.btn-login{gap:7px;font-size:14.5px;padding:9px 18px;border-radius:999px}
+@media (max-width:430px){.hero .cta .btn-primary{padding:14px 22px;font-size:15px}}
+
+/* secondary: a quiet jade outline that shares the primary's lift */
+.tier-cta.outline{
+  color:var(--jade);background:rgba(55,226,155,.05);border:1px solid rgba(55,226,155,.32);
+  transition:transform var(--t-fast) var(--e-out),background var(--t-fast) var(--e-out),border-color var(--t-fast) var(--e-out);
+}
+.tier-cta.outline:hover{transform:translateY(-1px);background:rgba(55,226,155,.1);border-color:rgba(55,226,155,.5)}
+.tier-cta.outline:active{transform:none}
 /* ========== DASHBOARD PREMIUM LAYER ========== */
 @keyframes dashIn {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: none; }
-}
-@keyframes dashInScale {
-  from { opacity: 0; transform: scale(.96); }
-  to   { opacity: 1; transform: none; }
-}
-@keyframes softGlow {
-  0%,100% { box-shadow: 0 0 0 0 rgba(55,226,155,.10); }
-  50%     { box-shadow: 0 0 24px 2px rgba(55,226,155,.05); }
 }
 @keyframes livePulse {
   0%   { box-shadow: 0 0 0 0 rgba(55,226,155,.45); }
@@ -931,15 +919,11 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   opacity: 0;
   animation: dashIn .3s var(--e-out) forwards;
 }
-.dash-in-scale {
-  opacity: 0;
-  animation: dashInScale .28s var(--e-out) forwards;
-}
 /* The entrance animations are what bring these to opacity 1. The global
    reduced-motion rule turns every animation off, which would leave the
    content invisible -- so under reduced motion, just show it. */
 @media (prefers-reduced-motion: reduce) {
-  .dash-in, .dash-in-scale { opacity: 1; }
+  .dash-in { opacity: 1; }
 }
 .dash-in.d1 { animation-delay: .02s; }
 .dash-in.d2 { animation-delay: .04s; }
@@ -947,15 +931,6 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .dash-in.d4 { animation-delay: .08s; }
 .dash-in.d5 { animation-delay: .10s; }
 .dash-in.d6 { animation-delay: .12s; }
-
-.live-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--jade);
-  animation: livePulse 2.2s ease-in-out infinite;
-  flex: none;
-}
 
 /* Card for dashboard panels. One definition, built from the tokens at the
    top of this file (--surface, --border, --border-jade, --radius-card,
@@ -1038,15 +1013,16 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   height: 40px; padding: 0 18px; border-radius: var(--radius-control);
   font-size: 13.5px; font-weight: 600; letter-spacing: -.005em; white-space: nowrap; text-decoration: none;
   border: 1px solid transparent; cursor: pointer;
-  transition: transform .2s var(--e-out), box-shadow .2s var(--e-out), background .2s var(--e-out), border-color .2s var(--e-out), color .2s var(--e-out);
+  transition: transform var(--t-fast) var(--e-out), box-shadow var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out), border-color var(--t-fast) var(--e-out), color var(--t-fast) var(--e-out), filter var(--t-fast) var(--e-out);
 }
 .ui-btn:disabled { opacity: .55; cursor: default; }
 .ui-btn--sm { height: 34px; padding: 0 13px; font-size: 12.5px; border-radius: 10px; }
 .ui-btn--primary {
   color: #04140D; background: linear-gradient(180deg, var(--jade-bright), var(--jade-dark));
-  box-shadow: 0 1px 0 rgba(255,255,255,.45) inset, 0 10px 24px -12px rgba(18,185,129,.7);
+  box-shadow: var(--btn-shadow);
 }
-.ui-btn--primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 1px 0 rgba(255,255,255,.45) inset, 0 16px 30px -12px rgba(18,185,129,.8); }
+.ui-btn--primary:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.05); box-shadow: var(--btn-shadow-hover); }
+.ui-btn:active:not(:disabled) { transform: none; filter: none; }
 .ui-btn--secondary { color: var(--text-2); background: rgba(255,255,255,.035); border-color: var(--border-strong); }
 .ui-btn--secondary:hover:not(:disabled) { color: var(--text); background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.24); }
 .ui-btn--warning { color: var(--warning); background: rgba(255,193,120,.05); border-color: rgba(255,193,120,.24); }
@@ -1060,34 +1036,15 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .ui-hint { margin-top: 8px; font-size: 12px; color: var(--text-3); }
 .ui-input {
   width: 100%; font: inherit; font-size: 14px; color: var(--text);
-  background: rgba(255,255,255,.028); border: 1px solid var(--border-strong); border-radius: var(--radius-control);
+  background: var(--field-bg); border: 1px solid var(--field-border); border-radius: var(--radius-control);
   padding: 12px 14px;
   transition: border-color .2s var(--e-out), background .2s var(--e-out), box-shadow .2s var(--e-out);
 }
 .ui-input::placeholder { color: var(--text-3); opacity: .7; }
-.ui-input:hover { border-color: rgba(255,255,255,.24); }
-.ui-input:focus { outline: none; border-color: rgba(55,226,155,.5); background: rgba(255,255,255,.04); box-shadow: 0 0 0 3px rgba(18,185,129,.12); }
+.ui-input:hover { border-color: var(--field-border-hover); }
+.ui-input:focus { outline: none; border-color: rgba(55,226,155,.5); background: rgba(255,255,255,.045); box-shadow: var(--focus-ring); }
 .ui-input:disabled { opacity: .5; cursor: not-allowed; }
 textarea.ui-input { resize: vertical; line-height: 1.55; }
-
-/* Row items (calls, bookings lists) */
-.dash-row {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.04);
-  text-decoration: none;
-  color: inherit;
-  transition: background .22s var(--e-out), border-color .22s var(--e-out), transform .22s var(--e-out);
-}
-.dash-row:hover {
-  background: rgba(255,255,255,.055);
-  border-color: rgba(255,255,255,.09);
-  transform: translateX(3px);
-}
 
 /* Form fields */
 .dash-input {
@@ -1217,36 +1174,11 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
   border-color: rgba(255,255,255,.15);
 }
 
-/* Same hover affordance as .ov-view-all (dashboard overview's "Ver todas"
-   links) -- a subtle white overlay, rgba(255,255,255,.055). Background
-   lives entirely in these classes (not inline on the element) because an
-   inline `style.background` always wins over any stylesheet rule -- a
-   :hover class rule would otherwise be silently inert. Defined here rather
-   than in a component-local <style> tag because BookingActions renders
-   once per booking row, so a local <style> would duplicate per instance.
-   The confirm button layers the overlay on top of its jade gradient
-   (rather than replacing it) so it brightens instead of flashing white. */
-.ba-confirm-btn {
-  background: linear-gradient(180deg,#5CEBAF,var(--jade-2));
-  transition: background .22s var(--e-out);
-}
-.ba-confirm-btn:hover {
-  background: linear-gradient(rgba(255,255,255,.055), rgba(255,255,255,.055)), linear-gradient(180deg,#5CEBAF,var(--jade-2));
-}
-.ba-cancel-btn {
-  background: transparent;
-  transition: background .22s var(--e-out);
-}
-.ba-cancel-btn:hover {
-  background: rgba(255,255,255,.055);
-}
-
 /* Shared affordances for clickable text. On a dark surface cursor:pointer
    alone gives no signal that something is a control, so every bare text
    link/button gets a visible change on hover, and they all get the same
    one. Colour and text-decoration live here rather than inline on the
-   elements because an inline style always beats a stylesheet :hover rule
-   -- the same gotcha documented for .ba-confirm-btn above. */
+   elements because an inline style always beats a stylesheet :hover rule. */
 .link-quiet {
   color: var(--text-3);
   text-decoration: none;
@@ -1335,10 +1267,6 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 /* ================= design pass from the reference mockup =================
    Hero button + feature row, pricing cards, and a three-column contact. */
 
-/* nav "Client access" gets the arrow */
-.btn-login{display:inline-flex;align-items:center;gap:7px}
-.btn-login .ar{transition:transform .28s var(--e-out)}
-.btn-login:hover .ar{transform:translateX(3px)}
 
 /* hero: what the product does, at a glance. On desktop it's pulled out of
    the grid flow (position:absolute against .hero, which is what makes --d
@@ -1375,55 +1303,6 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
   .hero-feats li+li{border-left:0}
 }
 
-/* pricing: green-edged cards, filled checks, the CTA at the bottom, and Pro
-   picked out as the recommended plan */
-.tier{border-color:rgba(55,226,155,.14)}
-.tier:hover{border-color:rgba(55,226,155,.3)}
-.tier-on{
-  border-color:rgba(55,226,155,.46);
-  background:linear-gradient(180deg,rgba(18,185,129,.11),rgba(255,255,255,.016) 58%);
-  box-shadow:0 40px 84px -40px rgba(0,0,0,.95),0 0 0 1px rgba(55,226,155,.1),0 0 64px -22px rgba(18,185,129,.45);
-}
-.tier-on:hover{border-color:rgba(55,226,155,.62)}
-.tier-pin{background:linear-gradient(180deg,#5CEBAF,var(--jade-2));color:#04140D;border-color:transparent}
-.tier-f .ck{background:linear-gradient(180deg,#5CEBAF,var(--jade-2))}
-.tier:hover .tier-f .ck{background:linear-gradient(180deg,#5CEBAF,var(--jade-2))}
-.tier-f .ck svg{stroke:#04140D}
-.tier-cta{margin-top:18px;padding:11px 18px}
-.tier-cta .ar{transition:transform .28s var(--e-out);flex:none}
-.tier-cta:hover .ar{transform:translateX(3px)}
-
-/* contact: copy | form -- no more decorative globe on the right */
-.cta-card{border-color:rgba(55,226,155,.14)}
-.contact-grid{
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,540px);
-  gap:clamp(32px,4.5vw,72px);align-items:center;
-}
-.contact-copy{min-width:0}
-.contact-copy .sec-head{text-align:left;margin-bottom:28px}
-.contact-copy .sec-h{min-height:0}
-.contact-copy .sec-sub{max-width:34ch;margin-top:12px;min-height:0}
-.contact-list{list-style:none;display:flex;flex-direction:column;gap:14px}
-.contact-list li{display:flex;align-items:center;gap:14px;font-size:14.5px;color:var(--text-2);letter-spacing:-.004em}
-.contact-list .ci{
-  width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;
-  color:var(--jade);background:rgba(55,226,155,.07);border:1px solid rgba(55,226,155,.24);
-}
-.contact-list .ci svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.contact-copy .page-foot{justify-content:flex-start;margin-top:40px}
-.contact-grid .cta-col{margin:0}
-/* narrower than two columns: heading, form, footer in one centred column.
-   .contact-copy dissolves (display:contents) so its parts can be re-ordered
-   around the form; the bullets drop out. */
-@media (max-width:1180px){
-  .contact-grid{grid-template-columns:minmax(0,540px);justify-content:center;gap:0}
-  .contact-copy{display:contents}
-  .contact-copy .sec-head{order:1;text-align:center;margin-bottom:var(--sp-head)}
-  .contact-copy .sec-sub{margin-inline:auto}
-  .contact-grid .cta-col{order:2}
-  .contact-list{display:none}
-  .contact-copy .page-foot{order:3;justify-content:center;margin-top:24px}
-}
 
 /* ================= hero orbit =================
    The console is now a sphere: dark disc, a bright uneven rim (the .glass

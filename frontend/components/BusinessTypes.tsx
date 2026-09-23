@@ -34,17 +34,48 @@ const COPY = {
   } as L10n,
 };
 
-// Each card has a background: not a stock photo of someone's actual trades
-// van or listing (we don't have one to use honestly), but a dark, abstract
-// illustration in the site's own jade-on-near-black language -- a wrench/
-// pipe motif for Trades, a villa silhouette for Real estate -- so the card
-// still reads as "this business" at a glance. The cards darken them further
-// so the text stays readable.
-const HAS_PHOTOS = true;
+// Background linework, drawn in the card's corner and faded out before it
+// reaches the text: a technical schematic for Trades (a pipe run, a circuit
+// trace, radiator fins, a dimension line) and an architectural floor plan
+// for Real estate (walls, door swings, windows). Hairline strokes at low
+// contrast -- noticed as texture, never read as a picture.
+const Art = ({ children }: { children: ReactNode }) => (
+  <svg className="bt-art" viewBox="0 0 600 400" preserveAspectRatio="xMaxYMid slice" fill="none" aria-hidden="true">
+    {children}
+  </svg>
+);
+const TradesArt = () => (
+  <Art>
+    {/* pipe run with two rounded elbows (drawn as a double wall) and a valve */}
+    <path d="M560 96H476a26 26 0 0 0-26 26v126a26 26 0 0 1-26 26h-64" />
+    <path d="M560 108H476a14 14 0 0 0-14 14v126a38 38 0 0 1-38 38h-64" />
+    <circle cx="456" cy="186" r="11" /><path d="M445 186h22M456 175v22" />
+    {/* circuit trace with nodes */}
+    <path d="M560 168h-34l-16 16h-28" /><circle cx="478" cy="184" r="4" />
+    <path d="M560 212h-26l-12-12" /><circle cx="519" cy="197" r="4" />
+    {/* radiator fins */}
+    <path d="M492 250v66M505 250v66M518 250v66M531 250v66M544 250v66M557 250v66" />
+    <path d="M486 244h78M486 322h78" />
+  </Art>
+);
+const PropertyArt = () => (
+  <Art>
+    {/* outer walls (double line), interior walls */}
+    <rect x="344" y="88" width="220" height="228" />
+    <rect x="352" y="96" width="204" height="212" />
+    <path d="M352 202h78M430 96v70M430 190v118M430 250h126" />
+    {/* door swings */}
+    <path d="M430 166a24 24 0 0 1 24 24M430 190h24" />
+    <path d="M392 202a22 22 0 0 0-22 22M370 202v22" />
+    <path d="M492 250a22 22 0 0 1 22 22M492 250v22" />
+    {/* windows on the outer wall */}
+    <path d="M470 88v8M522 88v8M470 92h52M564 140h-8M564 182h-8M560 140v42" />
+  </Art>
+);
 
 type Vertical = {
   id: string;
-  photo: string;
+  art: ReactNode;
   icons: ReactNode[];
   label: L10n;
   line: L10n;
@@ -58,7 +89,7 @@ type Vertical = {
 const VERTICALS: Vertical[] = [
   {
     id: "trades",
-    photo: "/business/trades.svg",
+    art: <TradesArt />,
     icons: [<Droplet key="d" />, <Bolt key="b" />, <Flame key="f" />],
     label: { EN: "Trades", ES: "Oficios", FR: "Artisans" },
     line: {
@@ -74,7 +105,7 @@ const VERTICALS: Vertical[] = [
   },
   {
     id: "property",
-    photo: "/business/real-estate.svg",
+    art: <PropertyArt />,
     icons: [<Building key="b" />, <Key key="k" />],
     label: { EN: "Real estate", ES: "Inmobiliaria", FR: "Immobilier" },
     line: {
@@ -101,10 +132,8 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
 
         <ul className="bt-grid">
           {VERTICALS.map((v, i) => (
-            <li
-              key={v.id} className={`bt-card up d${i + 1}${HAS_PHOTOS ? " has-img" : ""}`}
-              style={HAS_PHOTOS ? ({ ["--bt-img" as string]: `url(${v.photo})` }) : undefined}
-            >
+            <li key={v.id} className={`bt-card up d${i + 1}`}>
+              {v.art}
               <span className="bt-icons">
                 {v.icons.map((icon, k) => <span key={k} className="bt-ic">{icon}</span>)}
               </span>
@@ -121,32 +150,27 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
       <style>{`
         /* Natural height: two cards plus the shared section padding. */
         .types .sec-h { min-height: 0; }
-        .types .sec-head { margin-bottom: 34px; }
 
         .bt-grid {
-          list-style: none; display: grid; gap: 20px; max-width: 1080px; margin: 0 auto;
+          list-style: none; display: grid; gap: 16px; max-width: 1180px; margin: 0 auto;
           grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
         }
-        .bt-card {
-          position: relative; display: flex; flex-direction: column; padding: 34px 34px 30px; border-radius: var(--r-xl);
-          background: linear-gradient(180deg, rgba(255,255,255,.048), rgba(255,255,255,.014));
-          border: 1px solid rgba(55,226,155,.14);
-          box-shadow: 0 40px 80px -44px rgba(0,0,0,.95);
-          transition: opacity .9s var(--e-out), transform .4s var(--e-out), border-color .4s var(--e-out), box-shadow .4s var(--e-out);
-        }
+        /* surface, border and hover come from the shared card rules (globals.css) */
+        .bt-card { display: flex; flex-direction: column; padding: 34px 34px 30px; overflow: hidden; }
         .bt-card::before {
           content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-          background: radial-gradient(120% 70% at 0% 0%, rgba(55,226,155,.10), transparent 55%);
+          background: radial-gradient(120% 70% at 0% 0%, rgba(55,226,155,.08), transparent 55%);
         }
-        .bt-card.has-img { overflow: hidden; }
-        /* ::before (not ::after): it comes first in paint order, so the text,
-           which is position:relative, paints over it. Replaces the jade glow. */
-        .bt-card.has-img::before {
-          background:
-            linear-gradient(180deg, rgba(7,11,10,.5) 0%, rgba(7,11,10,.88) 62%, rgba(7,11,10,.96) 100%),
-            var(--bt-img) center / cover no-repeat;
+        .bt-art {
+          position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+          stroke: rgba(55,226,155,.42); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round;
+          opacity: .45; transition: opacity var(--t-med) var(--e-out);
+          /* faded on every side: the lines never reach the card's edges (where
+             they'd read as a broken border) or the text on the left */
+          -webkit-mask-image: radial-gradient(ellipse 30% 44% at 84% 40%, #000 30%, transparent 100%);
+                  mask-image: radial-gradient(ellipse 30% 44% at 84% 40%, #000 30%, transparent 100%);
         }
-        .bt-card:hover { transform: translateY(-4px); border-color: rgba(55,226,155,.3); box-shadow: 0 54px 100px -46px rgba(0,0,0,.98); }
+        .bt-card:hover .bt-art { opacity: .7; }
 
         .bt-icons { position: relative; display: flex; gap: 10px; margin-bottom: 24px; }
         .bt-ic {
@@ -155,7 +179,7 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
           box-shadow: 0 14px 30px -16px rgba(18,185,129,.7), 0 1px 0 rgba(255,255,255,.06) inset;
         }
         .bt-ic svg { width: 30px; height: 30px; }
-        .bt-ic { transition: box-shadow .4s var(--e-out), border-color .4s var(--e-out); }
+        .bt-ic { transition: box-shadow var(--t-med) var(--e-out), border-color var(--t-med) var(--e-out); }
         .bt-card:hover .bt-ic {
           border-color: rgba(55,226,155,.42);
           box-shadow: 0 16px 36px -12px rgba(18,185,129,.95), 0 0 22px -4px rgba(55,226,155,.35), 0 1px 0 rgba(255,255,255,.08) inset;
@@ -177,9 +201,6 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
         @media (max-width: 560px) {
           .bt-ic { width: 56px; height: 56px; border-radius: 16px; }
           .bt-ic svg { width: 26px; height: 26px; }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .bt-card:hover { transform: none; }
         }
       `}</style>
     </section>

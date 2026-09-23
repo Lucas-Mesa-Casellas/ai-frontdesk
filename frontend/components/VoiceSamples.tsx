@@ -4,40 +4,36 @@ import { useEffect, useRef, useState } from "react";
 
 type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
-type VoiceId = "female" | "male";
+type Gender = "female" | "male";
 
-// The real clips don't exist yet (being generated separately). Until they do,
-// the players render disabled: the card, the waveform and the timer are all
-// there, the play button just doesn't respond. No "coming soon" label. Once
-// public/tour/voice/<female|male>.<AUDIO_EXT> are in place, flip this to true
-// -- that is the only change needed (the layout doesn't change).
-export const VOICE_SAMPLES_READY = false;
+// Two voices per language. The recordings don't exist yet (there are no audio
+// files in the repo), so every player renders disabled: the row, the waveform
+// and the timer are there, the play button just doesn't respond, and nothing
+// is requested. When a clip is ready, put it at
+//   public/voices/<en|fr|es>-<female|male>.mp3
+// and add its id (e.g. "en-female") to READY -- that voice becomes playable,
+// the others stay as they are.
+const READY = new Set<string>([]);
 const AUDIO_EXT = "mp3";
 
-// Two voice options rather than one card per language: every voice answers
-// in whichever language the caller used, so what a visitor actually needs to
-// compare here is the voice itself, not a language.
-type Voice = { id: VoiceId; code: string; name: L10n; note: L10n };
-const VOICES: Voice[] = [
-  {
-    id: "female", code: "F",
-    name: { EN: "Female voice", ES: "Voz femenina", FR: "Voix féminine" },
-    note: { EN: "Warm and clear", ES: "Cálida y clara", FR: "Chaleureuse et claire" },
-  },
-  {
-    id: "male", code: "M",
-    name: { EN: "Male voice", ES: "Voz masculina", FR: "Voix masculine" },
-    note: { EN: "Calm and confident", ES: "Serena y segura", FR: "Posée et assurée" },
-  },
+// English, French, Spanish -- each column named in its own language, like the
+// language menu.
+const LANGS: { code: Lang; file: string; native: string }[] = [
+  { code: "EN", file: "en", native: "English" },
+  { code: "FR", file: "fr", native: "Français" },
+  { code: "ES", file: "es", native: "Español" },
+];
+const VOICES: { gender: Gender; name: L10n }[] = [
+  { gender: "female", name: { EN: "Female voice", ES: "Voz femenina", FR: "Voix féminine" } },
+  { gender: "male", name: { EN: "Male voice", ES: "Voz masculina", FR: "Voix masculine" } },
 ];
 
 const COPY = {
-  tag: { EN: "Voice & languages", ES: "Voz e idiomas", FR: "Voix et langues" } as L10n,
   heading: { EN: "Hear how it answers.", ES: "Escucha cómo contesta.", FR: "Écoutez comment il répond." } as L10n,
   sub: {
-    EN: "Choose the voice your callers hear. Either one answers in English, Spanish and French.",
-    ES: "Elige la voz que oyen tus llamantes. Cualquiera de las dos contesta en español, inglés y francés.",
-    FR: "Choisissez la voix qu'entendent vos appelants. Chacune répond en français, anglais et espagnol.",
+    EN: "Choose the voice your callers hear: two voices in every language.",
+    ES: "Elige la voz que oyen tus llamantes: dos voces en cada idioma.",
+    FR: "Choisissez la voix qu'entendent vos appelants : deux voix dans chaque langue.",
   } as L10n,
   play: { EN: "Play", ES: "Reproducir", FR: "Lire" } as L10n,
   pause: { EN: "Pause", ES: "Pausa", FR: "Pause" } as L10n,
@@ -46,7 +42,7 @@ const COPY = {
 
 // Fixed, decorative bar heights (a waveform look, not the real waveform) --
 // deterministic so server and client render the same thing.
-const BARS = Array.from({ length: 44 }, (_, i) => 26 + Math.round(64 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.55))));
+const BARS = Array.from({ length: 34 }, (_, i) => 26 + Math.round(64 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.55))));
 
 function fmt(sec: number) {
   if (!Number.isFinite(sec) || sec < 0) return "0:00";
@@ -54,17 +50,19 @@ function fmt(sec: number) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
-function VoiceCard({
-  voice, uiLang, current, onStart,
+function VoiceRow({
+  id, language, voice, uiLang, current, onStart,
 }: {
-  voice: Voice; uiLang: Lang; current: VoiceId | null; onStart: (c: VoiceId) => void;
+  id: string; language: string; voice: string; uiLang: Lang; current: string | null; onStart: (id: string) => void;
 }) {
+  // screen readers get the language too; on screen the card already names it
+  const label = `${language}, ${voice}`;
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [failed, setFailed] = useState(false);
-  const usable = VOICE_SAMPLES_READY && !failed;
+  const usable = READY.has(id) && !failed;
 
   // The <audio> is server-rendered, so the browser can finish loading its
   // metadata (or fail) BEFORE React attaches the handlers below -- those
@@ -77,16 +75,16 @@ function VoiceCard({
     else if (a.readyState >= 1 && Number.isFinite(a.duration)) setDuration(a.duration);
   }, []);
 
-  // One clip at a time: starting another card pauses this one.
+  // One clip at a time: starting another voice pauses this one.
   useEffect(() => {
-    if (current !== voice.id && playing) audioRef.current?.pause();
-  }, [current, voice.id, playing]);
+    if (current !== id && playing) audioRef.current?.pause();
+  }, [current, id, playing]);
 
   const toggle = () => {
     const a = audioRef.current;
     if (!a || !usable) return;
     if (a.paused) {
-      onStart(voice.id);
+      onStart(id);
       a.play().catch(() => setFailed(true));
     } else {
       a.pause();
@@ -94,15 +92,13 @@ function VoiceCard({
   };
 
   const progress = duration > 0 ? time / duration : 0;
-  const name = voice.name[uiLang];
 
   return (
-    // "here" marks the clip that's actually playing.
-    <li className={`vs-card${playing ? " here" : ""}${usable ? "" : " off"}`}>
+    <li className={`vs-voice${playing ? " here" : ""}${usable ? "" : " off"}`}>
       {usable && (
         <audio
           ref={audioRef}
-          src={`/tour/voice/${voice.id}.${AUDIO_EXT}`}
+          src={`/voices/${id}.${AUDIO_EXT}`}
           preload="metadata"
           onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
           onDurationChange={(e) => Number.isFinite(e.currentTarget.duration) && setDuration(e.currentTarget.duration)}
@@ -114,26 +110,22 @@ function VoiceCard({
         />
       )}
 
-      <div className="vs-head">
-        <span className="vs-code">{voice.code}</span>
-        <span className="vs-names">
-          <b>{name}</b>
-          <span>{voice.note[uiLang]}</span>
-        </span>
-      </div>
+      <button
+        type="button" className={`vs-btn${playing ? " on" : ""}`} onClick={toggle} disabled={!usable}
+        aria-label={`${playing ? COPY.pause[uiLang] : COPY.play[uiLang]}: ${label}`}
+      >
+        {playing ? (
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13" /></svg>
+        ) : (
+          <svg viewBox="0 0 24 24" aria-hidden="true" className="play"><path d="M8.5 5.6v12.8a.8.8 0 0 0 1.2.7l10.2-6.4a.8.8 0 0 0 0-1.4L9.7 4.9a.8.8 0 0 0-1.2.7Z" /></svg>
+        )}
+      </button>
 
-      <div className="vs-player">
-        <button
-          type="button" className={`vs-btn${playing ? " on" : ""}`} onClick={toggle} disabled={!usable}
-          aria-label={`${playing ? COPY.pause[uiLang] : COPY.play[uiLang]}: ${name}`}
-        >
-          {playing ? (
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13" /></svg>
-          ) : (
-            <svg viewBox="0 0 24 24" aria-hidden="true" className="play"><path d="M8.5 5.6v12.8a.8.8 0 0 0 1.2.7l10.2-6.4a.8.8 0 0 0 0-1.4L9.7 4.9a.8.8 0 0 0-1.2.7Z" /></svg>
-          )}
-        </button>
-
+      <div className="vs-body">
+        <div className="vs-meta">
+          <b>{voice}</b>
+          <span className="vs-time">{usable ? `${fmt(time)} / ${fmt(duration)}` : "–:––"}</span>
+        </div>
         <div className="vs-wave">
           <div className="vs-bars" aria-hidden="true">
             {BARS.map((h, i) => (
@@ -143,22 +135,20 @@ function VoiceCard({
           {/* Invisible range input over the bars: click/drag/keyboard seeking. */}
           <input
             type="range" min={0} max={1000} step={1} value={Math.round(progress * 1000)}
-            disabled={!usable || duration === 0} aria-label={`${COPY.seek[uiLang]}: ${name}`}
+            disabled={!usable || duration === 0} aria-label={`${COPY.seek[uiLang]}: ${label}`}
             onChange={(e) => {
               const a = audioRef.current;
               if (a && duration > 0) { a.currentTime = (Number(e.target.value) / 1000) * duration; setTime(a.currentTime); }
             }}
           />
         </div>
-
-        <span className="vs-time">{usable ? `${fmt(time)} / ${fmt(duration)}` : "–:––"}</span>
       </div>
     </li>
   );
 }
 
 export default function VoiceSamples({ lang }: { lang: Lang }) {
-  const [current, setCurrent] = useState<VoiceId | null>(null);
+  const [current, setCurrent] = useState<string | null>(null);
   const [seen, setSeen] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
 
@@ -183,75 +173,80 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         </div>
 
         <ul className="vs-grid">
-          {VOICES.map((v) => (
-            <VoiceCard key={v.id} voice={v} uiLang={lang} current={current} onStart={setCurrent} />
+          {LANGS.map((l) => (
+            <li key={l.code} className="vs-lang">
+              <div className="vs-lh">
+                <span className="vs-code">{l.code}</span>
+                <b>{l.native}</b>
+              </div>
+              <ul className="vs-voices">
+                {VOICES.map((v) => {
+                  const id = `${l.file}-${v.gender}`;
+                  return (
+                    <VoiceRow key={id} id={id} language={l.native} voice={v.name[lang]} uiLang={lang} current={current} onStart={setCurrent} />
+                  );
+                })}
+              </ul>
+            </li>
           ))}
         </ul>
-
       </div>
 
       <style>{`
-        /* Natural height: the section is as tall as its two players plus the
-           shared section padding -- no artificial screen-filling. */
+        /* Natural height: three language cards plus the shared section padding. */
         .voice .sec-h { min-height: 0; }
         .voice .sec-sub { min-height: 0; }
-        .vs-top, .vs-grid { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
+        .vs-top, .vs-grid { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
         .voice.seen .vs-top, .voice.seen .vs-grid { opacity: 1; transform: none; }
         .voice.seen .vs-grid { transition-delay: .1s; }
 
-        .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; max-width: 720px; margin: 0 auto; }
-        .vs-card {
-          display: flex; flex-direction: column; gap: 18px; padding: 24px 22px 22px; border-radius: var(--r-xl);
-          background: linear-gradient(180deg, rgba(18,185,129,.05), rgba(255,255,255,.014) 60%);
-          border: 1px solid rgba(55,226,155,.14); box-shadow: 0 34px 70px -40px rgba(0,0,0,.9);
-          transition: border-color .4s var(--e-out), transform .4s var(--e-out), box-shadow .4s var(--e-out);
-        }
-        .vs-card:not(.off):hover { transform: translateY(-3px); border-color: rgba(55,226,155,.3); box-shadow: 0 42px 84px -42px rgba(0,0,0,.95); }
-        .vs-card.here { border-color: rgba(55,226,155,.3); box-shadow: 0 34px 70px -40px rgba(0,0,0,.9), 0 0 0 1px rgba(55,226,155,.08); }
-        .vs-head { display: flex; align-items: center; gap: 12px; }
+        .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 1180px; margin: 0 auto; }
+        /* the card surface itself (.vs-lang) is the shared one in globals.css */
+        .vs-lang { padding: 20px 20px 8px; }
+        .vs-lh { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; border-bottom: 1px solid var(--hair); }
+        .vs-lh b { font-size: 16px; font-weight: 600; letter-spacing: -.015em; }
         .vs-code {
-          font-size: 11px; font-weight: 600; letter-spacing: .06em; color: var(--jade);
+          font-size: 10.5px; font-weight: 600; letter-spacing: .06em; color: var(--jade);
           border: 1px solid rgba(55,226,155,.35); background: rgba(55,226,155,.1); border-radius: 6px; padding: 3px 7px;
         }
-        .vs-names { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-        .vs-names b { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
-        .vs-names span { font-size: 12.5px; color: var(--text-3); }
 
-        .vs-player { display: flex; align-items: center; gap: 12px; }
+        .vs-voices { list-style: none; }
+        .vs-voice { display: flex; align-items: center; gap: 14px; padding: 14px 0; }
+        .vs-voice + .vs-voice { border-top: 1px solid rgba(255,255,255,.05); }
+        .vs-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+        .vs-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+        .vs-meta b { font-size: 14px; font-weight: 500; letter-spacing: -.01em; color: var(--text); }
+        .vs-time { flex: none; font-size: 11.5px; font-variant-numeric: tabular-nums; color: var(--text-3); }
+
         .vs-btn {
-          flex: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
-          color: var(--jade); background: rgba(55,226,155,.06); border: 1.5px solid rgba(55,226,155,.7);
-          box-shadow: 0 0 22px -8px rgba(18,185,129,.6);
-          transition: transform .24s var(--e-out), box-shadow .24s var(--e-out), opacity .2s, background .2s, color .2s;
+          flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+          color: var(--jade); background: rgba(55,226,155,.06); border: 1.5px solid rgba(55,226,155,.6);
+          transition: transform var(--t-fast) var(--e-out), box-shadow var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out), color var(--t-fast), opacity var(--t-fast);
         }
-        .vs-btn:hover:not(:disabled) { transform: translateY(-1.5px); background: rgba(55,226,155,.14); }
-        .vs-btn.on { color: #04140D; background: linear-gradient(180deg, #5CEBAF, var(--jade-2)); border-color: transparent; }
-        .vs-btn:disabled { opacity: .55; cursor: default; }
-        .vs-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
+        .vs-btn:hover:not(:disabled) { transform: translateY(-1px); background: rgba(55,226,155,.14); box-shadow: 0 8px 20px -10px rgba(18,185,129,.7); }
+        .vs-btn.on { color: #04140D; background: linear-gradient(180deg, var(--jade-bright), var(--jade-2)); border-color: transparent; box-shadow: var(--btn-shadow); }
+        .vs-btn:disabled { opacity: .5; cursor: default; }
+        .vs-btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
         .vs-btn svg.play { fill: currentColor; stroke: none; margin-left: 2px; }
 
-        .vs-wave { position: relative; flex: 1; min-width: 0; height: 52px; border-radius: 8px; }
+        .vs-wave { position: relative; height: 24px; border-radius: 6px; }
         .vs-wave:focus-within { outline: 2px solid rgba(55,226,155,.55); outline-offset: 3px; }
         .vs-bars { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; }
         .vs-bars i { flex: 1; min-width: 1px; border-radius: 2px; background: rgba(55,226,155,.42); transition: background .15s; }
         .vs-bars i.done { background: var(--jade); }
-        .vs-card.off .vs-bars i { background: rgba(55,226,155,.34); }
+        .vs-voice.off .vs-bars i { background: rgba(55,226,155,.26); }
         .vs-wave input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
         .vs-wave input:disabled { cursor: default; }
-        .vs-time { flex: none; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-3); min-width: 6.4em; text-align: right; }
 
-        @media (max-width: 640px) {
-          .vs-grid { grid-template-columns: 1fr; max-width: 420px; }
+        @media (max-width: 1000px) {
+          .vs-grid { grid-template-columns: 1fr; max-width: 520px; }
         }
         @media (max-width: 480px) {
-          .vs-card { padding: 18px 16px 16px; }
-          .vs-btn { width: 52px; height: 52px; }
-          .vs-time { min-width: 0; font-size: 11.5px; }
-          .vs-wave { height: 44px; }
+          .vs-lang { padding: 16px 16px 4px; }
+          .vs-btn { width: 44px; height: 44px; }
         }
         @media (prefers-reduced-motion: reduce) {
           .vs-top, .vs-grid { transition: none; opacity: 1; transform: none; }
-          .vs-card:not(.off):hover { transform: none; }
         }
       `}</style>
     </section>

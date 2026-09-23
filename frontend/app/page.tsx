@@ -13,12 +13,11 @@ const SHOW_SOON = false; // upcoming-feature rows (SMS confirmation) stay out of
 
 const TIER_CTA_STYLE = ["outline", "solid", "outline"];
 
-// No tier is picked out as "recommended" any more -- the three read as equal
-// options; the middle one keeps a solid CTA (TIER_CTA_STYLE) as its only
-// remaining distinction.
+// Three equal cards. Pro ("on") is lit a little -- a stronger jade edge and
+// the solid CTA -- with no "Recommended" badge.
 const TIERS = [
   { price: "99", calls: 50, over: "1,40€", on: false },
-  { price: "199", calls: 150, over: "1,20€", on: false },
+  { price: "199", calls: 150, over: "1,20€", on: true },
   { price: "399", calls: 400, over: "0,95€", on: false },
 ];
 
@@ -27,6 +26,7 @@ type Feat = { t: string; soon?: boolean };
 type Dict = {
   navProduct: string; navPricing: string; navContact: string;
   navLogin: string; navStart: string; langName: string;
+  navDash: string; navDashSub: string; navVoices: string; navVoicesSub: string;
   badge: string; h1a: string; h1bPre: string; h1bWord: string; lede: string;
   heroCta: string; heroCta2: string;
   feat24: string; featLang: string; featCal: string;
@@ -34,7 +34,7 @@ type Dict = {
   r0b: string; r0s: string; r1b: string; r1s: string;
   outcomes: [string, string][];
   chip1: string; chip2: string; chipT1: string; chipT2: string; c0: string; c1: string; c2: string; cue: string;
-  pTag: string; pH: string;
+  pTag: string; pH: string; pSub: string;
   tName: [string, string, string]; tPin: string; tMo: string; tCalls: string;
   tOver: string; tOverSuf: string; tInh: (n: string) => string; soon: string;
   tCta: [string, string, string]; soonGroup: string;
@@ -50,6 +50,8 @@ const T: Record<LangCode, Dict> = {
   EN: {
     navProduct: "Product", navPricing: "Pricing", navContact: "Contact",
     navLogin: "Client access", navStart: "Get started", langName: "English",
+    navDash: "Dashboard", navDashSub: "Calls, bookings and support in one place",
+    navVoices: "Voices", navVoicesSub: "Hear the voices your callers get",
     badge: "AI receptionist · Multilingual",
     h1a: "Never miss", h1bPre: "another ", h1bWord: "customer",
     lede: "LMC Agents answers every call, understands what the caller needs, acts on it, then tells you what happened. Day and night.",
@@ -69,6 +71,7 @@ const T: Record<LangCode, Dict> = {
     c0: "Incoming call", c1: "AI understands", c2: "Action taken", cue: "Scroll",
 
     pTag: "Pricing", pH: "Pricing that scales with you.",
+    pSub: "Every plan answers 24/7 in English, Spanish and French. Choose the call volume that fits.",
     tName: ["Starter", "Pro", "Premium"],
     tPin: "Recommended", tMo: "/month", tCalls: "calls a month",
     tCta: ["Get started", "Get started", "Get started"], soonGroup: "Coming next quarter",
@@ -107,6 +110,8 @@ const T: Record<LangCode, Dict> = {
   ES: {
     navProduct: "Producto", navPricing: "Precios", navContact: "Contacto",
     navLogin: "Acceso de clientes", navStart: "Empezar", langName: "Español",
+    navDash: "Panel", navDashSub: "Llamadas, citas y soporte en un solo lugar",
+    navVoices: "Voces", navVoicesSub: "Escucha las voces que oyen tus llamantes",
     badge: "Recepcionista IA · Multilingüe",
     h1a: "Nunca pierdas", h1bPre: "a otro ", h1bWord: "cliente",
     lede: "LMC Agents contesta cada llamada, entiende qué necesita el llamante, actúa en consecuencia, y te informa de lo que ha pasado. De día y de noche.",
@@ -126,6 +131,7 @@ const T: Record<LangCode, Dict> = {
     c0: "Llamada entrante", c1: "La IA entiende", c2: "Acción ejecutada", cue: "Desliza",
 
     pTag: "Precios", pH: "Precios que crecen contigo.",
+    pSub: "Todos los planes atienden 24/7 en español, inglés y francés. Elige el volumen de llamadas que necesitas.",
     tName: ["Básico", "Pro", "Premium"],
     tPin: "Recomendado", tMo: "/mes", tCalls: "llamadas al mes",
     tCta: ["Empezar", "Empezar", "Empezar"], soonGroup: "Próximo trimestre",
@@ -164,6 +170,8 @@ const T: Record<LangCode, Dict> = {
   FR: {
     navProduct: "Produit", navPricing: "Tarifs", navContact: "Contact",
     navLogin: "Espace client", navStart: "Commencer", langName: "Français",
+    navDash: "Tableau de bord", navDashSub: "Appels, rendez-vous et assistance au même endroit",
+    navVoices: "Voix", navVoicesSub: "Écoutez les voix qu'entendent vos appelants",
     badge: "Réceptionniste IA · Multilingue",
     h1a: "Ne manquez plus", h1bPre: "un seul ", h1bWord: "client",
     lede: "LMC Agents répond à chaque appel, comprend ce dont l'appelant a besoin, agit en conséquence, puis vous informe de ce qui s'est passé. De jour comme de nuit.",
@@ -183,6 +191,7 @@ const T: Record<LangCode, Dict> = {
     c0: "Appel entrant", c1: "L'IA comprend", c2: "Action exécutée", cue: "Défiler",
 
     pTag: "Tarifs", pH: "Des tarifs qui évoluent avec vous.",
+    pSub: "Chaque formule répond 24/7 en français, anglais et espagnol. Choisissez le volume d'appels qui vous convient.",
     tName: ["Essentiel", "Pro", "Premium"],
     tPin: "Recommandé", tMo: "/mois", tCalls: "appels par mois",
     tCta: ["Commencer", "Commencer", "Commencer"], soonGroup: "Prochain trimestre",
@@ -234,16 +243,27 @@ const Globe = () => (
 
 type SendState = "idle" | "sending" | "sent" | "error";
 
+// Landing sections in DOM order (ids), and where the last one read is kept.
+const SECTIONS = ["product", "tour", "voice", "pricing", "types", "contact"];
+const LAST_SECTION_KEY = "lmc_last_section";
+const LAST_SECTION_TTL = 12 * 60 * 60 * 1000; // a return the same day, not weeks later
+
 export default function Home() {
   const rootRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const prodRef = useRef<HTMLDivElement>(null);
+  const prodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // true while the popover is open only because the mouse is over it: the
+  // click that usually follows then keeps it open instead of closing it
+  const prodByHover = useRef(false);
 
   const [lang, setLang] = useState<LangCode>("EN");
   const [menuList, setMenuList] = useState<LangCode[]>(ORDER);
   const [menuOpen, setMenuOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [prodOpen, setProdOpen] = useState(false);
   const [stuck, setStuck] = useState(false);
   const [activeSec, setActiveSec] = useState("product");
   const [cueGone, setCueGone] = useState(false);
@@ -272,9 +292,10 @@ export default function Home() {
     const onDoc = (e: MouseEvent) => {
       if (langRef.current && !langRef.current.contains(e.target as Node)) setMenuOpen(false);
       if (mobileNavRef.current && !mobileNavRef.current.contains(e.target as Node)) setNavOpen(false);
+      if (prodRef.current && !prodRef.current.contains(e.target as Node)) setProdOpen(false);
     };
     const esc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setMenuOpen(false); setNavOpen(false); }
+      if (e.key === "Escape") { setMenuOpen(false); setNavOpen(false); setProdOpen(false); }
     };
     document.addEventListener("click", onDoc);
     document.addEventListener("keydown", esc);
@@ -285,18 +306,56 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    // Coming back to the landing page (e.g. from the dashboard's Home link,
+    // or a new visit the same day) reopens it at the section you were last
+    // reading instead of always at the top. Client-side only, and only for
+    // this page: it never touches routing or auth -- proxy.ts still decides
+    // who sees "/" at all. Skipped when the URL already names a section
+    // (#pricing), and on reload/back-forward, where the browser restores the
+    // exact scroll position itself.
+    // (A #section in the URL gets the same jump, re-applied once the web
+    // fonts are in: the browser's own anchor jump happens before they load
+    // and the page settles, and used to land short of the heading.)
+    const jumpTo = (id: string) => {
+      const go = () => {
+        const el = document.getElementById(id);
+        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
+      };
+      go();
+      document.fonts?.ready.then(go);
+    };
+    try {
+      const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+      const firstVisit = !nav || nav.type === "navigate";
+      const hashId = window.location.hash.slice(1);
+      if (hashId && firstVisit) {
+        jumpTo(hashId);
+      } else if (!hashId && firstVisit) {
+        const raw = localStorage.getItem(LAST_SECTION_KEY);
+        const saved = raw ? (JSON.parse(raw) as { id?: string; t?: number }) : null;
+        const fresh = saved?.id && saved.t && Date.now() - saved.t < LAST_SECTION_TTL;
+        if (fresh && saved.id !== "product" && SECTIONS.includes(saved.id as string)) jumpTo(saved.id as string);
+      }
+    } catch { /* storage unavailable: just start at the top */ }
+
+    let lastSaved = "";
     const onScroll = () => {
       const y = window.scrollY;
       setStuck(y > 24);
       setCueGone(y > 40);
-      let active = "product";
-      // DOM order. Business types sits under Pricing and has no nav button
-      // of its own, so it keeps "Pricing" highlighted.
-      for (const id of ["product", "pricing", "types", "contact"]) {
+      let here = "product";
+      // DOM order: the last section whose top has passed 40% of the screen.
+      for (const id of SECTIONS) {
         const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.4) active = id;
+        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.4) here = id;
       }
-      setActiveSec(active === "types" ? "pricing" : active);
+      // Dashboard and Voices belong to Product; Business types sits under
+      // Pricing and has no nav button of its own.
+      setActiveSec(here === "tour" || here === "voice" ? "product" : here === "types" ? "pricing" : here);
+      if (here !== lastSaved) {
+        lastSaved = here;
+        try { localStorage.setItem(LAST_SECTION_KEY, JSON.stringify({ id: here, t: Date.now() })); } catch { /* ignore */ }
+      }
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -420,6 +479,10 @@ export default function Home() {
           { scaleY: () => 0.45 + Math.random() * 0.9, duration: 0.62, ease: "power2.out", stagger: { each: 0.011, from: "center" } },
           BEAT + 0.06)
         .fromTo('.line[data-i="1"]', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.65 }, BEAT + 0.2)
+        // the AI mark takes the phone's place in the core while it "thinks",
+        // breathing once, and hands over to the checkmark
+        .fromTo("#icAi", { opacity: 0, scale: 0.72 }, { opacity: 1, scale: 1, duration: 0.6 }, BEAT + 0.12)
+        .to("#icAi", { scale: 1.07, duration: 0.8, ease: "sine.inOut", yoyo: true, repeat: 1 }, BEAT + 0.9)
         .to(bars, { scaleY: () => 0.3 + Math.random() * 0.95, duration: 0.46, ease: "sine.inOut", repeat: 3, yoyo: true, stagger: { each: 0.007, from: "random" } }, BEAT + 0.68)
 
         /* BEAT 3 — automation completed */
@@ -428,6 +491,7 @@ export default function Home() {
         .to(".a-bright", { opacity: 1, duration: 0.7, ease: "power2.out" }, BEAT * 2 - 0.1)
         .to(bars, { scaleY: 0.16, duration: 0.5, ease: "power3.inOut", stagger: { each: 0.006, from: "edges" } }, BEAT * 2 - 0.12)
         .to(".radial", { opacity: 0, duration: 0.42 }, BEAT * 2 + 0.16)
+        .to("#icAi", { opacity: 0, scale: 0.72, duration: 0.38, ease: "power2.in" }, BEAT * 2 - 0.12)
         .to('.line[data-i="1"]', { opacity: 0, y: -12, duration: 0.42, ease: "power2.in" }, BEAT * 2 - 0.12)
         .fromTo("#icCheck", { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.6, ease: "back.out(2.6)" }, BEAT * 2 + 0.22)
         .fromTo("#icCheck path", { strokeDashoffset: 30 }, { strokeDashoffset: 0, duration: 0.5, ease: "power2.out" }, BEAT * 2 + 0.34)
@@ -435,8 +499,10 @@ export default function Home() {
         // jade ripples (smaller/faster than the incoming-call ones) and
         // three tiny particles drifting out and fading. Restrained on
         // purpose -- a confirmation, not a celebration.
-        .fromTo("#rip3", { opacity: 0.6, scale: 0.6 }, { opacity: 0, scale: 1.7, duration: 0.9, ease: "sine.out" }, BEAT * 2 + 0.3)
-        .fromTo("#rip4", { opacity: 0.5, scale: 0.6 }, { opacity: 0, scale: 1.7, duration: 0.9, ease: "sine.out" }, BEAT * 2 + 0.46)
+        .fromTo("#rip3", { opacity: 0, scale: 0.6 }, { opacity: 0.6, scale: 0.85, duration: 0.14, ease: "none" }, BEAT * 2 + 0.3)
+        .to("#rip3", { opacity: 0, scale: 1.7, duration: 0.8, ease: "sine.out" }, BEAT * 2 + 0.44)
+        .fromTo("#rip4", { opacity: 0, scale: 0.6 }, { opacity: 0.5, scale: 0.85, duration: 0.14, ease: "none" }, BEAT * 2 + 0.46)
+        .to("#rip4", { opacity: 0, scale: 1.7, duration: 0.8, ease: "sine.out" }, BEAT * 2 + 0.6)
         .fromTo(
           ".spark",
           { opacity: 0, scale: 0.4, x: 0, y: 0 },
@@ -536,7 +602,57 @@ export default function Home() {
             </a>
 
             <div className="nav-links">
-              <a href="#product" className={activeSec === "product" ? "active" : undefined}>{t.navProduct}</a>
+              {/* Product opens a small popover with the two product sections
+                  below the hero. A disclosure (button + region of links), not
+                  an ARIA menu: Tab moves through the links, Escape or a click
+                  outside closes it. Mouse hover opens it too. */}
+              <div
+                ref={prodRef}
+                className={`nav-drop${prodOpen ? " open" : ""}`}
+                onPointerEnter={(e) => {
+                  if (e.pointerType !== "mouse") return;
+                  if (prodTimer.current) clearTimeout(prodTimer.current);
+                  if (!prodOpen) prodByHover.current = true;
+                  setProdOpen(true);
+                }}
+                onPointerLeave={(e) => {
+                  if (e.pointerType !== "mouse") return;
+                  prodTimer.current = setTimeout(() => { prodByHover.current = false; setProdOpen(false); }, 180);
+                }}
+                onBlur={(e) => {
+                  // keyboard: tabbing out past the last link closes it
+                  if (!e.currentTarget.contains(e.relatedTarget as Node)) setProdOpen(false);
+                }}
+              >
+                <button
+                  type="button"
+                  className={`nav-drop-btn${activeSec === "product" ? " active" : ""}`}
+                  aria-expanded={prodOpen}
+                  aria-controls="nav-product"
+                  onClick={() => {
+                    const keep = prodByHover.current;
+                    prodByHover.current = false;
+                    setProdOpen((o) => (keep ? true : !o));
+                  }}
+                >
+                  {t.navProduct}
+                  <svg className="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" /></svg>
+                </button>
+                <div id="nav-product" className="nav-pop">
+                  <a href="#tour" onClick={() => setProdOpen(false)}>
+                    <span className="np-ic" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" /><path d="M9 4.5v15M12 9.5h5M12 13h3.5" /></svg>
+                    </span>
+                    <span className="np-tx"><b>{t.navDash}</b><em>{t.navDashSub}</em></span>
+                  </a>
+                  <a href="#voice" onClick={() => setProdOpen(false)}>
+                    <span className="np-ic" aria-hidden="true">
+                      <svg viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4.5v15M16 8v8M20 10.5v3" /></svg>
+                    </span>
+                    <span className="np-tx"><b>{t.navVoices}</b><em>{t.navVoicesSub}</em></span>
+                  </a>
+                </div>
+              </div>
               <a href="#pricing" className={activeSec === "pricing" ? "active" : undefined}>{t.navPricing}</a>
               <a href="#contact" className={activeSec === "contact" ? "active" : undefined}>{t.navContact}</a>
             </div>
@@ -603,6 +719,8 @@ export default function Home() {
                 </button>
                 <div className={`mobile-nav${navOpen ? " open" : ""}`}>
                   <a href="#product" onClick={() => setNavOpen(false)}>{t.navProduct}</a>
+                  <a className="sub" href="#tour" onClick={() => setNavOpen(false)}>{t.navDash}</a>
+                  <a className="sub" href="#voice" onClick={() => setNavOpen(false)}>{t.navVoices}</a>
                   <a href="#pricing" onClick={() => setNavOpen(false)}>{t.navPricing}</a>
                   <a href="#contact" onClick={() => setNavOpen(false)}>{t.navContact}</a>
                   <a href="/login" onClick={() => setNavOpen(false)}>{t.navLogin}</a>
@@ -710,6 +828,15 @@ export default function Home() {
                   <svg className="icon-phone" id="icPhone" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M6.6 3.8h3.1l1.5 4-2 1.5a11.2 11.2 0 0 0 5.5 5.5l1.5-2 4 1.5v3.1a2 2 0 0 1-2.2 2A15.6 15.6 0 0 1 4.6 6a2 2 0 0 1 2-2.2Z" strokeLinejoin="round" />
                   </svg>
+                  {/* AI understands: a brain drawn as two hemispheres with a
+                      few circuit traces -- a technical mark, not a cartoon */}
+                  <svg className="icon-ai" id="icAi" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 4.8C11.2 4.1 9.9 3.9 8.9 4.4C7.8 4.1 6.6 4.8 6.3 5.9C5 6.2 4.2 7.5 4.5 8.8C3.6 9.6 3.4 11 4.1 12C3.5 13.1 3.8 14.6 4.9 15.3C4.9 16.7 6.1 17.8 7.5 17.7C8.1 18.9 9.6 19.5 10.9 18.9C11.4 19.3 12 19.3 12 19.3" />
+                    <path d="M12 4.8C12.8 4.1 14.1 3.9 15.1 4.4C16.2 4.1 17.4 4.8 17.7 5.9C19 6.2 19.8 7.5 19.5 8.8C20.4 9.6 20.6 11 19.9 12C20.5 13.1 20.2 14.6 19.1 15.3C19.1 16.7 17.9 17.8 16.5 17.7C15.9 18.9 14.4 19.5 13.1 18.9C12.6 19.3 12 19.3 12 19.3" />
+                    <path d="M12 4.8V19.3M12 8.6H9.6M12 12.4H10.4L9 13.8M12 10.4h2.4M12 14.8h1.6l1.2 1.2" />
+                    <circle cx="8.6" cy="8.6" r="1" /><circle cx="8.3" cy="14.5" r="1" />
+                    <circle cx="15.4" cy="10.4" r="1" /><circle cx="15.5" cy="16.7" r="1" />
+                  </svg>
                   <svg className="icon-check" id="icCheck" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M5.5 12.4 10 17l8.5-9" />
                   </svg>
@@ -800,6 +927,7 @@ export default function Home() {
         <div className="wrap">
           <div className="sec-head mid">
             <h2 className="sec-h"><span className="msk"><span>{t.pH}</span></span></h2>
+            <p className="sec-sub up d1">{t.pSub}</p>
           </div>
 
           <div className="tiers">
@@ -807,7 +935,6 @@ export default function Home() {
               <div key={i} className={`tier${x.on ? " tier-on" : ""} up d${i + 1}`}>
                 <div className="tier-top">
                   <span className="tier-name">{t.tName[i]}</span>
-                  {x.on && <span className="tier-pin">{t.tPin}</span>}
                 </div>
                 <div className="tier-fig">
                   <b>{x.price}<span className="tier-cur">€</span></b><span>{t.tMo}</span>
@@ -845,86 +972,80 @@ export default function Home() {
       {/* Businesses we support: under Pricing, no nav button of its own. */}
       <BusinessTypes lang={lang} />
 
-      <section className="sec" id="contact">
+      <section className="sec contact" id="contact">
         <div className="wrap">
-         <div className="contact-grid">
-          <div className="contact-copy">
-            <div className="sec-head">
-              <div className="sec-tag up">6 / 6 — {t.cTag}</div>
-              <h2 className="sec-h"><span className="msk"><span>{t.cH}</span></span></h2>
-              <p className="sec-sub up d1">{t.cSub}</p>
-            </div>
-
-            <ul className="contact-list up d2">
-              <li>
-                <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M10.2 8.6v6.8l5.6-3.4-5.6-3.4Z" /></svg></span>
-                {t.cb1}
-              </li>
-              <li>
-                <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5h-7l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z" /></svg></span>
-                {t.cb2}
-              </li>
-              <li>
-                <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="m8.4 12.3 2.6 2.6 4.8-5.2" /></svg></span>
-                {t.cb3}
-              </li>
-            </ul>
-
-            <div className="page-foot">
-              <span>© 2026 LMC Agents</span>
-              <span className="foot-dot" />
-              <span className="foot-eu"><Globe />{t.cTrust}</span>
-            </div>
+          {/* The closing section, composed on one centre axis: heading, one
+              line, the three reasons to write, the form, then the footer. */}
+          <div className="sec-head mid">
+            <h2 className="sec-h"><span className="msk"><span>{t.cH}</span></span></h2>
+            <p className="sec-sub up d1">{t.cSub}</p>
           </div>
 
-          <div className="cta-col">
-            <div className="cta-card up d2">
-              <form onSubmit={submit}>
-                <div className="fld-2">
-                  <div className="fld">
-                    <label htmlFor="f-name">{t.fName}</label>
-                    <input id="f-name" name="name" type="text" required autoComplete="name" />
-                  </div>
-                  <div className="fld">
-                    <label htmlFor="f-biz">{t.fBiz}</label>
-                    <input id="f-biz" name="business" type="text" required autoComplete="organization" />
-                  </div>
-                </div>
-                <div className="fld-2">
-                  <div className="fld">
-                    <label htmlFor="f-email">{t.fEmail}</label>
-                    <input id="f-email" name="email" type="email" required autoComplete="email" />
-                  </div>
-                  <div className="fld">
-                    <label htmlFor="f-phone">{t.fPhone}</label>
-                    <input id="f-phone" name="phone" type="tel" required autoComplete="tel" />
-                  </div>
+          <ul className="contact-list up d1">
+            <li>
+              <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M10.2 8.6v6.8l5.6-3.4-5.6-3.4Z" /></svg></span>
+              {t.cb1}
+            </li>
+            <li>
+              <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5h-7l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z" /></svg></span>
+              {t.cb2}
+            </li>
+            <li>
+              <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="m8.4 12.3 2.6 2.6 4.8-5.2" /></svg></span>
+              {t.cb3}
+            </li>
+          </ul>
+
+          <div className="cta-card up d2">
+            <form onSubmit={submit}>
+              <div className="fld-2">
+                <div className="fld">
+                  <label htmlFor="f-name">{t.fName}</label>
+                  <input id="f-name" name="name" type="text" required autoComplete="name" />
                 </div>
                 <div className="fld">
-                  <label htmlFor="f-msg">{t.fMsg}</label>
-                  <textarea id="f-msg" name="message" placeholder={t.fMsgPh} />
+                  <label htmlFor="f-biz">{t.fBiz}</label>
+                  <input id="f-biz" name="business" type="text" required autoComplete="organization" />
                 </div>
-                <button
-                  className={`send${sendState === "sent" ? " ok" : ""}${sendState === "sending" ? " busy" : ""}${sendState === "error" ? " err" : ""}`}
-                  type="submit"
-                  disabled={sendState === "sending"}
-                >
-                  <span className="spin" aria-hidden="true" />
-                  <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M4 12.5 9.5 18 20 6.5" />
-                  </svg>
-                  <span>
-                    {sendState === "sending" ? t.cSending
-                      : sendState === "sent" ? t.cSent
-                      : sendState === "error" ? t.cError
-                      : t.cSend}
-                  </span>
-                </button>
-              </form>
-            </div>
+              </div>
+              <div className="fld-2">
+                <div className="fld">
+                  <label htmlFor="f-email">{t.fEmail}</label>
+                  <input id="f-email" name="email" type="email" required autoComplete="email" />
+                </div>
+                <div className="fld">
+                  <label htmlFor="f-phone">{t.fPhone}</label>
+                  <input id="f-phone" name="phone" type="tel" required autoComplete="tel" />
+                </div>
+              </div>
+              <div className="fld">
+                <label htmlFor="f-msg">{t.fMsg}</label>
+                <textarea id="f-msg" name="message" placeholder={t.fMsgPh} />
+              </div>
+              <button
+                className={`send${sendState === "sent" ? " ok" : ""}${sendState === "sending" ? " busy" : ""}${sendState === "error" ? " err" : ""}`}
+                type="submit"
+                disabled={sendState === "sending"}
+              >
+                <span className="spin" aria-hidden="true" />
+                <svg className="ico" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 12.5 9.5 18 20 6.5" />
+                </svg>
+                <span>
+                  {sendState === "sending" ? t.cSending
+                    : sendState === "sent" ? t.cSent
+                    : sendState === "error" ? t.cError
+                    : t.cSend}
+                </span>
+              </button>
+            </form>
           </div>
 
-         </div>
+          <footer className="page-foot">
+            <span>© 2026 LMC Agents</span>
+            <span className="foot-dot" />
+            <span className="foot-eu"><Globe />{t.cTrust}</span>
+          </footer>
         </div>
       </section>
 

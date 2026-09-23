@@ -21,6 +21,11 @@ export const TOUR_SCREENSHOTS_READY = false;
 // placeholder box and to size the frame so a slide fits one screen.
 const ASPECT = 1.6;
 
+// The real dashboard route of each slide, shown in the preview's address bar.
+const ROUTE: Record<SlideId, string> = {
+  overview: "/dashboard", calls: "/dashboard/calls", calendar: "/dashboard/calendar", support: "/dashboard/support",
+};
+
 type Hotspot = {
   // Position over the screenshot, in % of its width / height.
   x: number;
@@ -39,6 +44,13 @@ type Slide = {
 const COPY = {
   tag: { EN: "Dashboard", ES: "Panel de control", FR: "Tableau de bord" } as L10n,
   heading: { EN: "This is what you'll have access to.", ES: "Esto es a lo que tendrás acceso.", FR: "Voici à quoi vous aurez accès." } as L10n,
+  // Says plainly that the frame below is the real client product, not a
+  // concept: this is the dashboard every client signs in to.
+  lead: {
+    EN: "Every LMC Agents client gets this dashboard: your calls, booking requests and support, all in one place.",
+    ES: "Todos los clientes de LMC Agents tienen este panel: tus llamadas, solicitudes de cita y soporte, en un solo lugar.",
+    FR: "Chaque client LMC Agents dispose de ce tableau de bord : vos appels, demandes de rendez-vous et l'assistance, au même endroit.",
+  } as L10n,
   peak: { EN: "Peak time", ES: "Hora punta", FR: "Heure de pointe" } as L10n,
   peakSub: { EN: "Most calls answered", ES: "Más llamadas atendidas", FR: "Le plus d'appels traités" } as L10n,
   soon: { EN: "Illustrative preview", ES: "Vista ilustrativa", FR: "Aperçu illustratif" } as L10n,
@@ -329,10 +341,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
       <div className="wrap">
         <div className="sec-head mid tour-head">
           <h2 className="sec-h">{COPY.heading[lang]}</h2>
-          {/* The current tab's one-liner, under the heading like the subline
-              of any section. Two lines reserved so the frame below doesn't
-              jump between tabs. */}
-          <p className="sec-sub tour-sub" key={`${slide.id}-${lang}`}>{slide.blurb[lang]}</p>
+          <p className="sec-sub">{COPY.lead[lang]}</p>
         </div>
 
         <div className="tour-nav">
@@ -354,10 +363,30 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           </button>
         </div>
 
+        {/* What the current tab shows, in one line between the tabs and the
+            frame. Two lines are reserved so the frame doesn't jump between
+            tabs or languages. */}
+        <p className="tour-blurb" key={`blurb-${slide.id}-${lang}`}>{slide.blurb[lang]}</p>
+
         <div className="tour-slide" key={`${slide.id}-${lang}`} role="tabpanel" style={{ ["--tour-aspect" as string]: ASPECT }}>
           <div className="tour-stage">
           <div className="tour-frame">
-            <div className="tour-chrome" aria-hidden="true"><i /><i /><i /></div>
+            {/* A browser bar with the page's real address, so it reads as the
+                product itself. The mock is labelled as such, up here where it
+                doesn't sit on top of the content. */}
+            <div className="tour-chrome">
+              <span className="tc-dots" aria-hidden="true"><i /><i /><i /></span>
+              <span className="tc-url" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" /></svg>
+                lmcagents.app{ROUTE[slide.id]}
+              </span>
+              {!showReal && (
+                <span className="tour-soon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
+                  {COPY.soon[lang]}
+                </span>
+              )}
+            </div>
             <div className="tour-shot" onClick={(e) => { if (e.target === e.currentTarget) setActive(null); }}>
               {showReal ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -368,10 +397,6 @@ export default function ProductTour({ lang }: { lang: Lang }) {
               ) : (
                 <div className="tour-ph" role="img" aria-label={`${slide.label[lang]}: ${COPY.soon[lang]}`}>
                   <TourMock id={slide.id} lang={lang} title={slide.label[lang]} />
-                  <span className="tour-soon">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
-                    {COPY.soon[lang]}
-                  </span>
                 </div>
               )}
 
@@ -412,9 +437,9 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         /* No font-size override: every section heading uses the one .sec-h
            scale, so Product doesn't read a size smaller than the rest. */
         .tour-head .sec-h { min-height: 0; }
-        .tour-head, .tour-nav, .tour-slide, .tour-cap { opacity: 0; transform: translateY(14px); transition: opacity .9s var(--e-out), transform .9s var(--e-out); }
-        .tour.seen .tour-head, .tour.seen .tour-nav, .tour.seen .tour-slide, .tour.seen .tour-cap { opacity: 1; transform: none; }
-        .tour.seen .tour-nav { transition-delay: .08s; }
+        .tour-head, .tour-nav, .tour-blurb, .tour-slide, .tour-cap { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
+        .tour.seen .tour-head, .tour.seen .tour-nav, .tour.seen .tour-blurb, .tour.seen .tour-slide, .tour.seen .tour-cap { opacity: 1; transform: none; }
+        .tour.seen .tour-nav, .tour.seen .tour-blurb { transition-delay: .08s; }
         .tour.seen .tour-slide { transition-delay: .14s; }
 
         .tour-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
@@ -422,10 +447,10 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour-tab {
           font-size: 13.5px; font-weight: 500; color: var(--text-3); white-space: nowrap;
           padding: 8px 16px; border-radius: var(--r-pill);
-          transition: color .22s var(--e-out), background .22s var(--e-out);
+          transition: color var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out);
         }
         .tour-tab:hover { color: var(--text); }
-        .tour-tab.on { color: #04140D; background: linear-gradient(180deg,#5CEBAF,var(--jade-2)); font-weight: 600; }
+        .tour-tab.on { color: #04140D; background: linear-gradient(180deg,var(--jade-bright),var(--jade-2)); font-weight: 600; box-shadow: 0 1px 0 rgba(255,255,255,.4) inset; }
         .tour-arrow {
           flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
           border: 1px solid var(--hair-2); background: rgba(255,255,255,.035); color: var(--text-2);
@@ -443,10 +468,12 @@ export default function ProductTour({ lang }: { lang: Lang }) {
            and centred, the whole section reads down one axis and the frame
            gets the full width instead of sharing the row. */
         .tour-slide { display: block; }
-        .tour-head { margin-bottom: 18px; }
-        /* .tour prefix: the global .sec-head.mid .sec-sub sets min-height and
-           margin, and outranks a bare class. */
-        .tour .sec-head.mid .tour-sub { max-width: 60ch; margin: 10px auto 0; min-height: 3.2em; }
+        .tour .sec-head.mid.tour-head { margin-bottom: 22px; }
+        .tour .sec-head.mid .sec-sub { max-width: 62ch; }
+        .tour-blurb {
+          max-width: 84ch; margin: 0 auto 16px; min-height: 3em; text-align: center;
+          font-size: 14px; line-height: 1.5; color: var(--text-3); text-wrap: balance;
+        }
         .tour-stage { min-width: 0; }
 
         /* Unlike the other sections, the dashboard preview is meant to be
@@ -454,21 +481,38 @@ export default function ProductTour({ lang }: { lang: Lang }) {
            and the frame is sized from what's left of that height once the
            nav, heading, tabs and slide copy above it are accounted for, so
            the whole thing -- tabs through screenshot -- is visible without
-           scrolling. 452px is that fixed overhead (nav clearance, section
-           padding, heading, tabs, two lines of blurb, window chrome, gap to
-           the caption below); only the frame's own height flexes with the
+           scrolling. 500px is that fixed overhead (nav clearance, section
+           padding, heading and its line, tabs, two lines of blurb, the
+           address bar); only the frame's own height flexes with the
            viewport. */
-        .sec.tour { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+        .sec.tour {
+          min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
+          /* even space above and below: the nav's height, then the same gap both ways */
+          padding: calc(var(--nav-h) + 32px) 0 32px;
+        }
         .tour-frame {
-          width: min(100%, calc((100svh - 452px) * var(--tour-aspect)));
+          width: min(100%, calc((100svh - 500px) * var(--tour-aspect)));
           min-width: min(100%, 480px);
           margin: 0 auto; border-radius: 16px; overflow: visible;
-          background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.016));
-          border: 1px solid var(--hair-2);
-          box-shadow: 0 50px 100px -50px rgba(0,0,0,.95), 0 0 0 1px rgba(55,226,155,.05);
+          /* the address bar adapts to the frame's own width (which follows the
+             screen's height as much as its width), not the viewport's */
+          container-type: inline-size;
+          background: var(--card-bg), #0A0D11;
+          border: 1px solid var(--card-border);
+          box-shadow: 0 50px 100px -50px rgba(0,0,0,.95), 0 0 80px -40px rgba(18,185,129,.35);
         }
-        .tour-chrome { display: flex; gap: 6px; padding: 10px 14px; border-bottom: 1px solid var(--hair); }
-        .tour-chrome i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.14); }
+        .tour-chrome {
+          display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 12px;
+          height: 38px; padding: 0 12px; border-bottom: 1px solid var(--hair);
+        }
+        .tc-dots { display: flex; gap: 6px; }
+        .tc-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.14); }
+        .tc-url {
+          display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 12px; border-radius: 7px;
+          font-size: 11.5px; color: var(--text-3); letter-spacing: -.004em; white-space: nowrap;
+          background: rgba(255,255,255,.04); border: 1px solid var(--hair);
+        }
+        .tc-url svg { width: 11px; height: 11px; stroke: var(--text-3); stroke-width: 1.8; fill: none; stroke-linecap: round; flex: none; }
         .tour-shot { position: relative; border-radius: 0 0 15px 15px; }
         .tour-shot img { display: block; width: 100%; height: auto; border-radius: 0 0 15px 15px; user-select: none; }
         /* "Coming soon" state: a blurred wireframe of the page (not a fake
@@ -502,14 +546,10 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour-mock i.t.c { justify-content: center; color: var(--jade); font-weight: 600; letter-spacing: 0; }
         .tour-ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,10,14,0), rgba(8,10,14,.26)); pointer-events: none; }
         .tour-soon {
-          position: absolute; left: 50%; bottom: 2%; transform: translateX(-50%); z-index: 1;
-          display: inline-flex; align-items: center; gap: 8px; white-space: nowrap;
-          padding: 9px 16px; border-radius: var(--r-pill); font-size: 13px; font-weight: 600; color: var(--text);
-          background: rgba(12,15,20,.82); border: 1px solid rgba(55,226,155,.35);
-          box-shadow: 0 14px 34px -14px rgba(0,0,0,.9); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-          pointer-events: none;
+          justify-self: end; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+          font-size: 11.5px; font-weight: 500; color: var(--text-3);
         }
-        .tour-soon svg { width: 15px; height: 15px; stroke: var(--jade); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+        .tour-soon svg { width: 12px; height: 12px; stroke: var(--jade); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
         .hs { position: absolute; transform: translate(-50%, -50%); z-index: 2; }
         .hs.open { z-index: 5; }
@@ -548,10 +588,8 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .cap-note { display: none; }
 
         @media (max-width: 1100px) {
-          .tour .sec-head.mid .tour-sub { font-size: 14px; min-height: 3em; }
-          /* Narrower here, so the same wrap the tabs/blurb take up leaves a
-             little less height for the frame than the 452px above assumes. */
-          .tour-frame { width: min(100%, max(320px, calc((100svh - 480px) * var(--tour-aspect)))); min-width: 0; }
+          /* Narrower here: no minimum width, and never smaller than 320px. */
+          .tour-frame { width: min(100%, max(320px, calc((100svh - 500px) * var(--tour-aspect)))); min-width: 0; }
         }
         /* Phones: no hover, and a floating note would run off a 375px screen,
            so the note shows in a caption under the screenshot instead. */
@@ -565,11 +603,23 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           .tour-cap.has-note { margin-top: 14px; }
           .cap-note { display: block; font-size: 14px; line-height: 1.55; color: var(--text); padding: 12px 14px; border-radius: 12px; text-align: left; background: rgba(55,226,155,.07); border: 1px solid rgba(55,226,155,.2); }
         }
+        /* a narrow frame: the dots go, the address and the label share the row */
+        @container (max-width: 600px) {
+          .tour-chrome { grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+          .tc-dots { display: none; }
+          .tc-url { justify-self: start; max-width: 100%; overflow: hidden; font-size: 10.5px; padding: 0 9px; }
+          .tour-soon { font-size: 10.5px; }
+        }
+        @media (max-width: 700px) {
+          /* phones scroll anyway: the section takes its natural height rather
+             than a full screen with empty space above and below */
+          .sec.tour { min-height: 0; padding: max(calc(var(--nav-h) + 20px), clamp(64px, 8vh, 88px)) 0 clamp(64px, 8vh, 88px); }
+        }
         @media (max-width: 480px) {
           .tour-arrow { display: none; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .tour-head, .tour-nav, .tour-slide, .tour-cap { transition: none; opacity: 1; transform: none; }
+          .tour-head, .tour-nav, .tour-blurb, .tour-slide, .tour-cap { transition: none; opacity: 1; transform: none; }
           .tour.seen .tour-slide { animation: none; }
           .hs-ring { animation: none; }
         }
