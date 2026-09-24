@@ -617,6 +617,13 @@ nav.stuck{
   letter-spacing:-.05em;font-weight:600;max-width:20ch;
   min-height:2.08em;text-wrap:balance;
 }
+/* section titles in the same jade gradient as "customer." in the hero. On
+   the text itself: where the title slides in (.msk), that's the inner span,
+   so the clipped gradient moves with it. */
+.sec-h:not(:has(.msk)),.sec-h .msk>span{
+  background:linear-gradient(96deg,var(--jade) 4%,#8BF0C6 52%,#CFF6E4 96%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
 .sec-head.mid .sec-h{max-width:none;margin-inline:auto}
 /* Centred headings are one line in all three languages at desktop widths,
    so only their real height is reserved. */
@@ -1452,19 +1459,22 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 /* the incoming call's line: white text, an amber accent */
 .console .line[data-i="0"] span{color:var(--amber)}
 
-/* the outer-orbit progress: a hairline arc led by a small glowing point,
-   ending as the open ring and dot of the LMC Agents mark. It sits 24px
-   outside the sphere's rim, inside the console so it follows the tilt. */
+/* the outer orbit as progress: a line of light drawn round from the top
+   centre, one third per stage, that closes into a glowing ring. It sits
+   24px outside the sphere's rim, inside the console so it follows the tilt. */
 .orbit-progress{
   position:absolute;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);
   overflow:visible;pointer-events:none;opacity:0;
 }
 .op-arc{
-  fill:none;stroke:var(--ph-ring-a);stroke-width:.32;stroke-linecap:round;
-  opacity:.75;
+  fill:none;stroke:var(--ph-ring-a);stroke-width:.4;stroke-linecap:butt;
+  filter:drop-shadow(0 0 .8px var(--ph-ring-a));
 }
-.op-dot{fill:var(--ph-ring-b);filter:drop-shadow(0 0 1.4px var(--ph-ring-a))}
-.op-ring{fill:none;stroke:var(--ph-ring-a);stroke-width:.35;opacity:0}
+/* the light at the arc's end: a bright point in a soft halo */
+.op-dot{fill:#fff}
+.op-halo{fill:var(--ph-ring-a);opacity:.35;filter:blur(1.2px)}
+/* the closed ring's neon: a wider, blurred stroke of the same colour */
+.op-neon{fill:none;stroke:var(--ph-ring-b);stroke-width:.9;opacity:0;filter:blur(.9px) drop-shadow(0 0 2.5px var(--ph-ring-a))}
 
 /* the rings breathe -- a slow brightening -- whatever the stage */
 .orbit-lines{animation:orbitBreath 6s ease-in-out infinite}
@@ -1476,11 +1486,11 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
    the check mark, both status cards, the jade glow. */
 @media (prefers-reduced-motion:reduce){
   .chip-float,.or-dash,.orbit-lines{animation:none}
-  /* the progress ring as it ends: the open ring, the point settled at the top */
+  /* the orbit as it ends: closed, glowing, no travelling light */
   .orbit-progress{opacity:1}
-  .op-arc{stroke-dashoffset:.08}
-  .op-head{transform:rotate(269deg);transform-origin:50px 50px}
-  .op-ring{opacity:1}
+  .op-arc{stroke-dashoffset:0}
+  .op-head{display:none}
+  .op-neon{opacity:.55}
   .aura .a-jade{opacity:.55}
   .radial{opacity:.5}
   .spoke i{transform:scaleY(.55)}

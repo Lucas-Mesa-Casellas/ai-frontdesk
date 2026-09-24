@@ -417,18 +417,32 @@ export default function Home() {
         tl.to(f, { scaleX: 1, duration: BEAT, ease: "none" }, i * BEAT);
       });
 
-      /* the outer-orbit progress: one eased sweep across the first two and a
-         half beats (arc and leading point share the ease, so the point stays
-         on the arc's end), a small ring forming where it stops, then a fade
-         before the loop restarts */
-      const SWEEP = BEAT * 2 + 0.3;
-      const ARC = 0.92; // the share of the circle drawn: an open ring
+      /* The outer orbit fills in, one third per stage. A light starts at the
+         top centre, travels round with each stage, and on the last one comes
+         back to where it started: the orbit closes and lights up as a neon
+         ring, then fades before the loop restarts. The arc and the light
+         share each step's timing and ease, so the light always sits on the
+         arc's leading end. (The arc is drawn as an SVG attribute: GSAP rounds
+         a CSS stroke-dashoffset to whole px, which on a path of length 1
+         would snap it from hidden to drawn.) */
+      const STEP = [
+        { from: 0, to: 1 / 3, at: 0.15, dur: BEAT - 0.45 },
+        { from: 1 / 3, to: 2 / 3, at: BEAT + 0.05, dur: BEAT - 0.35 },
+        { from: 2 / 3, to: 1, at: BEAT * 2 + 0.05, dur: 0.85 },
+      ];
       tl.set(".orbit-progress", { opacity: 1 }, 0)
-        // (as an attribute: GSAP rounds a CSS stroke-dashoffset to whole px,
-        // which on a path of length 1 would snap it from hidden to drawn)
-        .fromTo(".op-arc", { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 1 - ARC }, duration: SWEEP, ease: "power1.inOut" }, 0.1)
-        .fromTo(".op-head", { rotation: -62, svgOrigin: "50 50" }, { rotation: -62 + 360 * ARC, svgOrigin: "50 50", duration: SWEEP, ease: "power1.inOut" }, 0.1)
-        .fromTo(".op-ring", { scale: 0, opacity: 0, transformOrigin: "50% 50%" }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.7)" }, SWEEP + 0.12)
+        .set(".op-arc", { attr: { "stroke-dashoffset": 1 } }, 0)
+        .set(".op-head", { rotation: 0, svgOrigin: "50 50", opacity: 1 }, 0)
+        .set(".op-neon", { opacity: 0 }, 0);
+      STEP.forEach((st) => {
+        tl.fromTo(".op-arc", { attr: { "stroke-dashoffset": 1 - st.from } }, { attr: { "stroke-dashoffset": 1 - st.to }, duration: st.dur, ease: "power2.inOut", immediateRender: false }, st.at)
+          .fromTo(".op-head", { rotation: 360 * st.from, svgOrigin: "50 50" }, { rotation: 360 * st.to, svgOrigin: "50 50", duration: st.dur, ease: "power2.inOut", immediateRender: false }, st.at);
+      });
+      const CLOSED = BEAT * 2 + 0.9;
+      tl.to(".op-head", { opacity: 0, duration: 0.3 }, CLOSED - 0.05)
+        // the ring closes: a flash of neon that settles into a steady glow
+        .fromTo(".op-neon", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" }, CLOSED - 0.1)
+        .to(".op-neon", { opacity: 0.55, duration: 0.9, ease: "sine.inOut" }, CLOSED + 0.3)
         .to(".orbit-progress", { opacity: 0, duration: 0.45, ease: "power2.in" }, BEAT * 3 - 0.5)
 
       /* the orbit answers each stage: a warm pulse while the phone rings,
@@ -744,16 +758,16 @@ export default function Home() {
                   masked out towards the centre so it never competes with the
                   readout). */}
               <div className="console-dots" aria-hidden="true" />
-              {/* The progress track: a thin line travels round the outer orbit
-                  through the three stages, led by a small glowing point, and
-                  stops just short of closing -- the open ring and dot of the
-                  LMC Agents mark -- where the point settles into a small ring
-                  at the top. Coloured by the stage, like the rest. */}
+              {/* The outer orbit, drawn as the animation runs: a line of light
+                  that starts at the top centre, goes a third of the way round
+                  per stage, and closes the circle on the last one -- the ring
+                  then glows (op-neon). Coloured by the stage, like the rest. */}
               <svg className="orbit-progress" viewBox="0 0 100 100" aria-hidden="true">
-                <circle className="op-arc" cx="50" cy="50" r="48" pathLength={1} strokeDasharray="1 1" strokeDashoffset={1} transform="rotate(-62 50 50)" />
+                <circle className="op-neon" cx="50" cy="50" r="48" />
+                <circle className="op-arc" cx="50" cy="50" r="48" pathLength={1} strokeDasharray="1 1" strokeDashoffset={1} transform="rotate(-90 50 50)" />
                 <g className="op-head">
-                  <circle className="op-ring" cx="98" cy="50" r="1.9" />
-                  <circle className="op-dot" cx="98" cy="50" r=".75" />
+                  <circle className="op-halo" cx="50" cy="2" r="2.4" />
+                  <circle className="op-dot" cx="50" cy="2" r=".7" />
                 </g>
               </svg>
               <div className="console-in">
