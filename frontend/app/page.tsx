@@ -11,14 +11,12 @@ type LangCode = "EN" | "ES" | "FR";
 const ORDER: LangCode[] = ["EN", "ES", "FR"];
 const SHOW_SOON = false; // upcoming-feature rows (SMS confirmation) stay out of the cards
 
-const TIER_CTA_STYLE = ["outline", "solid", "outline"];
-
-// Three equal cards. Pro ("on") is lit a little -- a stronger jade edge and
-// the solid CTA -- with no "Recommended" badge.
+// Three equal plans: no plan is marked as the recommended one (there's no
+// customer data yet to back that claim), so they share one card and one CTA.
 const TIERS = [
-  { price: "99", calls: 50, over: "1,40€", on: false },
-  { price: "199", calls: 150, over: "1,20€", on: true },
-  { price: "399", calls: 400, over: "0,95€", on: false },
+  { price: "99", calls: 50, over: "1,40€" },
+  { price: "199", calls: 150, over: "1,20€" },
+  { price: "399", calls: 400, over: "0,95€" },
 ];
 
 type Feat = { t: string; soon?: boolean };
@@ -26,7 +24,6 @@ type Feat = { t: string; soon?: boolean };
 type Dict = {
   navProduct: string; navPricing: string; navContact: string;
   navLogin: string; navStart: string; langName: string;
-  navDash: string; navDashSub: string; navVoices: string; navVoicesSub: string;
   badge: string; h1a: string; h1bPre: string; h1bWord: string; lede: string;
   heroCta: string; heroCta2: string;
   feat24: string; featLang: string; featCal: string;
@@ -43,15 +40,13 @@ type Dict = {
   fName: string; fBiz: string; fEmail: string; fPhone: string;
   fMsg: string; fMsgPh: string;
   cSend: string; cSending: string; cSent: string; cError: string; cTrust: string;
-  cb1: string; cb2: string; cb3: string; cTagline: string;
+  cTagline: string;
 };
 
 const T: Record<LangCode, Dict> = {
   EN: {
     navProduct: "Product", navPricing: "Pricing", navContact: "Contact",
     navLogin: "Client access", navStart: "Get started", langName: "English",
-    navDash: "Dashboard", navDashSub: "Calls, bookings and support in one place",
-    navVoices: "Voices", navVoicesSub: "Hear the voices your callers get",
     badge: "AI receptionist · Multilingual",
     h1a: "Never miss", h1bPre: "another ", h1bWord: "customer",
     lede: "LMC Agents answers every call, understands what the caller needs, acts on it, then tells you what happened. Day and night.",
@@ -104,14 +99,11 @@ const T: Record<LangCode, Dict> = {
     fMsg: "Message",
     fMsgPh: "Tell us a little about your business and how you handle the phone today.",
     cSend: "Send message", cSending: "Sending…", cSent: "Sent", cError: "Couldn't send, try again", cTrust: "Built in Europe",
-    cb1: "Get a demo", cb2: "Ask a question", cb3: "See if it's a fit for your business",
     cTagline: "Smarter calls. Happier customers.",
   },
   ES: {
     navProduct: "Producto", navPricing: "Precios", navContact: "Contacto",
     navLogin: "Acceso de clientes", navStart: "Empezar", langName: "Español",
-    navDash: "Panel", navDashSub: "Llamadas, citas y soporte en un solo lugar",
-    navVoices: "Voces", navVoicesSub: "Escucha las voces que oyen tus llamantes",
     badge: "Recepcionista IA · Multilingüe",
     h1a: "Nunca pierdas", h1bPre: "a otro ", h1bWord: "cliente",
     lede: "LMC Agents contesta cada llamada, entiende qué necesita el llamante, actúa en consecuencia, y te informa de lo que ha pasado. De día y de noche.",
@@ -164,14 +156,11 @@ const T: Record<LangCode, Dict> = {
     fMsg: "Mensaje",
     fMsgPh: "Cuéntanos un poco sobre tu negocio y cómo atiendes el teléfono hoy.",
     cSend: "Enviar mensaje", cSending: "Enviando…", cSent: "Enviado", cError: "No se pudo enviar, inténtalo de nuevo", cTrust: "Hecho en Europa",
-    cb1: "Pide una demo", cb2: "Haz una pregunta", cb3: "Comprueba si encaja con tu negocio",
     cTagline: "Llamadas más inteligentes. Clientes más contentos.",
   },
   FR: {
     navProduct: "Produit", navPricing: "Tarifs", navContact: "Contact",
     navLogin: "Espace client", navStart: "Commencer", langName: "Français",
-    navDash: "Tableau de bord", navDashSub: "Appels, rendez-vous et assistance au même endroit",
-    navVoices: "Voix", navVoicesSub: "Écoutez les voix qu'entendent vos appelants",
     badge: "Réceptionniste IA · Multilingue",
     h1a: "Ne manquez plus", h1bPre: "un seul ", h1bWord: "client",
     lede: "LMC Agents répond à chaque appel, comprend ce dont l'appelant a besoin, agit en conséquence, puis vous informe de ce qui s'est passé. De jour comme de nuit.",
@@ -224,7 +213,6 @@ const T: Record<LangCode, Dict> = {
     fMsg: "Message",
     fMsgPh: "Parlez-nous de votre activité et de la façon dont vous gérez le téléphone aujourd'hui.",
     cSend: "Envoyer le message", cSending: "Envoi…", cSent: "Envoyé", cError: "Échec de l'envoi, réessayez", cTrust: "Conçu en Europe",
-    cb1: "Obtenir une démo", cb2: "Poser une question", cb3: "Voyez si cela convient à votre activité",
     cTagline: "Des appels plus intelligents. Des clients plus satisfaits.",
   },
 };
@@ -243,27 +231,19 @@ const Globe = () => (
 
 type SendState = "idle" | "sending" | "sent" | "error";
 
-// Landing sections in DOM order (ids), and where the last one read is kept.
+// Landing sections in DOM order (ids), for the nav's active state.
 const SECTIONS = ["product", "tour", "voice", "pricing", "types", "contact"];
-const LAST_SECTION_KEY = "lmc_last_section";
-const LAST_SECTION_TTL = 12 * 60 * 60 * 1000; // a return the same day, not weeks later
 
 export default function Home() {
   const rootRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const prodRef = useRef<HTMLDivElement>(null);
-  const prodTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // true while the popover is open only because the mouse is over it: the
-  // click that usually follows then keeps it open instead of closing it
-  const prodByHover = useRef(false);
 
   const [lang, setLang] = useState<LangCode>("EN");
   const [menuList, setMenuList] = useState<LangCode[]>(ORDER);
   const [menuOpen, setMenuOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  const [prodOpen, setProdOpen] = useState(false);
   const [stuck, setStuck] = useState(false);
   const [activeSec, setActiveSec] = useState("product");
   const [cueGone, setCueGone] = useState(false);
@@ -292,10 +272,9 @@ export default function Home() {
     const onDoc = (e: MouseEvent) => {
       if (langRef.current && !langRef.current.contains(e.target as Node)) setMenuOpen(false);
       if (mobileNavRef.current && !mobileNavRef.current.contains(e.target as Node)) setNavOpen(false);
-      if (prodRef.current && !prodRef.current.contains(e.target as Node)) setProdOpen(false);
     };
     const esc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { setMenuOpen(false); setNavOpen(false); setProdOpen(false); }
+      if (e.key === "Escape") { setMenuOpen(false); setNavOpen(false); }
     };
     document.addEventListener("click", onDoc);
     document.addEventListener("keydown", esc);
@@ -306,39 +285,21 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Coming back to the landing page (e.g. from the dashboard's Home link,
-    // or a new visit the same day) reopens it at the section you were last
-    // reading instead of always at the top. Client-side only, and only for
-    // this page: it never touches routing or auth -- proxy.ts still decides
-    // who sees "/" at all. Skipped when the URL already names a section
-    // (#pricing), and on reload/back-forward, where the browser restores the
-    // exact scroll position itself.
-    // (A #section in the URL gets the same jump, re-applied once the web
-    // fonts are in: the browser's own anchor jump happens before they load
-    // and the page settles, and used to land short of the heading.)
-    const jumpTo = (id: string) => {
-      const go = () => {
-        const el = document.getElementById(id);
-        if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
-      };
-      go();
-      document.fonts?.ready.then(go);
-    };
+    // Scrolling is the browser's own: reloads and back/forward restore where
+    // you were. The one correction: opening a link with a #section, the
+    // browser jumps before the web fonts have loaded, and the page then
+    // shifts under it -- so the same jump is repeated once they're in.
     try {
-      const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-      const firstVisit = !nav || nav.type === "navigate";
+      const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
       const hashId = window.location.hash.slice(1);
-      if (hashId && firstVisit) {
-        jumpTo(hashId);
-      } else if (!hashId && firstVisit) {
-        const raw = localStorage.getItem(LAST_SECTION_KEY);
-        const saved = raw ? (JSON.parse(raw) as { id?: string; t?: number }) : null;
-        const fresh = saved?.id && saved.t && Date.now() - saved.t < LAST_SECTION_TTL;
-        if (fresh && saved.id !== "product" && SECTIONS.includes(saved.id as string)) jumpTo(saved.id as string);
+      if (hashId && (!navEntry || navEntry.type === "navigate")) {
+        document.fonts?.ready.then(() => {
+          const el = document.getElementById(hashId);
+          if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
+        });
       }
-    } catch { /* storage unavailable: just start at the top */ }
+    } catch { /* no Performance API: the browser's own jump stands */ }
 
-    let lastSaved = "";
     const onScroll = () => {
       const y = window.scrollY;
       setStuck(y > 24);
@@ -352,10 +313,6 @@ export default function Home() {
       // Dashboard and Voices belong to Product; Business types sits under
       // Pricing and has no nav button of its own.
       setActiveSec(here === "tour" || here === "voice" ? "product" : here === "types" ? "pricing" : here);
-      if (here !== lastSaved) {
-        lastSaved = here;
-        try { localStorage.setItem(LAST_SECTION_KEY, JSON.stringify({ id: here, t: Date.now() })); } catch { /* ignore */ }
-      }
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -459,6 +416,29 @@ export default function Home() {
       fills.forEach((f, i) => {
         tl.to(f, { scaleX: 1, duration: BEAT, ease: "none" }, i * BEAT);
       });
+
+      /* the outer-orbit progress: one eased sweep across the first two and a
+         half beats (arc and leading point share the ease, so the point stays
+         on the arc's end), a small ring forming where it stops, then a fade
+         before the loop restarts */
+      const SWEEP = BEAT * 2 + 0.3;
+      const ARC = 0.92; // the share of the circle drawn: an open ring
+      tl.set(".orbit-progress", { opacity: 1 }, 0)
+        // (as an attribute: GSAP rounds a CSS stroke-dashoffset to whole px,
+        // which on a path of length 1 would snap it from hidden to drawn)
+        .fromTo(".op-arc", { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 1 - ARC }, duration: SWEEP, ease: "power1.inOut" }, 0.1)
+        .fromTo(".op-head", { rotation: -62, svgOrigin: "50 50" }, { rotation: -62 + 360 * ARC, svgOrigin: "50 50", duration: SWEEP, ease: "power1.inOut" }, 0.1)
+        .fromTo(".op-ring", { scale: 0, opacity: 0, transformOrigin: "50% 50%" }, { scale: 1, opacity: 1, duration: 0.6, ease: "back.out(1.7)" }, SWEEP + 0.12)
+        .to(".orbit-progress", { opacity: 0, duration: 0.45, ease: "power2.in" }, BEAT * 3 - 0.5)
+
+      /* the orbit answers each stage: a warm pulse while the phone rings,
+         a quicker, softer pulse while the AI works, one settle at the end */
+        .fromTo(".or-pulse", { scale: 1, svgOrigin: "380 260" }, { scale: 1.018, svgOrigin: "380 260", duration: 0.55, ease: "sine.inOut", yoyo: true, repeat: 3 }, 0.1)
+        .to(".or-pulse", { opacity: 0.6, duration: 0.45, ease: "sine.inOut", yoyo: true, repeat: 3 }, BEAT + 0.1)
+        .fromTo(".or-pulse", { scale: 1.012, svgOrigin: "380 260" }, { scale: 1, svgOrigin: "380 260", duration: 0.9, ease: "power2.out" }, BEAT * 2 + 0.3);
+
+      // a slow sway, independent of the stages
+      gsap.to(".or-drift", { rotation: 2.5, svgOrigin: "380 260", duration: 9, ease: "sine.inOut", yoyo: true, repeat: -1 });
 
       /* BEAT 1 — incoming */
       tl.add(() => setCap(0), 0)
@@ -602,57 +582,7 @@ export default function Home() {
             </a>
 
             <div className="nav-links">
-              {/* Product opens a small popover with the two product sections
-                  below the hero. A disclosure (button + region of links), not
-                  an ARIA menu: Tab moves through the links, Escape or a click
-                  outside closes it. Mouse hover opens it too. */}
-              <div
-                ref={prodRef}
-                className={`nav-drop${prodOpen ? " open" : ""}`}
-                onPointerEnter={(e) => {
-                  if (e.pointerType !== "mouse") return;
-                  if (prodTimer.current) clearTimeout(prodTimer.current);
-                  if (!prodOpen) prodByHover.current = true;
-                  setProdOpen(true);
-                }}
-                onPointerLeave={(e) => {
-                  if (e.pointerType !== "mouse") return;
-                  prodTimer.current = setTimeout(() => { prodByHover.current = false; setProdOpen(false); }, 180);
-                }}
-                onBlur={(e) => {
-                  // keyboard: tabbing out past the last link closes it
-                  if (!e.currentTarget.contains(e.relatedTarget as Node)) setProdOpen(false);
-                }}
-              >
-                <button
-                  type="button"
-                  className={`nav-drop-btn${activeSec === "product" ? " active" : ""}`}
-                  aria-expanded={prodOpen}
-                  aria-controls="nav-product"
-                  onClick={() => {
-                    const keep = prodByHover.current;
-                    prodByHover.current = false;
-                    setProdOpen((o) => (keep ? true : !o));
-                  }}
-                >
-                  {t.navProduct}
-                  <svg className="chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" /></svg>
-                </button>
-                <div id="nav-product" className="nav-pop">
-                  <a href="#tour" onClick={() => setProdOpen(false)}>
-                    <span className="np-ic" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" /><path d="M9 4.5v15M12 9.5h5M12 13h3.5" /></svg>
-                    </span>
-                    <span className="np-tx"><b>{t.navDash}</b><em>{t.navDashSub}</em></span>
-                  </a>
-                  <a href="#voice" onClick={() => setProdOpen(false)}>
-                    <span className="np-ic" aria-hidden="true">
-                      <svg viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4.5v15M16 8v8M20 10.5v3" /></svg>
-                    </span>
-                    <span className="np-tx"><b>{t.navVoices}</b><em>{t.navVoicesSub}</em></span>
-                  </a>
-                </div>
-              </div>
+              <a href="#product" className={activeSec === "product" ? "active" : undefined}>{t.navProduct}</a>
               <a href="#pricing" className={activeSec === "pricing" ? "active" : undefined}>{t.navPricing}</a>
               <a href="#contact" className={activeSec === "contact" ? "active" : undefined}>{t.navContact}</a>
             </div>
@@ -719,8 +649,6 @@ export default function Home() {
                 </button>
                 <div className={`mobile-nav${navOpen ? " open" : ""}`}>
                   <a href="#product" onClick={() => setNavOpen(false)}>{t.navProduct}</a>
-                  <a className="sub" href="#tour" onClick={() => setNavOpen(false)}>{t.navDash}</a>
-                  <a className="sub" href="#voice" onClick={() => setNavOpen(false)}>{t.navVoices}</a>
                   <a href="#pricing" onClick={() => setNavOpen(false)}>{t.navPricing}</a>
                   <a href="#contact" onClick={() => setNavOpen(false)}>{t.navContact}</a>
                   <a href="/login" onClick={() => setNavOpen(false)}>{t.navLogin}</a>
@@ -794,12 +722,15 @@ export default function Home() {
                   <stop offset="1" stopColor="var(--ph-ring-a)" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              <g transform="rotate(-13 380 260)">
-                <ellipse cx="380" cy="260" rx="256" ry="88" stroke="url(#orA)" strokeWidth="1" />
-              </g>
-              <g transform="rotate(15 380 260)">
-                <ellipse cx="380" cy="260" rx="266" ry="108" stroke="var(--ph-ring2)" strokeWidth=".8" strokeDasharray="2 8" className="or-dash" />
-              </g>
+              {/* or-drift: a slow sway; or-pulse: the stage pulses (GSAP) */}
+              <g className="or-drift"><g className="or-pulse">
+                <g transform="rotate(-13 380 260)">
+                  <ellipse cx="380" cy="260" rx="256" ry="88" stroke="url(#orA)" strokeWidth="1" />
+                </g>
+                <g transform="rotate(15 380 260)">
+                  <ellipse cx="380" cy="260" rx="266" ry="108" stroke="var(--ph-ring2)" strokeWidth=".8" strokeDasharray="2 8" className="or-dash" />
+                </g>
+              </g></g>
             </svg>
 
             <div
@@ -813,6 +744,18 @@ export default function Home() {
                   masked out towards the centre so it never competes with the
                   readout). */}
               <div className="console-dots" aria-hidden="true" />
+              {/* The progress track: a thin line travels round the outer orbit
+                  through the three stages, led by a small glowing point, and
+                  stops just short of closing -- the open ring and dot of the
+                  LMC Agents mark -- where the point settles into a small ring
+                  at the top. Coloured by the stage, like the rest. */}
+              <svg className="orbit-progress" viewBox="0 0 100 100" aria-hidden="true">
+                <circle className="op-arc" cx="50" cy="50" r="48" pathLength={1} strokeDasharray="1 1" strokeDashoffset={1} transform="rotate(-62 50 50)" />
+                <g className="op-head">
+                  <circle className="op-ring" cx="98" cy="50" r="1.9" />
+                  <circle className="op-dot" cx="98" cy="50" r=".75" />
+                </g>
+              </svg>
               <div className="console-in">
               <div className="orb">
                 <div className="ripple" id="rip1" />
@@ -926,13 +869,14 @@ export default function Home() {
       <section className="sec" id="pricing">
         <div className="wrap">
           <div className="sec-head mid">
+            <p className="eyebrow">{t.pTag}</p>
             <h2 className="sec-h"><span className="msk"><span>{t.pH}</span></span></h2>
             <p className="sec-sub up d1">{t.pSub}</p>
           </div>
 
           <div className="tiers">
             {TIERS.map((x, i) => (
-              <div key={i} className={`tier${x.on ? " tier-on" : ""} up d${i + 1}`}>
+              <div key={i} className={`tier up d${i + 1}`}>
                 <div className="tier-top">
                   <span className="tier-name">{t.tName[i]}</span>
                 </div>
@@ -957,7 +901,7 @@ export default function Home() {
                 </ul>
                 {/* At the bottom of every card, so the three buttons line up
                     whatever the length of the list above. */}
-                <a className={`tier-cta ${TIER_CTA_STYLE[i]}`} href="#contact">
+                <a className="tier-cta" href="#contact">
                   {t.tCta[i]}
                   <svg className="ar" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M5 12h14M13 6l6 6-6 6" />
@@ -974,27 +918,13 @@ export default function Home() {
 
       <section className="sec contact" id="contact">
         <div className="wrap">
-          {/* The closing section, composed on one centre axis: heading, one
-              line, the three reasons to write, the form, then the footer. */}
+          {/* The closing section, on one centre axis: heading, one line, the
+              form, then the footer. */}
           <div className="sec-head mid">
+            <p className="eyebrow">{t.cTag}</p>
             <h2 className="sec-h"><span className="msk"><span>{t.cH}</span></span></h2>
             <p className="sec-sub up d1">{t.cSub}</p>
           </div>
-
-          <ul className="contact-list up d1">
-            <li>
-              <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M10.2 8.6v6.8l5.6-3.4-5.6-3.4Z" /></svg></span>
-              {t.cb1}
-            </li>
-            <li>
-              <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8.5a1.5 1.5 0 0 1-1.5 1.5h-7l-4.5 3.5V17H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z" /></svg></span>
-              {t.cb2}
-            </li>
-            <li>
-              <span className="ci"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="m8.4 12.3 2.6 2.6 4.8-5.2" /></svg></span>
-              {t.cb3}
-            </li>
-          </ul>
 
           <div className="cta-card up d2">
             <form onSubmit={submit}>

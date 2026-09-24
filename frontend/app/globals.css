@@ -160,52 +160,18 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
 .logo-txt{font-size:17px;font-weight:600;letter-spacing:-.022em}
 
 .nav-links{display:flex;align-items:center;gap:4px;justify-self:center}
-.nav-links>a,.nav-drop-btn{
+.nav-links>a{
   position:relative;display:inline-flex;align-items:center;gap:6px;
   font-size:15px;font-weight:450;letter-spacing:-.01em;color:var(--text);
   padding:9px 17px;border-radius:10px;opacity:.62;
   transition:opacity var(--t-fast) var(--e-out),background var(--t-fast) var(--e-out);
 }
-.nav-links>a:hover,.nav-drop-btn:hover,.nav-drop.open .nav-drop-btn{opacity:1;background:rgba(255,255,255,.045)}
-.nav-links>a.active,.nav-drop-btn.active{opacity:1}
-.nav-links>a.active::after,.nav-drop-btn.active::after{
+.nav-links>a:hover{opacity:1;background:rgba(255,255,255,.045)}
+.nav-links>a.active{opacity:1}
+.nav-links>a.active::after{
   content:"";position:absolute;left:12px;right:12px;bottom:2px;height:1.5px;border-radius:2px;
   background:linear-gradient(90deg,transparent,var(--jade),transparent);
 }
-.nav-drop{position:relative}
-.nav-drop-btn .chev{width:10px;height:10px;stroke:currentColor;stroke-width:1.8;fill:none;flex:none;transition:transform var(--t-med) var(--e-out)}
-.nav-drop.open .chev{transform:rotate(180deg)}
-/* the popover: same glass panel as the language menu. A transparent strip
-   above it (::before) bridges the gap so the pointer can travel from the
-   button into it without it closing. */
-.nav-pop{
-  position:absolute;top:calc(100% + 10px);left:50%;width:352px;padding:7px;z-index:60;
-  border-radius:var(--r-lg);
-  background:linear-gradient(180deg,rgba(20,24,31,.97),rgba(13,16,21,.97));
-  border:1px solid var(--hair-2);
-  box-shadow:0 30px 60px -22px rgba(0,0,0,.95),inset 0 1px 0 rgba(255,255,255,.09);
-  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
-  opacity:0;visibility:hidden;transform:translate(-50%,-6px) scale(.98);
-  transition:opacity var(--t-fast) var(--e-out),transform var(--t-fast) var(--e-out),visibility 0s linear var(--t-fast);
-}
-.nav-pop::before{content:"";position:absolute;left:0;right:0;top:-12px;height:12px}
-.nav-drop.open .nav-pop{opacity:1;visibility:visible;transform:translate(-50%,0);transition-delay:0s}
-.nav-pop a{
-  display:flex;align-items:center;gap:13px;padding:11px 12px;border-radius:12px;
-  transition:background var(--t-fast) var(--e-out);
-}
-.nav-pop a:hover,.nav-pop a:focus-visible{background:rgba(255,255,255,.06)}
-.np-ic{
-  width:38px;height:38px;border-radius:11px;flex:none;display:grid;place-items:center;
-  color:var(--jade);background:rgba(55,226,155,.08);border:1px solid rgba(55,226,155,.22);
-  transition:border-color var(--t-fast) var(--e-out),background var(--t-fast) var(--e-out);
-}
-.nav-pop a:hover .np-ic{border-color:rgba(55,226,155,.4);background:rgba(55,226,155,.12)}
-.np-ic svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.np-tx{display:flex;flex-direction:column;gap:2px;min-width:0}
-.np-tx b{font-size:14.5px;font-weight:600;letter-spacing:-.01em;color:var(--text)}
-.np-tx em{font-style:normal;font-size:12.5px;line-height:1.35;color:var(--text-3)}
-
 .nav-right{display:flex;align-items:center;gap:11px;justify-self:end}
 .lang{position:relative}
 .lang-btn{
@@ -289,7 +255,6 @@ nav{flex:none;padding:20px 0;position:relative;z-index:40}
   transition:background .18s var(--e-out),color .18s var(--e-out);
 }
 .mobile-nav a:hover{background:rgba(255,255,255,.07);color:var(--text)}
-.mobile-nav a.sub{padding:9px 16px 9px 30px;font-size:14.5px;color:var(--text-3)}
 
 main{flex:1;display:flex;align-items:center;padding:8px 0 34px}
 .hero{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:clamp(30px,4vw,64px);align-items:center;width:100%}
@@ -334,14 +299,20 @@ h1 .l>span{display:block}
 .orb-core{
   position:absolute;left:50%;top:50%;width:78px;height:78px;margin:-39px 0 0 -39px;
   border-radius:50%;display:grid;place-items:center;
+}
+/* the glass disc behind the AI mark and the check. While the phone rings it
+   fades out, so the amber phone sits on its own in the core. */
+.orb-core::before{
+  content:"";position:absolute;inset:0;border-radius:50%;
   background:radial-gradient(circle at 38% 32%,rgba(255,255,255,.16),rgba(255,255,255,.03) 55%,transparent 72%),
              linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.02));
   border:1px solid var(--hair-2);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 10px 30px -12px rgba(0,0,0,.9);
-  backdrop-filter:blur(6px);
+  transition:opacity .6s var(--e-out);
 }
+.stage[data-phase="0"] .orb-core::before{opacity:0}
 .orb-core svg{width:28px;height:28px;position:absolute;opacity:0}
-.icon-phone{stroke:var(--amber);stroke-width:1.7;fill:none}
+.orb-core .icon-phone{width:34px;height:34px;stroke:var(--amber);stroke-width:1.6;fill:none;filter:drop-shadow(0 0 8px rgba(255,170,90,.45))}
 .icon-check{stroke:var(--jade);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .orb-core .icon-ai{width:38px;height:38px;stroke:var(--jade-bright);stroke-width:1.35;fill:none;stroke-linecap:round;stroke-linejoin:round;
   filter:drop-shadow(0 0 6px rgba(55,226,155,.5))}
@@ -409,6 +380,7 @@ h1 .l>span{display:block}
 }
 .caption b.on{color:var(--text)}
 .caption b.on::before{background:var(--jade);box-shadow:0 0 10px rgba(55,226,155,.5)}
+.stage[data-phase="0"] .caption b.on::before{background:var(--amber);box-shadow:0 0 10px rgba(255,193,120,.5)}
 .caption em{display:none}
 @media (min-width:1001px){
   .caption{left:auto;right:216px;transform:translateX(50%)}
@@ -525,15 +497,18 @@ html,body{height:auto;min-height:100%}
 /* the hero owns exactly one screen, minus the fixed nav above it */
 .app-shell{
   min-height:100svh;padding-top:var(--nav-h);
-  justify-content:center;      /* centred in the first screen, below the nav */
   overflow-x:clip;             /* the orbit rings may run past the viewport edge */
 }
-main{flex:0 0 auto;width:100%} /* ... instead of relying on flex:1 stretching */
+/* centred in the first screen, below the nav -- with auto margins rather
+   than justify-content:center, so a hero taller than the screen (tablets)
+   starts under the nav instead of overflowing up behind it */
+main{flex:0 0 auto;width:100%;margin-block:auto}
 
 /* .caption is absolute at top:100% and hangs ~44px below the stage box,
    so flex centring alone leaves the hero looking top-heavy. This pays
    that overhang back and centres it optically. */
 main{padding-top:0;padding-bottom:24px}
+@media (max-width:1000px){main{padding-top:28px}}
 
 /* Hero balance. At >=1400px the 1280px cap already centres the hero with
    generous margins — untouched. Between 1001 and 1400px the viewport is
@@ -595,6 +570,21 @@ nav.stuck{
 @keyframes cueRun{0%{top:-100%}60%,100%{top:100%}}
 @media (max-height:860px){.cue{display:none}}
 
+/* ---------- desktop: every section is one composed screen ----------
+   On a desktop-sized window each section is at least one viewport tall and
+   its content sits centred in the space under the nav, so a jump from the
+   nav lands on a complete composition. Short windows and phones keep the
+   natural height (below). */
+@media (min-width:1001px) and (min-height:680px){
+  .sec{
+    min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+    padding:calc(var(--nav-h) + 28px) 0 28px;
+  }
+}
+@media (min-width:1001px) and (min-height:680px) and (max-height:820px){
+  .sec{padding:calc(var(--nav-h) + 16px) 0 16px}
+}
+
 /* ---------- section shell ----------
    Sections take the height of their content. They used to be forced to one
    viewport each (min-height:100svh), which left the short ones (Voice,
@@ -614,9 +604,13 @@ nav.stuck{
   scroll-margin-top:0;
 }
 .sec-head{margin-bottom:var(--sp-head)}
-/* Every section opens the same way: a centred heading, one supporting line,
-   then the content a fixed distance below. No numbered eyebrow above it. */
+/* Every section opens the same way: a small jade eyebrow naming it, the
+   heading, one supporting line, then the content a fixed distance below. */
 .sec-head.mid{text-align:center;margin-bottom:clamp(28px,4.4vh,44px)}
+.eyebrow{
+  font-size:11.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--jade);margin-bottom:14px;
+}
 /* min-height on both = zero vertical shift when the language changes */
 .sec-h{
   font-size:clamp(2.15rem,3.7vw,3.15rem);line-height:1.04;
@@ -647,17 +641,17 @@ nav.stuck{
 
 /* ---------- pricing cards (design locked from v5) ---------- */
 /* ============================================================
-   CARDS -- pricing tiers, voice languages and business types share one
+   CARDS -- pricing tiers, voice cards and business types share one
    surface: faint jade wash, jade hairline, deep soft shadow; on hover they
    lift 3px and the hairline strengthens. (The form card and the dashboard
    preview frame use the same surface but don't move.)
    ============================================================ */
-.tier,.vs-lang,.bt-card{
+.tier,.vs-card,.bt-card{
   position:relative;border-radius:var(--r-xl);
   background:var(--card-bg);border:1px solid var(--card-border);box-shadow:var(--card-shadow);
   transition:opacity .8s var(--e-out),transform var(--t-med) var(--e-out),border-color var(--t-med) var(--e-out),box-shadow var(--t-med) var(--e-out);
 }
-.tier:hover,.vs-lang:hover,.bt-card:hover{
+.tier:hover,.vs-card:hover,.bt-card:hover{
   transform:translateY(-3px);border-color:var(--card-border-hover);box-shadow:var(--card-shadow-hover);
 }
 /* once revealed, a card answers the pointer straight away (the reveal's
@@ -667,9 +661,6 @@ nav.stuck{
 /* ---------- pricing: three equal cards ---------- */
 .tiers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch;max-width:1180px;margin:0 auto}
 .tier{display:flex;flex-direction:column;padding:26px 26px 24px}
-/* Pro: the same card with a slightly stronger edge -- same design, just lit */
-.tier-on{border-color:rgba(55,226,155,.3);background:linear-gradient(180deg,rgba(18,185,129,.09),rgba(255,255,255,.014) 60%)}
-.tier-on:hover{border-color:rgba(55,226,155,.46)}
 .tier-top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:26px}
 .tier-name{font-size:14.5px;font-weight:500;letter-spacing:-.012em;color:var(--text-2)}
 .tier-fig{margin-top:12px;display:flex;align-items:baseline;gap:6px}
@@ -693,17 +684,7 @@ nav.stuck{
 
 
 /* ---------- contact: the closing section, on one centre axis ---------- */
-.contact .sec-head.mid{margin-bottom:22px}
-.contact-list{
-  list-style:none;display:flex;justify-content:center;flex-wrap:wrap;gap:10px 28px;
-  margin:0 auto 30px;
-}
-.contact-list li{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-2);letter-spacing:-.004em}
-.contact-list .ci{
-  width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;
-  color:var(--jade);background:rgba(55,226,155,.07);border:1px solid rgba(55,226,155,.24);
-}
-.contact-list .ci svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.contact .sec-head.mid{margin-bottom:30px}
 .cta-card{
   width:100%;max-width:640px;margin:0 auto;
   border-radius:var(--r-xl);padding:28px 30px 26px;
@@ -760,11 +741,12 @@ nav.stuck{
    fits one screen, without shrinking any text */
 @media (max-height:820px){
   .sec-head.mid{margin-bottom:24px}
+  .eyebrow{margin-bottom:10px}
+  .tier-f{gap:7px}
   .tier{padding:22px 22px 20px}
   .tier-rule{margin:12px 0 10px}
   .tier-cta{margin-top:16px}
-  .contact .sec-head.mid{margin-bottom:14px}
-  .contact-list{margin-bottom:18px}
+  .contact .sec-head.mid{margin-bottom:22px}
   .cta-card{padding:22px 26px 20px}
   .fld{margin-bottom:10px}
   .fld textarea{min-height:72px}
@@ -781,7 +763,6 @@ nav.stuck{
   .cta-card{padding:20px 24px 18px}
   .fld{margin-bottom:10px}
   .fld textarea{min-height:64px}
-  .contact-list{margin-bottom:20px}
 }
 @media (max-width:1000px){
   .sec{padding:max(calc(var(--nav-h) + 20px),clamp(64px,8vh,88px)) 0 clamp(64px,8vh,88px)}
@@ -792,7 +773,6 @@ nav.stuck{
   .sec-h{max-width:none}
 }
 @media (max-width:560px){
-  .contact-list{flex-direction:column;align-items:flex-start;width:fit-content;gap:12px}
   .tier{padding:24px 20px 22px}
   .cta-card{padding:26px 22px 24px;border-radius:22px}
   .fld-2{grid-template-columns:1fr;gap:0}
@@ -800,7 +780,7 @@ nav.stuck{
 @media (prefers-reduced-motion:reduce){
   .cue{display:none}
   .env .mesh{animation:none}
-  .tier:hover,.vs-lang:hover,.bt-card:hover{transform:none}
+  .tier:hover,.vs-card:hover,.bt-card:hover{transform:none}
   .send:hover:not(:disabled),.btn-primary:hover,.btn-login:hover,.tier-cta:hover{transform:none}
 }
 
@@ -826,8 +806,8 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .tier-vol b{font-variant-numeric:tabular-nums}
 .tier-over{margin-top:4px;opacity:.8}
 
-/* Both CTA styles carry a 1px border (transparent on the solid one), so the
-   three buttons are exactly the same height and sit on one line. */
+/* at the bottom of every card (the list above has flex:1), so the three
+   buttons sit on one line */
 .tier-cta{
   display:flex;align-items:center;justify-content:center;gap:8px;
   height:46px;margin-top:22px;padding:0 18px;border-radius:12px;
@@ -869,10 +849,10 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 
 /* ============================================================
    BUTTONS -- one language for every primary action on the site:
-   hero CTA, nav "Client access", the pricing CTAs, the contact send
-   button (the dashboard's .ui-btn--primary follows the same rules).
+   hero CTA, nav "Client access", the contact send button (the
+   dashboard's .ui-btn--primary follows the same rules).
    ============================================================ */
-.btn-primary,.btn-login,.tier-cta.solid,.send{
+.btn-primary,.btn-login,.send{
   position:relative;display:inline-flex;align-items:center;justify-content:center;
   font-weight:600;letter-spacing:-.008em;color:#04140D;white-space:nowrap;
   background:linear-gradient(180deg,var(--jade-bright),var(--jade-2));
@@ -880,10 +860,10 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
   box-shadow:var(--btn-shadow);
   transition:transform var(--t-fast) var(--e-out),box-shadow var(--t-fast) var(--e-out),filter var(--t-fast) var(--e-out),opacity var(--t-fast);
 }
-.btn-primary:hover,.btn-login:hover,.tier-cta.solid:hover,.send:hover:not(:disabled){
+.btn-primary:hover,.btn-login:hover,.send:hover:not(:disabled){
   transform:translateY(-1px);filter:brightness(1.05);box-shadow:var(--btn-shadow-hover);
 }
-.btn-primary:active,.btn-login:active,.tier-cta.solid:active,.send:active:not(:disabled){transform:none;filter:none}
+.btn-primary:active,.btn-login:active,.send:active:not(:disabled){transform:none;filter:none}
 /* the arrow that travels 3px on hover -- same on every CTA that has one */
 .btn-primary .ar,.btn-login .ar,.tier-cta .ar{flex:none;transition:transform var(--t-fast) var(--e-out)}
 .btn-primary:hover .ar,.btn-login:hover .ar,.tier-cta:hover .ar{transform:translateX(3px)}
@@ -893,13 +873,14 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 .btn-login{gap:7px;font-size:14.5px;padding:9px 18px;border-radius:999px}
 @media (max-width:430px){.hero .cta .btn-primary{padding:14px 22px;font-size:15px}}
 
-/* secondary: a quiet jade outline that shares the primary's lift */
-.tier-cta.outline{
+/* secondary: a quiet jade outline with the primary's lift -- the pricing
+   CTAs (all three the same: no plan is pushed over the others) */
+.tier-cta{
   color:var(--jade);background:rgba(55,226,155,.05);border:1px solid rgba(55,226,155,.32);
   transition:transform var(--t-fast) var(--e-out),background var(--t-fast) var(--e-out),border-color var(--t-fast) var(--e-out);
 }
-.tier-cta.outline:hover{transform:translateY(-1px);background:rgba(55,226,155,.1);border-color:rgba(55,226,155,.5)}
-.tier-cta.outline:active{transform:none}
+.tier-cta:hover{transform:translateY(-1px);background:rgba(55,226,155,.1);border-color:rgba(55,226,155,.5)}
+.tier-cta:active{transform:none}
 /* ========== DASHBOARD PREMIUM LAYER ========== */
 @keyframes dashIn {
   from { opacity: 0; transform: translateY(16px); }
@@ -1468,13 +1449,38 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 }
 .console .line b{font-size:21px;color:#fff;text-shadow:0 1px 14px rgba(0,0,0,.7)}
 .console .line span{font-size:14.5px;color:var(--jade-bright)}
+/* the incoming call's line: white text, an amber accent */
+.console .line[data-i="0"] span{color:var(--amber)}
+
+/* the outer-orbit progress: a hairline arc led by a small glowing point,
+   ending as the open ring and dot of the LMC Agents mark. It sits 24px
+   outside the sphere's rim, inside the console so it follows the tilt. */
+.orbit-progress{
+  position:absolute;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);
+  overflow:visible;pointer-events:none;opacity:0;
+}
+.op-arc{
+  fill:none;stroke:var(--ph-ring-a);stroke-width:.32;stroke-linecap:round;
+  opacity:.75;
+}
+.op-dot{fill:var(--ph-ring-b);filter:drop-shadow(0 0 1.4px var(--ph-ring-a))}
+.op-ring{fill:none;stroke:var(--ph-ring-a);stroke-width:.35;opacity:0}
+
+/* the rings breathe -- a slow brightening -- whatever the stage */
+.orbit-lines{animation:orbitBreath 6s ease-in-out infinite}
+@keyframes orbitBreath{0%,100%{opacity:.8}50%{opacity:1}}
 
 /* Reduced motion: the hero is a still frame, fully visible. The GSAP timeline
    doesn't run (see page.tsx), so nothing would ever reveal the elements the
    CSS starts hidden -- show the finished state instead: the "booked" outcome,
    the check mark, both status cards, the jade glow. */
 @media (prefers-reduced-motion:reduce){
-  .chip-float,.or-dash{animation:none}
+  .chip-float,.or-dash,.orbit-lines{animation:none}
+  /* the progress ring as it ends: the open ring, the point settled at the top */
+  .orbit-progress{opacity:1}
+  .op-arc{stroke-dashoffset:.08}
+  .op-head{transform:rotate(269deg);transform-origin:50px 50px}
+  .op-ring{opacity:1}
   .aura .a-jade{opacity:.55}
   .radial{opacity:.5}
   .spoke i{transform:scaleY(.55)}

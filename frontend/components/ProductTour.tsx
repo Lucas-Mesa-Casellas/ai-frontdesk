@@ -42,14 +42,14 @@ type Slide = {
 };
 
 const COPY = {
-  tag: { EN: "Dashboard", ES: "Panel de control", FR: "Tableau de bord" } as L10n,
+  tag: { EN: "Dashboard", ES: "Panel", FR: "Tableau de bord" } as L10n,
   heading: { EN: "This is what you'll have access to.", ES: "Esto es a lo que tendrás acceso.", FR: "Voici à quoi vous aurez accès." } as L10n,
-  // Says plainly that the frame below is the real client product, not a
-  // concept: this is the dashboard every client signs in to.
+  // Says plainly that the frame below is what a client gets behind "Client
+  // access" -- the product itself, not a concept.
   lead: {
-    EN: "Every LMC Agents client gets this dashboard: your calls, booking requests and support, all in one place.",
-    ES: "Todos los clientes de LMC Agents tienen este panel: tus llamadas, solicitudes de cita y soporte, en un solo lugar.",
-    FR: "Chaque client LMC Agents dispose de ce tableau de bord : vos appels, demandes de rendez-vous et l'assistance, au même endroit.",
+    EN: "Join LMC Agents and manage every call, booking request and appointment from one place: your Client access dashboard.",
+    ES: "Únete a LMC Agents y gestiona cada llamada, solicitud y cita desde un solo lugar: tu panel de Acceso de clientes.",
+    FR: "Rejoignez LMC Agents et gérez chaque appel, demande et rendez-vous depuis un seul endroit : votre Espace client.",
   } as L10n,
   peak: { EN: "Peak time", ES: "Hora punta", FR: "Heure de pointe" } as L10n,
   peakSub: { EN: "Most calls answered", ES: "Más llamadas atendidas", FR: "Le plus d'appels traités" } as L10n,
@@ -340,6 +340,7 @@ export default function ProductTour({ lang }: { lang: Lang }) {
     >
       <div className="wrap">
         <div className="sec-head mid tour-head">
+          <p className="eyebrow">{COPY.tag[lang]}</p>
           <h2 className="sec-h">{COPY.heading[lang]}</h2>
           <p className="sec-sub">{COPY.lead[lang]}</p>
         </div>
@@ -481,17 +482,17 @@ export default function ProductTour({ lang }: { lang: Lang }) {
            and the frame is sized from what's left of that height once the
            nav, heading, tabs and slide copy above it are accounted for, so
            the whole thing -- tabs through screenshot -- is visible without
-           scrolling. 500px is that fixed overhead (nav clearance, section
-           padding, heading and its line, tabs, two lines of blurb, the
-           address bar); only the frame's own height flexes with the
+           scrolling. 526px is that fixed overhead (nav clearance, section
+           padding, eyebrow, heading and its line, tabs, two lines of blurb,
+           the address bar); only the frame's own height flexes with the
            viewport. */
         .sec.tour {
           min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
           /* even space above and below: the nav's height, then the same gap both ways */
-          padding: calc(var(--nav-h) + 32px) 0 32px;
+          padding: calc(var(--nav-h) + 28px) 0 28px;
         }
         .tour-frame {
-          width: min(100%, calc((100svh - 500px) * var(--tour-aspect)));
+          width: min(100%, calc((100svh - 526px) * var(--tour-aspect)));
           min-width: min(100%, 480px);
           margin: 0 auto; border-radius: 16px; overflow: visible;
           /* the address bar adapts to the frame's own width (which follows the
@@ -587,9 +588,12 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour-cap { text-align: center; font-size: 12.5px; color: var(--text-3); }
         .cap-note { display: none; }
 
+        @media (min-width: 701px) and (max-height: 820px) {
+          .sec.tour { padding: calc(var(--nav-h) + 16px) 0 16px; }
+        }
         @media (max-width: 1100px) {
           /* Narrower here: no minimum width, and never smaller than 320px. */
-          .tour-frame { width: min(100%, max(320px, calc((100svh - 500px) * var(--tour-aspect)))); min-width: 0; }
+          .tour-frame { width: min(100%, max(320px, calc((100svh - 526px) * var(--tour-aspect)))); min-width: 0; }
         }
         /* Phones: no hover, and a floating note would run off a 375px screen,
            so the note shows in a caption under the screenshot instead. */

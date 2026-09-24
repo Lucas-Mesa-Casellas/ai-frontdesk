@@ -29,6 +29,9 @@ const VOICES: { gender: Gender; name: L10n }[] = [
 ];
 
 const COPY = {
+  tag: { EN: "Voices", ES: "Voces", FR: "Voix" } as L10n,
+  // what each clip is: the welcome message a caller hears
+  clip: { EN: "Welcome message", ES: "Mensaje de bienvenida", FR: "Message d'accueil" } as L10n,
   heading: { EN: "Hear how it answers.", ES: "Escucha cómo contesta.", FR: "Écoutez comment il répond." } as L10n,
   sub: {
     EN: "Choose the voice your callers hear: two voices in every language.",
@@ -50,7 +53,7 @@ function fmt(sec: number) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
-function VoiceRow({
+function VoiceCard({
   id, language, voice, uiLang, current, onStart,
 }: {
   id: string; language: string; voice: string; uiLang: Lang; current: string | null; onStart: (id: string) => void;
@@ -94,7 +97,7 @@ function VoiceRow({
   const progress = duration > 0 ? time / duration : 0;
 
   return (
-    <li className={`vs-voice${playing ? " here" : ""}${usable ? "" : " off"}`}>
+    <li className={`vs-card${playing ? " here" : ""}${usable ? "" : " off"}`}>
       {usable && (
         <audio
           ref={audioRef}
@@ -110,6 +113,12 @@ function VoiceRow({
         />
       )}
 
+      <div className="vs-head">
+        <span className="vs-names"><b>{voice}</b><span>{COPY.clip[uiLang]}</span></span>
+        <span className="vs-time">{usable ? `${fmt(time)} / ${fmt(duration)}` : "–:––"}</span>
+      </div>
+
+      <div className="vs-player">
       <button
         type="button" className={`vs-btn${playing ? " on" : ""}`} onClick={toggle} disabled={!usable}
         aria-label={`${playing ? COPY.pause[uiLang] : COPY.play[uiLang]}: ${label}`}
@@ -121,11 +130,6 @@ function VoiceRow({
         )}
       </button>
 
-      <div className="vs-body">
-        <div className="vs-meta">
-          <b>{voice}</b>
-          <span className="vs-time">{usable ? `${fmt(time)} / ${fmt(duration)}` : "–:––"}</span>
-        </div>
         <div className="vs-wave">
           <div className="vs-bars" aria-hidden="true">
             {BARS.map((h, i) => (
@@ -168,6 +172,7 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
     <section ref={rootRef} className={`sec voice${seen ? " seen" : ""}`} id="voice" aria-label={COPY.heading[lang]}>
       <div className="wrap">
         <div className="sec-head mid vs-top">
+          <p className="eyebrow">{COPY.tag[lang]}</p>
           <h2 className="sec-h">{COPY.heading[lang]}</h2>
           <p className="sec-sub">{COPY.sub[lang]}</p>
         </div>
@@ -179,11 +184,11 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
                 <span className="vs-code">{l.code}</span>
                 <b>{l.native}</b>
               </div>
-              <ul className="vs-voices">
+              <ul className="vs-cards">
                 {VOICES.map((v) => {
                   const id = `${l.file}-${v.gender}`;
                   return (
-                    <VoiceRow key={id} id={id} language={l.native} voice={v.name[lang]} uiLang={lang} current={current} onStart={setCurrent} />
+                    <VoiceCard key={id} id={id} language={l.native} voice={v.name[lang]} uiLang={lang} current={current} onStart={setCurrent} />
                   );
                 })}
               </ul>
@@ -200,49 +205,51 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .voice.seen .vs-top, .voice.seen .vs-grid { opacity: 1; transform: none; }
         .voice.seen .vs-grid { transition-delay: .1s; }
 
-        .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 1180px; margin: 0 auto; }
-        /* the card surface itself (.vs-lang) is the shared one in globals.css */
-        .vs-lang { padding: 20px 20px 8px; }
-        .vs-lh { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; border-bottom: 1px solid var(--hair); }
-        .vs-lh b { font-size: 16px; font-weight: 600; letter-spacing: -.015em; }
+        /* three language columns, two voice cards in each (six in all) */
+        .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; max-width: 1180px; margin: 0 auto; }
+        .vs-lh { display: flex; align-items: center; gap: 10px; margin: 0 2px 12px; }
+        .vs-lh b { font-size: 15px; font-weight: 600; letter-spacing: -.015em; }
         .vs-code {
           font-size: 10.5px; font-weight: 600; letter-spacing: .06em; color: var(--jade);
           border: 1px solid rgba(55,226,155,.35); background: rgba(55,226,155,.1); border-radius: 6px; padding: 3px 7px;
         }
-
-        .vs-voices { list-style: none; }
-        .vs-voice { display: flex; align-items: center; gap: 14px; padding: 14px 0; }
-        .vs-voice + .vs-voice { border-top: 1px solid rgba(255,255,255,.05); }
-        .vs-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
-        .vs-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-        .vs-meta b { font-size: 14px; font-weight: 500; letter-spacing: -.01em; color: var(--text); }
+        .vs-cards { list-style: none; display: grid; gap: 12px; }
+        /* the card surface and hover are the shared ones (globals.css) */
+        .vs-card { display: flex; flex-direction: column; gap: 14px; padding: 16px 18px 18px; }
+        .vs-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+        .vs-names { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+        .vs-names b { font-size: 14.5px; font-weight: 600; letter-spacing: -.01em; }
+        .vs-names span { font-size: 12.5px; color: var(--text-3); }
         .vs-time { flex: none; font-size: 11.5px; font-variant-numeric: tabular-nums; color: var(--text-3); }
+        .vs-player { display: flex; align-items: center; gap: 12px; }
 
         .vs-btn {
-          flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+          flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
           color: var(--jade); background: rgba(55,226,155,.06); border: 1.5px solid rgba(55,226,155,.6);
           transition: transform var(--t-fast) var(--e-out), box-shadow var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out), color var(--t-fast), opacity var(--t-fast);
         }
         .vs-btn:hover:not(:disabled) { transform: translateY(-1px); background: rgba(55,226,155,.14); box-shadow: 0 8px 20px -10px rgba(18,185,129,.7); }
         .vs-btn.on { color: #04140D; background: linear-gradient(180deg, var(--jade-bright), var(--jade-2)); border-color: transparent; box-shadow: var(--btn-shadow); }
-        .vs-btn:disabled { opacity: .5; cursor: default; }
-        .vs-btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
+        .vs-btn:disabled { opacity: .6; cursor: default; }
+        .vs-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
         .vs-btn svg.play { fill: currentColor; stroke: none; margin-left: 2px; }
 
-        .vs-wave { position: relative; height: 24px; border-radius: 6px; }
+        .vs-wave { position: relative; flex: 1; min-width: 0; height: 30px; border-radius: 6px; }
         .vs-wave:focus-within { outline: 2px solid rgba(55,226,155,.55); outline-offset: 3px; }
         .vs-bars { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; }
         .vs-bars i { flex: 1; min-width: 1px; border-radius: 2px; background: rgba(55,226,155,.42); transition: background .15s; }
         .vs-bars i.done { background: var(--jade); }
-        .vs-voice.off .vs-bars i { background: rgba(55,226,155,.26); }
+        .vs-card.off .vs-bars i { background: rgba(55,226,155,.3); }
         .vs-wave input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
         .vs-wave input:disabled { cursor: default; }
 
+        /* tablet: one language per row, its two voices side by side */
         @media (max-width: 1000px) {
-          .vs-grid { grid-template-columns: 1fr; max-width: 520px; }
+          .vs-grid { grid-template-columns: 1fr; max-width: 720px; gap: 26px; }
+          .vs-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
-        @media (max-width: 480px) {
-          .vs-lang { padding: 16px 16px 4px; }
+        @media (max-width: 560px) {
+          .vs-cards { grid-template-columns: 1fr; }
           .vs-btn { width: 44px; height: 44px; }
         }
         @media (prefers-reduced-motion: reduce) {

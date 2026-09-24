@@ -21,7 +21,7 @@ const Building = () => <Svg><path d="M5 20.5V6.2A1.7 1.7 0 0 1 6.7 4.5h6.6A1.7 1
 const Key = () => <Svg><circle cx="8" cy="15.5" r="3.6" /><path d="m10.6 12.9 8-8M15.5 7.9l2.4 2.4M13.6 9.9l1.8 1.8" /></Svg>;
 
 const COPY = {
-  tag: { EN: "Who it's for", ES: "Para quién es", FR: "Pour qui" } as L10n,
+  tag: { EN: "Businesses", ES: "Negocios", FR: "Entreprises" } as L10n,
   heading: {
     EN: "Built for businesses like yours.",
     ES: "Hecho para negocios como el tuyo.",
@@ -34,33 +34,39 @@ const COPY = {
   } as L10n,
 };
 
-// Background linework, drawn in the card's corner and faded out before it
-// reaches the text: a technical schematic for Trades (a pipe run, a circuit
-// trace, radiator fins, a dimension line) and an architectural floor plan
-// for Real estate (walls, door swings, windows). Hairline strokes at low
-// contrast -- noticed as texture, never read as a picture.
-const Art = ({ children }: { children: ReactNode }) => (
+// Background: a blueprint drawn deep in the card -- a fine dotted grid with
+// hairline technical drawing over it, faded out before it reaches the text.
+// Trades gets a schematic (a pipe run with a valve, a circuit trace, radiator
+// fins); Real estate a floor plan (walls, door swings, windows). Noticed as
+// texture, never read as a picture.
+const Art = ({ id, children }: { id: string; children: ReactNode }) => (
   <svg className="bt-art" viewBox="0 0 600 400" preserveAspectRatio="xMaxYMid slice" fill="none" aria-hidden="true">
+    <defs>
+      <pattern id={`bt-grid-${id}`} width="16" height="16" patternUnits="userSpaceOnUse">
+        <circle cx="1" cy="1" r=".9" className="bt-grid-dot" />
+      </pattern>
+    </defs>
+    <rect x="260" y="40" width="340" height="320" fill={`url(#bt-grid-${id})`} stroke="none" />
     {children}
   </svg>
 );
 const TradesArt = () => (
-  <Art>
-    {/* pipe run with two rounded elbows (drawn as a double wall) and a valve */}
+  <Art id="trades">
+    {/* pipe run with two rounded elbows (a double wall) and a valve */}
     <path d="M560 96H476a26 26 0 0 0-26 26v126a26 26 0 0 1-26 26h-64" />
     <path d="M560 108H476a14 14 0 0 0-14 14v126a38 38 0 0 1-38 38h-64" />
     <circle cx="456" cy="186" r="11" /><path d="M445 186h22M456 175v22" />
     {/* circuit trace with nodes */}
-    <path d="M560 168h-34l-16 16h-28" /><circle cx="478" cy="184" r="4" />
-    <path d="M560 212h-26l-12-12" /><circle cx="519" cy="197" r="4" />
+    <path d="M560 168h-34l-16 16h-28" /><circle cx="478" cy="184" r="3.5" />
+    <path d="M560 212h-26l-12-12" /><circle cx="519" cy="197" r="3.5" />
     {/* radiator fins */}
     <path d="M492 250v66M505 250v66M518 250v66M531 250v66M544 250v66M557 250v66" />
     <path d="M486 244h78M486 322h78" />
   </Art>
 );
 const PropertyArt = () => (
-  <Art>
-    {/* outer walls (double line), interior walls */}
+  <Art id="property">
+    {/* outer walls (a double line) and interior walls */}
     <rect x="344" y="88" width="220" height="228" />
     <rect x="352" y="96" width="204" height="212" />
     <path d="M352 202h78M430 96v70M430 190v118M430 250h126" />
@@ -126,6 +132,7 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
     <section className="sec types" id="types">
       <div className="wrap">
         <div className="sec-head mid">
+          <p className="eyebrow">{COPY.tag[lang]}</p>
           <h2 className="sec-h"><span className="msk"><span>{COPY.heading[lang]}</span></span></h2>
           <p className="sec-sub up d1">{COPY.sub[lang]}</p>
         </div>
@@ -163,14 +170,15 @@ export default function BusinessTypes({ lang }: { lang: Lang }) {
         }
         .bt-art {
           position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
-          stroke: rgba(55,226,155,.42); stroke-width: 1.1; stroke-linecap: round; stroke-linejoin: round;
-          opacity: .45; transition: opacity var(--t-med) var(--e-out);
+          stroke: rgba(92,235,175,.5); stroke-width: .9; stroke-linecap: round; stroke-linejoin: round;
+          opacity: .38; transition: opacity var(--t-med) var(--e-out);
           /* faded on every side: the lines never reach the card's edges (where
              they'd read as a broken border) or the text on the left */
           -webkit-mask-image: radial-gradient(ellipse 30% 44% at 84% 40%, #000 30%, transparent 100%);
                   mask-image: radial-gradient(ellipse 30% 44% at 84% 40%, #000 30%, transparent 100%);
         }
-        .bt-card:hover .bt-art { opacity: .7; }
+        .bt-card:hover .bt-art { opacity: .6; }
+        .bt-grid-dot { fill: rgba(255,255,255,.22); stroke: none; }
 
         .bt-icons { position: relative; display: flex; gap: 10px; margin-bottom: 24px; }
         .bt-ic {
