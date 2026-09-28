@@ -48,7 +48,7 @@ const COPY = {
   // access" -- the product itself, not a concept.
   lead: {
     EN: "Join LMC Agents and manage every call, booking request and appointment from one place: your Client access dashboard.",
-    ES: "Únete a LMC Agents y gestiona cada llamada, solicitud y cita desde un solo lugar: tu panel de Acceso de clientes.",
+    ES: "Únete a LMC Agents y gestiona cada llamada, solicitud y cita desde un solo lugar: tu Área de clientes.",
     FR: "Rejoignez LMC Agents et gérez chaque appel, demande et rendez-vous depuis un seul endroit : votre Espace client.",
   } as L10n,
   peak: { EN: "Peak time", ES: "Hora punta", FR: "Heure de pointe" } as L10n,
@@ -81,7 +81,7 @@ const SLIDES: Slide[] = [
         x: 40, y: 62,
         note: {
           EN: "See when your calls come in, hour by hour, so you know when the phone matters most.",
-          ES: "Mira cuándo llegan tus llamadas, hora a hora, y sabrás cuándo importa más el teléfono.",
+          ES: "Mira a qué horas llegan tus llamadas y sabrás cuándo es más importante estar localizable.",
           FR: "Voyez à quelle heure arrivent vos appels, heure par heure, pour savoir quand le téléphone compte le plus.",
         },
       },
@@ -93,7 +93,7 @@ const SLIDES: Slide[] = [
     title: { EN: "Every call, summarised.", ES: "Cada llamada, resumida.", FR: "Chaque appel, résumé." },
     blurb: {
       EN: "Filter by date and open any call for the AI summary, the full transcript and the caller's details.",
-      ES: "Filtra por fecha y abre cualquier llamada para ver el resumen de la IA, la transcripción completa y los datos del llamante.",
+      ES: "Filtra por fecha y abre cualquier llamada para ver el resumen de la IA, la transcripción completa y los datos de quien llamó.",
       FR: "Filtrez par date et ouvrez n'importe quel appel pour voir le résumé de l'IA, la transcription complète et les coordonnées de l'appelant.",
     },
     hotspots: [
@@ -109,7 +109,7 @@ const SLIDES: Slide[] = [
         x: 42, y: 36,
         note: {
           EN: "A one-line AI summary of what the caller wanted, so you don't have to listen back.",
-          ES: "Un resumen de una línea de lo que quería el llamante, para no tener que volver a escucharlo.",
+          ES: "Un resumen en una línea de lo que quería quien llamó, sin tener que escuchar la llamada.",
           FR: "Un résumé en une ligne de ce que voulait l'appelant, sans avoir à réécouter l'appel.",
         },
       },
@@ -154,7 +154,7 @@ const SLIDES: Slide[] = [
   {
     id: "support",
     label: { EN: "Support", ES: "Soporte", FR: "Assistance" },
-    title: { EN: "A human, one message away.", ES: "Una persona, a un mensaje.", FR: "Un humain, à un message." },
+    title: { EN: "A human, one message away.", ES: "Una persona real, a un mensaje de distancia.", FR: "Un humain à portée de message." },
     blurb: {
       EN: "Something off? Write to us from your dashboard, screenshots included.",
       ES: "¿Algo no va bien? Escríbenos desde tu panel, con capturas incluidas.",
@@ -166,7 +166,7 @@ const SLIDES: Slide[] = [
         note: {
           EN: "Describe the problem or your question. No name or email to fill in, we already know who you are.",
           ES: "Describe el problema o tu duda. Sin nombre ni email que rellenar: ya sabemos quién eres.",
-          FR: "Décrivez le problème ou votre question. Pas de nom ni d'email à saisir, nous savons déjà qui vous êtes.",
+          FR: "Décrivez le problème ou votre question. Pas de nom ni d'e-mail à saisir, nous savons déjà qui vous êtes.",
         },
       },
       {

@@ -4,7 +4,6 @@ import { DASH_T } from "@/lib/dash-i18n";
 import CalendarClient from "@/components/CalendarClient";
 import { BUSINESS_TZ, madridYMD, zonedTimeToUtc } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
-import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 
 const INTL_LOCALE: Record<string, string> = { en: "en-US", es: "es-ES", fr: "fr-FR" };
@@ -110,9 +109,8 @@ export default async function CalendarPage({
   const confirmedCount = monthBookings.filter((b: any) => b.status === "confirmed").length;
 
   return (
-    <div className="ui-page">
+    <div className="ui-page ui-page--fill">
       <PageHeader
-        eyebrow={<Badge tone="jade" dot>{monthBookings.length} · {t.calStatsThisMonth}</Badge>}
         title={t.calTitle}
         lede={t.calSub}
       />

@@ -2,12 +2,10 @@ import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { BUSINESS_TZ, madridHour, zonedTimeToUtc } from "@/lib/tz";
-import AnimateOnRouteEntry from "@/components/AnimateOnRouteEntry";
 import CountUp from "@/components/CountUp";
 import AutoRefresh from "@/components/AutoRefresh";
 import TranslatedField from "@/components/TranslatedField";
 import Card from "@/components/ui/Card";
-import Badge from "@/components/ui/Badge";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import { IconPhone, IconCalendar } from "@/components/icons";
 import Link from "next/link";
@@ -78,7 +76,6 @@ export default async function OverviewPage() {
   return (
     <div className="ov-wrap">
       <header className="ov-head dash-in">
-        <Badge tone="jade" dot live>{t.ovSub}</Badge>
         <h1 className="ov-title">{t.ovTitle}</h1>
         <p className="ov-lede">
           {greeting}{business?.name ? `, ${business.name}` : ""}. {t.ovWelcome}
@@ -225,38 +222,30 @@ export default async function OverviewPage() {
       {/* Keeps the "live" figures at most a minute old while the tab is open. */}
       <AutoRefresh seconds={60} />
 
-      <AnimateOnRouteEntry
-        className="ov-wave" activeClassName="ov-wave-animate" doneClassName="ov-wave-done"
-        once storageKey="ov-wave-played"
-      >
-        <div className="ov-wave-line" />
-        <div className="ov-wave-badge" aria-hidden="true">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-            <path d="M17.6 5.6a9 9 0 1 0 2.2 3.6" stroke="#04140D" strokeWidth="2.8" strokeLinecap="round" />
-            <circle cx="18.6" cy="5.4" r="2.85" fill="#04140D" />
-          </svg>
-        </div>
-      </AnimateOnRouteEntry>
-
       <style>{`
         /* Uses the space it's given: centred, up to 1320px, generous gutters. */
-        .ov-wrap { position: relative; padding: 26px 40px 28px; max-width: 1320px; margin-inline: auto; isolation: isolate; }
+        /* Fills the screen under the 68px top bar without scrolling: the KPI row
+           keeps its size and the chart + latest-calls row takes the rest. */
+        .ov-wrap {
+          position: relative; padding: 32px 40px 32px; max-width: 1320px; margin-inline: auto; isolation: isolate;
+          min-height: calc(100svh - 68px); display: flex; flex-direction: column;
+        }
 
         /* header: live badge -> title -> one supporting line */
-        .ov-head { margin-bottom: 20px; }
-        .ov-title { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; margin: 10px 0 6px; }
+        .ov-head { margin-bottom: 24px; }
+        .ov-title { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; margin: 0 0 8px; }
         .ov-lede { font-size: 14px; line-height: 1.55; color: var(--text-3); max-width: 90ch; }
 
         /* KPI row: icon tile, small label, large value */
         .ov-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
-        .ov-stat-card { position: relative; padding: 16px 20px; display: flex; align-items: center; gap: 16px; }
+        .ov-stat-card { position: relative; padding: 20px 22px; display: flex; align-items: center; gap: 16px; }
         .ov-stat-ic {
-          width: 44px; height: 44px; border-radius: 14px; flex: none; display: grid; place-items: center;
+          width: 48px; height: 48px; border-radius: 14px; flex: none; display: grid; place-items: center;
           color: var(--jade); background: rgba(55,226,155,.09); border: 1px solid rgba(55,226,155,.22);
         }
         .ov-stat-tx { min-width: 0; }
         .ov-stat-label { font-size: 12.5px; font-weight: 500; color: var(--text-3); margin-bottom: 5px; }
-        .ov-stat-num { font-size: 29px; font-weight: 600; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+        .ov-stat-num { font-size: 32px; font-weight: 600; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
         /* The one accent card in the row gets a brighter tile as well as the edge. */
         .dash-card-highlight .ov-stat-ic { background: rgba(55,226,155,.14); border-color: rgba(55,226,155,.34); box-shadow: 0 12px 26px -14px rgba(18,185,129,.75); }
 
@@ -277,17 +266,17 @@ export default async function OverviewPage() {
         }
 
         /* chart + latest calls */
-        .ov-row { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
-        .ov-panel { position: relative; padding: 20px 22px; display: flex; flex-direction: column; }
+        .ov-row { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+        .ov-panel { position: relative; padding: 24px; display: flex; flex-direction: column; }
         .ov-panel:hover { transform: none; } /* big surfaces stay put; only the KPI cards lift */
-        .ov-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+        .ov-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
         .ov-h2 { font-size: 15px; font-weight: 600; letter-spacing: -.015em; color: var(--text); }
         .ov-sub { font-size: 12.5px; color: var(--text-3); margin-top: 3px; }
         .ov-viewall { font-size: 12.5px; color: var(--text-3); white-space: nowrap; transition: color .2s var(--e-out); }
         .ov-viewall:hover { color: var(--jade); }
 
         /* chart: y axis + gridlines, bars scaled to the axis */
-        .ov-chart { display: flex; gap: 12px; flex: 1; min-height: 170px; }
+        .ov-chart { display: flex; gap: 12px; flex: 1; min-height: 150px; }
         .ov-yaxis { position: relative; width: 22px; flex: none; }
         .ov-yaxis span { position: absolute; right: 0; transform: translateY(-50%); font-size: 10.5px; line-height: 1; color: var(--text-3); font-variant-numeric: tabular-nums; }
         .ov-plot { position: relative; flex: 1; min-width: 0; }
@@ -323,13 +312,13 @@ export default async function OverviewPage() {
         /* latest calls: one surface, rows divided by hairlines (not a stack of cards) */
         .ov-latest-list { display: flex; flex-direction: column; margin: 0 -12px; }
         .ov-latest-row {
-          display: flex; align-items: center; gap: 13px; padding: 10px 12px; border-radius: 12px;
+          display: flex; align-items: center; gap: 13px; padding: 12px; border-radius: 12px;
           color: inherit; text-decoration: none; transition: background .2s var(--e-out);
         }
         .ov-latest-row + .ov-latest-row { border-top: 1px solid var(--border); border-top-left-radius: 0; border-top-right-radius: 0; }
         .ov-latest-row:hover { background: rgba(55,226,155,.05); }
         .ov-latest-av {
-          width: 34px; height: 34px; border-radius: 50%; flex: none; display: grid; place-items: center;
+          width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center;
           font-size: 13px; font-weight: 600; color: var(--jade);
           background: rgba(55,226,155,.09); border: 1px solid rgba(55,226,155,.22);
         }
@@ -347,81 +336,20 @@ export default async function OverviewPage() {
         .ov-empty p { font-size: 14px; color: var(--text-2); }
         .ov-empty p + p { font-size: 12.5px; color: var(--text-3); max-width: 34ch; }
 
-        /* A neon line lighting up left-to-right, not a blurred bar sliding
-           across -- scaleX grows a SOLID line rather than translating a
-           faded gradient segment, so everything behind the growing edge
-           stays fully lit instead of fading back to transparent, and it
-           ends as a solid, fully bright line rather than a faded remnant.
-           Sits below the panels, in normal flow -- height leaves
-           room for the badge, which is taller than the line itself and
-           needs to stay vertically centered on it throughout the draw. */
-        .ov-wave {
-          position: relative; height: 22px; margin: 16px 0 0;
-        }
-        .ov-wave-line {
-          position: absolute; left: 0; right: 26px; top: 50%; height: 2px;
-          background: var(--jade);
-          opacity: .55;
-          transform: translateY(-50%) scaleX(0); transform-origin: left;
-          box-shadow: 0 0 6px 1px rgba(55,226,155,.4), 0 0 14px 4px rgba(55,226,155,.2);
-        }
-        /* The badge (the company mark, same as the sidebar's logo badge)
-           arrives just as the line finishes drawing -- its own short
-           fade/scale-in, delayed to land right at the line's end instead
-           of just popping in from the start. */
-        .ov-wave-badge {
-          position: absolute; right: 0; top: 50%; width: 20px; height: 20px; margin-top: -10px;
-          border-radius: 50%; display: flex; align-items: center; justify-content: center;
-          background: linear-gradient(155deg, var(--jade), var(--jade-deep));
-          box-shadow: 0 0 10px 2px rgba(55,226,155,.3);
-          opacity: 0; transform: scale(.4);
-        }
-        .ov-wave-animate .ov-wave-line {
-          animation: ovNeonDraw 3.5s var(--e-out) 1 forwards;
-        }
-        .ov-wave-animate .ov-wave-badge {
-          animation: ovWaveBadgeIn .45s var(--e-out) 3.2s 1 forwards;
-        }
-        @keyframes ovNeonDraw {
-          from { transform: translateY(-50%) scaleX(0); }
-          to   { transform: translateY(-50%) scaleX(1); }
-        }
-        @keyframes ovWaveBadgeIn {
-          from { opacity: 0; transform: scale(.4); }
-          to   { opacity: 1; transform: scale(1); }
-        }
-        /* Already played once this session (AnimateOnRouteEntry's
-           sessionStorage check) -- show the finished state directly, no
-           animation, no flash of the collapsed start state first. */
-        .ov-wave-done .ov-wave-line { transform: translateY(-50%) scaleX(1); }
-        .ov-wave-done .ov-wave-badge { opacity: 1; transform: scale(1); }
-        @media (prefers-reduced-motion: reduce) {
-          .ov-wave-line { transform: translateY(-50%) scaleX(1); animation: none; }
-          .ov-wave-badge { opacity: 1; transform: scale(1); animation: none; }
-        }
-
         @media (min-width: 1500px) {
           .ov-row { grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); }
         }
-        /* laptop-height screens: the same page, a little tighter, so it fits
-           without scrolling */
+        /* laptop-height screens: a little tighter so it still fits */
         @media (min-width: 761px) and (max-height: 800px) {
-          .ov-wrap { padding-top: 18px; padding-bottom: 16px; }
-          .ov-head { margin-bottom: 14px; }
-          .ov-title { margin: 8px 0 4px; font-size: 27px; }
-          .ov-stats { gap: 12px; margin-bottom: 12px; }
-          .ov-stat-card { padding: 12px 18px; }
-          .ov-stat-ic { width: 40px; height: 40px; }
-          .ov-stat-num { font-size: 26px; }
-          .ov-row { gap: 12px; }
-          .ov-panel { padding: 16px 20px; }
-          .ov-panel-head { margin-bottom: 10px; }
-          .ov-chart { min-height: 140px; }
-          .ov-latest-row { padding: 7px 12px; }
-          .ov-latest-av { width: 30px; height: 30px; font-size: 12px; }
-          .ov-wave { margin-top: 10px; }
+          .ov-wrap { padding-top: 24px; padding-bottom: 24px; }
+          .ov-head { margin-bottom: 18px; }
+          .ov-stat-card { padding: 16px 20px; }
+          .ov-panel { padding: 20px 22px; }
+          .ov-panel-head { margin-bottom: 12px; }
+          .ov-latest-row { padding: 9px 12px; }
         }
         @media (max-width: 1100px) {
+          .ov-wrap { min-height: 0; }
           .ov-row { grid-template-columns: minmax(0, 1fr); }
         }
         /* Narrow: the KPIs stack one per row (icon + text side by side) rather
@@ -437,11 +365,12 @@ export default async function OverviewPage() {
           .ov-yaxis { width: 16px; }
           .ov-hourlabels { margin-left: 28px; }
           .ov-hourbars, .ov-hourlabels { gap: 2px; }
-          /* Was :nth-child(2n) against 8 label spans (every other tick) --
-             now there are 24 spans (one per hour, for alignment), so this
-             targets the same visual ticks (3, 9, 15, 21) by the class
-             applied in JS instead of by position. */
-          .ov-hourlabel-thin { display: none; }
+          /* Only every sixth hour is labelled here (00, 06, 12, 18): the
+             other spans stay (hidden) so each label still sits under its own
+             bar. Scoped under .ov-hourlabels -- the bare class used to lose
+             to ".ov-hourlabels span { display: flex }" and never hid anything,
+             so eight labels overlapped on phones. */
+          .ov-hourlabels .ov-hourlabel-thin { visibility: hidden; }
           .ov-stat-card::after { inset: -8px; border-radius: 20px; filter: blur(7px); opacity: .07; }
         }
       `}</style>

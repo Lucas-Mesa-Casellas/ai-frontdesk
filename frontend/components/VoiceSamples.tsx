@@ -34,9 +34,9 @@ const COPY = {
   clip: { EN: "Welcome message", ES: "Mensaje de bienvenida", FR: "Message d'accueil" } as L10n,
   heading: { EN: "Hear how it answers.", ES: "Escucha cómo contesta.", FR: "Écoutez comment il répond." } as L10n,
   sub: {
-    EN: "Choose the voice your callers hear: two voices in every language.",
-    ES: "Elige la voz que oyen tus llamantes: dos voces en cada idioma.",
-    FR: "Choisissez la voix qu'entendent vos appelants : deux voix dans chaque langue.",
+    EN: "Choose the voice your callers hear: two voices for each language.",
+    ES: "Elige la voz que escucharán tus clientes: dos voces en cada idioma.",
+    FR: "Choisissez la voix qu'entendront vos clients : deux voix par langue.",
   } as L10n,
   play: { EN: "Play", ES: "Reproducir", FR: "Lire" } as L10n,
   pause: { EN: "Pause", ES: "Pausa", FR: "Pause" } as L10n,

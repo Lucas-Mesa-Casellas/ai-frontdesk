@@ -1,7 +1,6 @@
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import SupportForm from "@/components/SupportForm";
-import Badge from "@/components/ui/Badge";
 import PageHeader from "@/components/ui/PageHeader";
 
 export default async function SupportPage() {
@@ -10,7 +9,7 @@ export default async function SupportPage() {
 
   return (
     <div className="ui-page ui-page--sm">
-      <PageHeader eyebrow={<Badge tone="jade" dot>{t.navSupport}</Badge>} title={t.supTitle} lede={t.supSub} />
+      <PageHeader title={t.supTitle} lede={t.supSub} />
 
       <div className="dash-in d1">
         <SupportForm

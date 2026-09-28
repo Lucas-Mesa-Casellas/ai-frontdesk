@@ -3,7 +3,6 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { redirect } from "next/navigation";
 import Card from "@/components/ui/Card";
-import Badge from "@/components/ui/Badge";
 import Field from "@/components/ui/Field";
 import Button from "@/components/ui/Button";
 import PageHeader from "@/components/ui/PageHeader";
@@ -47,7 +46,7 @@ export default async function SettingsPage({
 
   return (
     <div className="ui-page ui-page--md">
-      <PageHeader eyebrow={<Badge tone="jade" dot>{t.navSettings}</Badge>} title={t.setTitle} lede={t.setSub} />
+      <PageHeader title={t.setTitle} lede={t.setSub} />
 
       <div className="settings-grid">
         <Card as="section" className="dash-in d1 set-card">

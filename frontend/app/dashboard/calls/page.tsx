@@ -64,7 +64,6 @@ export default async function CallsPage({
   return (
     <div className="ui-page">
       <PageHeader
-        eyebrow={<Badge tone="jade" dot>{calls?.length ?? 0} {t.navCalls.toLowerCase()}</Badge>}
         title={t.navCalls}
         lede={t.callsSub}
       />
@@ -84,6 +83,8 @@ export default async function CallsPage({
         {isFiltered && (
           <Link href="/dashboard/calls" className="ui-btn ui-btn--secondary">{t.callsFilterClear}</Link>
         )}
+        {/* how many calls the list below holds (for the chosen dates, if any) */}
+        <span className="calls-count">{t.callsCount(calls?.length ?? 0)}</span>
       </Card>
 
       {!calls?.length ? (
@@ -152,6 +153,7 @@ export default async function CallsPage({
         /* filter toolbar: the two date fields, then the actions, on one calm row */
         .calls-toolbar { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px; padding: 16px 18px; margin-bottom: 16px; }
         .calls-toolbar:hover { transform: none; }
+        .calls-count { margin-left: auto; align-self: center; font-size: 13.5px; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
         /* the table: one surface, hairline rows, no floating cards */
         .calls-table { padding: 0; overflow: hidden; }

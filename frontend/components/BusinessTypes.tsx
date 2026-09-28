@@ -69,7 +69,7 @@ const VERTICALS: Vertical[] = [
     },
     calls: {
       EN: ["Urgent call-outs", "Appointment requests", "Callback requests"],
-      ES: ["Urgencias", "Solicitudes de cita", "Solicitudes de llamada"],
+      ES: ["Urgencias", "Solicitudes de cita", "Devoluciones de llamada"],
       FR: ["Interventions urgentes", "Demandes de rendez-vous", "Demandes de rappel"],
     },
   },

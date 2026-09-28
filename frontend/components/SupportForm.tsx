@@ -140,7 +140,7 @@ export default function SupportForm({ labels }: { labels: SupportLabels }) {
         .sup-card { padding: 30px; contain: inline-size; }
         .sup-card:hover { transform: none; }
         .sup-block { margin-bottom: 24px; }
-        .sup-msg { min-height: 130px; font-size: 14.5px; padding: 15px 16px; }
+        .sup-msg { min-height: clamp(130px, calc(100svh - 530px), 360px); font-size: 14.5px; padding: 15px 16px; }
         .sup-err { margin-top: 8px; font-size: 12.5px; color: #E5877B; }
         .sup-files { list-style: none; margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
         .sup-files li {

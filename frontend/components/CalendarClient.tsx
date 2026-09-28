@@ -165,7 +165,7 @@ export default function CalendarClient({
           {weekdayLabels.map((w) => <div key={w}>{w}</div>)}
         </div>
 
-        <div className="cal-grid">
+        <div className="cal-grid" style={{ ["--weeks" as string]: Math.ceil(cells.length / 7) }}>
           {cells.map((day, i) => {
             const isToday = day !== null && todayKey === `${year}-${month}-${day}`;
             const isSelected = day !== null && day === selectedDay;
@@ -265,9 +265,15 @@ export default function CalendarClient({
         /* ---------- the grid: dark cells, hairlines, room to breathe ---------- */
         .cal-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
         .cal-weekdays div { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); text-align: left; padding: 0 4px; }
-        /* six week rows share what's left of the screen under the page header
-           and the month bar (about 346px), between 52 and 88px each */
-        .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(clamp(52px, calc((100svh - 346px) / 6 - 6px), 88px), auto); gap: 6px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(88px, auto); gap: 6px; }
+        /* Desktop: the month fills the screen. The layout takes what the page
+           has left (.ui-page--fill), the card stretches to it, and the week
+           rows (5 or 6, --weeks) share the card's remaining height. */
+        @media (min-width: 1101px) {
+          .cal-layout { flex: 1; min-height: 0; }
+          .cal-card { align-self: stretch; display: flex; flex-direction: column; }
+          .cal-grid { flex: 1; grid-auto-rows: auto; grid-template-rows: repeat(var(--weeks), minmax(52px, 1fr)); }
+        }
         .cal-grid .cal-cell {
           position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 6px;
           min-width: 0; padding: 9px 10px; border-radius: 12px; text-align: left; overflow: hidden;
@@ -284,6 +290,14 @@ export default function CalendarClient({
         .cal-ind { display: flex; align-items: center; gap: 6px; color: var(--c); line-height: 1; }
         .cal-ind b { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
         .cal-ind i { flex: none; width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
+        /* laptop-height screens: a busy day's status counts sit on one line
+           (coloured numbers, without the dash) instead of stacked, so its
+           cell doesn't force the month taller than the screen */
+        @media (min-width: 1101px) and (max-height: 820px) {
+          .cal-grid .cal-cell { padding: 7px 9px; gap: 5px; }
+          .cal-inds { flex-direction: row; flex-wrap: wrap; gap: 3px 8px; }
+          .cal-ind i { display: none; }
+        }
 
         /* ---------- side: stats, then the requests ---------- */
         .cal-stats { display: flex; align-items: center; gap: 22px; padding: 16px 20px; }
