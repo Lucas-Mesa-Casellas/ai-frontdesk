@@ -48,21 +48,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           </a>
         </div>
 
-        {/* What the product is doing for this business, pinned to the foot of
-            the sidebar as a permanent part of the shell. Informational: the
-            app has no live status feed, so it makes no "online" claim. */}
-        <div className="ai-card">
-          <span className="ai-card-ic">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M17.6 5.6a9 9 0 1 0 2.2 3.6" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
-              <circle cx="18.6" cy="5.4" r="2.85" fill="currentColor" />
-            </svg>
-          </span>
-          <span className="ai-card-tx">
-            <b>{t.aiTitle}</b>
-            <span>{t.aiSub}</span>
-          </span>
-        </div>
       </DashboardSidebar>
 
       <div role="main" className="dash-main">
@@ -133,22 +118,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           content: ""; position: absolute; left: -13px; top: 10px; bottom: 10px; width: 3px;
           border-radius: 0 3px 3px 0; background: var(--jade); box-shadow: 0 0 12px rgba(55,226,155,.55);
         }
-
-        .ai-card {
-          margin: 10px 12px 16px; padding: 13px; border-radius: 14px; display: flex; align-items: center; gap: 12px;
-          background:
-            linear-gradient(180deg, rgba(18,185,129,.10), rgba(255,255,255,.012)),
-            var(--surface-2);
-          border: 1px solid var(--border-jade);
-          box-shadow: var(--glow-jade);
-        }
-        .ai-card-ic {
-          width: 38px; height: 38px; border-radius: 12px; flex: none; display: grid; place-items: center;
-          color: var(--jade); background: rgba(55,226,155,.10); border: 1px solid rgba(55,226,155,.28);
-        }
-        .ai-card-tx { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-        .ai-card-tx b { font-size: 13px; font-weight: 600; letter-spacing: -.005em; }
-        .ai-card-tx span { font-size: 11.5px; color: var(--text-3); line-height: 1.3; }
 
         .sidebar-toggle { display: none; }
         .sidebar-scrim { display: none; }

@@ -240,23 +240,23 @@ export default async function OverviewPage() {
 
       <style>{`
         /* Uses the space it's given: centred, up to 1320px, generous gutters. */
-        .ov-wrap { position: relative; padding: 36px 40px 44px; max-width: 1320px; margin-inline: auto; isolation: isolate; }
+        .ov-wrap { position: relative; padding: 26px 40px 28px; max-width: 1320px; margin-inline: auto; isolation: isolate; }
 
         /* header: live badge -> title -> one supporting line */
-        .ov-head { margin-bottom: 30px; }
-        .ov-title { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; margin: 14px 0 8px; }
-        .ov-lede { font-size: 14px; line-height: 1.55; color: var(--text-3); max-width: 62ch; }
+        .ov-head { margin-bottom: 20px; }
+        .ov-title { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; margin: 10px 0 6px; }
+        .ov-lede { font-size: 14px; line-height: 1.55; color: var(--text-3); max-width: 90ch; }
 
         /* KPI row: icon tile, small label, large value */
         .ov-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
-        .ov-stat-card { position: relative; padding: 22px; display: flex; align-items: center; gap: 16px; }
+        .ov-stat-card { position: relative; padding: 16px 20px; display: flex; align-items: center; gap: 16px; }
         .ov-stat-ic {
-          width: 48px; height: 48px; border-radius: 14px; flex: none; display: grid; place-items: center;
+          width: 44px; height: 44px; border-radius: 14px; flex: none; display: grid; place-items: center;
           color: var(--jade); background: rgba(55,226,155,.09); border: 1px solid rgba(55,226,155,.22);
         }
         .ov-stat-tx { min-width: 0; }
-        .ov-stat-label { font-size: 12.5px; font-weight: 500; color: var(--text-3); margin-bottom: 6px; }
-        .ov-stat-num { font-size: 32px; font-weight: 600; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
+        .ov-stat-label { font-size: 12.5px; font-weight: 500; color: var(--text-3); margin-bottom: 5px; }
+        .ov-stat-num { font-size: 29px; font-weight: 600; letter-spacing: -.035em; line-height: 1; font-variant-numeric: tabular-nums; }
         /* The one accent card in the row gets a brighter tile as well as the edge. */
         .dash-card-highlight .ov-stat-ic { background: rgba(55,226,155,.14); border-color: rgba(55,226,155,.34); box-shadow: 0 12px 26px -14px rgba(18,185,129,.75); }
 
@@ -278,16 +278,16 @@ export default async function OverviewPage() {
 
         /* chart + latest calls */
         .ov-row { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
-        .ov-panel { position: relative; padding: 26px; display: flex; flex-direction: column; }
+        .ov-panel { position: relative; padding: 20px 22px; display: flex; flex-direction: column; }
         .ov-panel:hover { transform: none; } /* big surfaces stay put; only the KPI cards lift */
-        .ov-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+        .ov-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
         .ov-h2 { font-size: 15px; font-weight: 600; letter-spacing: -.015em; color: var(--text); }
         .ov-sub { font-size: 12.5px; color: var(--text-3); margin-top: 3px; }
         .ov-viewall { font-size: 12.5px; color: var(--text-3); white-space: nowrap; transition: color .2s var(--e-out); }
         .ov-viewall:hover { color: var(--jade); }
 
         /* chart: y axis + gridlines, bars scaled to the axis */
-        .ov-chart { display: flex; gap: 12px; flex: 1; min-height: 210px; }
+        .ov-chart { display: flex; gap: 12px; flex: 1; min-height: 170px; }
         .ov-yaxis { position: relative; width: 22px; flex: none; }
         .ov-yaxis span { position: absolute; right: 0; transform: translateY(-50%); font-size: 10.5px; line-height: 1; color: var(--text-3); font-variant-numeric: tabular-nums; }
         .ov-plot { position: relative; flex: 1; min-width: 0; }
@@ -323,13 +323,13 @@ export default async function OverviewPage() {
         /* latest calls: one surface, rows divided by hairlines (not a stack of cards) */
         .ov-latest-list { display: flex; flex-direction: column; margin: 0 -12px; }
         .ov-latest-row {
-          display: flex; align-items: center; gap: 13px; padding: 14px 12px; border-radius: 12px;
+          display: flex; align-items: center; gap: 13px; padding: 10px 12px; border-radius: 12px;
           color: inherit; text-decoration: none; transition: background .2s var(--e-out);
         }
         .ov-latest-row + .ov-latest-row { border-top: 1px solid var(--border); border-top-left-radius: 0; border-top-right-radius: 0; }
         .ov-latest-row:hover { background: rgba(55,226,155,.05); }
         .ov-latest-av {
-          width: 36px; height: 36px; border-radius: 50%; flex: none; display: grid; place-items: center;
+          width: 34px; height: 34px; border-radius: 50%; flex: none; display: grid; place-items: center;
           font-size: 13px; font-weight: 600; color: var(--jade);
           background: rgba(55,226,155,.09); border: 1px solid rgba(55,226,155,.22);
         }
@@ -356,7 +356,7 @@ export default async function OverviewPage() {
            room for the badge, which is taller than the line itself and
            needs to stay vertically centered on it throughout the draw. */
         .ov-wave {
-          position: relative; height: 22px; margin: 28px 0 0;
+          position: relative; height: 22px; margin: 16px 0 0;
         }
         .ov-wave-line {
           position: absolute; left: 0; right: 26px; top: 50%; height: 2px;
@@ -402,6 +402,24 @@ export default async function OverviewPage() {
 
         @media (min-width: 1500px) {
           .ov-row { grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr); }
+        }
+        /* laptop-height screens: the same page, a little tighter, so it fits
+           without scrolling */
+        @media (min-width: 761px) and (max-height: 800px) {
+          .ov-wrap { padding-top: 18px; padding-bottom: 16px; }
+          .ov-head { margin-bottom: 14px; }
+          .ov-title { margin: 8px 0 4px; font-size: 27px; }
+          .ov-stats { gap: 12px; margin-bottom: 12px; }
+          .ov-stat-card { padding: 12px 18px; }
+          .ov-stat-ic { width: 40px; height: 40px; }
+          .ov-stat-num { font-size: 26px; }
+          .ov-row { gap: 12px; }
+          .ov-panel { padding: 16px 20px; }
+          .ov-panel-head { margin-bottom: 10px; }
+          .ov-chart { min-height: 140px; }
+          .ov-latest-row { padding: 7px 12px; }
+          .ov-latest-av { width: 30px; height: 30px; font-size: 12px; }
+          .ov-wave { margin-top: 10px; }
         }
         @media (max-width: 1100px) {
           .ov-row { grid-template-columns: minmax(0, 1fr); }

@@ -244,12 +244,12 @@ export default function CalendarClient({
       <style>{`
         /* ---------- layout: month on the left, requests on the right ---------- */
         .cal-layout { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(320px, 1fr); gap: 16px; align-items: start; }
-        .cal-card { padding: 22px; }
+        .cal-card { padding: 18px 20px; }
         .cal-card:hover { transform: none; }
         .cal-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; position: sticky; top: 20px; }
 
         /* ---------- month header ---------- */
-        .cal-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; margin-bottom: 18px; }
+        .cal-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px 20px; margin-bottom: 14px; }
         .cal-nav-group { display: flex; align-items: center; gap: 10px; }
         .cal-nav {
           width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: var(--text-2);
@@ -265,7 +265,9 @@ export default function CalendarClient({
         /* ---------- the grid: dark cells, hairlines, room to breathe ---------- */
         .cal-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
         .cal-weekdays div { font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); text-align: left; padding: 0 4px; }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(88px, auto); gap: 6px; }
+        /* six week rows share what's left of the screen under the page header
+           and the month bar (about 346px), between 52 and 88px each */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: minmax(clamp(52px, calc((100svh - 346px) / 6 - 6px), 88px), auto); gap: 6px; }
         .cal-grid .cal-cell {
           position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 6px;
           min-width: 0; padding: 9px 10px; border-radius: 12px; text-align: left; overflow: hidden;

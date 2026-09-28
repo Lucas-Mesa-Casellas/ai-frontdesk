@@ -815,12 +815,12 @@ export default function Home() {
                   per stage, and closes the circle on the last one -- the ring
                   then glows (op-neon). Coloured by the stage, like the rest. */}
               <svg className="orbit-progress" viewBox="0 0 100 100" aria-hidden="true">
-                <circle className="op-neon" cx="50" cy="50" r="48" />
-                <circle className="op-arc" cx="50" cy="50" r="48" pathLength={1} strokeDasharray="1 1" strokeDashoffset={1} transform="rotate(-90 50 50)" />
+                <circle className="op-neon" cx="50" cy="50" r="49.7" />
+                <circle className="op-arc" cx="50" cy="50" r="49.7" pathLength={1} strokeDasharray="1 1" strokeDashoffset={1} transform="rotate(-90 50 50)" />
                 <g className="op-head">
-                  <circle className="op-flash" cx="50" cy="2" r="1.6" />
-                  <circle className="op-halo" cx="50" cy="2" r="2.4" />
-                  <circle className="op-dot" cx="50" cy="2" r=".7" />
+                  <circle className="op-flash" cx="50" cy=".3" r="1.6" />
+                  <circle className="op-halo" cx="50" cy=".3" r="2.4" />
+                  <circle className="op-dot" cx="50" cy=".3" r=".7" />
                 </g>
               </svg>
               <div className="console-in">

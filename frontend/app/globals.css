@@ -975,11 +975,18 @@ nav{border-bottom:1px solid rgba(255,255,255,.04)}
 
 /* Page container + header (components/ui/PageHeader.tsx). One rhythm for every
    dashboard page: centred, generous gutters, badge -> title -> one line. */
-.ui-page { position: relative; padding: 36px 40px 48px; max-width: 1320px; margin-inline: auto; }
-.ui-page--md { max-width: 1080px; }
-.ui-page--sm { max-width: 860px; }
-.ui-page-head { margin-bottom: 26px; }
-.ui-page-head .ui-badge { margin-bottom: 14px; }
+.ui-page { position: relative; padding: 26px 40px 32px; max-width: 1320px; margin-inline: auto; }
+/* Narrower pages (Support, Settings) keep the same container -- and so the
+   same left edge -- as every other page; only their content is capped. */
+.ui-page--md > * { max-width: 1080px; }
+.ui-page--sm > * { max-width: 860px; }
+.ui-page-head { margin-bottom: 20px; }
+.ui-page-head .ui-badge { margin-bottom: 10px; }
+@media (min-width: 761px) and (max-height: 800px) {
+  .ui-page { padding-top: 18px; padding-bottom: 18px; }
+  .ui-page-head { margin-bottom: 14px; }
+  .ui-page-head .ui-badge { margin-bottom: 8px; }
+}
 .ui-h1 { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 8px; }
 .ui-lede { font-size: 14px; line-height: 1.55; color: var(--text-3); max-width: 64ch; }
 @media (max-width: 760px) {
@@ -1455,11 +1462,11 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 /* the incoming call's line: white text, an amber accent */
 .console .line[data-i="0"] span{color:var(--amber)}
 
-/* the outer orbit as progress: a line of light drawn round from the top
-   centre, one third per stage, that closes into a glowing ring. It sits
-   24px outside the sphere's rim, inside the console so it follows the tilt. */
+/* the orbit as progress: a line of light drawn round the sphere's own rim
+   from the top centre, closing into a glowing ring. Exactly the console's
+   box (the same circle as its border), inside it so it follows the tilt. */
 .orbit-progress{
-  position:absolute;inset:-24px;width:calc(100% + 48px);height:calc(100% + 48px);
+  position:absolute;inset:0;width:100%;height:100%;
   overflow:visible;pointer-events:none;opacity:0;
 }
 .op-arc{
