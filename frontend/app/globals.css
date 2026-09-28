@@ -1256,7 +1256,9 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
    the sphere's own diameter and 24px is the caption's own margin-top, so
    this uses the exact number the caption uses to sit at console-bottom. */
 .hero-feats{
-  position:absolute;left:0;top:calc(var(--d) + 24px);
+  /* left = the hero's own side padding, so the clock icon sits on the same
+     left edge as the headline and the copy above it */
+  position:absolute;left:34px;top:calc(var(--d) + 24px);
   width:fit-content;max-width:54%;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 0;
 }
 .hero-feats li{display:flex;align-items:center;gap:8px;padding:0 14px;font-size:13.5px;color:var(--text-2);letter-spacing:-.004em}
@@ -1267,6 +1269,7 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
   color:var(--jade);background:rgba(55,226,155,.08);border:1px solid rgba(55,226,155,.22);
 }
 .hero-feats .fi svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media (min-width:1001px) and (max-width:1400px){.hero-feats{left:clamp(40px,4.6vw,68px)}}
 @media (min-width:1001px) and (max-width:1240px){
   /* narrower here, so the row is more likely to fit one line (or wrap by
      only one line) before it runs into the section below it -- absolutely
