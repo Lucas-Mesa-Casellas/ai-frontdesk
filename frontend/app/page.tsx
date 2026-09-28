@@ -285,20 +285,40 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Scrolling is the browser's own: reloads and back/forward restore where
-    // you were. The one correction: opening a link with a #section, the
-    // browser jumps before the web fonts have loaded, and the page then
-    // shifts under it -- so the same jump is repeated once they're in.
-    try {
-      const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-      const hashId = window.location.hash.slice(1);
-      if (hashId && (!navEntry || navEntry.type === "navigate")) {
-        document.fonts?.ready.then(() => {
-          const el = document.getElementById(hashId);
-          if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
-        });
-      }
-    } catch { /* no Performance API: the browser's own jump stands */ }
+    // Opening the page always starts at the top (the hero), whether it's a
+    // new visit, a reload, or coming back later -- never wherever you'd
+    // scrolled to last time. Two things used to carry the old position over:
+    // the browser's own scroll restoration on reload, and the #section the
+    // nav wrote into the address bar (reopen that URL and you land on the
+    // section). The first is turned off here; the second by the click
+    // handler below, which scrolls to the section without touching the URL.
+    // A #section link that arrives from outside (someone shares /#pricing)
+    // is still honoured -- repeated once the web fonts are in, since the
+    // browser's own jump happens before they load and the page then shifts.
+    try { window.history.scrollRestoration = "manual"; } catch { /* old browser */ }
+    const hashId = window.location.hash.slice(1);
+    const jump = (id: string) => {
+      const el = document.getElementById(id);
+      if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
+    };
+    if (hashId) {
+      jump(hashId);
+      document.fonts?.ready.then(() => jump(hashId));
+    } else {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
+
+    // In-page links (nav, logo, CTAs): scroll to the section, leave the URL alone.
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      const a = (e.target as Element | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null;
+      if (!a) return;
+      const id = a.getAttribute("href")!.slice(1);
+      if (!id || !document.getElementById(id)) return;
+      e.preventDefault();
+      jump(id);
+    };
+    document.addEventListener("click", onClick);
 
     const onScroll = () => {
       const y = window.scrollY;
@@ -316,7 +336,10 @@ export default function Home() {
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("click", onClick);
+    };
   }, []);
 
   /* reveal on enter */
