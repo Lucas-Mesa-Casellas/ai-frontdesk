@@ -617,13 +617,6 @@ nav.stuck{
   letter-spacing:-.05em;font-weight:600;max-width:20ch;
   min-height:2.08em;text-wrap:balance;
 }
-/* section titles in the same jade gradient as "customer." in the hero. On
-   the text itself: where the title slides in (.msk), that's the inner span,
-   so the clipped gradient moves with it. */
-.sec-h:not(:has(.msk)),.sec-h .msk>span{
-  background:linear-gradient(96deg,var(--jade) 4%,#8BF0C6 52%,#CFF6E4 96%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-}
 .sec-head.mid .sec-h{max-width:none;margin-inline:auto}
 /* Centred headings are one line in all three languages at desktop widths,
    so only their real height is reserved. */
@@ -1473,6 +1466,8 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
 /* the light at the arc's end: a bright point in a soft halo */
 .op-dot{fill:#fff}
 .op-halo{fill:var(--ph-ring-a);opacity:.35;filter:blur(1.2px)}
+/* the flare at a change of stage: a soft burst of light, not a ring */
+.op-flash{fill:var(--ph-ring-b);opacity:0;filter:blur(1.1px)}
 /* the closed ring's neon: a wider, blurred stroke of the same colour */
 .op-neon{fill:none;stroke:var(--ph-ring-b);stroke-width:.9;opacity:0;filter:blur(.9px) drop-shadow(0 0 2.5px var(--ph-ring-a))}
 

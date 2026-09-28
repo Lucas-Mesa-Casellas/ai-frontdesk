@@ -417,28 +417,26 @@ export default function Home() {
         tl.to(f, { scaleX: 1, duration: BEAT, ease: "none" }, i * BEAT);
       });
 
-      /* The outer orbit fills in, one third per stage. A light starts at the
-         top centre, travels round with each stage, and on the last one comes
-         back to where it started: the orbit closes and lights up as a neon
-         ring, then fades before the loop restarts. The arc and the light
-         share each step's timing and ease, so the light always sits on the
-         arc's leading end. (The arc is drawn as an SVG attribute: GSAP rounds
-         a CSS stroke-dashoffset to whole px, which on a path of length 1
-         would snap it from hidden to drawn.) */
-      const STEP = [
-        { from: 0, to: 1 / 3, at: 0.15, dur: BEAT - 0.45 },
-        { from: 1 / 3, to: 2 / 3, at: BEAT + 0.05, dur: BEAT - 0.35 },
-        { from: 2 / 3, to: 1, at: BEAT * 2 + 0.05, dur: 0.85 },
-      ];
-      tl.set(".orbit-progress", { opacity: 1 }, 0)
-        .set(".op-arc", { attr: { "stroke-dashoffset": 1 } }, 0)
-        .set(".op-head", { rotation: 0, svgOrigin: "50 50", opacity: 1 }, 0)
-        .set(".op-neon", { opacity: 0 }, 0);
-      STEP.forEach((st) => {
-        tl.fromTo(".op-arc", { attr: { "stroke-dashoffset": 1 - st.from } }, { attr: { "stroke-dashoffset": 1 - st.to }, duration: st.dur, ease: "power2.inOut", immediateRender: false }, st.at)
-          .fromTo(".op-head", { rotation: 360 * st.from, svgOrigin: "50 50" }, { rotation: 360 * st.to, svgOrigin: "50 50", duration: st.dur, ease: "power2.inOut", immediateRender: false }, st.at);
-      });
+      /* The outer orbit is drawn by a light that starts at the top centre and
+         travels round at one constant speed, from the start of the call to
+         the moment the action lands, when it's back where it started: the
+         orbit closes and lights up as a neon ring, then fades before the
+         loop restarts. At each change of stage the light flares once. (The
+         arc is drawn as an SVG attribute: GSAP rounds a CSS stroke-dashoffset
+         to whole px, which on a path of length 1 would snap it from hidden to
+         drawn.) */
+      const START = 0.15;
       const CLOSED = BEAT * 2 + 0.9;
+      tl.set(".orbit-progress", { opacity: 1 }, 0)
+        .set(".op-head", { opacity: 1 }, 0)
+        .set(".op-neon", { opacity: 0 }, 0)
+        .fromTo(".op-arc", { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: CLOSED - START, ease: "none" }, START)
+        .fromTo(".op-head", { rotation: 0, svgOrigin: "50 50" }, { rotation: 360, svgOrigin: "50 50", duration: CLOSED - START, ease: "none" }, START);
+      // the flare at each change of stage: a soft burst of light off the head
+      [BEAT, BEAT * 2].forEach((at) => {
+        tl.fromTo(".op-flash", { scale: 0.6, opacity: 1, transformOrigin: "50% 50%" }, { scale: 2.6, opacity: 0, duration: 0.9, ease: "power2.out", immediateRender: false }, at)
+          .fromTo(".op-halo", { scale: 1.8, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.7, ease: "power2.out", immediateRender: false }, at);
+      });
       tl.to(".op-head", { opacity: 0, duration: 0.3 }, CLOSED - 0.05)
         // the ring closes: a flash of neon that settles into a steady glow
         .fromTo(".op-neon", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "power2.out" }, CLOSED - 0.1)
@@ -766,6 +764,7 @@ export default function Home() {
                 <circle className="op-neon" cx="50" cy="50" r="48" />
                 <circle className="op-arc" cx="50" cy="50" r="48" pathLength={1} strokeDasharray="1 1" strokeDashoffset={1} transform="rotate(-90 50 50)" />
                 <g className="op-head">
+                  <circle className="op-flash" cx="50" cy="2" r="1.6" />
                   <circle className="op-halo" cx="50" cy="2" r="2.4" />
                   <circle className="op-dot" cx="50" cy="2" r=".7" />
                 </g>
