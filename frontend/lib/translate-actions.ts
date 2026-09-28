@@ -117,3 +117,25 @@ export async function translateTranscript(callId: string, targetLocale: string):
 
   return translatedTranscript;
 }
+
+// Batch form of translateCallFields, for pages that show several calls at
+// once (overview, calls list, calendar). Next.js dispatches Server Actions
+// from the client one at a time, so N rows each calling translateCallFields
+// on their own meant N OpenAI round-trips back to back -- and any click on
+// "Translate transcript" queued behind all of them. Here the rows are
+// gathered into one action and translated in parallel on the server; each
+// call keeps translateCallFields' own cache check, RLS scoping and 0-row
+// guard. A call that fails is simply left out of the result.
+export async function translateCallsFields(
+  callIds: string[],
+  targetLocale: string
+): Promise<Record<string, CallFieldTranslations>> {
+  const ids = Array.from(new Set(callIds)).slice(0, 100);
+  const settled = await Promise.allSettled(ids.map((id) => translateCallFields(id, targetLocale)));
+  const out: Record<string, CallFieldTranslations> = {};
+  settled.forEach((r, i) => {
+    if (r.status === "fulfilled") out[ids[i]] = r.value;
+    else console.error("[translateCallsFields] translation failed for call", ids[i], r.reason);
+  });
+  return out;
+}

@@ -42,16 +42,19 @@ export default async function CalendarPage({
   const queryStart = zonedTimeToUtc(year, month, 1);
   const queryEnd = zonedTimeToUtc(year, month + 1, 1);
 
-  const { data: monthBookingsRaw } = await supabase
-    .from("bookings").select("*").eq("business_id", business?.id)
-    .gte("start_time", queryStart.toISOString())
-    .lt("start_time", queryEnd.toISOString())
-    .order("start_time", { ascending: true });
-
-  const { data: undatedBookingsRaw } = await supabase
-    .from("bookings").select("*").eq("business_id", business?.id)
-    .is("start_time", null)
-    .order("created_at", { ascending: false });
+  // the month's bookings and the undated ones don't depend on each other:
+  // fetched side by side, not one after the other
+  const [{ data: monthBookingsRaw }, { data: undatedBookingsRaw }] = await Promise.all([
+    supabase
+      .from("bookings").select("*").eq("business_id", business?.id)
+      .gte("start_time", queryStart.toISOString())
+      .lt("start_time", queryEnd.toISOString())
+      .order("start_time", { ascending: true }),
+    supabase
+      .from("bookings").select("*").eq("business_id", business?.id)
+      .is("start_time", null)
+      .order("created_at", { ascending: false }),
+  ]);
 
   const allRows = [...(monthBookingsRaw || []), ...(undatedBookingsRaw || [])];
   const callIds = allRows.map((b) => b.call_id).filter(Boolean);

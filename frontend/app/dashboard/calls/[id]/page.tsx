@@ -56,9 +56,10 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
       </Link>
 
       <div className="cd-layout">
-        <div className="cd-main">
-          {/* who called, when, and how it was classified */}
-          <Card as="section" className="dash-in d1 cd-card cd-identity">
+        {/* the call record as one card: who called, what the AI understood,
+            and what was said -- three sections of the same surface */}
+        <Card as="article" className="dash-in d1 cd-card cd-main">
+          <section className="cd-sec cd-identity">
             <span className="cd-avatar" aria-hidden="true">{initial || <IconPhone width={20} height={20} />}</span>
             <div className="cd-who">
               <h1 className="cd-name">{call.caller_name || t.unknown}</h1>
@@ -73,10 +74,10 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
               {call.intent && intentLabel[call.intent] && <Badge>{intentLabel[call.intent]}</Badge>}
               <Badge tone={urgency ? urgency.tone : "neutral"}>{t.detailUrgency}: {urgency ? urgency.label : t.urgencyUnknown}</Badge>
             </div>
-          </Card>
+          </section>
 
           {summaryResolved.text && (
-            <Card as="section" className="dash-in d2 cd-card">
+            <section className="cd-sec">
               <div className="cd-head"><h2 className="cd-title">{t.detailSummary}</h2></div>
               <p className="cd-summary">
                 {summaryResolved.needsFetch ? (
@@ -85,11 +86,11 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
                   summaryResolved.text
                 )}
               </p>
-            </Card>
+            </section>
           )}
 
           {call.transcript && (
-            <Card as="section" className="dash-in d3 cd-card">
+            <section className="cd-sec">
               {needsTranscriptTranslation ? (
                 <TranscriptPanel
                   callId={call.id}
@@ -111,9 +112,9 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
                   </div>
                 </div>
               )}
-            </Card>
+            </section>
           )}
-        </div>
+        </Card>
 
         {/* the facts of the call, and the one destructive action, kept quiet */}
         <aside className="cd-side">
@@ -175,7 +176,8 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
       </div>
 
       <style>{`
-        .cd-page { max-width: 1180px; }
+        /* same outer box as every dashboard page (same left edge); the content caps at 1180 */
+        .cd-page > * { max-width: 1180px; }
         .cd-back {
           display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px;
           font-size: 13px; color: var(--text-3); text-decoration: none; transition: color .2s var(--e-out);
@@ -184,7 +186,11 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
 
         /* two columns: the call record (identity, summary, transcript) and its facts */
         .cd-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
-        .cd-main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+        .cd-card.cd-main { display: flex; flex-direction: column; min-width: 0; padding: 0; }
+        .cd-sec { padding: 24px; }
+        .cd-sec + .cd-sec { border-top: 1px solid var(--border); }
+        /* inside the one card the transcript is a section, not a box of its own */
+        .cd-main .cd-body { padding: 0; background: none; border: 0; border-radius: 0; }
         .cd-side { position: sticky; top: 20px; }
         .cd-card { padding: 24px; }
         .cd-card:hover { transform: none; }
@@ -218,12 +224,17 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
         .cd-fact-accent dt, .cd-fact-accent dd { color: var(--jade); }
         .cd-danger { padding-top: 18px; }
 
+        /* desktop: the transcript scrolls within what's left of the screen */
+        @media (min-width: 1001px) {
+          .cd-main .cd-scroll { max-height: max(240px, calc(100svh - 500px)); padding-right: 6px; }
+        }
         @media (max-width: 1000px) {
           .cd-layout { grid-template-columns: minmax(0, 1fr); }
           .cd-side { position: static; }
         }
         @media (max-width: 560px) {
-          .cd-card { padding: 18px; }
+          .cd-card, .cd-sec { padding: 18px; }
+          .cd-card.cd-main { padding: 0; }
           .cd-name { font-size: 21px; }
         }
       `}</style>

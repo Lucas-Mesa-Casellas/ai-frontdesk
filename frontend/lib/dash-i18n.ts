@@ -13,7 +13,7 @@ export type DashDict = {
   noCalls: string; unknown: string;
   hourChartTitle: string; hourChartSub: string;
   chartTooltip: (label: string, count: number) => string;
-  callsCount: (n: number) => string;
+  callsNoun: (n: number) => string;
   ovLatest: string; ovViewAll: string;
   cmdPlaceholder: string; cmdEmpty: string; cmdOpen: string;
   greetMorning: string; greetAfternoon: string; greetEvening: string; ovWelcome: string;
@@ -70,7 +70,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     noCalls: "No calls yet.", unknown: "Unknown",
     hourChartTitle: "Calls by hour of day", hourChartSub: "When your calls tend to come in.",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "call" : "calls"}`,
-    callsCount: (n) => `${n} ${n === 1 ? "call" : "calls"}`,
+    callsNoun: (n) => (n === 1 ? "call" : "calls"),
     ovLatest: "Latest calls", ovViewAll: "View all",
     cmdPlaceholder: "Jump to…", cmdEmpty: "No results", cmdOpen: "Search",
     greetMorning: "Good morning", greetAfternoon: "Good afternoon", greetEvening: "Good evening",
@@ -136,7 +136,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     noCalls: "Aún no hay llamadas.", unknown: "Desconocido",
     hourChartTitle: "Llamadas por hora del día", hourChartSub: "A qué horas suelen llegar tus llamadas.",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
-    callsCount: (n) => `${n} ${n === 1 ? "llamada" : "llamadas"}`,
+    callsNoun: (n) => (n === 1 ? "llamada" : "llamadas"),
     ovLatest: "Últimas llamadas", ovViewAll: "Ver todas",
     cmdPlaceholder: "Ir a…", cmdEmpty: "Sin resultados", cmdOpen: "Buscar",
     greetMorning: "Buenos días", greetAfternoon: "Buenas tardes", greetEvening: "Buenas noches",
@@ -202,7 +202,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     noCalls: "Aucun appel pour l'instant.", unknown: "Inconnu",
     hourChartTitle: "Appels par heure", hourChartSub: "Les heures où vous recevez le plus d'appels.",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "appel" : "appels"}`,
-    callsCount: (n) => `${n} appel${n > 1 ? "s" : ""}`,
+    callsNoun: (n) => (n > 1 ? "appels" : "appel"),
     ovLatest: "Derniers appels", ovViewAll: "Voir tout",
     cmdPlaceholder: "Aller à…", cmdEmpty: "Aucun résultat", cmdOpen: "Rechercher",
     greetMorning: "Bonjour", greetAfternoon: "Bonjour", greetEvening: "Bonsoir",

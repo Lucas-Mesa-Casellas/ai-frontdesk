@@ -431,6 +431,7 @@ export default function Home() {
     if (!root) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
+    let heroIO: IntersectionObserver | null = null;
     const ctx = gsap.context(() => {
       const q = (s: string) => root.querySelector(s) as HTMLElement | null;
       const qa = (s: string) => Array.from(root.querySelectorAll(s)) as HTMLElement[];
@@ -504,7 +505,7 @@ export default function Home() {
         .fromTo(".or-pulse", { scale: 1.012, svgOrigin: "380 260" }, { scale: 1, svgOrigin: "380 260", duration: 0.9, ease: "power2.out" }, BEAT * 2 + 0.3);
 
       // a slow sway, independent of the stages
-      gsap.to(".or-drift", { rotation: 2.5, svgOrigin: "380 260", duration: 9, ease: "sine.inOut", yoyo: true, repeat: -1 });
+      const drift = gsap.to(".or-drift", { rotation: 2.5, svgOrigin: "380 260", duration: 9, ease: "sine.inOut", yoyo: true, repeat: -1 });
 
       /* BEAT 1 — incoming */
       tl.add(() => setCap(0), 0)
@@ -592,6 +593,16 @@ export default function Home() {
         stage.addEventListener("pointerleave", leave);
       }
 
+      /* the looping hero only runs while it's on screen: scrolled past, the
+         timeline and the sway pause, so the rest of the page scrolls on a
+         quiet main thread, and pick up where they left off on the way back */
+      if (stage && "IntersectionObserver" in window) {
+        heroIO = new IntersectionObserver(([e]) => {
+          if (e.isIntersecting) { tl.resume(); drift.resume(); } else { tl.pause(); drift.pause(); }
+        });
+        heroIO.observe(stage);
+      }
+
       /* entrance */
       gsap.from("h1 .l>span", { yPercent: 105, duration: 1.05, stagger: 0.085, delay: 0.1, ease: "power4.out" });
       gsap.from(".lede", { opacity: 0, y: 14, duration: 0.85, delay: 0.34 });
@@ -602,7 +613,7 @@ export default function Home() {
       gsap.from(".stage", { opacity: 0, y: 28, scale: 0.97, duration: 1.15, delay: 0.2, ease: "power3.out" });
     }, rootRef);
 
-    return () => ctx.revert();
+    return () => { heroIO?.disconnect(); ctx.revert(); };
   }, []);
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {

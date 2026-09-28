@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase-server";
+import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { redirect } from "next/navigation";
@@ -10,14 +11,12 @@ import PageHeader from "@/components/ui/PageHeader";
 export default async function SettingsPage({
   searchParams,
 }: { searchParams: Promise<{ updated?: string }> }) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // the same signed-in user + business row the dashboard layout has already
+  // loaded for this request (cached per request), instead of fetching both again
+  const { business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
   const { updated } = await searchParams;
-
-  const { data: business } = await supabase
-    .from("businesses").select("*").eq("owner_id", user!.id).single();
 
   async function updateSettings(formData: FormData) {
     "use server";

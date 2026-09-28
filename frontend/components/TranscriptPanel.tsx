@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { translateTranscript } from "@/lib/translate-actions";
 import { IconGlobe } from "./icons";
 import TranscriptView from "./ui/TranscriptView";
@@ -35,10 +35,24 @@ export default function TranscriptPanel({
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
 
+  // Started as soon as the pointer reaches the button (or it gets keyboard
+  // focus), so by the time the click lands the translation is already on
+  // its way; the click then shows the same request's result. Nothing is
+  // displayed until the click -- the transcript is still only translated
+  // on the user's explicit request.
+  const pending = useRef<Promise<string> | null>(null);
+  const start = () => {
+    if (!pending.current) {
+      pending.current = translateTranscript(callId, locale);
+      pending.current.catch(() => { pending.current = null; });
+    }
+    return pending.current;
+  };
+
   const handleTranslate = () => {
     setLoading(true);
     setFailed(false);
-    translateTranscript(callId, locale)
+    start()
       .then((result) => {
         setTranslated(result);
         setShowingTranslated(true);
@@ -64,7 +78,10 @@ export default function TranscriptPanel({
             {showingTranslated ? showOriginalLabel : showTranslatedLabel}
           </button>
         ) : (
-          <button onClick={handleTranslate} disabled={loading} className="ui-btn ui-btn--secondary ui-btn--sm">
+          <button
+            onClick={handleTranslate} onPointerEnter={start} onFocus={start} disabled={loading}
+            className="ui-btn ui-btn--secondary ui-btn--sm"
+          >
             <IconGlobe width={13} height={13} />
             {loading ? translatingLabel : translateLabel}
           </button>

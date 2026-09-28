@@ -1512,3 +1512,24 @@ textarea.ui-input { resize: vertical; line-height: 1.55; }
   .caption b[data-c="2"]{color:var(--text)}
   .caption b[data-c="2"]::before{background:var(--jade)}
 }
+
+/* Dashboard loading placeholders (app/dashboard/loading.tsx): quiet blocks in
+   the page's own shapes, with a slow sheen so it reads as "on its way". */
+.dash-skel [class^="dash-skel-"]:not(.dash-skel-row):not(.dash-skel-split) {
+  border-radius: 12px;
+  background: linear-gradient(100deg, rgba(255,255,255,.03) 30%, rgba(255,255,255,.065) 50%, rgba(255,255,255,.03) 70%) 0 0 / 300% 100%;
+  animation: dash-skel 1.4s ease-in-out infinite;
+}
+.dash-skel-title { width: 220px; height: 34px; margin-bottom: 12px; }
+.dash-skel-lede { width: 360px; max-width: 70%; height: 16px; margin-bottom: 26px; }
+.dash-skel-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
+.dash-skel-split { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr); gap: 16px; align-items: start; }
+.dash-skel .dash-skel-block { height: 88px; border-radius: var(--radius-card); border: 1px solid var(--border); }
+.dash-skel .dash-skel-big { height: min(460px, calc(100svh - 300px)); }
+@keyframes dash-skel { from { background-position: 100% 0; } to { background-position: 0 0; } }
+@media (max-width: 760px) {
+  .dash-skel-row, .dash-skel-split { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dash-skel [class^="dash-skel-"] { animation: none !important; }
+}

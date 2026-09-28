@@ -84,7 +84,10 @@ export default async function CallsPage({
           <Link href="/dashboard/calls" className="ui-btn ui-btn--secondary">{t.callsFilterClear}</Link>
         )}
         {/* how many calls the list below holds (for the chosen dates, if any) */}
-        <span className="calls-count">{t.callsCount(calls?.length ?? 0)}</span>
+        <p className="calls-count">
+          <span className="calls-count-num">{calls?.length ?? 0}</span>
+          <span className="calls-count-label">{t.callsNoun(calls?.length ?? 0)}</span>
+        </p>
       </Card>
 
       {!calls?.length ? (
@@ -153,7 +156,10 @@ export default async function CallsPage({
         /* filter toolbar: the two date fields, then the actions, on one calm row */
         .calls-toolbar { display: flex; align-items: flex-end; flex-wrap: wrap; gap: 12px; padding: 16px 18px; margin-bottom: 16px; }
         .calls-toolbar:hover { transform: none; }
-        .calls-count { margin-left: auto; align-self: center; font-size: 13.5px; color: var(--text-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
+        /* the count of calls listed below: a white figure with its word in jade */
+        .calls-count { margin-left: auto; align-self: center; display: flex; align-items: baseline; gap: 8px; white-space: nowrap; }
+        .calls-count-num { font-size: 30px; font-weight: 600; letter-spacing: -.03em; line-height: 1; color: var(--text); font-variant-numeric: tabular-nums; }
+        .calls-count-label { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--jade); text-shadow: 0 0 14px rgba(55,226,155,.45); }
 
         /* the table: one surface, hairline rows, no floating cards */
         .calls-table { padding: 0; overflow: hidden; }

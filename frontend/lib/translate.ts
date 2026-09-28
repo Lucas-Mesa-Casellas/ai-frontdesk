@@ -41,7 +41,38 @@ export async function translateFields(
 // said"; only the spoken content after the label gets translated, the
 // label and line breaks stay exactly as they are. Plain-text response,
 // not JSON, since this is prose, not structured fields.
+//
+// Speed: the time goes almost entirely into generating the output, so a long
+// transcript is cut into consecutive blocks of whole lines, the blocks are
+// translated in parallel, and joined back in order -- the same lines in the
+// same order, several times faster than one long answer.
+const TRANSCRIPT_BLOCK_CHARS = 900;
+const TRANSCRIPT_MAX_BLOCKS = 8;
+
 export async function translateTranscriptText(transcript: string, targetLocale: string): Promise<string> {
+  const lines = transcript.split("\n");
+  const target = Math.max(TRANSCRIPT_BLOCK_CHARS, Math.ceil(transcript.length / TRANSCRIPT_MAX_BLOCKS));
+  const blocks: string[][] = [[]];
+  let size = 0;
+  for (const line of lines) {
+    if (size > 0 && size + line.length > target) {
+      blocks.push([]);
+      size = 0;
+    }
+    blocks[blocks.length - 1].push(line);
+    size += line.length + 1;
+  }
+  const translated = await Promise.all(
+    blocks.map((b) => {
+      const text = b.join("\n");
+      // blank-only blocks are kept as they are
+      return text.trim() ? translateTranscriptBlock(text, targetLocale) : Promise.resolve(text);
+    })
+  );
+  return translated.join("\n");
+}
+
+async function translateTranscriptBlock(transcript: string, targetLocale: string): Promise<string> {
   const languageName = LANGUAGE_NAMES[targetLocale] ?? targetLocale;
   const response = await client.chat.completions.create({
     model: "gpt-4o-mini",
