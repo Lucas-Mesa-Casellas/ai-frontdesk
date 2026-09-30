@@ -8,6 +8,7 @@ import { BUSINESS_TZ, zonedTimeToUtc } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import TranslatedField from "@/components/TranslatedField";
 import { formatDuration } from "@/lib/format-duration";
+import { dashBase } from "@/lib/demo/mode";
 import DateFilterInput from "@/components/DateFilterInput";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -28,6 +29,7 @@ export default async function CallsPage({
   const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
+  const base = await dashBase();
   const intentLabel: Record<string, string> = {
     book_appointment: t.intentBookAppointment,
     callback: t.intentCallback,
@@ -43,7 +45,7 @@ export default async function CallsPage({
   // for something this easy to just correct. Plain string comparison is
   // safe since both are YYYY-MM-DD.
   if (sp.from && sp.to && DATE_RE.test(sp.from) && DATE_RE.test(sp.to) && sp.from > sp.to) {
-    redirect(`/dashboard/calls?from=${sp.to}&to=${sp.from}`);
+    redirect(`${base}/calls?from=${sp.to}&to=${sp.from}`);
   }
 
   // Bounds are Madrid calendar days, not UTC ones -- e.g. "to" must include
@@ -70,7 +72,7 @@ export default async function CallsPage({
       />
 
       {/* A plain GET form: the date inputs submit ?from=&to= to this same page. */}
-      <Card as="form" className="dash-in d1 calls-toolbar">
+      <Card as="form" className="dash-in d1 calls-toolbar" data-demo-ok="">
         {/* Keyed by the actual filter value: DateFilterInput's typed text is
             local useState seeded from defaultValue only on mount, so a soft
             navigation that changes searchParams without unmounting the
@@ -82,7 +84,7 @@ export default async function CallsPage({
         <DateFilterInput key={`to-${sp.to ?? ""}`} name="to" defaultValue={sp.to ?? ""} label={t.callsFilterTo} labelStyle={filterLabel} placeholder={t.callsFilterDatePlaceholder} locale={locale} />
         <button type="submit" className="ui-btn ui-btn--primary">{t.callsFilterApply}</button>
         {isFiltered && (
-          <Link href="/dashboard/calls" className="ui-btn ui-btn--secondary">{t.callsFilterClear}</Link>
+          <Link href={`${base}/calls`} className="ui-btn ui-btn--secondary">{t.callsFilterClear}</Link>
         )}
         {/* how many calls the list below holds (for the chosen dates, if any) */}
         <p className="calls-count">
@@ -119,7 +121,7 @@ export default async function CallsPage({
             // so every cell has a quiet fallback rather than an empty hole.
             const initial = (c.caller_name || "").trim().charAt(0).toUpperCase();
             return (
-              <Link key={c.id} href={`/dashboard/calls/${c.id}`} className="call-row call-tr">
+              <Link key={c.id} href={`${base}/calls/${c.id}`} className="call-row call-tr">
                 <span className="cr-caller">
                   <span className="cr-av" aria-hidden="true">{initial || <IconPhone width={14} height={14} />}</span>
                   <b>{c.caller_name || t.unknown}</b>

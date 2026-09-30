@@ -1,42 +1,59 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { DEMO_COPY, type DemoPage } from "@/lib/demo/copy";
 
 type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
-type Gender = "female" | "male";
+type Gender = "f" | "m";
 
-// Two voices per language. The recordings don't exist yet (there are no audio
-// files in the repo), so every player renders disabled: the row, the waveform
-// and the timer are there, the play button just doesn't respond, and nothing
-// is requested. When a clip is ready, put it at
-//   public/voices/<en|fr|es>-<female|male>.mp3
-// and add its id (e.g. "en-female") to READY -- that voice becomes playable,
-// the others stay as they are.
-const READY = new Set<string>([]);
-const AUDIO_EXT = "mp3";
+// The six recordings of the welcome message (one female and one male voice per
+// language) live at public/tour/<en|es|fr>/welcome-<f|m>.mp3. Set this to false
+// to show the player disabled again (nothing is requested then).
+export const VOICE_SAMPLES_READY = true;
 
-// English, French, Spanish -- each column named in its own language, like the
-// language menu.
-const LANGS: { code: Lang; file: string; native: string }[] = [
-  { code: "EN", file: "en", native: "English" },
-  { code: "FR", file: "fr", native: "Français" },
-  { code: "ES", file: "es", native: "Español" },
+const LANGS: { code: Lang; file: string; aria: string }[] = [
+  { code: "EN", file: "en", aria: "English" },
+  { code: "ES", file: "es", aria: "Español" },
+  { code: "FR", file: "fr", aria: "Français" },
 ];
 const VOICES: { gender: Gender; name: L10n }[] = [
-  { gender: "female", name: { EN: "Female voice", ES: "Voz femenina", FR: "Voix féminine" } },
-  { gender: "male", name: { EN: "Male voice", ES: "Voz masculina", FR: "Voix masculine" } },
+  { gender: "f", name: { EN: "Female voice", ES: "Voz femenina", FR: "Voix féminine" } },
+  { gender: "m", name: { EN: "Male voice", ES: "Voz masculina", FR: "Voix masculine" } },
 ];
+
+// Exactly what is said in each recording.
+const TRANSCRIPTS: Record<Lang, Record<Gender, string>> = {
+  EN: {
+    f: "Hello, this is the AI assistant for LMC Agents. Bonjour, je peux aussi vous répondre en français. Hola, también puedo atenderle en español. How can I help you today?",
+    m: "Hello, this is the AI assistant for LMC Agents. Bonjour, je peux aussi vous répondre en français. Hola, también puedo atenderle en español. How can I help you today?",
+  },
+  FR: {
+    f: "Bonjour, ici l'assistante IA de LMC Agents. Hello, I can also help you in English. Hola, también puedo atenderle en español. Comment puis-je vous aider ?",
+    m: "Bonjour, ici l'assistant IA de LMC Agents. Hello, I can also help you in English. Hola, también puedo atenderle en español. Comment puis-je vous aider ?",
+  },
+  ES: {
+    f: "Hola, soy el asistente IA de LMC Agents. Hello, I can also help you in English. Bonjour, je peux aussi vous répondre en français. ¿En qué puedo ayudarle?",
+    m: "Hola, soy el asistente IA de LMC Agents. Hello, I can also help you in English. Bonjour, je peux aussi vous répondre en français. ¿En qué puedo ayudarle?",
+  },
+};
 
 const COPY = {
   tag: { EN: "Voices", ES: "Voces", FR: "Voix" } as L10n,
-  // what each clip is: the welcome message a caller hears
   clip: { EN: "Welcome message", ES: "Mensaje de bienvenida", FR: "Message d'accueil" } as L10n,
   heading: { EN: "Hear how it answers.", ES: "Escucha cómo contesta.", FR: "Écoutez comment il répond." } as L10n,
   sub: {
     EN: "Choose the voice your callers hear: two voices for each language.",
     ES: "Elige la voz que escucharán tus clientes: dos voces en cada idioma.",
     FR: "Choisissez la voix qu'entendront vos clients : deux voix par langue.",
+  } as L10n,
+  langLabel: { EN: "Language", ES: "Idioma", FR: "Langue" } as L10n,
+  voiceLabel: { EN: "Voice", ES: "Voz", FR: "Voix" } as L10n,
+  transcript: { EN: "What you hear", ES: "Lo que escuchas", FR: "Ce que vous entendez" } as L10n,
+  missing: {
+    EN: "This recording isn't available right now.",
+    ES: "Esta grabación no está disponible ahora mismo.",
+    FR: "Cet enregistrement n'est pas disponible pour le moment.",
   } as L10n,
   // the caption over the Calls-page screenshot: what a client gets once the call is over
   after: {
@@ -52,7 +69,7 @@ const COPY = {
 
 // Fixed, decorative bar heights (a waveform look, not the real waveform) --
 // deterministic so server and client render the same thing.
-const BARS = Array.from({ length: 34 }, (_, i) => 26 + Math.round(64 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.55))));
+const BARS = Array.from({ length: 40 }, (_, i) => 26 + Math.round(64 * Math.abs(Math.sin(i * 1.7) * Math.cos(i * 0.55))));
 
 function fmt(sec: number) {
   if (!Number.isFinite(sec) || sec < 0) return "0:00";
@@ -60,24 +77,20 @@ function fmt(sec: number) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 }
 
-function VoiceCard({
-  id, language, voice, uiLang, current, onStart,
-}: {
-  id: string; language: string; voice: string; uiLang: Lang; current: string | null; onStart: (id: string) => void;
-}) {
-  // screen readers get the language too; on screen the card already names it
-  const label = `${language}, ${voice}`;
+// One clip's player. It is keyed by the clip (language + voice) in the parent,
+// so choosing another language or voice unmounts it: the old clip stops and the
+// new one starts from zero, with nothing to reset by hand.
+function Player({ src, uiLang, title }: { src: string; uiLang: Lang; title: string }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [failed, setFailed] = useState(false);
-  const usable = READY.has(id) && !failed;
+  const usable = VOICE_SAMPLES_READY && !failed;
 
   // The <audio> is server-rendered, so the browser can finish loading its
   // metadata (or fail) BEFORE React attaches the handlers below -- those
-  // events are then never seen again. Read the element's current state once
-  // on mount so the duration/error aren't lost to that race.
+  // events are then never seen again. Read the element's state once on mount.
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
@@ -85,31 +98,19 @@ function VoiceCard({
     else if (a.readyState >= 1 && Number.isFinite(a.duration)) setDuration(a.duration);
   }, []);
 
-  // One clip at a time: starting another voice pauses this one.
-  useEffect(() => {
-    if (current !== id && playing) audioRef.current?.pause();
-  }, [current, id, playing]);
-
   const toggle = () => {
     const a = audioRef.current;
     if (!a || !usable) return;
-    if (a.paused) {
-      onStart(id);
-      a.play().catch(() => setFailed(true));
-    } else {
-      a.pause();
-    }
+    if (a.paused) a.play().catch(() => setFailed(true));
+    else a.pause();
   };
-
   const progress = duration > 0 ? time / duration : 0;
 
   return (
-    <li className={`vs-card${playing ? " here" : ""}${usable ? "" : " off"}`}>
-      {usable && (
+    <>
+      {VOICE_SAMPLES_READY && (
         <audio
-          ref={audioRef}
-          src={`/voices/${id}.${AUDIO_EXT}`}
-          preload="metadata"
+          ref={audioRef} src={src} preload="metadata"
           onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
           onDurationChange={(e) => Number.isFinite(e.currentTarget.duration) && setDuration(e.currentTarget.duration)}
           onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
@@ -119,24 +120,17 @@ function VoiceCard({
           onError={() => setFailed(true)}
         />
       )}
-
-      <div className="vs-head">
-        <span className="vs-names"><b>{voice}</b><span>{COPY.clip[uiLang]}</span></span>
-        <span className="vs-time">{usable ? `${fmt(time)} / ${fmt(duration)}` : "–:––"}</span>
-      </div>
-
-      <div className="vs-player">
-      <button
-        type="button" className={`vs-btn${playing ? " on" : ""}`} onClick={toggle} disabled={!usable}
-        aria-label={`${playing ? COPY.pause[uiLang] : COPY.play[uiLang]}: ${label}`}
-      >
-        {playing ? (
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13" /></svg>
-        ) : (
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="play"><path d="M8.5 5.6v12.8a.8.8 0 0 0 1.2.7l10.2-6.4a.8.8 0 0 0 0-1.4L9.7 4.9a.8.8 0 0 0-1.2.7Z" /></svg>
-        )}
-      </button>
-
+      <div className={`vs-player${usable ? "" : " off"}`}>
+        <button
+          type="button" className={`vs-btn${playing ? " on" : ""}`} onClick={toggle} disabled={!usable}
+          aria-label={`${playing ? COPY.pause[uiLang] : COPY.play[uiLang]}: ${title}`}
+        >
+          {playing ? (
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="play"><path d="M8.5 5.6v12.8a.8.8 0 0 0 1.2.7l10.2-6.4a.8.8 0 0 0 0-1.4L9.7 4.9a.8.8 0 0 0-1.2.7Z" /></svg>
+          )}
+        </button>
         <div className="vs-wave">
           <div className="vs-bars" aria-hidden="true">
             {BARS.map((h, i) => (
@@ -146,20 +140,32 @@ function VoiceCard({
           {/* Invisible range input over the bars: click/drag/keyboard seeking. */}
           <input
             type="range" min={0} max={1000} step={1} value={Math.round(progress * 1000)}
-            disabled={!usable || duration === 0} aria-label={`${COPY.seek[uiLang]}: ${label}`}
+            disabled={!usable || duration === 0} aria-label={`${COPY.seek[uiLang]}: ${title}`}
             onChange={(e) => {
               const a = audioRef.current;
               if (a && duration > 0) { a.currentTime = (Number(e.target.value) / 1000) * duration; setTime(a.currentTime); }
             }}
           />
         </div>
+        <span className="vs-time">{usable ? `${fmt(time)} / ${fmt(duration)}` : "–:–– / –:––"}</span>
       </div>
-    </li>
+      {failed && <p className="vs-missing" role="status">{COPY.missing[uiLang]}</p>}
+    </>
   );
 }
 
-export default function VoiceSamples({ lang }: { lang: Lang }) {
-  const [current, setCurrent] = useState<string | null>(null);
+export default function VoiceSamples({
+  lang, onOpenDemo,
+}: { lang: Lang; onOpenDemo?: (page: DemoPage) => void }) {
+  // The language selector starts on the visitor's own language; a choice made
+  // here holds until they change the site's language again.
+  const [pickedLang, setPickedLang] = useState<{ forLang: Lang; value: Lang } | null>(null);
+  const [gender, setGender] = useState<Gender>("f");
+  const clipLang: Lang = pickedLang && pickedLang.forLang === lang ? pickedLang.value : lang;
+  const file = LANGS.find((l) => l.code === clipLang)!.file;
+  const src = `/tour/${file}/welcome-${gender}.mp3`;
+  const voiceName = VOICES.find((v) => v.gender === gender)!.name[lang];
+
   const [seen, setSeen] = useState(false);
   const [shotFailed, setShotFailed] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
@@ -188,75 +194,139 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         </div>
 
         <div className={`vs-layout${shotFailed ? " no-shot" : ""}`}>
-        <ul className="vs-grid">
-          {LANGS.map((l) => (
-            <li key={l.code} className="vs-lang">
-              <div className="vs-lh">
-                <span className="vs-code">{l.code}</span>
-                <b>{l.native}</b>
+          <div className="vs-card">
+            <div className="vs-sels">
+              <div className="vs-sel">
+                <span className="vs-sel-l" id="vs-l-lang">{COPY.langLabel[lang]}</span>
+                <div className="vs-seg" role="radiogroup" aria-labelledby="vs-l-lang">
+                  {LANGS.map((l) => (
+                    <button
+                      key={l.code} type="button" role="radio" aria-checked={clipLang === l.code} aria-label={l.aria} lang={l.file}
+                      className={clipLang === l.code ? "on" : undefined}
+                      onClick={() => setPickedLang({ forLang: lang, value: l.code })}
+                    >
+                      {l.code}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <ul className="vs-cards">
-                {VOICES.map((v) => {
-                  const id = `${l.file}-${v.gender}`;
-                  return (
-                    <VoiceCard key={id} id={id} language={l.native} voice={v.name[lang]} uiLang={lang} current={current} onStart={setCurrent} />
-                  );
-                })}
-              </ul>
-            </li>
-          ))}
-        </ul>
-
-        {!shotFailed && (
-          <figure className="vs-shot">
-            <figcaption className="vs-shot-cap">{COPY.after[lang]}</figcaption>
-            {/* the same framing as the dashboard tour above */}
-            <div className="vs-frame">
-              <div className="vs-chrome">
-                <span className="vs-dots" aria-hidden="true"><i /><i /><i /></span>
-                <span className="vs-url" aria-hidden="true">
-                  <svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" /></svg>
-                  lmcagents.app/dashboard/calls
-                </span>
-                <span />
+              <div className="vs-sel">
+                <span className="vs-sel-l" id="vs-l-voice">{COPY.voiceLabel[lang]}</span>
+                <div className="vs-seg" role="radiogroup" aria-labelledby="vs-l-voice">
+                  {VOICES.map((v) => (
+                    <button
+                      key={v.gender} type="button" role="radio" aria-checked={gender === v.gender}
+                      className={gender === v.gender ? "on" : undefined}
+                      onClick={() => setGender(v.gender)}
+                    >
+                      {v.name[lang]}
+                    </button>
+                  ))}
+                </div>
               </div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                key={shot} src={shot} alt={COPY.shotAlt[lang]} width={1440} height={900}
-                loading="lazy" decoding="async" draggable={false}
-                onError={() => setShotFailed(true)}
-              />
             </div>
-          </figure>
-        )}
+
+            <p className="vs-clip"><b>{voiceName}</b><span>{COPY.clip[lang]}</span></p>
+            <Player key={src} src={src} uiLang={lang} title={`${voiceName}, ${clipLang}`} />
+
+            <div className="vs-tr">
+              <span className="vs-tr-l">{COPY.transcript[lang]}</span>
+              <p lang={clipLang.toLowerCase()}>{TRANSCRIPTS[clipLang][gender]}</p>
+            </div>
+          </div>
+
+          {!shotFailed && (
+            <figure className="vs-shot">
+              <figcaption className="vs-shot-cap">{COPY.after[lang]}</figcaption>
+              {/* the same framing as the dashboard tour above; a click opens the demo on the Calls page */}
+              <button type="button" className="vs-frame" onClick={() => onOpenDemo?.("calls")} aria-label={DEMO_COPY.open[lang]}>
+                <span className="vs-chrome">
+                  <span className="vs-dots" aria-hidden="true"><i /><i /><i /></span>
+                  <span className="vs-url" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" /></svg>
+                    lmcagents.app/dashboard/calls
+                  </span>
+                  <span />
+                </span>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  key={shot} src={shot} alt={COPY.shotAlt[lang]} width={1440} height={900}
+                  loading="lazy" decoding="async" draggable={false}
+                  onError={() => setShotFailed(true)}
+                />
+                <span className="vs-open" aria-hidden="true">{DEMO_COPY.open[lang]}</span>
+              </button>
+            </figure>
+          )}
         </div>
       </div>
 
       <style>{`
-        /* Natural height: three language cards plus the shared section padding. */
         .voice .sec-h { min-height: 0; }
         .voice .sec-sub { min-height: 0; }
-        .vs-top, .vs-grid, .vs-shot { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
-        .voice.seen .vs-top, .voice.seen .vs-grid, .voice.seen .vs-shot { opacity: 1; transform: none; }
-        .voice.seen .vs-grid { transition-delay: .1s; }
-        .voice.seen .vs-shot { transition-delay: .18s; }
+        .vs-top, .vs-layout { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
+        .voice.seen .vs-top, .voice.seen .vs-layout { opacity: 1; transform: none; }
+        .voice.seen .vs-layout { transition-delay: .1s; }
 
-        /* Desktop: the three language groups (two voice cards each) on the
-           left, the Calls page of the dashboard on the right, so the whole
-           section stays one screen. Tablet and phone: one column, the
-           screenshot under the voices. */
-        .vs-layout { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.2fr); gap: 40px; align-items: center; max-width: 1180px; margin: 0 auto; }
-        .vs-layout.no-shot { grid-template-columns: minmax(0, 1fr); }
-        .vs-grid { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
-        .vs-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        /* Desktop: the player on the left, the Calls page of the dashboard on the
+           right. Tablet and phone: one column, the screenshot under the player. */
+        .vs-layout { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.15fr); gap: 40px; align-items: center; max-width: 1180px; margin: 0 auto; }
+        .vs-layout.no-shot { grid-template-columns: minmax(0, 560px); justify-content: center; }
+
+        .vs-card { display: flex; flex-direction: column; gap: 18px; padding: 24px; }
+        .vs-sels { display: flex; flex-wrap: wrap; gap: 16px 22px; }
+        .vs-sel { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+        .vs-sel-l { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+        .vs-seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(255,255,255,.03); border: 1px solid var(--hair); }
+        .vs-seg button {
+          min-height: 34px; padding: 0 14px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text-3); white-space: nowrap;
+          transition: color var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out);
+        }
+        .vs-seg button:hover { color: var(--text); }
+        .vs-seg button.on { color: #04140D; font-weight: 600; background: linear-gradient(180deg, var(--jade-bright), var(--jade-2)); }
+        .vs-seg button:focus-visible { outline: 2px solid var(--jade); outline-offset: 2px; }
+        .vs-clip { display: flex; flex-direction: column; gap: 2px; margin: 0; }
+        .vs-clip b { font-size: 15px; font-weight: 600; letter-spacing: -.01em; }
+        .vs-clip span { font-size: 12.5px; color: var(--text-3); }
+
+        .vs-player { display: flex; align-items: center; gap: 14px; }
+        .vs-time { flex: none; font-size: 12px; font-variant-numeric: tabular-nums; color: var(--text-3); min-width: 76px; text-align: right; }
+        .vs-btn {
+          flex: none; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+          color: var(--jade); background: rgba(55,226,155,.06); border: 1.5px solid rgba(55,226,155,.6);
+          transition: transform var(--t-fast) var(--e-out), box-shadow var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out), color var(--t-fast), opacity var(--t-fast);
+        }
+        .vs-btn:hover:not(:disabled) { transform: translateY(-1px); background: rgba(55,226,155,.14); box-shadow: 0 8px 20px -10px rgba(18,185,129,.7); }
+        .vs-btn.on { color: #04140D; background: linear-gradient(180deg, var(--jade-bright), var(--jade-2)); border-color: transparent; box-shadow: var(--btn-shadow); }
+        .vs-btn:disabled { opacity: .6; cursor: default; }
+        .vs-btn:focus-visible { outline: 2px solid var(--jade); outline-offset: 3px; }
+        .vs-btn svg { width: 19px; height: 19px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
+        .vs-btn svg.play { fill: currentColor; stroke: none; margin-left: 2px; }
+        .vs-wave { position: relative; flex: 1; min-width: 0; height: 36px; border-radius: 6px; }
+        .vs-wave:focus-within { outline: 2px solid rgba(55,226,155,.55); outline-offset: 3px; }
+        .vs-bars { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; }
+        .vs-bars i { flex: 1; min-width: 1px; border-radius: 2px; background: rgba(55,226,155,.42); transition: background .15s; }
+        .vs-bars i.done { background: var(--jade); }
+        .vs-player.off .vs-bars i { background: rgba(55,226,155,.3); }
+        .vs-wave input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+        .vs-wave input:disabled { cursor: default; }
+        .vs-missing { margin: -6px 0 0; font-size: 12.5px; color: #E5877B; }
+
+        .vs-tr { padding: 14px 16px; border-radius: 14px; background: rgba(255,255,255,.022); border: 1px solid var(--border); }
+        .vs-tr-l { display: block; margin-bottom: 7px; font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
+        .vs-tr p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-2); }
 
         .vs-shot { margin: 0; min-width: 0; }
         .vs-shot-cap { margin: 0 0 12px 2px; font-size: 13px; font-weight: 500; letter-spacing: -.005em; color: var(--text-2); }
         .vs-frame {
+          position: relative; display: block; width: 100%; padding: 0; text-align: left; cursor: pointer;
           border-radius: 16px; overflow: hidden;
           background: var(--card-bg), #0A0D11; border: 1px solid var(--card-border);
           box-shadow: 0 50px 100px -50px rgba(0,0,0,.95), 0 0 80px -40px rgba(18,185,129,.35);
+          transition: box-shadow .3s var(--e-out), border-color .3s var(--e-out);
         }
+        .vs-frame:hover { border-color: rgba(55,226,155,.4); box-shadow: 0 50px 100px -50px rgba(0,0,0,.95), 0 0 90px -34px rgba(18,185,129,.55); }
+        .vs-frame:focus-visible { outline: 2px solid var(--jade); outline-offset: 3px; }
         .vs-chrome { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 12px; height: 34px; padding: 0 12px; border-bottom: 1px solid var(--hair); }
         .vs-dots { display: flex; gap: 6px; }
         .vs-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.14); }
@@ -266,56 +336,31 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         }
         .vs-url svg { width: 10px; height: 10px; stroke: var(--text-3); stroke-width: 1.8; fill: none; stroke-linecap: round; flex: none; }
         .vs-frame img { display: block; width: 100%; height: auto; user-select: none; }
-        .vs-lh { display: flex; align-items: center; gap: 10px; margin: 0 2px 12px; }
-        .vs-lh b { font-size: 15px; font-weight: 600; letter-spacing: -.015em; }
-        .vs-code {
-          font-size: 10.5px; font-weight: 600; letter-spacing: .06em; color: var(--jade);
-          border: 1px solid rgba(55,226,155,.35); background: rgba(55,226,155,.1); border-radius: 6px; padding: 3px 7px;
+        .vs-open {
+          position: absolute; left: 50%; bottom: 18px; transform: translate(-50%, 6px); opacity: 0; pointer-events: none;
+          padding: 9px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #04140D; white-space: nowrap;
+          background: linear-gradient(180deg, var(--jade-bright), var(--jade-2)); box-shadow: 0 14px 34px -10px rgba(0,0,0,.8);
+          transition: opacity .25s var(--e-out), transform .25s var(--e-out);
         }
-        .vs-cards { list-style: none; display: grid; gap: 12px; }
-        /* the card surface and hover are the shared ones (globals.css) */
-        .vs-card { display: flex; flex-direction: column; gap: 14px; padding: 16px 18px 18px; }
-        .vs-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-        .vs-names { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-        .vs-names b { font-size: 14.5px; font-weight: 600; letter-spacing: -.01em; }
-        .vs-names span { font-size: 12.5px; color: var(--text-3); }
-        .vs-time { flex: none; font-size: 11.5px; font-variant-numeric: tabular-nums; color: var(--text-3); }
-        .vs-player { display: flex; align-items: center; gap: 12px; }
+        @media (hover: hover) { .vs-frame:hover .vs-open { opacity: 1; transform: translate(-50%, 0); } }
 
-        .vs-btn {
-          flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
-          color: var(--jade); background: rgba(55,226,155,.06); border: 1.5px solid rgba(55,226,155,.6);
-          transition: transform var(--t-fast) var(--e-out), box-shadow var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out), color var(--t-fast), opacity var(--t-fast);
-        }
-        .vs-btn:hover:not(:disabled) { transform: translateY(-1px); background: rgba(55,226,155,.14); box-shadow: 0 8px 20px -10px rgba(18,185,129,.7); }
-        .vs-btn.on { color: #04140D; background: linear-gradient(180deg, var(--jade-bright), var(--jade-2)); border-color: transparent; box-shadow: var(--btn-shadow); }
-        .vs-btn:disabled { opacity: .6; cursor: default; }
-        .vs-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; fill: none; }
-        .vs-btn svg.play { fill: currentColor; stroke: none; margin-left: 2px; }
-
-        .vs-wave { position: relative; flex: 1; min-width: 0; height: 30px; border-radius: 6px; }
-        .vs-wave:focus-within { outline: 2px solid rgba(55,226,155,.55); outline-offset: 3px; }
-        .vs-bars { position: absolute; inset: 0; display: flex; align-items: center; gap: 2px; }
-        .vs-bars i { flex: 1; min-width: 1px; border-radius: 2px; background: rgba(55,226,155,.42); transition: background .15s; }
-        .vs-bars i.done { background: var(--jade); }
-        .vs-card.off .vs-bars i { background: rgba(55,226,155,.3); }
-        .vs-wave input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
-        .vs-wave input:disabled { cursor: default; }
-
-        /* tablet and phone: everything in one column, the screenshot last */
         @media (max-width: 1100px) {
           .vs-layout { grid-template-columns: minmax(0, 1fr); gap: 34px; max-width: 720px; }
-          .vs-grid { gap: 26px; }
+          .vs-layout.no-shot { grid-template-columns: minmax(0, 1fr); }
         }
         @media (max-width: 560px) {
-          .vs-cards { grid-template-columns: 1fr; }
-          .vs-btn { width: 44px; height: 44px; }
+          .vs-card { padding: 18px; }
+          .vs-sels { flex-direction: column; gap: 14px; }
+          .vs-seg button { padding: 0 12px; min-height: 40px; }
+          .vs-btn { width: 52px; height: 52px; }
+          .vs-time { min-width: 0; font-size: 11.5px; }
+          .vs-player { gap: 10px; }
           .vs-chrome { grid-template-columns: minmax(0,1fr); }
           .vs-dots, .vs-chrome > span:last-child { display: none; }
           .vs-url { justify-self: start; max-width: 100%; overflow: hidden; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .vs-top, .vs-grid, .vs-shot { transition: none; opacity: 1; transform: none; }
+          .vs-top, .vs-layout { transition: none; opacity: 1; transform: none; }
         }
       `}</style>
     </section>

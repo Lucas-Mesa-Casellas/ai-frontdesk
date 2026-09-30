@@ -50,7 +50,7 @@ export default function DeleteButton({
 
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-      <button onClick={handleClick} disabled={pending} className={className} style={style}>
+      <button onClick={handleClick} disabled={pending} className={className} style={style} data-demo-write="">
         {pending ? "…" : label}
       </button>
       {failed && <span style={{ fontSize: 11, color: "#E5877B" }}>{errorLabel}</span>}

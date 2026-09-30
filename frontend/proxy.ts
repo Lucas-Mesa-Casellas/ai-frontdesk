@@ -35,8 +35,42 @@ function isBackgroundFetch(request: NextRequest) {
   return request.headers.get("sec-fetch-dest") === "empty";
 }
 
+const DEMO_HEADER = "x-lmc-demo";
+const LANG_COOKIE = "lmc_locale";
+
 export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request });
+  const { pathname: path } = request.nextUrl;
+
+  // The interactive demo: /demo/* is the real dashboard rendered with sample
+  // data (see lib/demo/*). It needs no session and touches no database, so it
+  // is answered here, before anything auth-related. The header that switches
+  // the pages into demo mode is set only on this path; a copy sent by a client
+  // is deleted everywhere else below.
+  if (path === "/demo" || path.startsWith("/demo/")) {
+    const headers = new Headers(request.headers);
+    headers.set(DEMO_HEADER, "1");
+    const url = request.nextUrl.clone();
+    url.pathname = "/dashboard" + path.slice("/demo".length);
+    const res = NextResponse.rewrite(url, { request: { headers } });
+    res.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return res;
+  }
+
+  // ?lang=fr|es|en on the landing sets the language and remembers it. The
+  // cookie goes on the request too, so this very render already uses it.
+  const langParam = path === "/" ? request.nextUrl.searchParams.get("lang")?.toLowerCase() : null;
+  const newLang = langParam === "en" || langParam === "es" || langParam === "fr" ? langParam : null;
+  if (newLang) request.cookies.set(LANG_COOKIE, newLang);
+
+  // what the pages get to see of the request: its headers, minus any demo
+  // switch a client may have sent
+  const forward = () => {
+    const h = new Headers(request.headers);
+    h.delete(DEMO_HEADER);
+    return { request: { headers: h } };
+  };
+  let response = NextResponse.next(forward());
+  if (newLang) response.cookies.set(LANG_COOKIE, newLang, { maxAge: 60 * 60 * 24 * 365, path: "/", sameSite: "lax" });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -48,7 +82,8 @@ export async function proxy(request: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
+          response = NextResponse.next(forward());
+          if (newLang) response.cookies.set(LANG_COOKIE, newLang, { maxAge: 60 * 60 * 24 * 365, path: "/", sameSite: "lax" });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
@@ -100,5 +135,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/login", "/auth/:path*"],
+  matcher: ["/", "/dashboard/:path*", "/demo", "/demo/:path*", "/login", "/auth/:path*"],
 };

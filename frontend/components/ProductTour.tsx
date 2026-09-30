@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { DASH_T } from "@/lib/dash-i18n";
+import { TOUR_NOTES } from "@/lib/tour-notes";
+import { DEMO_COPY, type DemoPage } from "@/lib/demo/copy";
 
 type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
@@ -70,19 +72,11 @@ const SLIDES: Slide[] = [
     hotspots: [
       {
         x: 67, y: 26.5,
-        note: {
-          EN: "Calls answered, booking requests and your booking rate, updated as calls come in.",
-          ES: "Llamadas atendidas, solicitudes de cita y tu tasa de reserva, al día con cada llamada.",
-          FR: "Appels traités, demandes de rendez-vous et taux de réservation, mis à jour à chaque appel.",
-        },
+        note: TOUR_NOTES.overview[0],
       },
       {
         x: 40, y: 58,
-        note: {
-          EN: "See when your calls come in, hour by hour, so you know when the phone matters most.",
-          ES: "Mira a qué horas llegan tus llamadas y sabrás cuándo es más importante estar localizable.",
-          FR: "Voyez à quelle heure arrivent vos appels, heure par heure, pour savoir quand le téléphone compte le plus.",
-        },
+        note: TOUR_NOTES.overview[1],
       },
     ],
   },
@@ -98,27 +92,15 @@ const SLIDES: Slide[] = [
     hotspots: [
       {
         x: 36.9, y: 28,
-        note: {
-          EN: "Pick a date range with the calendar, or just type it.",
-          ES: "Elige un rango de fechas en el calendario, o escríbelo directamente.",
-          FR: "Choisissez une période dans le calendrier, ou saisissez-la directement.",
-        },
+        note: TOUR_NOTES.calls[0],
       },
       {
         x: 45.6, y: 43.8,
-        note: {
-          EN: "A one-line AI summary of what the caller wanted, so you don't have to listen back.",
-          ES: "Un resumen en una línea de lo que quería quien llamó, sin tener que escuchar la llamada.",
-          FR: "Un résumé en une ligne de ce que voulait l'appelant, sans avoir à réécouter l'appel.",
-        },
+        note: TOUR_NOTES.calls[1],
       },
       {
         x: 82.7, y: 43.8,
-        note: {
-          EN: "Tags show the type of call and whether it needs your review.",
-          ES: "Las etiquetas indican el tipo de llamada y si necesita tu revisión.",
-          FR: "Les étiquettes indiquent le type d'appel et s'il nécessite votre attention.",
-        },
+        note: TOUR_NOTES.calls[2],
       },
     ],
   },
@@ -134,19 +116,11 @@ const SLIDES: Slide[] = [
     hotspots: [
       {
         x: 39.3, y: 67,
-        note: {
-          EN: "Each day shows how many requests it has, colour-coded by status.",
-          ES: "Cada día muestra cuántas solicitudes tiene, con un color según su estado.",
-          FR: "Chaque jour indique le nombre de demandes, avec une couleur selon leur statut.",
-        },
+        note: TOUR_NOTES.calendar[0],
       },
       {
         x: 89.5, y: 49.9,
-        note: {
-          EN: "Open a day to confirm or cancel each request, or jump to the call behind it.",
-          ES: "Abre un día para confirmar o cancelar cada solicitud, o ir a la llamada que la originó.",
-          FR: "Ouvrez un jour pour confirmer ou annuler chaque demande, ou accéder à l'appel d'origine.",
-        },
+        note: TOUR_NOTES.calendar[1],
       },
     ],
   },
@@ -162,19 +136,11 @@ const SLIDES: Slide[] = [
     hotspots: [
       {
         x: 74, y: 50,
-        note: {
-          EN: "Describe the problem or your question. No name or email to fill in, we already know who you are.",
-          ES: "Describe el problema o tu duda. Sin nombre ni email que rellenar: ya sabemos quién eres.",
-          FR: "Décrivez le problème ou votre question. Pas de nom ni d'e-mail à saisir, nous savons déjà qui vous êtes.",
-        },
+        note: TOUR_NOTES.support[0],
       },
       {
         x: 38, y: 71,
-        note: {
-          EN: "Attach a screenshot or a PDF so we can see exactly what you see.",
-          ES: "Adjunta una captura o un PDF para que veamos exactamente lo mismo que tú.",
-          FR: "Joignez une capture d'écran ou un PDF pour que nous voyions exactement ce que vous voyez.",
-        },
+        note: TOUR_NOTES.support[1],
       },
     ],
   },
@@ -289,7 +255,7 @@ function TourMock({ id, lang, title }: { id: SlideId; lang: Lang; title: string 
   );
 }
 
-export default function ProductTour({ lang }: { lang: Lang }) {
+export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDemo: (page: DemoPage) => void }) {
   const [idx, setIdx] = useState(0);
   const [active, setActive] = useState<number | null>(null);
   const [failed, setFailed] = useState<Record<string, boolean>>({});
@@ -368,6 +334,14 @@ export default function ProductTour({ lang }: { lang: Lang }) {
             tabs or languages. */}
         <p className="tour-blurb" key={`blurb-${slide.id}-${lang}`}>{slide.blurb[lang]}</p>
 
+        {/* the main way to see the product: the real dashboard, with sample data */}
+        <div className="tour-try">
+          <button type="button" className="btn-primary tour-try-btn" onClick={() => onOpenDemo(slide.id)}>
+            {DEMO_COPY.open[lang]}
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+          </button>
+        </div>
+
         <div className="tour-slide" key={`${slide.id}-${lang}`} role="tabpanel" style={{ ["--tour-aspect" as string]: ASPECT }}>
           <div className="tour-stage">
           <div className="tour-frame">
@@ -387,7 +361,15 @@ export default function ProductTour({ lang }: { lang: Lang }) {
                 </span>
               )}
             </div>
-            <div className="tour-shot" onClick={(e) => { if (e.target === e.currentTarget) setActive(null); }}>
+            {/* clicking the screenshot opens the demo on that page (the hotspots keep their own clicks) */}
+            <div
+              className="tour-shot"
+              onClick={(e) => {
+                if ((e.target as Element).closest(".hs")) return;
+                setActive(null);
+                onOpenDemo(slide.id);
+              }}
+            >
               {showReal ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -400,6 +382,8 @@ export default function ProductTour({ lang }: { lang: Lang }) {
                   <TourMock id={slide.id} lang={lang} title={slide.label[lang]} />
                 </div>
               )}
+
+              <span className="tour-open" aria-hidden="true">{DEMO_COPY.open[lang]}</span>
 
               {slide.hotspots.map((h, i) => (
                 <div
@@ -438,9 +422,10 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         /* No font-size override: every section heading uses the one .sec-h
            scale, so Product doesn't read a size smaller than the rest. */
         .tour-head .sec-h { min-height: 0; }
-        .tour-head, .tour-nav, .tour-blurb, .tour-slide, .tour-cap { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
-        .tour.seen .tour-head, .tour.seen .tour-nav, .tour.seen .tour-blurb, .tour.seen .tour-slide, .tour.seen .tour-cap { opacity: 1; transform: none; }
+        .tour-head, .tour-nav, .tour-blurb, .tour-try, .tour-slide, .tour-cap { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
+        .tour.seen .tour-head, .tour.seen .tour-nav, .tour.seen .tour-blurb, .tour.seen .tour-try, .tour.seen .tour-slide, .tour.seen .tour-cap { opacity: 1; transform: none; }
         .tour.seen .tour-nav, .tour.seen .tour-blurb { transition-delay: .08s; }
+        .tour.seen .tour-try { transition-delay: .11s; }
         .tour.seen .tour-slide { transition-delay: .14s; }
 
         .tour-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
@@ -477,26 +462,21 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         }
         .tour-stage { min-width: 0; }
 
-        /* Unlike the other sections, the dashboard preview is meant to be
-           taken in as one screen: the section is exactly one viewport tall
-           and the frame is sized from what's left of that height once the
-           nav, heading, tabs and slide copy above it are accounted for, so
-           the whole thing -- tabs through screenshot -- is visible without
-           scrolling. 526px is that fixed overhead (nav clearance, section
-           padding, eyebrow, heading and its line, tabs, two lines of blurb,
-           the address bar); only the frame's own height flexes with the
-           viewport. */
-        .sec.tour {
-          min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
-          /* even space above and below: the nav's height, then the same gap both ways */
-          padding: calc(var(--nav-h) + 28px) 0 28px;
+        /* The dashboard preview is big on purpose: on a desktop the frame takes
+           the full content width (up to 1120px), so the screenshot is readable.
+           The section is no longer one screen tall; it is as tall as the frame. */
+        .sec.tour { padding: calc(var(--nav-h) + 40px) 0 72px; }
+        .tour-try { display: flex; justify-content: center; margin: 0 auto 26px; }
+        .tour-try-btn {
+          display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 28px; border-radius: 999px;
+          font-size: 15.5px; font-weight: 600;
         }
+        .tour-try-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s var(--e-out); }
+        .tour-try-btn:hover svg { transform: translateX(3px); }
         .tour-frame {
-          width: min(100%, calc((100svh - 526px) * var(--tour-aspect)));
-          min-width: min(100%, 480px);
+          width: min(100%, 1120px);
           margin: 0 auto; border-radius: 16px; overflow: visible;
-          /* the address bar adapts to the frame's own width (which follows the
-             screen's height as much as its width), not the viewport's */
+          /* the address bar adapts to the frame's own width, not the viewport's */
           container-type: inline-size;
           background: var(--card-bg), #0A0D11;
           border: 1px solid var(--card-border);
@@ -514,7 +494,15 @@ export default function ProductTour({ lang }: { lang: Lang }) {
           background: rgba(255,255,255,.04); border: 1px solid var(--hair);
         }
         .tc-url svg { width: 11px; height: 11px; stroke: var(--text-3); stroke-width: 1.8; fill: none; stroke-linecap: round; flex: none; }
-        .tour-shot { position: relative; border-radius: 0 0 15px 15px; }
+        .tour-shot { position: relative; border-radius: 0 0 15px 15px; cursor: pointer; }
+        /* a hint on hover (mouse only): the screenshot is a door into the demo */
+        .tour-open {
+          position: absolute; left: 50%; bottom: 22px; z-index: 1; transform: translate(-50%, 6px); opacity: 0; pointer-events: none;
+          padding: 11px 20px; border-radius: 999px; font-size: 14px; font-weight: 600; color: #04140D; white-space: nowrap;
+          background: linear-gradient(180deg, var(--jade-bright), var(--jade-2)); box-shadow: 0 14px 34px -10px rgba(0,0,0,.8);
+          transition: opacity .25s var(--e-out), transform .25s var(--e-out);
+        }
+        @media (hover: hover) { .tour-shot:hover .tour-open { opacity: 1; transform: translate(-50%, 0); } }
         .tour-shot img { display: block; width: 100%; height: auto; border-radius: 0 0 15px 15px; user-select: none; }
         /* "Coming soon" state: a blurred wireframe of the page (not a fake
            screenshot) under a veil, with a badge. */
@@ -588,13 +576,6 @@ export default function ProductTour({ lang }: { lang: Lang }) {
         .tour-cap { text-align: center; font-size: 12.5px; color: var(--text-3); }
         .cap-note { display: none; }
 
-        @media (min-width: 701px) and (max-height: 820px) {
-          .sec.tour { padding: calc(var(--nav-h) + 16px) 0 16px; }
-        }
-        @media (max-width: 1100px) {
-          /* Narrower here: no minimum width, and never smaller than 320px. */
-          .tour-frame { width: min(100%, max(320px, calc((100svh - 526px) * var(--tour-aspect)))); min-width: 0; }
-        }
         /* Phones: no hover, and a floating note would run off a 375px screen,
            so the note shows in a caption under the screenshot instead. */
         @media (max-width: 700px) {

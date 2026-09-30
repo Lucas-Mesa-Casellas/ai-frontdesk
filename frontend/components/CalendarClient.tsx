@@ -24,7 +24,7 @@ type UndatedBooking = {
 
 export default function CalendarClient({
   cells, byDay, weekdayLabels, monthTitle, todayKey, year, month,
-  prevHref, nextHref, intlLocale, dashboardLocale, labels, legend, undated, stats,
+  base, prevHref, nextHref, intlLocale, dashboardLocale, labels, legend, undated, stats,
 }: {
   cells: (number | null)[];
   byDay: Record<number, Booking[]>;
@@ -33,6 +33,7 @@ export default function CalendarClient({
   todayKey: string;
   year: number;
   month: number;
+  base: string;
   prevHref: string;
   nextHref: string;
   intlLocale: string;
@@ -80,7 +81,7 @@ export default function CalendarClient({
 
   const renderActions = (b: { id: string; status: string }) => (
     <BookingActions
-      bookingId={b.id} path="/dashboard/calendar" currentStatus={b.status}
+      bookingId={b.id} path={`${base}/calendar`} currentStatus={b.status}
       confirmLabel={labels.calConfirm} confirmingLabel={labels.calConfirming}
       cancelLabel={labels.calCancel} cancellingLabel={labels.calCancelling}
       confirmedLabel={labels.calConfirmed_} cancelledLabel={labels.calCancelled}
@@ -90,7 +91,7 @@ export default function CalendarClient({
 
   const renderDelete = (bookingId: string) => (
     <DeleteButton
-      action={() => deleteBooking(bookingId, "/dashboard/calendar")}
+      action={() => deleteBooking(bookingId, `${base}/calendar`)}
       label={labels.calDelete}
       confirmMessage={labels.calDeleteConfirm}
       errorLabel={labels.calActionError}
@@ -129,7 +130,7 @@ export default function CalendarClient({
         {renderActions(b)}
         <span className="cal-req-more">
           {b.call_id && (
-            <Link href={`/dashboard/calls/${b.call_id}`} className="ui-btn ui-btn--secondary ui-btn--sm">
+            <Link href={`${base}/calls/${b.call_id}`} className="ui-btn ui-btn--secondary ui-btn--sm">
               {labels.calSeeCall} →
             </Link>
           )}

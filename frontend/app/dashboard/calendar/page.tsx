@@ -1,3 +1,4 @@
+import { dashBase } from "@/lib/demo/mode";
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
@@ -19,6 +20,7 @@ export default async function CalendarPage({
   const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
+  const base = await dashBase();
   const intlLocale = INTL_LOCALE[locale] || "en-US";
 
   const sp = await searchParams;
@@ -119,6 +121,7 @@ export default async function CalendarPage({
       />
 
       <CalendarClient
+        base={base}
         cells={cells}
         byDay={byDay}
         weekdayLabels={weekdayLabels}
@@ -126,8 +129,8 @@ export default async function CalendarPage({
         todayKey={todayKey}
         year={year}
         month={month}
-        prevHref={`/dashboard/calendar?month=${monthKey(prevMonthDate.getUTCFullYear(), prevMonthDate.getUTCMonth())}`}
-        nextHref={`/dashboard/calendar?month=${monthKey(nextMonthDate.getUTCFullYear(), nextMonthDate.getUTCMonth())}`}
+        prevHref={`${base}/calendar?month=${monthKey(prevMonthDate.getUTCFullYear(), prevMonthDate.getUTCMonth())}`}
+        nextHref={`${base}/calendar?month=${monthKey(nextMonthDate.getUTCFullYear(), nextMonthDate.getUTCMonth())}`}
         intlLocale={intlLocale}
         legend={{
           pending: t.calPending,

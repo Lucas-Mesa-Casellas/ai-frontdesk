@@ -15,6 +15,16 @@ const nextConfig: NextConfig = {
         source: "/:path*",
         headers: securityHeaders,
       },
+      // The interactive demo is shown inside an iframe on the landing page, so
+      // it may be framed by its own site (every other page stays unframeable).
+      {
+        source: "/demo/:path*",
+        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+      },
+      {
+        source: "/demo",
+        headers: [{ key: "X-Frame-Options", value: "SAMEORIGIN" }],
+      },
     ];
   },
 };

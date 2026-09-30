@@ -49,7 +49,7 @@ export default function BookingActions({
           <Icon width={12} height={12} />
           {settledKind === "confirm" ? confirmedLabel : cancelledLabel}
         </span>
-        <button onClick={() => setEditing(true)} className="cal-link-box ba-change">
+        <button onClick={() => setEditing(true)} className="cal-link-box ba-change" data-demo-write="">
           {changeLabel}
         </button>
       </div>
@@ -64,6 +64,7 @@ export default function BookingActions({
         <button
           disabled={pending}
           onClick={() => run("confirm")}
+          data-demo-write=""
           className="ui-btn ui-btn--primary ui-btn--sm"
           style={{ opacity: pending && action !== "confirm" ? 0.5 : 1 }}
         >
@@ -73,6 +74,7 @@ export default function BookingActions({
         <button
           disabled={pending}
           onClick={() => run("cancel")}
+          data-demo-write=""
           className="ui-btn ui-btn--warning ui-btn--sm"
           style={{ opacity: pending && action !== "cancel" ? 0.5 : 1 }}
         >

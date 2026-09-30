@@ -7,6 +7,7 @@ import { IconArrowLeft, IconPhone } from "@/components/icons";
 import { BUSINESS_TZ } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import { formatDuration } from "@/lib/format-duration";
+import { dashBase } from "@/lib/demo/mode";
 import TranslatedField from "@/components/TranslatedField";
 import TranscriptPanel from "@/components/TranscriptPanel";
 import DeleteButton from "@/components/DeleteButton";
@@ -20,6 +21,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
   const { supabase, business } = await getAuthedBusiness();
   const locale = await getLocale();
   const t = DASH_T[locale];
+  const base = await dashBase();
 
   const { data: call } = await supabase
     .from("calls").select("*").eq("id", id).single();
@@ -53,7 +55,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="ui-page cd-page">
-      <Link href="/dashboard/calls" className="cd-back dash-in">
+      <Link href={`${base}/calls`} className="cd-back dash-in">
         <IconArrowLeft width={14} height={14} /> {t.back}
       </Link>
 
@@ -177,11 +179,11 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
 
             <div className="cd-danger">
               <DeleteButton
-                action={deleteCall.bind(null, call.id, "/dashboard/calls")}
+                action={deleteCall.bind(null, call.id, `${base}/calls`)}
                 label={t.detailDelete}
                 confirmMessage={t.detailDeleteConfirm}
                 errorLabel={t.detailDeleteError}
-                redirectTo="/dashboard/calls"
+                redirectTo={`${base}/calls`}
                 className="ui-btn ui-btn--danger ui-btn--sm"
               />
             </div>

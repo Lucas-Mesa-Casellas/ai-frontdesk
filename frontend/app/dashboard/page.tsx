@@ -4,6 +4,7 @@ import { DASH_T } from "@/lib/dash-i18n";
 import { BUSINESS_TZ, madridHour, zonedTimeToUtc } from "@/lib/tz";
 import CountUp from "@/components/CountUp";
 import AutoRefresh from "@/components/AutoRefresh";
+import { dashBase } from "@/lib/demo/mode";
 import TranslatedField from "@/components/TranslatedField";
 import Card from "@/components/ui/Card";
 import { resolveTranslatable } from "@/lib/translate-helpers";
@@ -26,6 +27,7 @@ export default async function OverviewPage() {
   const t = DASH_T[locale];
 
   const businessId = business?.id;
+  const base = await dashBase();
 
   const [
     { count: totalCalls },
@@ -175,7 +177,7 @@ export default async function OverviewPage() {
           <div className="ov-panel-head">
             <h2 className="ov-h2">{t.ovLatest}</h2>
             {!!latestCalls?.length && (
-              <Link href="/dashboard/calls" className="ov-viewall">{t.ovViewAll} →</Link>
+              <Link href={`${base}/calls`} className="ov-viewall">{t.ovViewAll} →</Link>
             )}
           </div>
           {!latestCalls?.length ? (
@@ -191,7 +193,7 @@ export default async function OverviewPage() {
                 const when = new Date(c.created_at);
                 const initial = (c.caller_name || "").trim().charAt(0).toUpperCase();
                 return (
-                  <Link key={c.id} href={`/dashboard/calls/${c.id}`} className="ov-latest-row">
+                  <Link key={c.id} href={`${base}/calls/${c.id}`} className="ov-latest-row">
                     <span className="ov-latest-av" aria-hidden="true">
                       {initial || <IconPhone width={14} height={14} />}
                     </span>

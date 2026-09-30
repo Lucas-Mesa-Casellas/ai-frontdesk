@@ -8,6 +8,8 @@ import DashboardSidebar from "@/components/DashboardSidebar";
 import NavLink from "@/components/NavLink";
 import CommandPalette from "@/components/CommandPalette";
 import RememberPlace from "@/components/RememberPlace";
+import DemoShell from "@/components/demo/DemoShell";
+import { dashBase } from "@/lib/demo/mode";
 import { IconOverview, IconPhone, IconCalendar, IconGear, IconSupport } from "@/components/icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
@@ -16,6 +18,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   const locale = await getLocale();
   const t = DASH_T[locale];
+  const base = await dashBase();
+  const demo = base === "/demo";
 
   const initial = business?.name?.[0] || user.email?.[0]?.toUpperCase() || "U";
 
@@ -33,14 +37,14 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </div>
 
         <div role="navigation" aria-label="Dashboard" className="dash-nav">
-          <NavLink href="/dashboard"><IconOverview width={17} height={17} />{t.navOverview}</NavLink>
-          <NavLink href="/dashboard/calls"><IconPhone width={17} height={17} />{t.navCalls}</NavLink>
-          <NavLink href="/dashboard/calendar"><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
-          <NavLink href="/dashboard/support"><IconSupport width={17} height={17} />{t.navSupport}</NavLink>
-          <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
+          <NavLink href={base} exact><IconOverview width={17} height={17} />{t.navOverview}</NavLink>
+          <NavLink href={`${base}/calls`}><IconPhone width={17} height={17} />{t.navCalls}</NavLink>
+          <NavLink href={`${base}/calendar`}><IconCalendar width={17} height={17} />{t.navCalendar}</NavLink>
+          <NavLink href={`${base}/support`}><IconSupport width={17} height={17} />{t.navSupport}</NavLink>
+          <NavLink href={`${base}/settings`}><IconGear width={17} height={17} />{t.navSettings}</NavLink>
 
           <div className="nav-sep" aria-hidden="true" />
-          <a href="/" className="nav-link">
+          <a href="/" className="nav-link" {...(demo ? { "data-demo-exit": "" } : {})}>
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 11.5 12 4l9 7.5" />
               <path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9" />
@@ -52,16 +56,16 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       </DashboardSidebar>
 
       <div role="main" className="dash-main">
-        <RememberPlace />
+        {demo ? <DemoShell locale={locale} /> : <RememberPlace />}
         <div className="dash-topbar">
           <div className="dash-topbar-left">
             <CommandPalette
               items={[
-                { href: "/dashboard", label: t.navOverview },
-                { href: "/dashboard/calls", label: t.navCalls },
-                { href: "/dashboard/calendar", label: t.navCalendar },
-                { href: "/dashboard/support", label: t.navSupport },
-                { href: "/dashboard/settings", label: t.navSettings },
+                { href: base, label: t.navOverview },
+                { href: `${base}/calls`, label: t.navCalls },
+                { href: `${base}/calendar`, label: t.navCalendar },
+                { href: `${base}/support`, label: t.navSupport },
+                { href: `${base}/settings`, label: t.navSettings },
                 { href: "/", label: t.navHome },
               ]}
               placeholder={t.cmdPlaceholder} empty={t.cmdEmpty} openLabel={t.cmdOpen}

@@ -1,5 +1,9 @@
 import { cache } from "react";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase-server";
+import { isDemo } from "@/lib/demo/mode";
+import { demoData } from "@/lib/demo/dataset";
+import { demoClient } from "@/lib/demo/client";
 
 /**
  * Both the dashboard layout and every dashboard page were independently
@@ -15,6 +19,18 @@ import { createClient } from "@/lib/supabase-server";
  * is the standard Next.js App Router pattern for exactly this problem.
  */
 export const getAuthedBusiness = cache(async () => {
+  // The demo (proxy.ts rewrites /demo/* to these pages): sample rows from
+  // memory, in the visitor's language, and no session or network at all.
+  if (await isDemo()) {
+    const raw = (await cookies()).get("lmc_locale")?.value;
+    const data = demoData(raw === "es" || raw === "fr" ? raw : "en");
+    return {
+      supabase: demoClient(data) as unknown as Awaited<ReturnType<typeof createClient>>,
+      user: { id: data.userId, email: String(data.business.notification_email ?? "") } as { id: string; email?: string },
+      business: data.business as Record<string, any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+    };
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
