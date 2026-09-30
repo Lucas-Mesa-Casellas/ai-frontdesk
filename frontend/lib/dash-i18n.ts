@@ -28,7 +28,7 @@ export type DashDict = {
   urgencyLow: string; urgencyNormal: string; urgencyHigh: string; urgencyUnknown: string;
   intentBookAppointment: string; intentCallback: string; intentInquiry: string; intentOther: string;
 
-  detailDate: string; detailTime: string; detailRequested: string; detailUrgency: string; detailUrgent: string;
+  detailDate: string; detailTime: string; detailDuration: string; detailRequested: string; detailUrgency: string; detailUrgent: string;
   detailSummary: string; detailTranscript: string; detailIntent: string;
   detailDelete: string; detailDeleteConfirm: string; detailDeleteError: string;
   transcriptTranslateBtn: string; transcriptTranslating: string;
@@ -88,7 +88,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     intentBookAppointment: "Appointment request", intentCallback: "Callback request",
     intentInquiry: "General inquiry", intentOther: "Other",
 
-    detailDate: "Date", detailTime: "Time", detailRequested: "Requested time",
+    detailDate: "Date", detailTime: "Time", detailDuration: "Call length", detailRequested: "Requested time",
     detailUrgency: "Urgency", detailUrgent: "Urgent", detailSummary: "AI summary", detailTranscript: "Full transcript",
     transcriptTranslateBtn: "Translate transcript", transcriptTranslating: "Translating…",
     transcriptShowOriginal: "Show original", transcriptShowTranslated: "Show translation",
@@ -154,7 +154,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     intentBookAppointment: "Solicitud de cita", intentCallback: "Devolver llamada",
     intentInquiry: "Consulta general", intentOther: "Otro",
 
-    detailDate: "Fecha", detailTime: "Hora", detailRequested: "Hora solicitada",
+    detailDate: "Fecha", detailTime: "Hora", detailDuration: "Duración de la llamada", detailRequested: "Hora solicitada",
     detailUrgency: "Urgencia", detailUrgent: "Urgente", detailSummary: "Resumen de la IA", detailTranscript: "Transcripción completa",
     transcriptTranslateBtn: "Traducir transcripción", transcriptTranslating: "Traduciendo…",
     transcriptShowOriginal: "Ver original", transcriptShowTranslated: "Ver traducción",
@@ -220,7 +220,7 @@ export const DASH_T: Record<Locale, DashDict> = {
     intentBookAppointment: "Demande de rendez-vous", intentCallback: "Demande de rappel",
     intentInquiry: "Demande de renseignements", intentOther: "Autre",
 
-    detailDate: "Date", detailTime: "Heure", detailRequested: "Horaire demandé",
+    detailDate: "Date", detailTime: "Heure", detailDuration: "Durée de l'appel", detailRequested: "Horaire demandé",
     detailUrgency: "Urgence", detailUrgent: "Urgent", detailSummary: "Résumé de l'IA", detailTranscript: "Transcription complète",
     transcriptTranslateBtn: "Traduire la transcription", transcriptTranslating: "Traduction…",
     transcriptShowOriginal: "Voir l'original", transcriptShowTranslated: "Voir la traduction",

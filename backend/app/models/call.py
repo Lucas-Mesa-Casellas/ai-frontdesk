@@ -40,10 +40,15 @@ class ExtractedCallData(BaseModel):
     extraction_confidence: float = 0.0
     missing_fields: list[str] = []
     notes: Optional[str] = None
+    # Short category of what the caller asked about, and one short phrase on
+    # why the call did or didn't end in a booking or transfer. Both are
+    # written in the business's language and stay null when nothing fits.
+    topic: Optional[str] = None
+    outcome_reason: Optional[str] = None
 
     @field_validator(
         "caller_name", "caller_phone", "summary", "preferred_time",
-        "preferred_time_iso", "next_action", "notes",
+        "preferred_time_iso", "next_action", "notes", "topic", "outcome_reason",
         mode="before",
     )
     @classmethod

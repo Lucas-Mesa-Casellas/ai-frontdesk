@@ -38,6 +38,13 @@ const COPY = {
     ES: "Elige la voz que escucharán tus clientes: dos voces en cada idioma.",
     FR: "Choisissez la voix qu'entendront vos clients : deux voix par langue.",
   } as L10n,
+  // the caption over the Calls-page screenshot: what a client gets once the call is over
+  after: {
+    EN: "After every call, this is what you get.",
+    ES: "Después de cada llamada, esto es lo que recibes.",
+    FR: "Après chaque appel, voici ce que vous recevez.",
+  } as L10n,
+  shotAlt: { EN: "The Calls page of the dashboard", ES: "La página de llamadas del panel", FR: "La page Appels du tableau de bord" } as L10n,
   play: { EN: "Play", ES: "Reproducir", FR: "Lire" } as L10n,
   pause: { EN: "Pause", ES: "Pausa", FR: "Pause" } as L10n,
   seek: { EN: "Position", ES: "Posición", FR: "Position" } as L10n,
@@ -154,6 +161,7 @@ function VoiceCard({
 export default function VoiceSamples({ lang }: { lang: Lang }) {
   const [current, setCurrent] = useState<string | null>(null);
   const [seen, setSeen] = useState(false);
+  const [shotFailed, setShotFailed] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -168,6 +176,8 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
     return () => io.disconnect();
   }, []);
 
+  const shot = `/tour/${lang.toLowerCase()}/calls.png`;
+
   return (
     <section ref={rootRef} className={`sec voice${seen ? " seen" : ""}`} id="voice" aria-label={COPY.heading[lang]}>
       <div className="wrap">
@@ -177,6 +187,7 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
           <p className="sec-sub">{COPY.sub[lang]}</p>
         </div>
 
+        <div className={`vs-layout${shotFailed ? " no-shot" : ""}`}>
         <ul className="vs-grid">
           {LANGS.map((l) => (
             <li key={l.code} className="vs-lang">
@@ -195,18 +206,66 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
             </li>
           ))}
         </ul>
+
+        {!shotFailed && (
+          <figure className="vs-shot">
+            <figcaption className="vs-shot-cap">{COPY.after[lang]}</figcaption>
+            {/* the same framing as the dashboard tour above */}
+            <div className="vs-frame">
+              <div className="vs-chrome">
+                <span className="vs-dots" aria-hidden="true"><i /><i /><i /></span>
+                <span className="vs-url" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" /></svg>
+                  lmcagents.app/dashboard/calls
+                </span>
+                <span />
+              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                key={shot} src={shot} alt={COPY.shotAlt[lang]} width={1440} height={900}
+                loading="lazy" decoding="async" draggable={false}
+                onError={() => setShotFailed(true)}
+              />
+            </div>
+          </figure>
+        )}
+        </div>
       </div>
 
       <style>{`
         /* Natural height: three language cards plus the shared section padding. */
         .voice .sec-h { min-height: 0; }
         .voice .sec-sub { min-height: 0; }
-        .vs-top, .vs-grid { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
-        .voice.seen .vs-top, .voice.seen .vs-grid { opacity: 1; transform: none; }
+        .vs-top, .vs-grid, .vs-shot { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
+        .voice.seen .vs-top, .voice.seen .vs-grid, .voice.seen .vs-shot { opacity: 1; transform: none; }
         .voice.seen .vs-grid { transition-delay: .1s; }
+        .voice.seen .vs-shot { transition-delay: .18s; }
 
-        /* three language columns, two voice cards in each (six in all) */
-        .vs-grid { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; max-width: 1180px; margin: 0 auto; }
+        /* Desktop: the three language groups (two voice cards each) on the
+           left, the Calls page of the dashboard on the right, so the whole
+           section stays one screen. Tablet and phone: one column, the
+           screenshot under the voices. */
+        .vs-layout { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.2fr); gap: 40px; align-items: center; max-width: 1180px; margin: 0 auto; }
+        .vs-layout.no-shot { grid-template-columns: minmax(0, 1fr); }
+        .vs-grid { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+        .vs-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+        .vs-shot { margin: 0; min-width: 0; }
+        .vs-shot-cap { margin: 0 0 12px 2px; font-size: 13px; font-weight: 500; letter-spacing: -.005em; color: var(--text-2); }
+        .vs-frame {
+          border-radius: 16px; overflow: hidden;
+          background: var(--card-bg), #0A0D11; border: 1px solid var(--card-border);
+          box-shadow: 0 50px 100px -50px rgba(0,0,0,.95), 0 0 80px -40px rgba(18,185,129,.35);
+        }
+        .vs-chrome { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 12px; height: 34px; padding: 0 12px; border-bottom: 1px solid var(--hair); }
+        .vs-dots { display: flex; gap: 6px; }
+        .vs-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.14); }
+        .vs-url {
+          display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 11px; border-radius: 7px;
+          font-size: 11px; color: var(--text-3); white-space: nowrap; background: rgba(255,255,255,.04); border: 1px solid var(--hair);
+        }
+        .vs-url svg { width: 10px; height: 10px; stroke: var(--text-3); stroke-width: 1.8; fill: none; stroke-linecap: round; flex: none; }
+        .vs-frame img { display: block; width: 100%; height: auto; user-select: none; }
         .vs-lh { display: flex; align-items: center; gap: 10px; margin: 0 2px 12px; }
         .vs-lh b { font-size: 15px; font-weight: 600; letter-spacing: -.015em; }
         .vs-code {
@@ -243,17 +302,20 @@ export default function VoiceSamples({ lang }: { lang: Lang }) {
         .vs-wave input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
         .vs-wave input:disabled { cursor: default; }
 
-        /* tablet: one language per row, its two voices side by side */
-        @media (max-width: 1000px) {
-          .vs-grid { grid-template-columns: 1fr; max-width: 720px; gap: 26px; }
-          .vs-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        /* tablet and phone: everything in one column, the screenshot last */
+        @media (max-width: 1100px) {
+          .vs-layout { grid-template-columns: minmax(0, 1fr); gap: 34px; max-width: 720px; }
+          .vs-grid { gap: 26px; }
         }
         @media (max-width: 560px) {
           .vs-cards { grid-template-columns: 1fr; }
           .vs-btn { width: 44px; height: 44px; }
+          .vs-chrome { grid-template-columns: minmax(0,1fr); }
+          .vs-dots, .vs-chrome > span:last-child { display: none; }
+          .vs-url { justify-self: start; max-width: 100%; overflow: hidden; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .vs-top, .vs-grid { transition: none; opacity: 1; transform: none; }
+          .vs-top, .vs-grid, .vs-shot { transition: none; opacity: 1; transform: none; }
         }
       `}</style>
     </section>

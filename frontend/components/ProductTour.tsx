@@ -7,15 +7,14 @@ type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
 type SlideId = "overview" | "calls" | "calendar" | "support";
 
-// The real dashboard screenshots don't exist yet. Until they do, each slide
-// shows a crisp, illustrative mock of that dashboard page (see TourMock:
-// abstract blocks plus a little sample text in the visitor's language),
-// labelled "Illustrative preview", so the layout and the hover notes can be
-// reviewed live.
-// When the 12 screenshots are in public/tour/<en|es|fr>/<slide>.png, flip
-// this to true: the frame, tabs and hotspots stay exactly as they are (only
-// the hotspot x/y below may need nudging onto the real images).
-export const TOUR_SCREENSHOTS_READY = false;
+// Each slide shows a real render of that dashboard page, in the visitor's
+// language: public/tour/<en|es|fr>/<slide>.png (1440x900), made from the
+// actual dashboard with an invented business and invented callers. If an
+// image ever fails to load, the slide falls back to TourMock, an
+// illustrative wireframe labelled "Illustrative preview". The hotspot x/y
+// below are in % of the 1440x900 image and sit on the same parts in all
+// three languages.
+export const TOUR_SCREENSHOTS_READY = true;
 
 // Width / height of the screenshots (16:10 = a 1440x900 window). Used for the
 // placeholder box and to size the frame so a slide fits one screen.
@@ -70,7 +69,7 @@ const SLIDES: Slide[] = [
     },
     hotspots: [
       {
-        x: 40.5, y: 22,
+        x: 67, y: 26.5,
         note: {
           EN: "Calls answered, booking requests and your booking rate, updated as calls come in.",
           ES: "Llamadas atendidas, solicitudes de cita y tu tasa de reserva, al día con cada llamada.",
@@ -78,7 +77,7 @@ const SLIDES: Slide[] = [
         },
       },
       {
-        x: 40, y: 62,
+        x: 40, y: 58,
         note: {
           EN: "See when your calls come in, hour by hour, so you know when the phone matters most.",
           ES: "Mira a qué horas llegan tus llamadas y sabrás cuándo es más importante estar localizable.",
@@ -98,7 +97,7 @@ const SLIDES: Slide[] = [
     },
     hotspots: [
       {
-        x: 26, y: 20,
+        x: 36.9, y: 28,
         note: {
           EN: "Pick a date range with the calendar, or just type it.",
           ES: "Elige un rango de fechas en el calendario, o escríbelo directamente.",
@@ -106,7 +105,7 @@ const SLIDES: Slide[] = [
         },
       },
       {
-        x: 42, y: 36,
+        x: 45.6, y: 43.8,
         note: {
           EN: "A one-line AI summary of what the caller wanted, so you don't have to listen back.",
           ES: "Un resumen en una línea de lo que quería quien llamó, sin tener que escuchar la llamada.",
@@ -114,7 +113,7 @@ const SLIDES: Slide[] = [
         },
       },
       {
-        x: 76, y: 33,
+        x: 82.7, y: 43.8,
         note: {
           EN: "Tags show the type of call and whether it needs your review.",
           ES: "Las etiquetas indican el tipo de llamada y si necesita tu revisión.",
@@ -134,7 +133,7 @@ const SLIDES: Slide[] = [
     },
     hotspots: [
       {
-        x: 32, y: 50,
+        x: 39.3, y: 67,
         note: {
           EN: "Each day shows how many requests it has, colour-coded by status.",
           ES: "Cada día muestra cuántas solicitudes tiene, con un color según su estado.",
@@ -142,7 +141,7 @@ const SLIDES: Slide[] = [
         },
       },
       {
-        x: 79, y: 54,
+        x: 89.5, y: 49.9,
         note: {
           EN: "Open a day to confirm or cancel each request, or jump to the call behind it.",
           ES: "Abre un día para confirmar o cancelar cada solicitud, o ir a la llamada que la originó.",
@@ -162,7 +161,7 @@ const SLIDES: Slide[] = [
     },
     hotspots: [
       {
-        x: 40, y: 34,
+        x: 74, y: 50,
         note: {
           EN: "Describe the problem or your question. No name or email to fill in, we already know who you are.",
           ES: "Describe el problema o tu duda. Sin nombre ni email que rellenar: ya sabemos quién eres.",
@@ -170,7 +169,7 @@ const SLIDES: Slide[] = [
         },
       },
       {
-        x: 36, y: 65,
+        x: 38, y: 71,
         note: {
           EN: "Attach a screenshot or a PDF so we can see exactly what you see.",
           ES: "Adjunta una captura o un PDF para que veamos exactamente lo mismo que tú.",
@@ -392,7 +391,8 @@ export default function ProductTour({ lang }: { lang: Lang }) {
               {showReal ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  ref={imgRef} src={src} alt={`${slide.label[lang]}`} draggable={false}
+                  ref={imgRef} src={src} alt={`${slide.label[lang]}`} width={1440} height={900}
+                  decoding="async" draggable={false}
                   onError={() => setFailed((f) => ({ ...f, [src]: true }))}
                 />
               ) : (

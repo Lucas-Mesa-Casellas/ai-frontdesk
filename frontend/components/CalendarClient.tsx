@@ -257,7 +257,9 @@ export default function CalendarClient({
           transition: background .2s var(--e-out), border-color .2s var(--e-out), color .2s var(--e-out);
         }
         .cal-nav:hover { background: rgba(255,255,255,.06); border-color: var(--border-strong); color: var(--text); }
-        .cal-month { min-width: 150px; text-align: center; font-size: 17px; font-weight: 600; letter-spacing: -.02em; text-transform: capitalize; }
+        .cal-month { min-width: 150px; text-align: center; font-size: 17px; font-weight: 600; letter-spacing: -.02em; }
+        /* only the first letter: "septiembre de 2026" -> "Septiembre de 2026", not "Septiembre De 2026" */
+        .cal-month::first-letter { text-transform: uppercase; }
         .cal-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 11.5px; color: var(--text-3); }
         .cal-legend span { display: inline-flex; align-items: center; gap: 7px; }
         .cal-legend span::before { content: ""; width: 14px; height: 3px; border-radius: 2px; background: var(--c); }

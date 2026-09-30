@@ -55,6 +55,7 @@ summary, next_action, and notes directly in {language_name} -- not
 English, regardless of what language the transcript itself is in --
 since a human business owner reads these, not this system. Do NOT
 translate caller_name or preferred_time; keep those exactly as heard.
+topic and outcome_reason are also written in {language_name}.
 intent, urgency, and booking_type below MUST stay the exact English
 values listed for each -- those are read by code, never shown as raw
 text to a person. caller_phone has its own, separate rule below --
@@ -118,6 +119,13 @@ Fields to extract:
 - extraction_confidence: float 0.0 to 1.0
 - missing_fields: list of field names not mentioned in the transcript
 - notes: any extra relevant detail, written in {language_name}, or null
+- topic: a short category (one to three words) for what the caller asked
+  about, written in {language_name} -- e.g. a leak repair, a boiler service,
+  a property viewing, opening hours, a quote. Null if nothing fits.
+- outcome_reason: one short phrase, written in {language_name}, saying why
+  the call did or did not end in a booking or a transfer to a person --
+  e.g. the caller only wanted information, no slot was agreed, the caller
+  hung up, a visit was requested. Null if unclear.
 """
 
 
@@ -147,7 +155,7 @@ def extract_call_data(
                 {"role": "system", "content": build_system_prompt(business_language)},
                 {"role": "user", "content": f"Call date/time: {call_started_at}\n\nTranscript:\n{transcript}"},
             ],
-            max_tokens=500,
+            max_tokens=600,
             temperature=0,
         )
         raw_text = response.choices[0].message.content

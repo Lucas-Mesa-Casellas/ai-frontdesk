@@ -7,6 +7,7 @@ import { IconPhone } from "@/components/icons";
 import { BUSINESS_TZ, zonedTimeToUtc } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import TranslatedField from "@/components/TranslatedField";
+import { formatDuration } from "@/lib/format-duration";
 import DateFilterInput from "@/components/DateFilterInput";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
@@ -141,7 +142,16 @@ export default async function CallsPage({
                 </span>
                 <span className="cr-when">
                   <b>{when.toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: BUSINESS_TZ })}</b>
-                  <span>{when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}</span>
+                  <span>
+                    {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
+                    {formatDuration(c.duration_seconds) && (
+                      <em className="cr-dur" title={t.detailDuration}>
+                        <span aria-hidden="true"> · </span>
+                        <svg className="dur-ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 1.5M9.5 2.5h5" /></svg>
+                        <span className="sr-only">{t.detailDuration} </span>{formatDuration(c.duration_seconds)}
+                      </em>
+                    )}
+                  </span>
                 </span>
                 <span className="cr-chev" aria-hidden="true">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9.5 6 6 6-6 6" /></svg>
@@ -166,7 +176,7 @@ export default async function CallsPage({
         .calls-table:hover { transform: none; box-shadow: var(--shadow-card); }
         .call-row {
           display: grid; align-items: center; column-gap: 20px;
-          grid-template-columns: minmax(160px, 1.15fr) minmax(130px, .8fr) minmax(200px, 2fr) minmax(150px, 1.05fr) 96px 18px;
+          grid-template-columns: minmax(160px, 1.15fr) minmax(150px, .8fr) minmax(200px, 2fr) minmax(150px, 1.05fr) 132px 18px;
           padding: 15px 24px; text-decoration: none; color: inherit;
         }
         .call-thead {
@@ -192,6 +202,8 @@ export default async function CallsPage({
         .cr-when { display: flex; flex-direction: column; gap: 2px; text-align: right; }
         .cr-when b { font-size: 12.5px; font-weight: 500; }
         .cr-when span { font-size: 12px; color: var(--text-3); }
+        .cr-dur { font-style: normal; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .cr-dur .dur-ic { display: inline-block; vertical-align: -1px; margin: 0 3px 0 1px; opacity: .8; }
         .cr-chev { color: var(--text-3); display: grid; place-items: center; transition: color .2s var(--e-out), transform .2s var(--e-out); }
 
         .calls-empty { padding: 64px 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }

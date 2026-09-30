@@ -7,6 +7,7 @@ import LangSwitcher from "@/components/LangSwitcher";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import NavLink from "@/components/NavLink";
 import CommandPalette from "@/components/CommandPalette";
+import RememberPlace from "@/components/RememberPlace";
 import { IconOverview, IconPhone, IconCalendar, IconGear, IconSupport } from "@/components/icons";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
@@ -39,7 +40,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <NavLink href="/dashboard/settings"><IconGear width={17} height={17} />{t.navSettings}</NavLink>
 
           <div className="nav-sep" aria-hidden="true" />
-          <a href="/?marketing=1" className="nav-link">
+          <a href="/" className="nav-link">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 11.5 12 4l9 7.5" />
               <path d="M5 10v9a1 1 0 0 0 1 1h3v-6h6v6h3a1 1 0 0 0 1-1v-9" />
@@ -51,6 +52,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       </DashboardSidebar>
 
       <div role="main" className="dash-main">
+        <RememberPlace />
         <div className="dash-topbar">
           <div className="dash-topbar-left">
             <CommandPalette
@@ -60,7 +62,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                 { href: "/dashboard/calendar", label: t.navCalendar },
                 { href: "/dashboard/support", label: t.navSupport },
                 { href: "/dashboard/settings", label: t.navSettings },
-                { href: "/?marketing=1", label: t.navHome },
+                { href: "/", label: t.navHome },
               ]}
               placeholder={t.cmdPlaceholder} empty={t.cmdEmpty} openLabel={t.cmdOpen}
             />

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { IconArrowLeft, IconPhone } from "@/components/icons";
 import { BUSINESS_TZ } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
+import { formatDuration } from "@/lib/format-duration";
 import TranslatedField from "@/components/TranslatedField";
 import TranscriptPanel from "@/components/TranscriptPanel";
 import DeleteButton from "@/components/DeleteButton";
@@ -47,6 +48,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
   const urgency = call.urgency ? URGENCY[call.urgency] : null;
 
   const when = new Date(call.created_at);
+  const duration = formatDuration(call.duration_seconds);
   const initial = (call.caller_name || "").trim().charAt(0).toUpperCase();
 
   return (
@@ -68,6 +70,11 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
                 {when.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", timeZone: BUSINESS_TZ })}
                 {" · "}
                 {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
+                {duration && (
+                  <span className="cd-dur" title={t.detailDuration}>
+                    {" · "}<svg className="dur-ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 1.5M9.5 2.5h5" /></svg><span className="sr-only">{t.detailDuration} </span>{duration}
+                  </span>
+                )}
               </p>
             </div>
             <div className="cd-badges">
@@ -126,7 +133,14 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
               </div>
               <div>
                 <dt>{t.detailTime}</dt>
-                <dd>{when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}</dd>
+                <dd>
+                  {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
+                  {duration && (
+                    <span className="cd-dur" title={t.detailDuration}>
+                      {" · "}<svg className="dur-ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 1.5M9.5 2.5h5" /></svg><span className="sr-only">{t.detailDuration} </span>{duration}
+                    </span>
+                  )}
+                </dd>
               </div>
               {call.intent && intentLabel[call.intent] && (
                 <div>
@@ -206,6 +220,9 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
         .cd-name { font-size: 24px; font-weight: 600; letter-spacing: -.025em; line-height: 1.15; margin: 0 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .cd-phone { font-size: 13.5px; color: var(--text-2); font-variant-numeric: tabular-nums; }
         .cd-when { font-size: 12.5px; color: var(--text-3); margin-top: 3px; }
+        .cd-dur { font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .cd-dur .dur-ic { display: inline-block; vertical-align: -1px; margin: 0 3px 0 1px; opacity: .8; }
+        .cd-facts dd .cd-dur { color: var(--text-3); font-weight: 400; }
         .cd-badges { display: flex; flex-wrap: wrap; gap: 8px; }
 
         /* shared block header + body (TranscriptPanel uses these too) */

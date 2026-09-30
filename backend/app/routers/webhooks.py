@@ -112,6 +112,15 @@ async def retell_webhook(request: Request):
     # prefer the verified Caller ID over storing a malformed number.
     caller_phone = to_e164(extracted_phone, country) or to_e164(from_number, country) or from_number
 
+    # Call analytics. Duration comes from Retell's own start/end timestamps;
+    # sentiment and disconnection reason are stored only when Retell sent
+    # them (sentiment lives in call_analysis, which can be absent).
+    duration_seconds = None
+    if start_ts is not None and end_ts is not None and end_ts >= start_ts:
+        duration_seconds = round((end_ts - start_ts) / 1000)
+    call_analysis = call_data.get("call_analysis") or {}
+    user_sentiment = call_analysis.get("user_sentiment")
+
     now = datetime.now(timezone.utc).isoformat()
     call_record = {
         "business_id": business["id"],
@@ -131,6 +140,11 @@ async def retell_webhook(request: Request):
         "extraction_confidence": float(extracted.extraction_confidence),
         "missing_fields": extracted.missing_fields,
         "notes": extracted.notes,
+        "topic": extracted.topic,
+        "outcome_reason": extracted.outcome_reason,
+        "duration_seconds": duration_seconds,
+        "user_sentiment": user_sentiment,
+        "disconnection_reason": disconnection_reason,
         "raw_payload": raw_payload,
         "ai_extracted_at": now,
         "status": "request_captured" if extracted.extraction_complete else "needs_review",
