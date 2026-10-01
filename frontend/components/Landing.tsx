@@ -959,7 +959,7 @@ export default function Landing({ initialLang }: { initialLang: LangCode }) {
           "coming soon" state until its TOUR_SCREENSHOTS_READY /
           VOICE_SAMPLES_READY flag is flipped (inside the component). */}
       <ProductTour lang={lang} onOpenDemo={openDemo} />
-      <VoiceSamples lang={lang} onOpenDemo={openDemo} />
+      <VoiceSamples lang={lang} />
 
       <section className="sec" id="pricing">
         <div className="wrap">

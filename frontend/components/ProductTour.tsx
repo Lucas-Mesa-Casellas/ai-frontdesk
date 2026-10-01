@@ -462,9 +462,8 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
         }
         .tour-stage { min-width: 0; }
 
-        /* The dashboard preview is big on purpose: on a desktop the frame takes
-           the full content width (up to 1120px), so the screenshot is readable.
-           The section is no longer one screen tall; it is as tall as the frame. */
+        /* A compact preview: the demo button above it (and a click on the image)
+           opens the full dashboard, so the screenshot itself stays small. */
         .sec.tour { padding: calc(var(--nav-h) + 40px) 0 72px; }
         .tour-try { display: flex; justify-content: center; margin: 0 auto 26px; }
         .tour-try-btn {
@@ -474,7 +473,7 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
         .tour-try-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s var(--e-out); }
         .tour-try-btn:hover svg { transform: translateX(3px); }
         .tour-frame {
-          width: min(100%, 1120px);
+          width: min(100%, 780px);
           margin: 0 auto; border-radius: 16px; overflow: visible;
           /* the address bar adapts to the frame's own width, not the viewport's */
           container-type: inline-size;

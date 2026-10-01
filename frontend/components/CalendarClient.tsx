@@ -293,13 +293,12 @@ export default function CalendarClient({
         .cal-ind { display: flex; align-items: center; gap: 6px; color: var(--c); line-height: 1; }
         .cal-ind b { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
         .cal-ind i { flex: none; width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
-        /* laptop-height screens: a busy day's status counts sit on one line
-           (coloured numbers, without the dash) instead of stacked, so its
-           cell doesn't force the month taller than the screen */
+        /* On short screens the cells get a little tighter, but the counts of each
+           status stay stacked, one per line -- side by side they read as one
+           number ("1 1 3" looks like "113"). The page scrolls if it has to. */
         @media (min-width: 1101px) and (max-height: 820px) {
-          .cal-grid .cal-cell { padding: 7px 9px; gap: 5px; }
-          .cal-inds { flex-direction: row; flex-wrap: wrap; gap: 3px 8px; }
-          .cal-ind i { display: none; }
+          .cal-grid .cal-cell { padding: 7px 9px; gap: 4px; }
+          .cal-inds { gap: 2px; }
         }
 
         /* ---------- side: stats, then the requests ---------- */

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DEMO_COPY, type DemoPage } from "@/lib/demo/copy";
 
 type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
@@ -55,13 +54,6 @@ const COPY = {
     ES: "Esta grabación no está disponible ahora mismo.",
     FR: "Cet enregistrement n'est pas disponible pour le moment.",
   } as L10n,
-  // the caption over the Calls-page screenshot: what a client gets once the call is over
-  after: {
-    EN: "After every call, this is what you get.",
-    ES: "Después de cada llamada, esto es lo que recibes.",
-    FR: "Après chaque appel, voici ce que vous recevez.",
-  } as L10n,
-  shotAlt: { EN: "The Calls page of the dashboard", ES: "La página de llamadas del panel", FR: "La page Appels du tableau de bord" } as L10n,
   play: { EN: "Play", ES: "Reproducir", FR: "Lire" } as L10n,
   pause: { EN: "Pause", ES: "Pausa", FR: "Pause" } as L10n,
   seek: { EN: "Position", ES: "Posición", FR: "Position" } as L10n,
@@ -154,9 +146,7 @@ function Player({ src, uiLang, title }: { src: string; uiLang: Lang; title: stri
   );
 }
 
-export default function VoiceSamples({
-  lang, onOpenDemo,
-}: { lang: Lang; onOpenDemo?: (page: DemoPage) => void }) {
+export default function VoiceSamples({ lang }: { lang: Lang }) {
   // The language selector starts on the visitor's own language; a choice made
   // here holds until they change the site's language again.
   const [pickedLang, setPickedLang] = useState<{ forLang: Lang; value: Lang } | null>(null);
@@ -167,7 +157,6 @@ export default function VoiceSamples({
   const voiceName = VOICES.find((v) => v.gender === gender)!.name[lang];
 
   const [seen, setSeen] = useState(false);
-  const [shotFailed, setShotFailed] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -182,8 +171,6 @@ export default function VoiceSamples({
     return () => io.disconnect();
   }, []);
 
-  const shot = `/tour/${lang.toLowerCase()}/calls.png`;
-
   return (
     <section ref={rootRef} className={`sec voice${seen ? " seen" : ""}`} id="voice" aria-label={COPY.heading[lang]}>
       <div className="wrap">
@@ -193,7 +180,7 @@ export default function VoiceSamples({
           <p className="sec-sub">{COPY.sub[lang]}</p>
         </div>
 
-        <div className={`vs-layout${shotFailed ? " no-shot" : ""}`}>
+        <div className="vs-layout">
           <div className="vs-card">
             <div className="vs-sels">
               <div className="vs-sel">
@@ -235,29 +222,6 @@ export default function VoiceSamples({
             </div>
           </div>
 
-          {!shotFailed && (
-            <figure className="vs-shot">
-              <figcaption className="vs-shot-cap">{COPY.after[lang]}</figcaption>
-              {/* the same framing as the dashboard tour above; a click opens the demo on the Calls page */}
-              <button type="button" className="vs-frame" onClick={() => onOpenDemo?.("calls")} aria-label={DEMO_COPY.open[lang]}>
-                <span className="vs-chrome">
-                  <span className="vs-dots" aria-hidden="true"><i /><i /><i /></span>
-                  <span className="vs-url" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" /></svg>
-                    lmcagents.app/dashboard/calls
-                  </span>
-                  <span />
-                </span>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  key={shot} src={shot} alt={COPY.shotAlt[lang]} width={1440} height={900}
-                  loading="lazy" decoding="async" draggable={false}
-                  onError={() => setShotFailed(true)}
-                />
-                <span className="vs-open" aria-hidden="true">{DEMO_COPY.open[lang]}</span>
-              </button>
-            </figure>
-          )}
         </div>
       </div>
 
@@ -268,10 +232,8 @@ export default function VoiceSamples({
         .voice.seen .vs-top, .voice.seen .vs-layout { opacity: 1; transform: none; }
         .voice.seen .vs-layout { transition-delay: .1s; }
 
-        /* Desktop: the player on the left, the Calls page of the dashboard on the
-           right. Tablet and phone: one column, the screenshot under the player. */
-        .vs-layout { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.15fr); gap: 40px; align-items: center; max-width: 1180px; margin: 0 auto; }
-        .vs-layout.no-shot { grid-template-columns: minmax(0, 560px); justify-content: center; }
+        /* the player, centred */
+        .vs-layout { max-width: 620px; margin: 0 auto; }
 
         .vs-card { display: flex; flex-direction: column; gap: 18px; padding: 24px; }
         .vs-sels { display: flex; flex-wrap: wrap; gap: 16px 22px; }
@@ -316,38 +278,6 @@ export default function VoiceSamples({
         .vs-tr-l { display: block; margin-bottom: 7px; font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); }
         .vs-tr p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--text-2); }
 
-        .vs-shot { margin: 0; min-width: 0; }
-        .vs-shot-cap { margin: 0 0 12px 2px; font-size: 13px; font-weight: 500; letter-spacing: -.005em; color: var(--text-2); }
-        .vs-frame {
-          position: relative; display: block; width: 100%; padding: 0; text-align: left; cursor: pointer;
-          border-radius: 16px; overflow: hidden;
-          background: var(--card-bg), #0A0D11; border: 1px solid var(--card-border);
-          box-shadow: 0 50px 100px -50px rgba(0,0,0,.95), 0 0 80px -40px rgba(18,185,129,.35);
-          transition: box-shadow .3s var(--e-out), border-color .3s var(--e-out);
-        }
-        .vs-frame:hover { border-color: rgba(55,226,155,.4); box-shadow: 0 50px 100px -50px rgba(0,0,0,.95), 0 0 90px -34px rgba(18,185,129,.55); }
-        .vs-frame:focus-visible { outline: 2px solid var(--jade); outline-offset: 3px; }
-        .vs-chrome { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 12px; height: 34px; padding: 0 12px; border-bottom: 1px solid var(--hair); }
-        .vs-dots { display: flex; gap: 6px; }
-        .vs-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.14); }
-        .vs-url {
-          display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 11px; border-radius: 7px;
-          font-size: 11px; color: var(--text-3); white-space: nowrap; background: rgba(255,255,255,.04); border: 1px solid var(--hair);
-        }
-        .vs-url svg { width: 10px; height: 10px; stroke: var(--text-3); stroke-width: 1.8; fill: none; stroke-linecap: round; flex: none; }
-        .vs-frame img { display: block; width: 100%; height: auto; user-select: none; }
-        .vs-open {
-          position: absolute; left: 50%; bottom: 18px; transform: translate(-50%, 6px); opacity: 0; pointer-events: none;
-          padding: 9px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; color: #04140D; white-space: nowrap;
-          background: linear-gradient(180deg, var(--jade-bright), var(--jade-2)); box-shadow: 0 14px 34px -10px rgba(0,0,0,.8);
-          transition: opacity .25s var(--e-out), transform .25s var(--e-out);
-        }
-        @media (hover: hover) { .vs-frame:hover .vs-open { opacity: 1; transform: translate(-50%, 0); } }
-
-        @media (max-width: 1100px) {
-          .vs-layout { grid-template-columns: minmax(0, 1fr); gap: 34px; max-width: 720px; }
-          .vs-layout.no-shot { grid-template-columns: minmax(0, 1fr); }
-        }
         @media (max-width: 560px) {
           .vs-card { padding: 18px; }
           .vs-sels { flex-direction: column; gap: 14px; }
@@ -355,9 +285,6 @@ export default function VoiceSamples({
           .vs-btn { width: 52px; height: 52px; }
           .vs-time { min-width: 0; font-size: 11.5px; }
           .vs-player { gap: 10px; }
-          .vs-chrome { grid-template-columns: minmax(0,1fr); }
-          .vs-dots, .vs-chrome > span:last-child { display: none; }
-          .vs-url { justify-self: start; max-width: 100%; overflow: hidden; }
         }
         @media (prefers-reduced-motion: reduce) {
           .vs-top, .vs-layout { transition: none; opacity: 1; transform: none; }

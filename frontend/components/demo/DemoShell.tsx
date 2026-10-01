@@ -17,54 +17,45 @@ import { DEMO_COPY, DEMO_MSG } from "@/lib/demo/copy";
 //   4. the bridge to the overlay on the landing page (Esc, "Home", hints toggle).
 // It reads nothing and writes nothing on a server.
 
-type Anchor = "r" | "l" | "tr" | "br";
-type HintDef = { sel: string; at: Anchor; dx?: number; dy?: number; note: L10n };
+type HintDef = { sel: string; note: L10n };
 
+// An "i" sits right after the text of the label or heading each note explains.
 function pageOf(pathname: string): { id: string; hints: HintDef[] } {
   const rest = pathname.replace(/^\/demo/, "").replace(/\/$/, "");
   if (rest === "") {
     return { id: "overview", hints: [
-      { sel: ".ov-stats .ov-stat-card:nth-child(2)", at: "r", dx: -10, note: TOUR_NOTES.overview[0] },
-      { sel: ".ov-chartcard", at: "tr", dx: -26, dy: 30, note: TOUR_NOTES.overview[1] },
+      { sel: ".ov-stats .ov-stat-card:nth-child(2) .ov-stat-label", note: TOUR_NOTES.overview[0] },
+      { sel: ".ov-chartcard .ov-h2", note: TOUR_NOTES.overview[1] },
     ] };
   }
   if (rest === "/calls") {
     return { id: "calls", hints: [
-      { sel: ".calls-toolbar input", at: "r", dx: 14, note: TOUR_NOTES.calls[0] },
-      { sel: ".call-tr .cr-sum", at: "l", dx: -16, note: TOUR_NOTES.calls[1] },
-      { sel: ".call-tr .cr-out", at: "r", dx: 18, note: TOUR_NOTES.calls[2] },
+      { sel: ".calls-toolbar label", note: TOUR_NOTES.calls[0] },
+      { sel: ".call-thead span:nth-child(3)", note: TOUR_NOTES.calls[1] },
+      { sel: ".call-thead span:nth-child(4)", note: TOUR_NOTES.calls[2] },
     ] };
   }
   if (/^\/calls\/[^/]+$/.test(rest)) {
-    return { id: "detail", hints: [{ sel: ".cd-main .cd-sec:nth-child(2)", at: "tr", dx: -16, dy: 22, note: DEMO_DETAIL_NOTE }] };
+    return { id: "detail", hints: [{ sel: ".cd-main .cd-sec:nth-child(2) .cd-title", note: DEMO_DETAIL_NOTE }] };
   }
   if (rest === "/calendar") {
     return { id: "calendar", hints: [
-      { sel: ".cal-cell:has(.cal-inds)", at: "br", dx: -4, dy: -4, note: TOUR_NOTES.calendar[0] },
-      { sel: ".cal-list", at: "tr", dx: -22, dy: 22, note: TOUR_NOTES.calendar[1] },
+      { sel: ".cal-legend span:last-child", note: TOUR_NOTES.calendar[0] },
+      { sel: ".cal-side-title", note: TOUR_NOTES.calendar[1] },
     ] };
   }
   if (rest === "/support") {
     return { id: "support", hints: [
-      { sel: "#sup-msg", at: "br", dx: -26, dy: -26, note: TOUR_NOTES.support[0] },
-      { sel: ".sup-card .ui-btn--secondary", at: "r", dx: 24, note: TOUR_NOTES.support[1] },
+      { sel: "label[for=sup-msg]", note: TOUR_NOTES.support[0] },
+      { sel: "label[for=sup-files]", note: TOUR_NOTES.support[1] },
     ] };
   }
   return { id: "other", hints: [] };
 }
 
-const STORE = "lmc-demo-dismissed";
-function writeDismissed(list: string[]) {
-  try { sessionStorage.setItem(STORE, JSON.stringify(list)); } catch { /* storage unavailable: hints just come back */ }
-}
-
 type Pos = { x: number; y: number } | null;
 
 const noop = () => () => {};
-const readDismissedSnapshot = () => sessionStorageString();
-function sessionStorageString() {
-  try { return sessionStorage.getItem(STORE) || "[]"; } catch { return "[]"; }
-}
 
 export default function DemoShell({ locale }: { locale: "en" | "es" | "fr" }) {
   const lang = locale.toUpperCase() as TourLang;
@@ -76,17 +67,13 @@ export default function DemoShell({ locale }: { locale: "en" | "es" | "fr" }) {
   // iframe, and which hints were dismissed earlier in this tab
   const mounted = useSyncExternalStore(noop, () => true, () => false);
   const framed = useSyncExternalStore(noop, () => window.parent !== window, () => true);
-  const storedDismissed = useSyncExternalStore(noop, readDismissedSnapshot, () => "[]");
   const [toast, setToast] = useState(false);
   const [hintsOn, setHintsOn] = useState(true);
-  const [dismissedNow, setDismissedNow] = useState<string[]>([]);
   const [positions, setPositions] = useState<{ path: string; list: Pos[] }>({ path: "", list: [] });
   const [openAt, setOpenAt] = useState<{ path: string; i: number } | null>(null);
   const open = openAt && openAt.path === pathname ? openAt.i : null;
   const setOpen = useCallback((i: number | null) => setOpenAt(i === null ? null : { path: pathname, i }), [pathname]);
-  let stored: string[] = [];
-  try { stored = JSON.parse(storedDismissed); } catch { /* ignore */ }
-  const dismissed = [...stored, ...dismissedNow];
+
   const [vw, setVw] = useState(1200);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pageRef = useRef(page);
@@ -165,14 +152,14 @@ export default function DemoShell({ locale }: { locale: "en" | "es" | "fr" }) {
       setPositions({ path: pathname, list: hints.map((h) => {
         const el = document.querySelector(h.sel);
         if (!el) return null;
-        const r = el.getBoundingClientRect();
-        if (r.width === 0 && r.height === 0) return null;
         const sx = window.scrollX, sy = window.scrollY;
-        let x = r.right, y = r.top + r.height / 2;
-        if (h.at === "l") { x = r.left; }
-        else if (h.at === "tr") { y = r.top; }
-        else if (h.at === "br") { y = r.bottom; }
-        return { x: x + sx + (h.dx ?? 0), y: y + sy + (h.dy ?? 0) };
+        // the last line of the element's text, not the whole (maybe wider) box
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const rects = Array.from(range.getClientRects()).filter((q) => q.width > 0);
+        const last = rects[rects.length - 1] ?? el.getBoundingClientRect();
+        if (last.width === 0 && last.height === 0) return null;
+        return { x: last.right + sx + 9, y: last.top + last.height / 2 + sy };
       }) });
     };
     const schedule = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(measure); };
@@ -203,42 +190,28 @@ export default function DemoShell({ locale }: { locale: "en" | "es" | "fr" }) {
     return () => { document.removeEventListener("pointerdown", away); document.removeEventListener("keydown", esc, true); };
   }, [open, setOpen]);
 
-  const dismiss = (i: number) => {
-    const key = `${page.id}:${i}`;
-    const next = [...dismissed, key];
-    setDismissedNow((d) => [...d, key]);
-    writeDismissed(next);
-    setOpen(null);
-  };
-
-  const narrow = vw <= 600;
   const hints = page.hints;
 
   const layer = (
     <>
       {hintsOn && positions.path === pathname && positions.list.map((pos, i) => {
-        if (!pos || !hints[i] || dismissed.includes(`${page.id}:${i}`)) return null;
+        if (!pos || !hints[i]) return null;
         const isOpen = open === i;
-        const noteW = Math.min(260, vw - 24);
-        // the note opens towards the middle of the screen, and stays on it
-        let left = pos.x > vw * 0.55 ? pos.x - 18 - noteW : pos.x + 18;
-        let top = pos.y - 6;
-        if (narrow) { left = window.scrollX + (vw - noteW) / 2; top = pos.y + 24; }
-        left = Math.max(window.scrollX + 12, Math.min(left, window.scrollX + vw - noteW - 12));
+        const noteW = Math.min(270, vw - 24);
+        // the note opens just under the icon, kept inside the screen
+        const left = Math.max(window.scrollX + 12, Math.min(pos.x - 10, window.scrollX + vw - noteW - 12));
         return (
           <div key={i} className="dh">
             <button
-              type="button" className={`dh-dot${isOpen ? " on" : ""}`} style={{ left: pos.x, top: pos.y }}
+              type="button" className={`dh-i${isOpen ? " on" : ""}`} style={{ left: pos.x, top: pos.y }}
               aria-expanded={isOpen} aria-label={`${DEMO_COPY.hintN[lang]} ${i + 1}`}
               onClick={() => setOpen(isOpen ? null : i)}
             >
-              <span className="dh-ring" aria-hidden="true" />
-              <span className="dh-n">{i + 1}</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v5.4M12 7.6v.2" /></svg>
             </button>
             {isOpen && (
-              <div className="dh-note" role="note" style={{ left, top, width: noteW }}>
-                <p><b>{i + 1}</b>{hints[i].note[lang]}</p>
-                <button type="button" className="dh-got" onClick={() => dismiss(i)}>{DEMO_COPY.gotIt[lang]}</button>
+              <div className="dh-note" role="note" style={{ left, top: pos.y + 20, width: noteW }}>
+                <p>{hints[i].note[lang]}</p>
               </div>
             )}
           </div>
@@ -258,35 +231,25 @@ export default function DemoShell({ locale }: { locale: "en" | "es" | "fr" }) {
         </div>
       )}
       <style>{`
-        .dh-dot {
-          position: absolute; z-index: 60; width: 28px; height: 28px; margin: -14px 0 0 -14px; border-radius: 50%;
-          display: grid; place-items: center; background: var(--jade); color: #04140D; font-size: 12px; font-weight: 700;
-          box-shadow: 0 0 0 4px rgba(55,226,155,.22), 0 6px 16px -4px rgba(0,0,0,.6);
-          transition: transform .2s var(--e-out);
+        /* a small "i" right after the text it explains */
+        .dh-i {
+          position: absolute; z-index: 60; width: 20px; height: 20px; margin-top: -10px; border-radius: 50%;
+          display: grid; place-items: center; color: var(--jade); background: rgba(55,226,155,.1);
+          border: 1.5px solid rgba(55,226,155,.6);
+          transition: background .2s var(--e-out), color .2s var(--e-out), transform .2s var(--e-out);
         }
-        .dh-dot::after { content: ""; position: absolute; inset: -8px; } /* 44px tap target */
-        .dh-dot:hover, .dh-dot.on { transform: scale(1.12); }
-        .dh-dot:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-        .dh-ring { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--jade); animation: dhPulse 2.4s var(--e-out) infinite; pointer-events: none; }
-        @keyframes dhPulse { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.2); opacity: 0; } }
-        .dh-n { position: relative; }
+        .dh-i svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2.6; fill: none; stroke-linecap: round; }
+        .dh-i::after { content: ""; position: absolute; inset: -12px; } /* 44px tap target */
+        .dh-i:hover, .dh-i.on { background: var(--jade); color: #04140D; transform: scale(1.08); }
+        .dh-i:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
         .dh-note {
-          position: absolute; z-index: 61; padding: 13px 14px 12px; border-radius: 12px;
+          position: absolute; z-index: 61; padding: 12px 14px; border-radius: 12px;
           background: linear-gradient(180deg, rgba(20,24,31,.98), rgba(13,16,21,.98)); border: 1px solid rgba(55,226,155,.3);
           box-shadow: 0 24px 50px -20px rgba(0,0,0,.95); color: var(--text);
           animation: dhIn .18s var(--e-out);
         }
         @keyframes dhIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
         .dh-note p { font-size: 13px; line-height: 1.5; margin: 0; }
-        .dh-note p b {
-          display: inline-grid; place-items: center; width: 18px; height: 18px; margin-right: 8px; border-radius: 50%;
-          font-size: 10.5px; color: #04140D; background: var(--jade); vertical-align: 1px;
-        }
-        .dh-got {
-          margin-top: 10px; font-size: 12px; font-weight: 600; color: var(--jade); padding: 5px 10px; border-radius: 8px;
-          border: 1px solid rgba(55,226,155,.3); background: rgba(55,226,155,.07);
-        }
-        .dh-got:hover { background: rgba(55,226,155,.14); }
         .dm-toast {
           position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 90;
           padding: 10px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text);
@@ -299,7 +262,7 @@ export default function DemoShell({ locale }: { locale: "en" | "es" | "fr" }) {
           background: rgba(20,24,31,.97); border: 1px solid rgba(255,255,255,.12);
         }
         .dm-pill a { color: #04140D; font-weight: 600; padding: 5px 12px; border-radius: 999px; background: var(--jade); text-decoration: none; }
-        @media (prefers-reduced-motion: reduce) { .dh-ring { animation: none; } .dh-note, .dm-toast { animation: none; } }
+        @media (prefers-reduced-motion: reduce) { .dh-note, .dm-toast { animation: none; } }
       `}</style>
     </>
   );
