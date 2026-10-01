@@ -231,25 +231,6 @@ export default function DemoShell({ locale }: { locale: "en" | "es" | "fr" }) {
         </div>
       )}
       <style>{`
-        /* a small "i" right after the text it explains */
-        .dh-i {
-          position: absolute; z-index: 60; width: 20px; height: 20px; margin-top: -10px; border-radius: 50%;
-          display: grid; place-items: center; color: var(--jade); background: rgba(55,226,155,.1);
-          border: 1.5px solid rgba(55,226,155,.6);
-          transition: background .2s var(--e-out), color .2s var(--e-out), transform .2s var(--e-out);
-        }
-        .dh-i svg { width: 12px; height: 12px; stroke: currentColor; stroke-width: 2.6; fill: none; stroke-linecap: round; }
-        .dh-i::after { content: ""; position: absolute; inset: -12px; } /* 44px tap target */
-        .dh-i:hover, .dh-i.on { background: var(--jade); color: #04140D; transform: scale(1.08); }
-        .dh-i:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-        .dh-note {
-          position: absolute; z-index: 61; padding: 12px 14px; border-radius: 12px;
-          background: linear-gradient(180deg, rgba(20,24,31,.98), rgba(13,16,21,.98)); border: 1px solid rgba(55,226,155,.3);
-          box-shadow: 0 24px 50px -20px rgba(0,0,0,.95); color: var(--text);
-          animation: dhIn .18s var(--e-out);
-        }
-        @keyframes dhIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-        .dh-note p { font-size: 13px; line-height: 1.5; margin: 0; }
         .dm-toast {
           position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 90;
           padding: 10px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--text);

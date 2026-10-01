@@ -274,3 +274,24 @@ export function demoData(locale: Locale, nowMs = Date.now()): DemoData {
   }
   return d;
 }
+
+// The month the demo's calendar opens on. Today's month, unless its requests are
+// few (early in the month the sample requests mostly lie in the month just
+// ended): then the month with the most requests, counting the ones still
+// waiting for an answer three times, so the view shows every status.
+export function demoDefaultMonth(locale: Locale, nowMs = Date.now()): { year: number; month0: number } {
+  const d = demoData(locale, nowMs);
+  const cur = tzParts(nowMs);
+  const score: Record<string, number> = {};
+  d.bookings.forEach((b) => {
+    if (!b.start_time) return;
+    const p = tzParts(new Date(b.start_time as string).getTime());
+    const key = `${p.y}-${p.m}`;
+    score[key] = (score[key] ?? 0) + 1 + (b.status === "pending" ? 3 : 0);
+  });
+  const curKey = `${cur.y}-${cur.m}`;
+  let best = curKey, bestScore = (score[curKey] ?? 0) + 0.5;
+  Object.entries(score).forEach(([k, v]) => { if (v > bestScore) { best = k; bestScore = v; } });
+  const [y, m] = best.split("-").map(Number);
+  return { year: y, month0: m - 1 };
+}

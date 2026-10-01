@@ -69,7 +69,7 @@ const T: Record<LangCode, Dict> = {
     c0: "Incoming call", c1: "AI understands", c2: "Action taken", cue: "Scroll",
 
     pTag: "Pricing", pH: "Pricing that scales with you.",
-    pSub: "Every plan answers 24/7 in English, Spanish and French. Choose the call volume that fits.",
+    pSub: "Every plan answers 24/7 in English, Spanish and French.",
     tName: ["Starter", "Pro", "Premium"],
     tPin: "Recommended", tMo: "/month", tCalls: "calls a month",
     tCta: ["Get started", "Get started", "Get started"], soonGroup: "Coming next quarter",
@@ -97,10 +97,10 @@ const T: Record<LangCode, Dict> = {
     ],
 
     cTag: "Contact", cH: "Let's talk.",
-    cSub: "Leave your details and we'll get back to you within 24 hours.",
+    cSub: "Leave your details and we'll reply within 24 hours.",
     fName: "Your name", fBiz: "Business", fEmail: "Email", fPhone: "Phone",
     fMsg: "Message",
-    fMsgPh: "Tell us a little about your business and how you handle the phone today.",
+    fMsgPh: "Tell us about your business and how you handle calls today.",
     cSend: "Send message", cSending: "Sending…", cSent: "Sent", cError: "Couldn't send, try again", cTrust: "Built in Europe",
     cTagline: "Smarter calls. Happier customers.",
   },
@@ -126,7 +126,7 @@ const T: Record<LangCode, Dict> = {
     c0: "Llamada entrante", c1: "La IA entiende", c2: "Acción realizada", cue: "Desliza",
 
     pTag: "Precios", pH: "Precios que crecen contigo.",
-    pSub: "Todos los planes atienden 24/7 en español, inglés y francés. Elige el volumen de llamadas que necesitas.",
+    pSub: "Todos los planes atienden 24/7 en español, inglés y francés.",
     tName: ["Básico", "Pro", "Premium"],
     tPin: "Recomendado", tMo: "/mes", tCalls: "llamadas al mes",
     tCta: ["Empezar", "Empezar", "Empezar"], soonGroup: "Próximo trimestre",
@@ -154,10 +154,10 @@ const T: Record<LangCode, Dict> = {
     ],
      
     cTag: "Contacto", cH: "Hablemos.",
-    cSub: "Déjanos tus datos y te contactaremos en menos de 24 horas.",
+    cSub: "Déjanos tus datos y te responderemos en 24 horas.",
     fName: "Tu nombre", fBiz: "Negocio", fEmail: "Email", fPhone: "Teléfono",
     fMsg: "Mensaje",
-    fMsgPh: "Cuéntanos un poco sobre tu negocio y cómo gestionas las llamadas ahora mismo.",
+    fMsgPh: "Cuéntanos sobre tu negocio y cómo gestionas hoy las llamadas.",
     cSend: "Enviar mensaje", cSending: "Enviando…", cSent: "Enviado", cError: "No se ha podido enviar. Inténtalo de nuevo.", cTrust: "Hecho en Europa",
     cTagline: "Llamadas más inteligentes. Clientes más contentos.",
   },
@@ -183,7 +183,7 @@ const T: Record<LangCode, Dict> = {
     c0: "Appel entrant", c1: "L'IA comprend", c2: "Action effectuée", cue: "Défiler",
 
     pTag: "Tarifs", pH: "Des tarifs qui évoluent avec vous.",
-    pSub: "Chaque formule répond 24/7 en français, anglais et espagnol. Choisissez le volume d'appels qui vous convient.",
+    pSub: "Chaque formule répond 24/7 en français, anglais et espagnol.",
     tName: ["Essentiel", "Pro", "Premium"],
     tPin: "Recommandé", tMo: "/mois", tCalls: "appels par mois",
     tCta: ["Commencer", "Commencer", "Commencer"], soonGroup: "Prochain trimestre",
@@ -211,10 +211,10 @@ const T: Record<LangCode, Dict> = {
     ],
 
     cTag: "Contact", cH: "Parlons-en.",
-    cSub: "Laissez-nous vos coordonnées : nous vous recontactons sous 24 heures.",
+    cSub: "Laissez vos coordonnées, nous répondons sous 24 heures.",
     fName: "Votre nom", fBiz: "Entreprise", fEmail: "E-mail", fPhone: "Téléphone",
     fMsg: "Message",
-    fMsgPh: "Parlez-nous de votre activité et de la façon dont vous gérez le téléphone aujourd'hui.",
+    fMsgPh: "Parlez-nous de votre activité et de votre gestion des appels aujourd'hui.",
     cSend: "Envoyer le message", cSending: "Envoi…", cSent: "Envoyé", cError: "Échec de l'envoi, réessayez", cTrust: "Conçu en Europe",
     cTagline: "Des appels plus intelligents. Des clients plus satisfaits.",
   },
@@ -955,9 +955,7 @@ export default function Landing({ initialLang }: { initialLang: LangCode }) {
       </div>
       {/* ===== end app-shell ===== */}
 
-      {/* Product: the dashboard tour and voice samples. Each shows a
-          "coming soon" state until its TOUR_SCREENSHOTS_READY /
-          VOICE_SAMPLES_READY flag is flipped (inside the component). */}
+      {/* Product: the dashboard slideshow (with the button that opens the demo) and the voice player. */}
       <ProductTour lang={lang} onOpenDemo={openDemo} />
       <VoiceSamples lang={lang} />
 

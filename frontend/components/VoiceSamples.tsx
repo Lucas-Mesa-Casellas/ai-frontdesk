@@ -42,9 +42,9 @@ const COPY = {
   clip: { EN: "Welcome message", ES: "Mensaje de bienvenida", FR: "Message d'accueil" } as L10n,
   heading: { EN: "Hear how it answers.", ES: "Escucha cómo contesta.", FR: "Écoutez comment il répond." } as L10n,
   sub: {
-    EN: "Choose the voice your callers hear: two voices for each language.",
-    ES: "Elige la voz que escucharán tus clientes: dos voces en cada idioma.",
-    FR: "Choisissez la voix qu'entendront vos clients : deux voix par langue.",
+    EN: "Two voices in each language.",
+    ES: "Dos voces en cada idioma.",
+    FR: "Deux voix par langue.",
   } as L10n,
   langLabel: { EN: "Language", ES: "Idioma", FR: "Langue" } as L10n,
   voiceLabel: { EN: "Voice", ES: "Voz", FR: "Voix" } as L10n,

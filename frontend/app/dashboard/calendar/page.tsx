@@ -1,4 +1,5 @@
 import { dashBase } from "@/lib/demo/mode";
+import { demoDefaultMonth } from "@/lib/demo/dataset";
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
@@ -32,6 +33,11 @@ export default async function CalendarPage({
     const [y, m] = sp.month.split("-").map(Number);
     year = y;
     month = m - 1;
+  } else if (base === "/demo") {
+    // the demo opens on the month that shows the most (see lib/demo/dataset.ts)
+    const d = demoDefaultMonth(locale);
+    year = d.year;
+    month = d.month0;
   }
 
   const monthStart = new Date(Date.UTC(year, month, 1));

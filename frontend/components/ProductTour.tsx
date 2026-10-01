@@ -1,294 +1,79 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { DASH_T } from "@/lib/dash-i18n";
-import { TOUR_NOTES } from "@/lib/tour-notes";
+import { TOUR_NOTES, type NoteSlide } from "@/lib/tour-notes";
+import { TOUR_ICONS } from "@/lib/tour-hotspots";
 import { DEMO_COPY, type DemoPage } from "@/lib/demo/copy";
 
 type Lang = "EN" | "ES" | "FR";
 type L10n = Record<Lang, string>;
-type SlideId = "overview" | "calls" | "calendar" | "support";
 
-// Each slide shows a real render of that dashboard page, in the visitor's
-// language: public/tour/<en|es|fr>/<slide>.png (1440x900), made from the
-// actual dashboard with an invented business and invented callers. If an
-// image ever fails to load, the slide falls back to TourMock, an
-// illustrative wireframe labelled "Illustrative preview". The hotspot x/y
-// below are in % of the 1440x900 image and sit on the same parts in all
-// three languages.
-export const TOUR_SCREENSHOTS_READY = true;
+// A slideshow of the four dashboard pages (public/tour/<en|es|fr>/<page>.png,
+// 1440x900, rendered from the demo's own sample data), with one clear button
+// that opens the real, clickable demo. Each page has the same small "i" icons
+// as the demo, placed after the label each note explains (lib/tour-hotspots.ts).
+const SLIDES: { id: NoteSlide; label: L10n; route: string }[] = [
+  { id: "overview", label: { EN: "Overview", ES: "Resumen", FR: "Aperçu" }, route: "/dashboard" },
+  { id: "calls", label: { EN: "Calls", ES: "Llamadas", FR: "Appels" }, route: "/dashboard/calls" },
+  { id: "calendar", label: { EN: "Calendar", ES: "Calendario", FR: "Calendrier" }, route: "/dashboard/calendar" },
+  { id: "support", label: { EN: "Support", ES: "Soporte", FR: "Assistance" }, route: "/dashboard/support" },
+];
 
-// Width / height of the screenshots (16:10 = a 1440x900 window). Used for the
-// placeholder box and to size the frame so a slide fits one screen.
-const ASPECT = 1.6;
-
-// The real dashboard route of each slide, shown in the preview's address bar.
-const ROUTE: Record<SlideId, string> = {
-  overview: "/dashboard", calls: "/dashboard/calls", calendar: "/dashboard/calendar", support: "/dashboard/support",
-};
-
-type Hotspot = {
-  // Position over the screenshot, in % of its width / height.
-  x: number;
-  y: number;
-  note: L10n;
-};
-
-type Slide = {
-  id: SlideId;
-  label: L10n;
-  title: L10n;
-  blurb: L10n;
-  hotspots: Hotspot[];
-};
+// how long each page stays up
+const SLIDE_MS = 5500;
 
 const COPY = {
   tag: { EN: "Dashboard", ES: "Panel", FR: "Tableau de bord" } as L10n,
   heading: { EN: "This is what you'll have access to.", ES: "Esto es a lo que tendrás acceso.", FR: "Voici à quoi vous aurez accès." } as L10n,
-  // Says plainly that the frame below is what a client gets behind "Client
-  // access" -- the product itself, not a concept.
-  lead: {
-    EN: "Join LMC Agents and manage every call, booking request and appointment from one place: your Client access dashboard.",
-    ES: "Únete a LMC Agents y gestiona cada llamada, solicitud y cita desde un solo lugar: tu Área de clientes.",
-    FR: "Rejoignez LMC Agents et gérez chaque appel, demande et rendez-vous depuis un seul endroit : votre Espace client.",
-  } as L10n,
-  peak: { EN: "Peak time", ES: "Hora punta", FR: "Heure de pointe" } as L10n,
-  peakSub: { EN: "Most calls answered", ES: "Más llamadas atendidas", FR: "Le plus d'appels traités" } as L10n,
-  soon: { EN: "Illustrative preview", ES: "Vista ilustrativa", FR: "Aperçu illustratif" } as L10n,
-  prev: { EN: "Previous", ES: "Anterior", FR: "Précédent" } as L10n,
-  next: { EN: "Next", ES: "Siguiente", FR: "Suivant" } as L10n,
+  slideshow: { EN: "Dashboard pages", ES: "Páginas del panel", FR: "Pages du tableau de bord" } as L10n,
 };
-
-const SLIDES: Slide[] = [
-  {
-    id: "overview",
-    label: { EN: "Overview", ES: "Resumen", FR: "Aperçu" },
-    title: { EN: "Your activity, live.", ES: "Tu actividad, en directo.", FR: "Votre activité, en direct." },
-    blurb: {
-      EN: "Calls answered, booking requests and the hours your phone rings the most, at a glance.",
-      ES: "Llamadas atendidas, solicitudes de cita y las horas en que más suena tu teléfono, de un vistazo.",
-      FR: "Appels traités, demandes de rendez-vous et heures où votre téléphone sonne le plus, d'un coup d'œil.",
-    },
-    hotspots: [
-      {
-        x: 67, y: 26.5,
-        note: TOUR_NOTES.overview[0],
-      },
-      {
-        x: 40, y: 58,
-        note: TOUR_NOTES.overview[1],
-      },
-    ],
-  },
-  {
-    id: "calls",
-    label: { EN: "Calls", ES: "Llamadas", FR: "Appels" },
-    title: { EN: "Every call, summarised.", ES: "Cada llamada, resumida.", FR: "Chaque appel, résumé." },
-    blurb: {
-      EN: "Filter by date and open any call for the AI summary, the full transcript and the caller's details.",
-      ES: "Filtra por fecha y abre cualquier llamada para ver el resumen de la IA, la transcripción completa y los datos de quien llamó.",
-      FR: "Filtrez par date et ouvrez n'importe quel appel pour voir le résumé de l'IA, la transcription complète et les coordonnées de l'appelant.",
-    },
-    hotspots: [
-      {
-        x: 36.9, y: 28,
-        note: TOUR_NOTES.calls[0],
-      },
-      {
-        x: 45.6, y: 43.8,
-        note: TOUR_NOTES.calls[1],
-      },
-      {
-        x: 82.7, y: 43.8,
-        note: TOUR_NOTES.calls[2],
-      },
-    ],
-  },
-  {
-    id: "calendar",
-    label: { EN: "Calendar", ES: "Calendario", FR: "Calendrier" },
-    title: { EN: "Booking requests, sorted.", ES: "Solicitudes de cita, ordenadas.", FR: "Demandes de rendez-vous, triées." },
-    blurb: {
-      EN: "Requests land on your calendar the moment the call ends. Confirm or cancel in a click.",
-      ES: "Las solicitudes llegan a tu calendario en cuanto termina la llamada. Confirma o cancela con un clic.",
-      FR: "Les demandes arrivent dans votre calendrier dès la fin de l'appel. Confirmez ou annulez en un clic.",
-    },
-    hotspots: [
-      {
-        x: 39.3, y: 67,
-        note: TOUR_NOTES.calendar[0],
-      },
-      {
-        x: 89.5, y: 49.9,
-        note: TOUR_NOTES.calendar[1],
-      },
-    ],
-  },
-  {
-    id: "support",
-    label: { EN: "Support", ES: "Soporte", FR: "Assistance" },
-    title: { EN: "A human, one message away.", ES: "Una persona real, a un mensaje de distancia.", FR: "Un humain à portée de message." },
-    blurb: {
-      EN: "Something off? Write to us from your dashboard, screenshots included.",
-      ES: "¿Algo no va bien? Escríbenos desde tu panel, con capturas incluidas.",
-      FR: "Un souci ? Écrivez-nous depuis votre tableau de bord, captures d'écran comprises.",
-    },
-    hotspots: [
-      {
-        x: 74, y: 50,
-        note: TOUR_NOTES.support[0],
-      },
-      {
-        x: 38, y: 71,
-        note: TOUR_NOTES.support[1],
-      },
-    ],
-  },
-];
-
-// Abstract wireframes of the four dashboard pages, in % of the frame, laid out
-// so the hotspots above land on the matching part (stats row, chart, filter,
-// call card, calendar grid, day panel, message box, attach button).
-// `t` turns a block into sample text (font size `fs` in % of the frame width,
-// so it scales with the frame).
-type Block = { x: number; y: number; w: number; h: number; k?: string; t?: string; fs?: number };
-
-function mockBlocks(id: SlideId, lang: Lang, title: string): Block[] {
-  const d = DASH_T[lang.toLowerCase() as "en" | "es" | "fr"];
-  const b: Block[] = [
-    { x: 0, y: 0, w: 15, h: 100, k: "side" },
-    { x: 2.4, y: 6, w: 3.4, h: 5.4, k: "jade" },
-    { x: 6.6, y: 7.4, w: 8, h: 3, k: "t b", t: "LMC Agents", fs: 1.15 },
-  ];
-  const active = { overview: 0, calls: 1, calendar: 2, support: 3 }[id];
-  // the same five pages, in the same order, as the real dashboard sidebar
-  const nav = [d.navOverview, d.navCalls, d.navCalendar, d.navSupport, d.navSettings];
-  nav.forEach((label, r) => {
-    const y = 19 + r * 7.4;
-    if (r === active) b.push({ x: 1.2, y: y - 0.9, w: 12.6, h: 5.6, k: "navon" });
-    b.push({ x: 2.6, y, w: 10.6, h: 3.8, k: r === active ? "t nav on" : "t nav", t: label, fs: 1.2 });
-  });
-
-  if (id === "overview") {
-    b.push({ x: 18, y: 8, w: 40, h: 5, k: "t b", t: title, fs: 2.5 }, { x: 18, y: 13.6, w: 40, h: 3, k: "t m", t: d.ovSub, fs: 1.3 });
-    const nums = ["128", "34", "27%"], labels = [d.statCalls, d.statBookings, d.statConv];
-    for (let i = 0; i < 3; i++) {
-      const x = 18 + i * 27;
-      b.push(
-        { x, y: 19, w: 24, h: 15, k: "card" },
-        { x: x + 2, y: 22.4, w: 4.6, h: 7.2, k: "ic" },
-        { x: x + 8, y: 21.5, w: 15, h: 7, k: "t b", t: nums[i], fs: 3.4 },
-        { x: x + 8, y: 29.6, w: 15.5, h: 3, k: "t m", t: labels[i], fs: 1.15 },
-      );
-    }
-    b.push({ x: 18, y: 38, w: 78, h: 51, k: "card" }, { x: 20.5, y: 40.8, w: 50, h: 3, k: "t m up", t: d.hourChartTitle.toUpperCase(), fs: 1.05 });
-    const hs = [3, 2, 1, 1, 0, 0, 1, 2, 5, 9, 12, 14, 11, 10, 12, 9, 6, 4, 3, 5, 3, 2, 1, 1];
-    hs.forEach((v, i) => b.push({ x: 20.5 + i * 3.05, y: 84.6 - v * 2.7, w: 2.3, h: v * 2.7, k: v > 10 ? "jade" : "bar" }));
-    // x axis
-    [0, 6, 12, 18, 24].forEach((h) => b.push({ x: 19.4 + h * 3.05, y: 85.9, w: 7, h: 2.6, k: "t m ax", t: `${String(h).padStart(2, "0")}:00`, fs: 0.9 }));
-    // peak callout, computed from the sample bars above (the tallest one)
-    const pk = hs.indexOf(Math.max(...hs));
-    const hh = (n: number) => `${String(n).padStart(2, "0")}:00`;
-    b.push(
-      { x: 74, y: 41.5, w: 20, h: 13.5, k: "peak" },
-      { x: 76.4, y: 44.6, w: 5, h: 8, k: "ic round" },
-      { x: 83, y: 43.6, w: 11, h: 3, k: "t b", t: COPY.peak[lang], fs: 1.1 },
-      { x: 83, y: 47, w: 11, h: 3, k: "t", t: `${hh(pk)} – ${hh(pk + 1)}`, fs: 1.05 },
-      { x: 83, y: 50.6, w: 11.5, h: 3, k: "t m", t: COPY.peakSub[lang], fs: 0.85 },
-    );
-  }
-  if (id === "calls") {
-    b.push({ x: 18, y: 8, w: 40, h: 5, k: "t b", t: title, fs: 2.5 });
-    b.push({ x: 18, y: 15, w: 17, h: 6.5, k: "card" }, { x: 37, y: 15, w: 17, h: 6.5, k: "card" }, { x: 56, y: 15, w: 8, h: 6.5, k: "jade" });
-    const names = ["María García", "Jordi Puig", "Laura Sanz"], phones = ["+34 612 ••• 921", "+34 655 ••• 340", "+34 691 ••• 118"];
-    for (let r = 0; r < 3; r++) {
-      const y = 27 + r * 21;
-      b.push(
-        { x: 18, y, w: 78, h: 17, k: "card" },
-        { x: 20.5, y: y + 4, w: 3.2, h: 5.2, k: "jade round" },
-        { x: 26, y: y + 3.4, w: 30, h: 3.6, k: "t b", t: names[r], fs: 1.6 }, { x: 26, y: y + 8, w: 30, h: 3, k: "t m", t: phones[r], fs: 1.1 },
-        { x: 20.5, y: y + 12.4, w: 58, h: 2, k: "line" },
-        { x: 73, y: y + 4, w: 9, h: 3.6, k: "line" }, { x: 84, y: y + 4, w: 10, h: 3.6, k: "jade" },
-        { x: 84, y: y + 4, w: 10, h: 3.6, k: "t c", t: d.callStatusCaptured, fs: 1 },
-      );
-    }
-  }
-  if (id === "calendar") {
-    b.push({ x: 18, y: 8, w: 40, h: 5, k: "t b", t: title, fs: 2.5 });
-    const jade = new Set(["1-2", "2-4", "3-1", "0-5"]), amber = new Set(["2-2", "3-4"]), grey = new Set(["3-5", "1-0"]);
-    for (let r = 0; r < 5; r++) for (let c = 0; c < 7; c++) {
-      const x = 18 + c * 6.7, y = 16 + r * 14.9, key = `${r}-${c}`;
-      b.push({ x, y, w: 6.1, h: 13.4, k: "card" }, { x: x + 0.9, y: y + 1.5, w: 1.6, h: 1.6, k: "line" });
-      if (jade.has(key)) b.push({ x: x + 1.5, y: y + 6.5, w: 3, h: 2.2, k: "jade" });
-      if (amber.has(key)) b.push({ x: x + 1.5, y: y + 6.5, w: 3, h: 2.2, k: "amber" });
-      if (grey.has(key)) b.push({ x: x + 1.5, y: y + 6.5, w: 3, h: 2.2, k: "line big" });
-    }
-    b.push({ x: 68, y: 16, w: 28, h: 74, k: "card" }, { x: 70.5, y: 19.5, w: 12, h: 2.6, k: "line big" });
-    for (let i = 0; i < 2; i++) {
-      const y = 27 + i * 25;
-      b.push({ x: 70.5, y, w: 23, h: 21, k: "card" }, { x: 72, y: y + 3, w: 14, h: 2.4, k: "line big" }, { x: 72, y: y + 7.5, w: 19, h: 2, k: "line" },
-             { x: 72, y: y + 13, w: 8, h: 4.6, k: "jade" }, { x: 82, y: y + 13, w: 8, h: 4.6, k: "line" });
-    }
-  }
-  if (id === "support") {
-    b.push({ x: 18, y: 8, w: 40, h: 5, k: "t b", t: title, fs: 2.5 }, { x: 18, y: 14, w: 26, h: 2, k: "line" });
-    b.push({ x: 22, y: 20, w: 50, h: 72, k: "card" }, { x: 25, y: 24, w: 16, h: 2.4, k: "line" },
-           { x: 25, y: 28, w: 44, h: 26, k: "card" }, { x: 27, y: 31, w: 34, h: 2, k: "line" }, { x: 27, y: 35, w: 26, h: 2, k: "line" },
-           { x: 25, y: 58, w: 14, h: 2.2, k: "line" }, { x: 25, y: 62, w: 17, h: 6, k: "card" }, { x: 25, y: 71, w: 28, h: 2, k: "line" },
-           { x: 25, y: 78, w: 44, h: 7, k: "jade" });
-  }
-  return b;
-}
-
-function TourMock({ id, lang, title }: { id: SlideId; lang: Lang; title: string }) {
-  return (
-    <div className="tour-mock" aria-hidden="true">
-      {mockBlocks(id, lang, title).map((b, i) => (
-        <i
-          key={i} className={b.k}
-          style={{ left: `${b.x}%`, top: `${b.y}%`, width: `${b.w}%`, height: `${b.h}%`, ...(b.fs ? { ["--fs" as string]: b.fs } : null) }}
-        >
-          {b.t}
-        </i>
-      ))}
-    </div>
-  );
-}
 
 export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDemo: (page: DemoPage) => void }) {
   const [idx, setIdx] = useState(0);
-  const [active, setActive] = useState<number | null>(null);
-  const [failed, setFailed] = useState<Record<string, boolean>>({});
+  const [openNote, setOpenNote] = useState<{ slide: number; i: number } | null>(null);
+  const [hover, setHover] = useState(false);
+  const [inView, setInView] = useState(false);
   const [seen, setSeen] = useState(false);
+  const [reduced, setReduced] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
 
   const slide = SLIDES[idx];
-  const src = `/tour/${lang.toLowerCase()}/${slide.id}.png`;
-  const showReal = TOUR_SCREENSHOTS_READY && !failed[src];
+  const note = openNote && openNote.slide === idx ? openNote.i : null;
+  const icons = TOUR_ICONS[lang][slide.id];
 
   useEffect(() => {
     const el = rootRef.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setSeen(true); return; }
+    const rm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setReduced(rm);
+    if (rm) setSeen(true);
     const io = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setSeen(true); io.disconnect(); } },
-      { threshold: 0.15 }
+      ([e]) => { setInView(e.isIntersecting); if (e.isIntersecting) setSeen(true); },
+      { threshold: 0.4 }
     );
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
-  // An <img> that already failed before React attached onError (a 404 during
-  // hydration) never fires it again -- catch that case here.
+  // Moves on every few seconds while the section is on screen; stops while the
+  // pointer is over the screenshot or a note is open, and never runs for people
+  // who asked for less motion. Choosing a dot restarts the count.
+  const playing = inView && !hover && note === null && !reduced;
   useEffect(() => {
-    const img = imgRef.current;
-    if (showReal && img && img.complete && img.naturalWidth === 0) setFailed((f) => ({ ...f, [src]: true }));
-  }, [showReal, src]);
+    if (!playing) return;
+    const t = setTimeout(() => setIdx((i) => (i + 1) % SLIDES.length), SLIDE_MS);
+    return () => clearTimeout(t);
+  }, [playing, idx]);
 
-  const go = (n: number) => { setIdx((n + SLIDES.length) % SLIDES.length); setActive(null); };
-
-  const activeNote = active !== null ? slide.hotspots[active]?.note[lang] : null;
+  // a tap outside folds an open note away
+  useEffect(() => {
+    if (note === null) return;
+    const away = (e: Event) => { if (!(e.target instanceof Element) || !e.target.closest(".tour-ic")) setOpenNote(null); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenNote(null); };
+    document.addEventListener("pointerdown", away);
+    document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("pointerdown", away); document.removeEventListener("keydown", esc); };
+  }, [note]);
 
   return (
     <section
@@ -297,44 +82,14 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
       id="tour"
       aria-roledescription="carousel"
       aria-label={COPY.heading[lang]}
-      onKeyDown={(e) => {
-        if (e.key === "ArrowLeft") go(idx - 1);
-        else if (e.key === "ArrowRight") go(idx + 1);
-        else if (e.key === "Escape") setActive(null);
-      }}
     >
       <div className="wrap">
         <div className="sec-head mid tour-head">
           <p className="eyebrow">{COPY.tag[lang]}</p>
           <h2 className="sec-h">{COPY.heading[lang]}</h2>
-          <p className="sec-sub">{COPY.lead[lang]}</p>
         </div>
 
-        <div className="tour-nav">
-          <button type="button" className="tour-arrow" onClick={() => go(idx - 1)} aria-label={COPY.prev[lang]}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6" /></svg>
-          </button>
-          <div className="tour-tabs" role="tablist">
-            {SLIDES.map((s, i) => (
-              <button
-                key={s.id} type="button" role="tab" aria-selected={i === idx}
-                className={`tour-tab${i === idx ? " on" : ""}`} onClick={() => go(i)}
-              >
-                {s.label[lang]}
-              </button>
-            ))}
-          </div>
-          <button type="button" className="tour-arrow" onClick={() => go(idx + 1)} aria-label={COPY.next[lang]}>
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6" /></svg>
-          </button>
-        </div>
-
-        {/* What the current tab shows, in one line between the tabs and the
-            frame. Two lines are reserved so the frame doesn't jump between
-            tabs or languages. */}
-        <p className="tour-blurb" key={`blurb-${slide.id}-${lang}`}>{slide.blurb[lang]}</p>
-
-        {/* the main way to see the product: the real dashboard, with sample data */}
+        {/* the one clear way into the real thing */}
         <div className="tour-try">
           <button type="button" className="btn-primary tour-try-btn" onClick={() => onOpenDemo(slide.id)}>
             {DEMO_COPY.open[lang]}
@@ -342,140 +97,99 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
           </button>
         </div>
 
-        <div className="tour-slide" key={`${slide.id}-${lang}`} role="tabpanel" style={{ ["--tour-aspect" as string]: ASPECT }}>
-          <div className="tour-stage">
+        <div className="tour-slide">
           <div className="tour-frame">
-            {/* A browser bar with the page's real address, so it reads as the
-                product itself. The mock is labelled as such, up here where it
-                doesn't sit on top of the content. */}
             <div className="tour-chrome">
               <span className="tc-dots" aria-hidden="true"><i /><i /><i /></span>
               <span className="tc-url" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2" /><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" /></svg>
-                lmcagents.app{ROUTE[slide.id]}
+                lmcagents.app{slide.route}
               </span>
-              {!showReal && (
-                <span className="tour-soon">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>
-                  {COPY.soon[lang]}
-                </span>
-              )}
+              <span />
             </div>
-            {/* clicking the screenshot opens the demo on that page (the hotspots keep their own clicks) */}
+            {/* clicking the screenshot opens the demo on that page (the icons keep their own clicks) */}
             <div
               className="tour-shot"
+              onMouseEnter={() => setHover(true)}
+              onMouseLeave={() => setHover(false)}
               onClick={(e) => {
-                if ((e.target as Element).closest(".hs")) return;
-                setActive(null);
+                if ((e.target as Element).closest(".tour-ic")) return;
+                setOpenNote(null);
                 onOpenDemo(slide.id);
               }}
             >
-              {showReal ? (
+              {SLIDES.map((s, n) => (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  ref={imgRef} src={src} alt={`${slide.label[lang]}`} width={1440} height={900}
-                  decoding="async" draggable={false}
-                  onError={() => setFailed((f) => ({ ...f, [src]: true }))}
+                  key={`${lang}-${s.id}`} src={`/tour/${lang.toLowerCase()}/${s.id}.png`} alt={n === idx ? s.label[lang] : ""}
+                  aria-hidden={n === idx ? undefined : true}
+                  width={1440} height={900} decoding="async" draggable={false}
+                  loading={n === 0 ? "eager" : "lazy"} className={n === idx ? "on" : undefined}
                 />
-              ) : (
-                <div className="tour-ph" role="img" aria-label={`${slide.label[lang]}: ${COPY.soon[lang]}`}>
-                  <TourMock id={slide.id} lang={lang} title={slide.label[lang]} />
-                </div>
-              )}
-
+              ))}
               <span className="tour-open" aria-hidden="true">{DEMO_COPY.open[lang]}</span>
 
-              {slide.hotspots.map((h, i) => (
-                <div
-                  key={i} className={`hs${active === i ? " open" : ""}`}
-                  style={{ left: `${h.x}%`, top: `${h.y}%` }}
-                  onMouseEnter={() => setActive(i)}
-                  onMouseLeave={() => setActive((a) => (a === i ? null : a))}
+              {icons.map((p, i) => (
+                <div key={`${slide.id}-${i}`} className="tour-ic" style={{ left: `${p.x}%`, top: `${p.y}%` }}
+                  onMouseEnter={() => setOpenNote({ slide: idx, i })}
+                  onMouseLeave={() => setOpenNote((o) => (o && o.slide === idx && o.i === i ? null : o))}
                 >
                   <button
-                    type="button" className="hs-dot" aria-label={h.note[lang]} aria-expanded={active === i}
-                    onFocus={() => setActive(i)}
-                    onBlur={() => setActive((a) => (a === i ? null : a))}
-                    onClick={() => setActive((a) => (a === i ? null : i))}
+                    type="button" className={`dh-i${note === i ? " on" : ""}`} aria-expanded={note === i}
+                    aria-label={TOUR_NOTES[slide.id][i][lang]}
+                    onFocus={() => setOpenNote({ slide: idx, i })}
+                    onClick={() => setOpenNote((o) => (o && o.slide === idx && o.i === i ? null : { slide: idx, i }))}
                   >
-                    <span className="hs-ring" aria-hidden="true" />
-                    <span className="hs-n">{i + 1}</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v5.4M12 7.6v.2" /></svg>
                   </button>
-                  <span role="tooltip" className={`hs-note${h.x > 58 ? " l" : " r"}${h.y > 62 ? " u" : ""}`}>{h.note[lang]}</span>
+                  {note === i && (
+                    <div className={`dh-note${p.x > 55 ? " end" : ""}`} role="note">
+                      <p>{TOUR_NOTES[slide.id][i][lang]}</p>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
-          </div>
         </div>
 
-        {/* Only carries the tapped hotspot's note, and only on phones (where
-            the floating tooltips are hidden). It collapses to nothing the
-            rest of the time -- there's no standing instruction line. */}
-        <p className={`tour-cap${activeNote ? " has-note" : ""}`} aria-live="polite">
-          {activeNote && <span className="cap-note">{activeNote}</span>}
-        </p>
+        {/* where we are in the slideshow; also a way to jump */}
+        <div className="tour-dots" role="group" aria-label={COPY.slideshow[lang]}>
+          {SLIDES.map((s, n) => (
+            <button
+              key={s.id} type="button" className={n === idx ? "on" : undefined}
+              aria-label={s.label[lang]} aria-current={n === idx ? "true" : undefined}
+              onClick={() => { setIdx(n); setOpenNote(null); }}
+            >
+              <i />
+            </button>
+          ))}
+        </div>
       </div>
 
       <style>{`
         .tour-head { margin-bottom: 14px; }
-        /* No font-size override: every section heading uses the one .sec-h
-           scale, so Product doesn't read a size smaller than the rest. */
         .tour-head .sec-h { min-height: 0; }
-        .tour-head, .tour-nav, .tour-blurb, .tour-try, .tour-slide, .tour-cap { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
-        .tour.seen .tour-head, .tour.seen .tour-nav, .tour.seen .tour-blurb, .tour.seen .tour-try, .tour.seen .tour-slide, .tour.seen .tour-cap { opacity: 1; transform: none; }
-        .tour.seen .tour-nav, .tour.seen .tour-blurb { transition-delay: .08s; }
-        .tour.seen .tour-try { transition-delay: .11s; }
+        .tour-head, .tour-try, .tour-slide, .tour-dots { opacity: 0; transform: translateY(14px); transition: opacity .8s var(--e-out), transform .8s var(--e-out); }
+        .tour.seen .tour-head, .tour.seen .tour-try, .tour.seen .tour-slide, .tour.seen .tour-dots { opacity: 1; transform: none; }
+        .tour.seen .tour-try { transition-delay: .08s; }
         .tour.seen .tour-slide { transition-delay: .14s; }
+        .tour.seen .tour-dots { transition-delay: .2s; }
 
-        .tour-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
-        .tour-tabs { display: flex; gap: 6px; padding: 5px; border-radius: var(--r-pill); background: rgba(255,255,255,.03); border: 1px solid var(--hair); }
-        .tour-tab {
-          font-size: 13.5px; font-weight: 500; color: var(--text-3); white-space: nowrap;
-          padding: 8px 16px; border-radius: var(--r-pill);
-          transition: color var(--t-fast) var(--e-out), background var(--t-fast) var(--e-out);
-        }
-        .tour-tab:hover { color: var(--text); }
-        .tour-tab.on { color: #04140D; background: linear-gradient(180deg,var(--jade-bright),var(--jade-2)); font-weight: 600; box-shadow: 0 1px 0 rgba(255,255,255,.4) inset; }
-        .tour-arrow {
-          flex: none; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
-          border: 1px solid var(--hair-2); background: rgba(255,255,255,.035); color: var(--text-2);
-          transition: background .22s var(--e-out), color .22s var(--e-out);
-        }
-        .tour-arrow:hover { background: rgba(255,255,255,.08); color: var(--text); }
-        .tour-arrow svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-
-        .tour.seen .tour-slide { animation: tourIn .5s var(--e-out); }
-        @keyframes tourIn { from { opacity: .0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-        /* One centred column: tag, heading, tabs, the slide's own title and
-           line, then the screenshot. It used to be a two-column grid with the
-           title/blurb in a narrow left column beside the frame, which put an
-           off-centre block under a centred heading and centred tabs. Stacked
-           and centred, the whole section reads down one axis and the frame
-           gets the full width instead of sharing the row. */
-        .tour-slide { display: block; }
-        .tour .sec-head.mid.tour-head { margin-bottom: 22px; }
-        .tour .sec-head.mid .sec-sub { max-width: 62ch; }
-        .tour-blurb {
-          max-width: 84ch; margin: 0 auto 16px; min-height: 3em; text-align: center;
-          font-size: 14px; line-height: 1.5; color: var(--text-3); text-wrap: balance;
-        }
-        .tour-stage { min-width: 0; }
-
-        /* A compact preview: the demo button above it (and a click on the image)
-           opens the full dashboard, so the screenshot itself stays small. */
-        .sec.tour { padding: calc(var(--nav-h) + 40px) 0 72px; }
-        .tour-try { display: flex; justify-content: center; margin: 0 auto 26px; }
+        .sec.tour { padding: calc(var(--nav-h) + 24px) 0 48px; }
+        .tour-try { display: flex; justify-content: center; margin: 0 auto 24px; }
         .tour-try-btn {
           display: inline-flex; align-items: center; gap: 10px; height: 52px; padding: 0 28px; border-radius: 999px;
           font-size: 15.5px; font-weight: 600;
         }
         .tour-try-btn svg { width: 17px; height: 17px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; transition: transform .25s var(--e-out); }
         .tour-try-btn:hover svg { transform: translateX(3px); }
+
+        /* sized so the whole section (heading, button, screenshot, dots) fits one screen */
         .tour-frame {
-          width: min(100%, 780px);
-          margin: 0 auto; border-radius: 16px; overflow: visible;
-          /* the address bar adapts to the frame's own width, not the viewport's */
+          width: min(100%, 760px, calc((100svh - 420px) * 1.6));
+          min-width: min(100%, 420px);
+          margin: 0 auto; border-radius: 16px;
           container-type: inline-size;
           background: var(--card-bg), #0A0D11;
           border: 1px solid var(--card-border);
@@ -483,17 +197,22 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
         }
         .tour-chrome {
           display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); align-items: center; gap: 12px;
-          height: 38px; padding: 0 12px; border-bottom: 1px solid var(--hair);
+          height: 36px; padding: 0 12px; border-bottom: 1px solid var(--hair);
         }
         .tc-dots { display: flex; gap: 6px; }
         .tc-dots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,.14); }
         .tc-url {
           display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 12px; border-radius: 7px;
-          font-size: 11.5px; color: var(--text-3); letter-spacing: -.004em; white-space: nowrap;
-          background: rgba(255,255,255,.04); border: 1px solid var(--hair);
+          font-size: 11.5px; color: var(--text-3); white-space: nowrap; background: rgba(255,255,255,.04); border: 1px solid var(--hair);
         }
         .tc-url svg { width: 11px; height: 11px; stroke: var(--text-3); stroke-width: 1.8; fill: none; stroke-linecap: round; flex: none; }
-        .tour-shot { position: relative; border-radius: 0 0 15px 15px; cursor: pointer; }
+
+        .tour-shot { position: relative; aspect-ratio: 1440 / 900; border-radius: 0 0 15px 15px; cursor: pointer; overflow: visible; }
+        .tour-shot img {
+          position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 0 0 15px 15px; user-select: none;
+          opacity: 0; transition: opacity .7s var(--e-out); pointer-events: none;
+        }
+        .tour-shot img.on { opacity: 1; }
         /* a hint on hover (mouse only): the screenshot is a door into the demo */
         .tour-open {
           position: absolute; left: 50%; bottom: 22px; z-index: 1; transform: translate(-50%, 6px); opacity: 0; pointer-events: none;
@@ -502,110 +221,34 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
           transition: opacity .25s var(--e-out), transform .25s var(--e-out);
         }
         @media (hover: hover) { .tour-shot:hover .tour-open { opacity: 1; transform: translate(-50%, 0); } }
-        .tour-shot img { display: block; width: 100%; height: auto; border-radius: 0 0 15px 15px; user-select: none; }
-        /* "Coming soon" state: a blurred wireframe of the page (not a fake
-           screenshot) under a veil, with a badge. */
-        .tour-ph {
-          position: relative; aspect-ratio: var(--tour-aspect); overflow: hidden; border-radius: 0 0 15px 15px;
-          background: linear-gradient(160deg, rgba(18,185,129,.09), rgba(255,255,255,.015) 60%);
-        }
-        .tour-mock { position: absolute; inset: 0; container-type: inline-size; }
-        .tour-mock i { position: absolute; border-radius: 5px; background: rgba(255,255,255,.075); }
-        .tour-mock i.side { border-radius: 0; background: rgba(255,255,255,.028); border-right: 1px solid rgba(255,255,255,.06); }
-        .tour-mock i.card { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.075); border-radius: 9px; }
-        .tour-mock i.line { background: rgba(255,255,255,.11); border-radius: 3px; }
-        .tour-mock i.big { background: rgba(255,255,255,.2); }
-        .tour-mock i.bar { background: rgba(255,255,255,.13); border-radius: 3px 3px 0 0; }
-        .tour-mock i.jade { background: rgba(55,226,155,.5); }
-        .tour-mock i.amber { background: rgba(255,193,120,.55); }
-        .tour-mock i.round { border-radius: 50%; }
-        .tour-mock i.ic { background: rgba(55,226,155,.13); border: 1px solid rgba(55,226,155,.28); border-radius: 22%; }
-        .tour-mock i.ic.round { border-radius: 50%; }
-        .tour-mock i.navon { background: rgba(55,226,155,.1); border-radius: 7px; box-shadow: inset 2px 0 0 var(--jade); }
-        .tour-mock i.peak { background: rgba(55,226,155,.05); border: 1px solid rgba(55,226,155,.22); border-radius: 9px; }
-        .tour-mock i.t.nav { color: var(--text-2); font-weight: 500; }
-        .tour-mock i.t.nav.on { color: var(--jade); }
-        .tour-mock i.t.ax { color: var(--text-3); }
-        /* sample text: font size is --fs in % of the frame width (cqw), so it scales with the frame */
-        .tour-mock i.t { display: flex; align-items: center; border-radius: 0; background: none; border: 0; font-style: normal; white-space: nowrap; color: var(--text); font-size: calc(var(--fs) * 1cqw); line-height: 1; letter-spacing: -.02em; }
-        .tour-mock i.t.b { font-weight: 600; }
-        .tour-mock i.t.m { color: var(--text-3); }
-        .tour-mock i.t.up { letter-spacing: .09em; font-weight: 600; }
-        .tour-mock i.t.c { justify-content: center; color: var(--jade); font-weight: 600; letter-spacing: 0; }
-        .tour-ph::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(8,10,14,0), rgba(8,10,14,.26)); pointer-events: none; }
-        .tour-soon {
-          justify-self: end; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
-          font-size: 11.5px; font-weight: 500; color: var(--text-3);
-        }
-        .tour-soon svg { width: 12px; height: 12px; stroke: var(--jade); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
-        .hs { position: absolute; transform: translate(-50%, -50%); z-index: 2; }
-        .hs.open { z-index: 5; }
-        .hs-dot {
-          position: relative; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
-          background: var(--jade); color: #04140D; font-size: 11.5px; font-weight: 700;
-          box-shadow: 0 0 0 4px rgba(55,226,155,.22), 0 6px 16px -4px rgba(0,0,0,.6);
-          transition: transform .22s var(--e-out);
+        /* the same "i" as in the demo (globals.css), scaled with the screenshot */
+        .tour-ic { position: absolute; z-index: 2; width: 0; height: 0; }
+        .tour-ic .dh-i {
+          width: clamp(16px, 1.45cqw, 22px); height: clamp(16px, 1.45cqw, 22px); margin: 0; left: 0; top: 0; translate: 0 -50%;
         }
-        .hs-dot:hover, .hs.open .hs-dot { transform: scale(1.12); }
-        .hs-dot:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-        .hs-ring {
-          position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid var(--jade);
-          animation: hsPulse 2.4s var(--e-out) infinite; pointer-events: none;
-        }
-        @keyframes hsPulse { 0% { transform: scale(1); opacity: .7; } 100% { transform: scale(2.3); opacity: 0; } }
-        .hs-n { position: relative; }
-        .hs-note {
-          position: absolute; top: 50%; width: 250px; padding: 12px 14px; border-radius: 12px;
-          font-size: 13px; line-height: 1.5; color: var(--text); text-align: left;
-          background: linear-gradient(180deg, rgba(20,24,31,.98), rgba(13,16,21,.98));
-          border: 1px solid rgba(55,226,155,.28);
-          box-shadow: 0 24px 50px -20px rgba(0,0,0,.95);
-          opacity: 0; pointer-events: none; transform: translateY(-50%) scale(.97);
-          transition: opacity .2s var(--e-out), transform .2s var(--e-out);
-        }
-        .hs-note.r { left: calc(100% + 14px); }
-        .hs-note.l { right: calc(100% + 14px); }
-        .hs-note.u { top: auto; bottom: 50%; transform: translateY(0) scale(.97); }
-        .hs.open .hs-note { opacity: 1; transform: translateY(-50%) scale(1); }
-        .hs.open .hs-note.u { transform: translateY(0) scale(1); }
+        .tour-ic .dh-i svg { width: 62%; height: 62%; }
+        .tour-ic .dh-note { left: -10px; top: 18px; width: 270px; max-width: 78cqw; }
+        .tour-ic .dh-note.end { left: auto; right: -10px; }
 
-        /* No height of its own: empty on desktop, and on phones it only grows
-           when a dot has been tapped. */
-        .tour-cap { text-align: center; font-size: 12.5px; color: var(--text-3); }
-        .cap-note { display: none; }
+        .tour-dots { display: flex; justify-content: center; gap: 4px; margin-top: 16px; }
+        .tour-dots button { width: 28px; height: 28px; display: grid; place-items: center; }
+        .tour-dots i { display: block; width: 8px; height: 8px; border-radius: 999px; background: rgba(255,255,255,.22); transition: width .3s var(--e-out), background .3s var(--e-out); }
+        .tour-dots button:hover i { background: rgba(255,255,255,.4); }
+        .tour-dots button.on i { width: 22px; background: var(--jade); }
+        .tour-dots button:focus-visible { outline: 2px solid var(--jade); outline-offset: 1px; border-radius: 8px; }
 
-        /* Phones: no hover, and a floating note would run off a 375px screen,
-           so the note shows in a caption under the screenshot instead. */
         @media (max-width: 700px) {
-          .tour-nav { gap: 8px; }
-          .tour-tabs { flex-wrap: wrap; justify-content: center; border-radius: 22px; }
-          .tour-tab { padding: 8px 12px; font-size: 13px; }
-          .hs-note { display: none; }
-          .hs-dot { width: 32px; height: 32px; font-size: 12.5px; }
-          .hs-dot::after { content: ""; position: absolute; inset: -7px; } /* 46px tap target */
-          .tour-cap.has-note { margin-top: 14px; }
-          .cap-note { display: block; font-size: 14px; line-height: 1.55; color: var(--text); padding: 12px 14px; border-radius: 12px; text-align: left; background: rgba(55,226,155,.07); border: 1px solid rgba(55,226,155,.2); }
-        }
-        /* a narrow frame: the dots go, the address and the label share the row */
-        @container (max-width: 600px) {
-          .tour-chrome { grid-template-columns: minmax(0,1fr) auto; gap: 8px; }
+          .sec.tour { padding: max(calc(var(--nav-h) + 20px), clamp(64px, 8vh, 88px)) 0 clamp(48px, 7vh, 72px); min-height: 0; }
+          .tour-frame { width: 100%; min-width: 0; }
           .tc-dots { display: none; }
+          .tour-chrome { grid-template-columns: minmax(0,1fr); }
           .tc-url { justify-self: start; max-width: 100%; overflow: hidden; font-size: 10.5px; padding: 0 9px; }
-          .tour-soon { font-size: 10.5px; }
-        }
-        @media (max-width: 700px) {
-          /* phones scroll anyway: the section takes its natural height rather
-             than a full screen with empty space above and below */
-          .sec.tour { min-height: 0; padding: max(calc(var(--nav-h) + 20px), clamp(64px, 8vh, 88px)) 0 clamp(64px, 8vh, 88px); }
-        }
-        @media (max-width: 480px) {
-          .tour-arrow { display: none; }
+          .tour-ic .dh-note { width: min(250px, 72cqw); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .tour-head, .tour-nav, .tour-blurb, .tour-slide, .tour-cap { transition: none; opacity: 1; transform: none; }
-          .tour.seen .tour-slide { animation: none; }
-          .hs-ring { animation: none; }
+          .tour-head, .tour-try, .tour-slide, .tour-dots { transition: none; opacity: 1; transform: none; }
+          .tour-shot img { transition: none; }
         }
       `}</style>
     </section>
