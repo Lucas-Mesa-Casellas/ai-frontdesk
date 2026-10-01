@@ -56,6 +56,16 @@ export async function proxy(request: NextRequest) {
     return res;
   }
 
+  // Every other route (the API routes included) must never see a demo switch a
+  // client sent: only the rewrite above may set it. Routes that need neither a
+  // session check nor cookies are forwarded right away, without the Supabase call.
+  const touchesSession = path === "/" || path === "/login" || path.startsWith("/dashboard") || path.startsWith("/auth");
+  if (!touchesSession) {
+    const h = new Headers(request.headers);
+    h.delete(DEMO_HEADER);
+    return NextResponse.next({ request: { headers: h } });
+  }
+
   // ?lang=fr|es|en on the landing sets the language and remembers it. The
   // cookie goes on the request too, so this very render already uses it.
   const langParam = path === "/" ? request.nextUrl.searchParams.get("lang")?.toLowerCase() : null;
@@ -135,5 +145,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/demo", "/demo/:path*", "/login", "/auth/:path*"],
+  // Everything except Next's static files and public assets: the demo header must
+  // be stripped from API routes too (see above), not only from the pages.
+  matcher: ["/((?!_next/static|_next/image|favicon|apple-touch-icon|icon-|site\\.webmanifest|tour/|business/|.*\\.(?:png|jpg|jpeg|webp|svg|ico|mp3|txt|xml)$).*)"],
 };
