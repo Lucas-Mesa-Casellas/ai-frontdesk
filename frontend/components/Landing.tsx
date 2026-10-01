@@ -411,6 +411,7 @@ export default function Landing({ initialLang }: { initialLang: LangCode }) {
   /* language menu — selected first, then canonical order, animated with FLIP */
   function pickLang(code: LangCode) {
     setLang(code);
+    document.documentElement.lang = code.toLowerCase(); // keep <html lang> in step with the visible language
     document.cookie = `lmc_locale=${code.toLowerCase()};path=/;max-age=31536000`;
     const want: LangCode[] = [code, ...ORDER.filter((c) => c !== code)];
     const menu = menuRef.current;

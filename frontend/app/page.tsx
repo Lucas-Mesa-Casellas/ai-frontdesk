@@ -1,5 +1,9 @@
+import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Landing, { type LangCode } from "@/components/Landing";
+
+// The landing is the one canonical page at "/" (?lang= only changes the language).
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const pick = (v: string | undefined): LangCode | null => {
   const c = v?.toLowerCase();
