@@ -6,6 +6,7 @@ from app.services.ai import extract_call_data
 from app.services.notify import notify_owner
 from app.services.retell_security import verify_retell_signature
 from app.services.business_lookup import find_business
+from app.services.open_status import open_status, resolve_timezone
 from app.services.scheduling import DEFAULT_APPOINTMENT_MINUTES
 from app.services.phone import to_e164
 from app.db.supabase_client import get_supabase_admin
@@ -29,6 +30,53 @@ _NULLISH_PHONE_VALUES = {"null", "none", "n/a", "na", ""}
 
 def _is_real_phone(value: str | None) -> bool:
     return bool(value) and value.strip().lower() not in _NULLISH_PHONE_VALUES
+
+
+def _business_timezone(supabase, business_id: str) -> str | None:
+    """businesses.timezone, read on its own so a missing column (migration 013
+    not applied yet) only costs the fallback to the country's usual timezone."""
+    try:
+        row = supabase.table("businesses").select("timezone").eq("id", business_id).limit(1).execute()
+        return (row.data[0].get("timezone") if row.data else None) or None
+    except Exception as e:  # noqa: BLE001
+        print(f"[retell-inbound] couldn't read businesses.timezone: {e}")
+        return None
+
+
+@router.post("/webhooks/retell-inbound")
+@limiter.limit("120/minute")
+async def retell_inbound_webhook(request: Request):
+    """Retell's inbound-call webhook: asked just before the agent answers, it gets
+    back whether the business is open right now, computed here from its opening
+    hours and timezone, as dynamic variables for the agent's prompt:
+      {"call_inbound": {"dynamic_variables": {"is_open_now": "yes"|"no", "open_status": "..."}}}
+    Retell allows ~10 seconds, so this does one or two quick lookups. Whatever goes
+    wrong, the answer is an empty dynamic_variables object: a call is never blocked
+    or rejected because of this.
+    """
+    raw_body = await request.body()
+    signature = request.headers.get("x-retell-signature")
+    if not verify_retell_signature(raw_body, signature, get_settings().retell_api_key):
+        print("[retell-inbound] rejected: invalid or missing x-retell-signature")
+        raise HTTPException(status_code=401, detail="invalid signature")
+
+    empty = {"call_inbound": {"dynamic_variables": {}}}
+    try:
+        payload = json.loads(raw_body)
+        # Retell nests this event's data under "call_inbound" (not "call")
+        inbound = payload.get("call_inbound") or {}
+        supabase = get_supabase_admin()
+        business = find_business(supabase, inbound)
+        if not business:
+            return empty
+        tz = resolve_timezone(_business_timezone(supabase, business["id"]), business.get("country"))
+        if tz is None:
+            return empty
+        is_open, status = open_status(business.get("opening_hours"), tz)
+        return {"call_inbound": {"dynamic_variables": {"is_open_now": "yes" if is_open else "no", "open_status": status}}}
+    except Exception as e:  # noqa: BLE001 - never block a call
+        print(f"[retell-inbound] failed, answering with no variables: {e}")
+        return empty
 
 
 @router.post("/webhooks/retell")
