@@ -24,7 +24,7 @@ type UndatedBooking = {
 
 export default function CalendarClient({
   cells, byDay, weekdayLabels, monthTitle, todayKey, year, month,
-  base, prevHref, nextHref, intlLocale, dashboardLocale, labels, legend, undated, stats,
+  base, businessName, prevHref, nextHref, intlLocale, dashboardLocale, labels, legend, undated, stats,
 }: {
   cells: (number | null)[];
   byDay: Record<number, Booking[]>;
@@ -34,6 +34,7 @@ export default function CalendarClient({
   year: number;
   month: number;
   base: string;
+  businessName: string;
   prevHref: string;
   nextHref: string;
   intlLocale: string;
@@ -79,13 +80,18 @@ export default function CalendarClient({
         .format(new Date(Date.UTC(year, month, selectedDay)))
     : null;
 
-  const renderActions = (b: { id: string; status: string }) => (
+  const renderActions = (b: { id: string; status: string; customer_phone: string | null; start_time?: string | null }) => (
     <BookingActions
       bookingId={b.id} path={`${base}/calendar`} currentStatus={b.status}
       confirmLabel={labels.calConfirm} confirmingLabel={labels.calConfirming}
       cancelLabel={labels.calCancel} cancellingLabel={labels.calCancelling}
       confirmedLabel={labels.calConfirmed_} cancelledLabel={labels.calCancelled}
       errorLabel={labels.calActionError} changeLabel={labels.calChange}
+      notify={{
+        phone: b.customer_phone, businessName, startTime: b.start_time ?? null,
+        locale: dashboardLocale as "en" | "es" | "fr",
+        labels: { ask: labels.notifyAsk, sms: labels.notifySms, whatsapp: labels.notifyWhatsapp, skip: labels.notifySkip },
+      }}
     />
   );
 
@@ -102,7 +108,7 @@ export default function CalendarClient({
   // One request, dated or undated: who, what they asked, its status, and the
   // actions. Hierarchy: customer -> summary -> status -> actions.
   const renderRequest = (
-    b: { id: string; customer_name: string | null; customer_phone: string | null; summary: string | null; summaryNeedsTranslation: boolean; call_id: string | null; status: string },
+    b: { id: string; customer_name: string | null; customer_phone: string | null; start_time?: string | null; summary: string | null; summaryNeedsTranslation: boolean; call_id: string | null; status: string },
     time: string | null,
     urgent: boolean,
   ) => (

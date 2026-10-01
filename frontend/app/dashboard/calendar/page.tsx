@@ -128,6 +128,7 @@ export default async function CalendarPage({
 
       <CalendarClient
         base={base}
+        businessName={business?.name ?? ""}
         cells={cells}
         byDay={byDay}
         weekdayLabels={weekdayLabels}
@@ -168,6 +169,10 @@ export default async function CalendarPage({
           calNoReason: t.calNoReason,
           calSeeCall: t.calSeeCall,
           calChange: t.calChange,
+          notifyAsk: t.notifyAsk,
+          notifySms: t.notifySms,
+          notifyWhatsapp: t.notifyWhatsapp,
+          notifySkip: t.notifySkip,
           calDelete: t.calDelete,
           calDeleteConfirm: t.calDeleteConfirm,
         }}
