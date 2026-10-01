@@ -1,14 +1,9 @@
 import json
-from fastapi import APIRouter, Request, HTTPException
-from datetime import datetime, timezone, timedelta
-from zoneinfo import ZoneInfo
-from app.services.ai import extract_call_data
-from app.services.notify import notify_owner
+from fastapi import APIRouter, BackgroundTasks, Request, HTTPException
+from app.services import call_ingest
 from app.services.retell_security import verify_retell_signature
 from app.services.business_lookup import find_business
 from app.services.open_status import open_status, resolve_timezone
-from app.services.scheduling import DEFAULT_APPOINTMENT_MINUTES
-from app.services.phone import to_e164
 from app.db.supabase_client import get_supabase_admin
 from app.config import get_settings
 from app.limiter import limiter
@@ -19,18 +14,6 @@ router = APIRouter()
 # conversation (per Retell's documented disconnection_reason values).
 FAILED_DISCONNECTION_REASONS = {"dial_failed", "dial_no_answer", "dial_busy"}
 MIN_MEANINGFUL_CALL_DURATION_MS = 5000
-
-# ExtractedCallData already normalizes these at parse time (see
-# app/models/call.py), but this fallback gets its own defensive check too --
-# a caller_phone of "null" is truthy, so treating it as "the caller stated a
-# number" would silently skip the Caller ID fallback below, exactly like the
-# literal string did before that fix.
-_NULLISH_PHONE_VALUES = {"null", "none", "n/a", "na", ""}
-
-
-def _is_real_phone(value: str | None) -> bool:
-    return bool(value) and value.strip().lower() not in _NULLISH_PHONE_VALUES
-
 
 def _business_timezone(supabase, business_id: str) -> str | None:
     """businesses.timezone, read on its own so a missing column (migration 013
@@ -81,7 +64,11 @@ async def retell_inbound_webhook(request: Request):
 
 @router.post("/webhooks/retell")
 @limiter.limit("120/minute")
-async def retell_webhook(request: Request):
+async def retell_webhook(request: Request, background_tasks: BackgroundTasks):
+    """Retell's call webhook. call_ended stores the call FIRST (a minimal row, see
+    services/call_ingest.py) and answers at once; the extraction, booking and
+    owner email finish in the background on the same row. A retried or replayed
+    call_ended finds the stored row and does nothing."""
     raw_body = await request.body()
     signature = request.headers.get("x-retell-signature")
     settings = get_settings()
@@ -90,14 +77,23 @@ async def retell_webhook(request: Request):
         print("[webhook] rejected: invalid or missing x-retell-signature")
         raise HTTPException(status_code=401, detail="invalid signature")
 
-    payload = json.loads(raw_body)
-    event = payload.get("event")
+    try:
+        payload = json.loads(raw_body)
+        event = payload.get("event")
+        call_data = payload.get("call") or {}
+        if not isinstance(call_data, dict):
+            raise ValueError("call is not an object")
+    except (ValueError, AttributeError) as e:
+        # signed but unreadable: retrying the same bytes cannot help, so acknowledge it
+        print(f"[webhook] malformed payload ignored: {e}")
+        return {"status": "ignored", "reason": "malformed_payload"}
+
+    if event == "call_analyzed":
+        return {"status": await call_ingest.apply_sentiment(get_supabase_admin(), call_data), "event": event}
 
     # We only care about the moment a call ends
     if event != "call_ended":
         return {"status": "ignored", "event": event}
-
-    call_data = payload.get("call", {})
 
     # Filter out calls that never really connected or were too short to be
     # a real interaction, so they don't burn margin or count against the
@@ -113,7 +109,7 @@ async def retell_webhook(request: Request):
         if duration_ms < MIN_MEANINGFUL_CALL_DURATION_MS:
             return {"status": "filtered", "reason": "too_short", "duration_ms": duration_ms}
 
-    transcript = call_data.get("transcript", "")
+    transcript = call_data.get("transcript") or ""
     if not transcript:
         return {"status": "no_transcript"}
 
@@ -132,103 +128,12 @@ async def retell_webhook(request: Request):
             "to_number": call_data.get("to_number"),
         }
 
-    # Run the extraction engine we already built and tested
-    business_tz = ZoneInfo("Europe/Madrid")  # covers Spain + France (same CET/CEST offset)
-    call_started_iso = (
-        datetime.fromtimestamp(start_ts / 1000, tz=business_tz).isoformat()
-        if start_ts else datetime.now(business_tz).isoformat()
-    )
-    extracted, raw_payload = extract_call_data(transcript, call_started_iso, business.get("language", "es"))
+    # Store the call before anything slow. If this raises, the 5xx makes Retell
+    # retry the whole delivery, and nothing has been lost.
+    call_id, created = call_ingest.store_stub(supabase, business, call_data, transcript)
+    if not created:
+        return {"status": "duplicate", "call_id": call_id}
 
-    # Normalize whatever number we end up with to E.164 so the same real
-    # number doesn't get stored three different ways depending on how the
-    # caller said it -- with the country code, national format with a
-    # leading trunk 0, or misheard/mistranscribed outright. Region comes
-    # from the business's own country (never hardcoded to one country,
-    # since this backend serves businesses in more than one).
-    country = business.get("country") or "ES"
-    from_number = call_data.get("from_number")
-
-    # Fall back to verified Caller ID when the transcript never states a
-    # number explicitly -- e.g. the caller accepted "use the number you're
-    # calling from" without ever saying digits aloud. Never overrides a
-    # number the caller actually gave.
-    extracted_phone = extracted.caller_phone if _is_real_phone(extracted.caller_phone) else None
-
-    # Same fallback again if the caller-stated number doesn't normalize into
-    # something valid for this country (e.g. a misheard extra digit) --
-    # prefer the verified Caller ID over storing a malformed number.
-    caller_phone = to_e164(extracted_phone, country) or to_e164(from_number, country) or from_number
-
-    # Call analytics. Duration comes from Retell's own start/end timestamps;
-    # sentiment and disconnection reason are stored only when Retell sent
-    # them (sentiment lives in call_analysis, which can be absent).
-    duration_seconds = None
-    if start_ts is not None and end_ts is not None and end_ts >= start_ts:
-        duration_seconds = round((end_ts - start_ts) / 1000)
-    call_analysis = call_data.get("call_analysis") or {}
-    user_sentiment = call_analysis.get("user_sentiment")
-
-    now = datetime.now(timezone.utc).isoformat()
-    call_record = {
-        "business_id": business["id"],
-        "source": "retell",
-        "transcript": transcript,
-        "caller_name": extracted.caller_name,
-        "caller_phone": caller_phone,
-        "intent": extracted.intent,
-        "summary": extracted.summary,
-        "urgency": extracted.urgency,
-        "preferred_time": extracted.preferred_time,
-        "preferred_time_iso": extracted.preferred_time_iso,
-        "next_action": extracted.next_action,
-        "booking_type": extracted.booking_type,
-        "party_size": extracted.party_size,
-        "extraction_complete": extracted.extraction_complete,
-        "extraction_confidence": float(extracted.extraction_confidence),
-        "missing_fields": extracted.missing_fields,
-        "notes": extracted.notes,
-        "topic": extracted.topic,
-        "outcome_reason": extracted.outcome_reason,
-        "duration_seconds": duration_seconds,
-        "user_sentiment": user_sentiment,
-        "disconnection_reason": disconnection_reason,
-        "raw_payload": raw_payload,
-        "ai_extracted_at": now,
-        "status": "request_captured" if extracted.extraction_complete else "needs_review",
-    }
-
-    result = supabase.table("calls").insert(call_record).execute()
-    call_id = result.data[0]["id"]
-
-    # A booking request only exists once the agent actually captured one —
-    # not every call is a booking (some are questions, messages, etc).
-    if extracted.extraction_complete and extracted.intent == "book_appointment":
-        booking_record = {
-            "business_id": business["id"],
-            "call_id": call_id,
-            "booking_type": extracted.booking_type,
-            "customer_name": extracted.caller_name,
-            "customer_phone": caller_phone,
-            "party_size": extracted.party_size,
-            "notes": extracted.preferred_time,
-            "start_time": extracted.preferred_time_iso,
-            "end_time": (
-                (datetime.fromisoformat(extracted.preferred_time_iso) + timedelta(minutes=DEFAULT_APPOINTMENT_MINUTES)).isoformat()
-                if extracted.preferred_time_iso else None
-            ),
-            # ALWAYS pending — only a human tap on the dashboard confirms
-            # a booking. The agent never implies one is confirmed (§5.5).
-            "status": "pending",
-        }
-        supabase.table("bookings").insert(booking_record).execute()
-
-    # Urgent-only by default: routine bookings/inquiries land on the dashboard
-    # only; email is reserved for high-urgency calls and failed extractions
-    # (which need a human to look at the raw transcript directly).
-    # TODO: make this a per-business Layer 2 preference once a business asks
-    # for it -- some owners will want every call emailed.
-    if extracted.urgency == "high" or not extracted.extraction_complete:
-        notify_owner(business, extracted, call_id, caller_phone_override=caller_phone)
-
-    return {"status": "success", "call_id": call_id}
+    # Extraction, booking and the owner email run after the response is sent.
+    background_tasks.add_task(call_ingest.complete_call, supabase, business, call_id, call_data, transcript)
+    return {"status": "accepted", "call_id": call_id}
