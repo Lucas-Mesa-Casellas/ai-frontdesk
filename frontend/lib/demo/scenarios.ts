@@ -31,14 +31,14 @@ export type LocaleScenarios = {
 
 export const SCENARIOS: Record<Locale, LocaleScenarios> = {
   fr: {
-    business: { name: "Plomberie Nordvelle", language: "fr", country: "FR", email: "contact@nordvelle.example" },
-    opener: "Bonjour, vous êtes bien chez Plomberie Nordvelle, comment puis-je vous aider ?",
+    business: { name: "LMC Agents", language: "fr", country: "FR", email: "hello@lmcagents.example" },
+    opener: "Bonjour, vous êtes bien chez LMC Agents, comment puis-je vous aider ?",
     bookClose: (pref) => `Très bien, j'ai noté votre demande pour ${pref}. L'équipe vous confirmera l'horaire rapidement. Puis-je avoir votre nom ?`,
     cbClose: "C'est noté, je transmets votre demande de rappel à l'équipe. Puis-je avoir votre nom ?",
     inqClose: "Je transmets votre question à l'équipe, qui reviendra vers vous si besoin. Puis-je avoir votre nom ?",
     nameLine: (n) => `${n}.`,
     bye: (f) => `Merci ${f}, c'est enregistré. Bonne journée.`,
-    unknownLines: [["Agent", "Bonjour, vous êtes bien chez Plomberie Nordvelle, comment puis-je vous aider ?"], ["User", "Allô ?"]],
+    unknownLines: [["Agent", "Bonjour, vous êtes bien chez LMC Agents, comment puis-je vous aider ?"], ["User", "Allô ?"]],
     outcome: { book: "Rendez-vous demandé", bookHigh: "Intervention urgente demandée", cb: "Rappel demandé", inq: "Renseignement donné", other: "Appel interrompu" },
     undatedPref: "à convenir",
     names: ["Nadia Fournier", "Baptiste Lemaire", "Inès Carvalho", "Olivier Roche", "Margaux Delorme", "Yann Perrot", "Sabrina Costa", "Thibault Gaillard", "Élodie Mercier", "Karim Benali", "Laure Vidal", "Hugo Descamps", "Agnès Rivière", "Mathieu Colin", "Léa Fontaine", "Clémence Guyot", "Antoine Bellec", "Sonia Lambert", "Romain Chevalier", "Justine Marchand", "David Nguyen", "Charlotte Poirier", "Étienne Vasseur", "Maëlle Renaud", "Pierre Lacombe", "Anaïs Dupuy", "Vincent Morel", "Noémie Thibault", "Fabien Rey", "Claire Duval"],
@@ -71,14 +71,14 @@ export const SCENARIOS: Record<Locale, LocaleScenarios> = {
   },
 
   es: {
-    business: { name: "Casaliva Inmobiliaria", language: "es", country: "ES", email: "contacto@casaliva.example" },
-    opener: "Hola, ha llamado a Casaliva Inmobiliaria, ¿en qué puedo ayudarle?",
+    business: { name: "LMC Agents", language: "es", country: "ES", email: "hello@lmcagents.example" },
+    opener: "Hola, ha llamado a LMC Agents, ¿en qué puedo ayudarle?",
     bookClose: (pref) => `Perfecto, he anotado su solicitud para ${pref}. El equipo le confirmará la hora en breve. ¿Me dice su nombre?`,
     cbClose: "Anotado, paso su petición de llamada al equipo. ¿Me dice su nombre?",
     inqClose: "Paso su consulta al equipo, que le responderá si hace falta. ¿Me dice su nombre?",
     nameLine: (n) => `${n}.`,
     bye: (f) => `Gracias, ${f}, queda registrado. Que tenga un buen día.`,
-    unknownLines: [["Agent", "Hola, ha llamado a Casaliva Inmobiliaria, ¿en qué puedo ayudarle?"], ["User", "¿Hola?"]],
+    unknownLines: [["Agent", "Hola, ha llamado a LMC Agents, ¿en qué puedo ayudarle?"], ["User", "¿Hola?"]],
     outcome: { book: "Cita solicitada", bookHigh: "Visita urgente solicitada", cb: "Llamada solicitada", inq: "Consulta atendida", other: "Llamada interrumpida" },
     undatedPref: "a convenir",
     names: ["Lucía Ortega", "Javier Molina", "Carmen Bautista", "Andrés Villalba", "Marta Quintero", "Sergio Navarro", "Paula Escudero", "Rafael Cordero", "Inmaculada Peña", "Diego Salvatierra", "Beatriz Lozano", "Álvaro Miranda", "Rocío Herrera", "Ignacio Duarte", "Elena Cabrera", "Miguel Ángel Soler", "Nuria Camacho", "Fernando Aguilar", "Lorena Pardo", "Adrián Ibáñez", "Sonia Trujillo", "Tomás Bermúdez", "Alicia Montero", "Cristian Prieto", "Yolanda Serrano", "Raúl Meléndez", "Silvia Arroyo", "Enrique Lara", "Patricia Cano", "Óscar Beltrán"],
@@ -111,14 +111,14 @@ export const SCENARIOS: Record<Locale, LocaleScenarios> = {
   },
 
   en: {
-    business: { name: "Kestrelwick Heating", language: "en", country: "GB", email: "hello@kestrelwick.example" },
-    opener: "Hello, you've reached Kestrelwick Heating, how can I help?",
+    business: { name: "LMC Agents", language: "en", country: "GB", email: "hello@lmcagents.example" },
+    opener: "Hello, you've reached LMC Agents, how can I help?",
     bookClose: (pref) => `Great, I've noted your request for ${pref}. The team will confirm the time shortly. Can I take your name?`,
     cbClose: "Noted, I'll pass your callback request to the team. Can I take your name?",
     inqClose: "I'll pass your question on to the team, who'll get back to you if needed. Can I take your name?",
     nameLine: (n) => `It's ${n}.`,
     bye: (f) => `Thank you, ${f}, that's all recorded. Have a good day.`,
-    unknownLines: [["Agent", "Hello, you've reached Kestrelwick Heating, how can I help?"], ["User", "Hello?"]],
+    unknownLines: [["Agent", "Hello, you've reached LMC Agents, how can I help?"], ["User", "Hello?"]],
     outcome: { book: "Visit requested", bookHigh: "Urgent visit requested", cb: "Callback requested", inq: "Question answered", other: "Call cut off" },
     undatedPref: "to be arranged",
     names: ["Oliver Hartley", "Priya Nair", "Callum Reyes", "Hannah Whitcombe", "Tomasz Brandt", "Aisha Rahman", "Ewan Gallagher", "Sophie Lindqvist", "Marcus Adeyemi", "Freya Kavanagh", "Daniel Osei", "Imogen Pryce", "Rohan Malhotra", "Ellie Fenwick", "Jamal Hussain", "Georgia Tennant", "Niall Brennan", "Chloe Ashworth", "Kwame Boateng", "Rachel Somerton", "Ben Okafor", "Isla Fairbrother", "Luca Ferraro", "Megan Pollard", "Sanjay Verma", "Harriet Lowe", "Dominic Cray", "Yasmin Qureshi", "Adam Whitlock", "Nora Ellery"],

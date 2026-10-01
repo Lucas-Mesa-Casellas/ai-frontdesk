@@ -21,6 +21,6 @@ export const TOUR_ICONS: Record<TourLang, Record<NoteSlide, { x: number; y: numb
     overview: [{ x: 63.99, y: 24.02 }, { x: 30.72, y: 37.33 }],
     calls: [{ x: 23.09, y: 23.35 }, { x: 51.7, y: 36.72 }, { x: 75.72, y: 36.72 }],
     calendar: [{ x: 66.56, y: 24.45 }, { x: 74.19, y: 32.41 }],
-    support: [{ x: 38.3, y: 27.32 }, { x: 33.09, y: 68.07 }],
+    support: [{ x: 38.3, y: 24.91 }, { x: 33.09, y: 65.66 }],
   },
 };
