@@ -19,3 +19,5 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+# Local-only reports (the repo is public)
+*.local.md
