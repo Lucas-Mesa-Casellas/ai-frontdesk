@@ -1,4 +1,6 @@
 import json
+import re
+import unicodedata
 from datetime import datetime, timedelta
 from openai import OpenAI
 from app.config import get_settings
@@ -12,7 +14,45 @@ LANGUAGE_NAMES = {"es": "Spanish", "fr": "French", "en": "English"}
 _WEEKDAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]  # datetime.weekday() order
 
 
-def _resolve_requested_weekday(call_started_at: str, requested_weekday: str | None, preferred_time_iso: str | None) -> str | None:
+# Weekday names a caller can actually say, in English, French and Spanish
+# (plurals included: "los lunes", "tous les jeudis"), matched on accent-stripped
+# lowercase text. Abbreviations are accepted only where they cannot be mistaken
+# for an ordinary word: "mon" (French "my"), "sun", "sat", "wed", "mar" (Spanish
+# "sea"), "ven" ("come"), "vie" ("life"), "dim", "jeu"... count only with a
+# trailing dot ("mon.", "jeu."); "fri", "tues", "thur(s)", "lun", "jue" and the
+# accented "mié"/"miér"/"sáb" are safe without one.
+_WEEKDAY_FULL = (
+    "monday|tuesday|wednesday|thursday|friday|saturday|sunday|"
+    "lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche|"
+    "lunes|martes|miercoles|jueves|viernes|sabado|domingo"
+)
+_WEEKDAY_ABBR_SAFE = "tues|thur|thurs|tue|thu|fri|lun|jue"
+_WEEKDAY_ABBR_DOT = "mon|wed|sat|sun|lu|ma|mar|mer|jeu|ven|sam|dim|mi|mie|vie|sab|dom"
+_WEEKDAY_RE = re.compile(
+    rf"(?<![a-z])(?:(?:{_WEEKDAY_FULL})s?|(?:{_WEEKDAY_ABBR_SAFE})\.?|(?:{_WEEKDAY_ABBR_DOT})\.)(?![a-z])"
+)
+# accented abbreviations, checked before accents are stripped
+_WEEKDAY_ACCENTED_RE = re.compile(r"(?<![a-zà-ÿ])(?:mié|miér|sáb)\.?(?![a-zà-ÿ])")
+
+
+def _phrase_names_weekday(phrase: str | None) -> bool:
+    """True when the caller's own words name a day of the week. "Tomorrow",
+    "next month" or "the 23rd" don't, however the model labelled them."""
+    if not phrase:
+        return False
+    lowered = phrase.lower()
+    if _WEEKDAY_ACCENTED_RE.search(lowered):
+        return True
+    plain = "".join(c for c in unicodedata.normalize("NFD", lowered) if unicodedata.category(c) != "Mn")
+    return bool(_WEEKDAY_RE.search(plain))
+
+
+def _resolve_requested_weekday(
+    call_started_at: str,
+    requested_weekday: str | None,
+    preferred_time_iso: str | None,
+    preferred_time: str | None = None,
+) -> str | None:
     """Same class of error as the Layer 1 day-of-week bug already fixed for
     what the agent SPEAKS during the call (per the Agents Paper), just at a
     different spot: here the model is resolving a spoken weekday into an
@@ -22,6 +62,13 @@ def _resolve_requested_weekday(call_started_at: str, requested_weekday: str | No
     call_started_at and keep only the model's time-of-day.
     """
     if not requested_weekday or not preferred_time_iso:
+        return preferred_time_iso
+    # Guard: the model sometimes fills requested_weekday for "tomorrow" with
+    # the call's own weekday (a Thursday call asking for "tomorrow around
+    # three" came back as next Thursday). The recomputation below is only
+    # right when the caller really said a weekday, so check their actual
+    # words; otherwise keep the model's own date.
+    if not _phrase_names_weekday(preferred_time):
         return preferred_time_iso
     try:
         call_started = datetime.fromisoformat(call_started_at)
@@ -107,7 +154,8 @@ Fields to extract:
 - requested_weekday: "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun" |
   null -- set this ONLY when the caller explicitly named a day of the week
   (e.g. "Wednesday", "miércoles", "mercredi", "next Tuesday"). Leave it null
-  for "tomorrow", "next month", "the 23rd", or any other phrasing that isn't
+  for "today", "tomorrow" (even when tomorrow happens to fall on that
+  weekday), "next month", "the 23rd", or any other phrasing that isn't
   a specific weekday name -- this field exists because figuring out which
   actual calendar date a named weekday falls on is arithmetic you get wrong,
   so leave that step to the system; just report which day they said.
@@ -167,7 +215,7 @@ def extract_call_data(
         parsed = json.loads(raw_text)
         extracted = ExtractedCallData(**parsed)
         extracted.preferred_time_iso = _resolve_requested_weekday(
-            call_started_at, extracted.requested_weekday, extracted.preferred_time_iso
+            call_started_at, extracted.requested_weekday, extracted.preferred_time_iso, extracted.preferred_time
         )
         return extracted, raw_payload
 
