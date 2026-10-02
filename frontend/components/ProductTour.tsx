@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ComponentType, type SVGProps } from "react";
-import { TOUR_NOTES, type NoteSlide } from "@/lib/tour-notes";
-import { TOUR_ICONS } from "@/lib/tour-hotspots";
+import type { NoteSlide } from "@/lib/tour-notes";
 import { DEMO_COPY, type DemoPage } from "@/lib/demo/copy";
 import { IconOverview, IconPhone, IconCalendar, IconSupport } from "@/components/icons";
 
@@ -12,8 +11,7 @@ type L10n = Record<Lang, string>;
 // The four dashboard pages (public/tour/<en|es|fr>/<page>.png, 1440x900,
 // rendered from the demo's own sample data): a menu on the left, a large
 // screenshot on the right, and one clear button that opens the real, clickable
-// demo. Each page has the same small "i" icons
-// as the demo, placed after the label each note explains (lib/tour-hotspots.ts).
+// demo. The screenshots are clean; the "i" hints live in the demo only.
 const SLIDES: { id: NoteSlide; label: L10n; route: string; Icon: ComponentType<SVGProps<SVGSVGElement>> }[] = [
   { id: "overview", label: { EN: "Overview", ES: "Resumen", FR: "Aperçu" }, route: "/dashboard", Icon: IconOverview },
   { id: "calls", label: { EN: "Calls", ES: "Llamadas", FR: "Appels" }, route: "/dashboard/calls", Icon: IconPhone },
@@ -29,13 +27,10 @@ const COPY = {
 
 export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDemo: (page: DemoPage) => void }) {
   const [idx, setIdx] = useState(0);
-  const [openNote, setOpenNote] = useState<{ slide: number; i: number } | null>(null);
   const [seen, setSeen] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
 
   const slide = SLIDES[idx];
-  const note = openNote && openNote.slide === idx ? openNote.i : null;
-  const icons = TOUR_ICONS[lang][slide.id];
 
   useEffect(() => {
     const el = rootRef.current;
@@ -48,16 +43,6 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
     io.observe(el);
     return () => io.disconnect();
   }, []);
-
-  // a tap outside folds an open note away
-  useEffect(() => {
-    if (note === null) return;
-    const away = (e: Event) => { if (!(e.target instanceof Element) || !e.target.closest(".tour-ic")) setOpenNote(null); };
-    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenNote(null); };
-    document.addEventListener("pointerdown", away);
-    document.addEventListener("keydown", esc);
-    return () => { document.removeEventListener("pointerdown", away); document.removeEventListener("keydown", esc); };
-  }, [note]);
 
   return (
     <section
@@ -79,7 +64,7 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
               {SLIDES.map((sl, n) => (
                 <button
                   key={sl.id} type="button" role="tab" aria-selected={n === idx} className={`tour-tab${n === idx ? " on" : ""}`}
-                  onClick={() => { setIdx(n); setOpenNote(null); }}
+                  onClick={() => setIdx(n)}
                 >
                   <sl.Icon width={18} height={18} aria-hidden="true" />
                   {sl.label[lang]}
@@ -103,15 +88,8 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
                 </span>
                 <span />
               </div>
-              {/* clicking the screenshot opens the demo on that page (the icons keep their own clicks) */}
-              <div
-                className="tour-shot"
-                onClick={(e) => {
-                  if ((e.target as Element).closest(".tour-ic")) return;
-                  setOpenNote(null);
-                  onOpenDemo(slide.id);
-                }}
-              >
+              {/* clicking the screenshot opens the demo on that page */}
+              <div className="tour-shot" onClick={() => onOpenDemo(slide.id)}>
                 {SLIDES.map((sl, n) => (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -122,27 +100,6 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
                   />
                 ))}
                 <span className="tour-open" aria-hidden="true">{DEMO_COPY.open[lang]}</span>
-
-                {icons.map((pt, i) => (
-                  <div key={`${slide.id}-${i}`} className="tour-ic" style={{ left: `${pt.x}%`, top: `${pt.y}%` }}
-                    onMouseEnter={() => setOpenNote({ slide: idx, i })}
-                    onMouseLeave={() => setOpenNote((o) => (o && o.slide === idx && o.i === i ? null : o))}
-                  >
-                    <button
-                      type="button" className={`dh-i${note === i ? " on" : ""}`} aria-expanded={note === i}
-                      aria-label={TOUR_NOTES[slide.id][i][lang]}
-                      onFocus={() => setOpenNote({ slide: idx, i })}
-                      onClick={() => setOpenNote((o) => (o && o.slide === idx && o.i === i ? null : { slide: idx, i }))}
-                    >
-                      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v5.4M12 7.6v.2" /></svg>
-                    </button>
-                    {note === i && (
-                      <div className={`dh-note${pt.x > 55 ? " end" : ""}`} role="note">
-                        <p>{TOUR_NOTES[slide.id][i][lang]}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -201,7 +158,7 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
         }
         .tc-url svg { width: 11px; height: 11px; stroke: var(--text-3); stroke-width: 1.8; fill: none; stroke-linecap: round; flex: none; }
 
-        .tour-shot { position: relative; aspect-ratio: 1440 / 900; border-radius: 0 0 15px 15px; cursor: pointer; overflow: visible; }
+        .tour-shot { position: relative; aspect-ratio: 1440 / 900; border-radius: 0 0 15px 15px; cursor: pointer; }
         .tour-shot img {
           position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 0 0 15px 15px; user-select: none;
           opacity: 0; transition: opacity .7s var(--e-out); pointer-events: none;
@@ -215,15 +172,6 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
           transition: opacity .25s var(--e-out), transform .25s var(--e-out);
         }
         @media (hover: hover) { .tour-shot:hover .tour-open { opacity: 1; transform: translate(-50%, 0); } }
-
-        /* the same "i" as in the demo (globals.css), scaled with the screenshot */
-        .tour-ic { position: absolute; z-index: 2; width: 0; height: 0; }
-        .tour-ic .dh-i {
-          width: clamp(16px, 1.45cqw, 22px); height: clamp(16px, 1.45cqw, 22px); margin: 0; left: 0; top: 0; translate: 0 -50%;
-        }
-        .tour-ic .dh-i svg { width: 62%; height: 62%; }
-        .tour-ic .dh-note { left: -10px; top: 18px; width: 270px; max-width: 78cqw; }
-        .tour-ic .dh-note.end { left: auto; right: -10px; }
 
         @media (max-width: 1000px) {
           .tour-grid { grid-template-columns: minmax(0, 1fr); gap: 22px; max-width: 760px; }
@@ -240,7 +188,6 @@ export default function ProductTour({ lang, onOpenDemo }: { lang: Lang; onOpenDe
           .tc-dots { display: none; }
           .tour-chrome { grid-template-columns: minmax(0,1fr); }
           .tc-url { justify-self: start; max-width: 100%; overflow: hidden; font-size: 10.5px; padding: 0 9px; }
-          .tour-ic .dh-note { width: min(250px, 72cqw); }
         }
         @media (prefers-reduced-motion: reduce) {
           .tour-head, .tour-grid { transition: none; opacity: 1; transform: none; }

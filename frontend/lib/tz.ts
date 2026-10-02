@@ -33,6 +33,14 @@ export function madridHour(date: Date): number {
   return Number(parts.find((p) => p.type === "hour")?.value);
 }
 
+// The day of the week as seen in BUSINESS_TZ: 0 = Monday ... 6 = Sunday.
+// Used to bucket calls by local weekday (the Overview's calls-by-day chart).
+const WEEKDAY_INDEX: Record<string, number> = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+export function madridWeekday(date: Date): number {
+  const name = new Intl.DateTimeFormat("en-US", { timeZone: BUSINESS_TZ, weekday: "short" }).format(date);
+  return WEEKDAY_INDEX[name] ?? 0;
+}
+
 // The UTC instant corresponding to a given wall-clock date/time as observed
 // in `timeZone` -- e.g. zonedTimeToUtc(2026, 6, 1) is "midnight on July 1st,
 // Madrid time" expressed as the real UTC instant that is, not the UTC

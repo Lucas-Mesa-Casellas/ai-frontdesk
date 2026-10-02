@@ -12,6 +12,7 @@ export type DashDict = {
   statCalls: string; statBookings: string; statConv: string;
   noCalls: string; unknown: string;
   hourChartTitle: string; hourChartSub: string;
+  dayChartTitle: string; dayChartSub: string; chartByHour: string; chartByDay: string; chartSwitch: string;
   chartTooltip: (label: string, count: number) => string;
   callsNoun: (n: number) => string;
   ovLatest: string; ovViewAll: string;
@@ -69,6 +70,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     statCalls: "Calls answered", statBookings: "Booking requests", statConv: "Booking rate",
     noCalls: "No calls yet.", unknown: "Unknown",
     hourChartTitle: "Calls by hour of day", hourChartSub: "When your calls tend to come in.",
+    dayChartTitle: "Calls by day of the week", dayChartSub: "Which days are the busiest.",
+    chartByHour: "By hour", chartByDay: "By day", chartSwitch: "Chart view",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "call" : "calls"}`,
     callsNoun: (n) => (n === 1 ? "call" : "calls"),
     ovLatest: "Latest calls", ovViewAll: "View all",
@@ -135,6 +138,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     statCalls: "Llamadas atendidas", statBookings: "Solicitudes de cita", statConv: "Tasa de reserva",
     noCalls: "Aún no hay llamadas.", unknown: "Desconocido",
     hourChartTitle: "Llamadas por hora del día", hourChartSub: "A qué horas suelen llegar tus llamadas.",
+    dayChartTitle: "Llamadas por día de la semana", dayChartSub: "Qué días entran más llamadas.",
+    chartByHour: "Por hora", chartByDay: "Por día", chartSwitch: "Vista del gráfico",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "llamada" : "llamadas"}`,
     callsNoun: (n) => (n === 1 ? "llamada" : "llamadas"),
     ovLatest: "Últimas llamadas", ovViewAll: "Ver todas",
@@ -201,6 +206,8 @@ export const DASH_T: Record<Locale, DashDict> = {
     statCalls: "Appels traités", statBookings: "Demandes de rendez-vous", statConv: "Taux de réservation",
     noCalls: "Aucun appel pour l'instant.", unknown: "Inconnu",
     hourChartTitle: "Appels par heure", hourChartSub: "Les heures où vous recevez le plus d'appels.",
+    dayChartTitle: "Appels par jour de la semaine", dayChartSub: "Les jours où vous recevez le plus d'appels.",
+    chartByHour: "Par heure", chartByDay: "Par jour", chartSwitch: "Affichage du graphique",
     chartTooltip: (l, n) => `${l} — ${n} ${n === 1 ? "appel" : "appels"}`,
     callsNoun: (n) => (n > 1 ? "appels" : "appel"),
     ovLatest: "Derniers appels", ovViewAll: "Voir tout",

@@ -1,7 +1,8 @@
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
-import { BUSINESS_TZ, madridHour, zonedTimeToUtc } from "@/lib/tz";
+import { BUSINESS_TZ, madridHour, madridWeekday, zonedTimeToUtc } from "@/lib/tz";
+import CallsChart from "@/components/CallsChart";
 import CountUp from "@/components/CountUp";
 import AutoRefresh from "@/components/AutoRefresh";
 import { dashBase } from "@/lib/demo/mode";
@@ -61,16 +62,26 @@ export default async function OverviewPage() {
   const distinctBookedCalls = new Set((bookedCallIds || []).map((b) => b.call_id)).size;
   const conv = totalCalls ? Math.min(100, Math.round((distinctBookedCalls / totalCalls) * 100)) : 0;
 
-  const hourCounts = Array(24).fill(0);
-  (allCallTimes || []).forEach((c) => { hourCounts[madridHour(new Date(c.created_at))]++; });
-  const maxHourCount = Math.max(1, ...hourCounts);
-  // The y axis runs 0..niceMax in four equal steps (4, 8, 12... never a
-  // ragged top like 7), and bars are scaled to it so they sit on the gridlines.
-  const niceMax = Math.max(4, Math.ceil(maxHourCount / 4) * 4);
-  const yTicks = [0, 1, 2, 3, 4].map((i) => (niceMax / 4) * (4 - i));
+  // Two views of the same calls, switched in the one card (components/CallsChart.tsx):
+  // by hour of day (24 bars) and by day of the week (Monday first).
+  const hourCounts: number[] = Array(24).fill(0);
+  const dayCounts: number[] = Array(7).fill(0);
+  (allCallTimes || []).forEach((c) => {
+    const d = new Date(c.created_at);
+    hourCounts[madridHour(d)]++;
+    dayCounts[madridWeekday(d)]++;
+  });
   const hourLabel = (h: number) =>
     zonedTimeToUtc(2024, 0, 1, h).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ });
-  const axisHours = [0, 3, 6, 9, 12, 15, 18, 21];
+  // 1 Jan 2024 was a Monday, so day i of the week is the (1 + i)th of January.
+  const dayName = (i: number, width: "short" | "long") =>
+    new Intl.DateTimeFormat(locale, { weekday: width, timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 1 + i, 12)));
+  const hourBars = hourCounts.map((count, h) => ({
+    count, tip: t.chartTooltip(hourLabel(h), count), tick: [0, 3, 6, 9, 12, 15, 18, 21].includes(h) ? hourLabel(h) : "",
+  }));
+  const dayBars = dayCounts.map((count, i) => ({
+    count, tip: t.chartTooltip(dayName(i, "long"), count), tick: dayName(i, "short").replace(/\.$/, ""),
+  }));
 
   const hour = madridHour(new Date());
   const greeting = hour < 12 ? t.greetMorning : hour < 20 ? t.greetAfternoon : t.greetEvening;
@@ -116,60 +127,27 @@ export default async function OverviewPage() {
 
       <div className="ov-row">
         <Card as="section" className="dash-in d4 ov-panel ov-chartcard">
-          <div className="ov-panel-head">
-            <div>
-              <h2 className="ov-h2">{t.hourChartTitle}</h2>
-              <p className="ov-sub">{t.hourChartSub}</p>
-            </div>
-          </div>
           {!totalCalls ? (
-            <EmptyState
-              icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 20V11M10 20V6M15 20v-7M20 20V9" /></svg>}
-              title={t.noCalls}
-            />
-          ) : (
             <>
-              <div className="ov-chart">
-                <div className="ov-yaxis" aria-hidden="true">
-                  {yTicks.map((v, i) => <span key={v} style={{ top: `${i * 25}%` }}>{v}</span>)}
-                </div>
-                <div className="ov-plot">
-                  <div className="ov-gridlines" aria-hidden="true"><i /><i /><i /><i /><i /></div>
-                  <div className="ov-hourbars">
-                    {/* Each hour is a full-height column (the bar sits in its
-                        bottom), so an empty hour is still hoverable -- the bar
-                        alone is 2px tall when there are no calls. */}
-                    {hourCounts.map((count, h) => {
-                      const tip = t.chartTooltip(hourLabel(h), count);
-                      return (
-                        <div
-                          key={h}
-                          className={`ov-hourcol${h < 3 ? " edge-l" : h > 20 ? " edge-r" : ""}`}
-                          data-tip={tip}
-                          role="img"
-                          aria-label={tip}
-                        >
-                          <div
-                            className={`ov-hourbar${count > 0 && count === maxHourCount ? " is-peak" : ""}`}
-                            style={{ height: count > 0 ? `${Math.max((count / niceMax) * 100, 4)}%` : 2 }}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
+              <div className="ov-panel-head">
+                <div>
+                  <h2 className="ov-h2">{t.hourChartTitle}</h2>
+                  <p className="ov-sub">{t.hourChartSub}</p>
                 </div>
               </div>
-              <div className="ov-hourlabels">
-                {/* One span per hour, same flex/gap sizing as .ov-hourbars,
-                    so each tick sits directly under its own bar. Non-tick
-                    hours render an empty span purely to hold the same width. */}
-                {hourCounts.map((_, h) => (
-                  <span key={h} className={h % 6 !== 0 ? "ov-hourlabel-thin" : undefined}>
-                    {axisHours.includes(h) ? hourLabel(h) : ""}
-                  </span>
-                ))}
-              </div>
+              <EmptyState
+                icon={<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 20V11M10 20V6M15 20v-7M20 20V9" /></svg>}
+                title={t.noCalls}
+              />
             </>
+          ) : (
+            <CallsChart
+              views={[
+                { id: "hour", tab: t.chartByHour, title: t.hourChartTitle, sub: t.hourChartSub, bars: hourBars, thinLabels: true },
+                { id: "day", tab: t.chartByDay, title: t.dayChartTitle, sub: t.dayChartSub, bars: dayBars },
+              ]}
+              switchLabel={t.chartSwitch}
+            />
           )}
         </Card>
 
@@ -271,9 +249,15 @@ export default async function OverviewPage() {
         .ov-row { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
         .ov-panel { position: relative; padding: 24px; display: flex; flex-direction: column; }
         .ov-panel:hover { transform: none; } /* big surfaces stay put; only the KPI cards lift */
-        .ov-panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+        .ov-panel-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
         .ov-h2 { font-size: 15px; font-weight: 600; letter-spacing: -.015em; color: var(--text); }
         .ov-sub { font-size: 12.5px; color: var(--text-3); margin-top: 3px; }
+        /* the hours / days switch: a small segmented control in the card's corner */
+        .ov-seg { flex: none; display: inline-flex; padding: 3px; gap: 2px; border-radius: 999px; background: rgba(255,255,255,.04); border: 1px solid var(--hair); }
+        .ov-seg-btn { min-height: 28px; padding: 0 13px; border-radius: 999px; font-size: 12px; font-weight: 500; color: var(--text-3); white-space: nowrap; transition: color .2s var(--e-out), background .2s var(--e-out); }
+        .ov-seg-btn:hover { color: var(--text); }
+        .ov-seg-btn.on { color: var(--jade); background: rgba(55,226,155,.12); font-weight: 600; }
+        .ov-seg-btn:focus-visible { outline: 2px solid var(--jade); outline-offset: 1px; }
         .ov-viewall { font-size: 12.5px; color: var(--text-3); white-space: nowrap; transition: color .2s var(--e-out); }
         .ov-viewall:hover { color: var(--jade); }
 
@@ -308,6 +292,12 @@ export default async function OverviewPage() {
         .ov-hourcol.edge-r::after { left: auto; right: 0; transform: translate(0, 4px); }
         .ov-hourcol:hover::after { opacity: 1; transform: translate(-50%, 0); }
         .ov-hourcol.edge-l:hover::after, .ov-hourcol.edge-r:hover::after { transform: translate(0, 0); }
+        .ov-chart { animation: ov-chart-in .35s var(--e-out); }
+        @keyframes ov-chart-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        /* seven wide bars (days of the week) rather than 24 slim ones */
+        .ov-chart.is-wide .ov-hourbars, .ov-hourlabels.is-wide { gap: 14px; }
+        .ov-chart.is-wide .ov-hourbar { width: min(100%, 76px); margin-inline: auto; border-radius: 6px 6px 0 0; }
+        .ov-hourlabels.is-wide span { font-size: 11.5px; }
         .ov-hourlabels { display: flex; gap: 3px; margin: 10px 0 0 34px; }
         .ov-hourlabels span { flex: 1; min-width: 3px; display: flex; justify-content: center; white-space: nowrap; font-size: 10px; color: var(--text-3); }
 
@@ -367,6 +357,7 @@ export default async function OverviewPage() {
           .ov-yaxis { width: 16px; }
           .ov-hourlabels { margin-left: 28px; }
           .ov-hourbars, .ov-hourlabels { gap: 2px; }
+          .ov-chart.is-wide .ov-hourbars, .ov-hourlabels.is-wide { gap: 8px; }
           /* Only every sixth hour is labelled here (00, 06, 12, 18): the
              other spans stay (hidden) so each label still sits under its own
              bar. Scoped under .ov-hourlabels -- the bare class used to lose

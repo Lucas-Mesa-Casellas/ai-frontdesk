@@ -234,11 +234,8 @@ const Globe = () => (
 
 type SendState = "idle" | "sending" | "sent" | "error";
 
-// Landing sections in DOM order (ids): the nav's active state, and where the
-// reader's last position is remembered.
+// Landing sections in DOM order (ids): the nav's active state.
 const SECTIONS = ["product", "tour", "voice", "pricing", "types", "contact"];
-const LAST_POS_KEY = "lmc_last_pos";
-const LAST_POS_TTL = 7 * 24 * 60 * 60 * 1000; // a week; after that, start at the top
 
 // The first render already uses the visitor's language (chosen earlier, or via
 // ?lang=), decided on the server in app/page.tsx, so there is no flash of English.
@@ -305,42 +302,28 @@ export default function Landing({ initialLang }: { initialLang: LangCode }) {
   }, []);
 
   useEffect(() => {
-    // Reopening the page puts you back where you were: the section you were
-    // reading and how far into it, kept in localStorage as you scroll and
-    // re-applied on load (a new visit or a reload; back/forward is left to
-    // the browser). Stored per section rather than as a raw pixel offset, so
-    // it still lands right if the window size changed in between. A link
-    // that names a section (someone shares /#pricing) wins over the saved
-    // position. Both are applied again once the web fonts are in, since the
-    // page shifts slightly when they load. Client-side only: proxy.ts still
-    // decides who sees "/" at all, so this never touches routing or auth.
+    // Opening the page always starts at the top, the hero: no scroll position
+    // is remembered, and the browser's own restoration is switched off so a
+    // reload or a reopened tab does not land mid-page either. A link that names
+    // a section (someone shares /#pricing) still goes to that section, applied
+    // again once the web fonts are in since the page shifts slightly when they
+    // load. Client-side only: proxy.ts still decides who sees "/" at all.
     const jump = (id: string, offset = 0) => {
       const el = document.getElementById(id);
       if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + offset, behavior: "instant" });
     };
-    try {
-      const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-      const hashId = window.location.hash.slice(1);
-      let target: [string, number] | null = null;
-      if (hashId) target = [hashId, 0];
-      else if (navEntry?.type !== "back_forward") {
-        const raw = localStorage.getItem(LAST_POS_KEY);
-        const saved = raw ? (JSON.parse(raw) as { id?: string; off?: number; t?: number }) : null;
-        if (saved?.id && SECTIONS.includes(saved.id) && saved.t && Date.now() - saved.t < LAST_POS_TTL) {
-          target = [saved.id, Math.max(0, saved.off || 0)];
-        }
-      }
-      if (target) {
-        const [id, off] = target;
-        window.history.scrollRestoration = "manual";
-        jump(id, off);
-        document.fonts?.ready.then(() => jump(id, off));
-      }
-    } catch { /* storage unavailable: the browser's own behaviour stands */ }
+    try { localStorage.removeItem("lmc_last_pos"); } catch { /* storage unavailable */ }
+    window.history.scrollRestoration = "manual";
+    const hashId = window.location.hash.slice(1);
+    if (hashId && document.getElementById(hashId)) {
+      jump(hashId);
+      document.fonts?.ready.then(() => jump(hashId));
+    } else {
+      window.scrollTo({ top: 0, behavior: "instant" });
+    }
 
     // In-page links (nav, logo, CTAs): scroll to the section without writing
-    // #section into the URL -- a stale hash would otherwise override the
-    // remembered position next time the page is opened.
+    // #section into the URL, so a reload afterwards still opens at the top.
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as Element | null)?.closest?.('a[href^="#"]') as HTMLAnchorElement | null;
@@ -365,28 +348,13 @@ export default function Landing({ initialLang }: { initialLang: LangCode }) {
       // Dashboard and Voices belong to Product; Business types sits under
       // Pricing and has no nav button of its own.
       setActiveSec(here === "tour" || here === "voice" ? "product" : here === "types" ? "pricing" : here);
-      savePos();
-    };
-    // remember the position (section + how far into it), at most every 250ms
-    let saveTimer: ReturnType<typeof setTimeout> | null = null;
-    const savePos = () => {
-      if (saveTimer) return;
-      saveTimer = setTimeout(() => {
-        saveTimer = null;
-        let id = SECTIONS[0], off = 0;
-        for (const sid of SECTIONS) {
-          const el = document.getElementById(sid);
-          if (el && el.getBoundingClientRect().top <= 1) { id = sid; off = Math.round(-el.getBoundingClientRect().top); }
-        }
-        try { localStorage.setItem(LAST_POS_KEY, JSON.stringify({ id, off, t: Date.now() })); } catch { /* ignore */ }
-      }, 250);
     };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("click", onClick);
-      if (saveTimer) clearTimeout(saveTimer);
+      window.history.scrollRestoration = "auto";
     };
   }, []);
 

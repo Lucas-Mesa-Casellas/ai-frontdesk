@@ -1,7 +1,6 @@
-// The short notes that explain parts of the dashboard. One copy, used twice:
-// as the hotspots on the tour screenshots (components/ProductTour.tsx) and as
-// the numbered hints inside the interactive demo (components/demo/DemoShell.tsx),
-// so the two can never drift apart.
+// The short notes that explain parts of the dashboard: the hints inside the
+// interactive demo (components/demo/DemoShell.tsx). The landing's screenshots
+// carry none.
 export type TourLang = "EN" | "ES" | "FR";
 export type L10n = Record<TourLang, string>;
 export type NoteSlide = "overview" | "calls" | "calendar" | "support";
@@ -9,7 +8,7 @@ export type NoteSlide = "overview" | "calls" | "calendar" | "support";
 export const TOUR_NOTES: Record<NoteSlide, L10n[]> = {
   overview: [
     { EN: "Calls, booking requests and booking rate, live.", ES: "Llamadas, solicitudes de cita y tasa de reserva, al día.", FR: "Appels, demandes de rendez-vous et taux de réservation, en direct." },
-    { EN: "When your calls come in, hour by hour.", ES: "A qué horas llegan tus llamadas.", FR: "À quelle heure arrivent vos appels." },
+    { EN: "When your calls come in, by hour or by day of the week.", ES: "Cuándo llegan tus llamadas, por hora o por día de la semana.", FR: "Quand arrivent vos appels, par heure ou par jour de la semaine." },
   ],
   calls: [
     { EN: "Filter calls by date.", ES: "Filtra las llamadas por fecha.", FR: "Filtrez les appels par date." },
