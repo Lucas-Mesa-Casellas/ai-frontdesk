@@ -9,7 +9,7 @@ lost or stored twice. Now:
    retried call_ended finds the row instead of inserting another.
 2. `complete_call` runs afterwards (in the background): extraction, then an UPDATE
    of that same row with the extracted fields, the booking, the owner email. If
-   anything goes wrong the row simply stays 'needs_review' (and
+   anything goes wrong the row simply stays 'needs_review' and the owner is emailed (and
    scripts/reprocess_needs_review.py can finish it later).
 3. `apply_sentiment` attaches Retell's later call_analyzed event to the row.
 
@@ -20,11 +20,14 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from app.services.ai import extract_call_data
-from app.services.notify import notify_owner
+from app.services.notify import notify_owner, notify_owner_needs_review
+from app.services.open_status import business_timezone, resolve_timezone
 from app.services.phone import to_e164
 from app.services.scheduling import DEFAULT_APPOINTMENT_MINUTES
 
-BUSINESS_TZ = ZoneInfo("Europe/Madrid")  # only used to label the call start for the extraction prompt
+# Only the last resort for labelling the call start in the extraction prompt: a business
+# with neither a timezone of its own nor a known country.
+FALLBACK_TZ = ZoneInfo("Europe/Madrid")
 
 _NULLISH_PHONE_VALUES = {"null", "none", "n/a", "na", ""}
 
@@ -152,10 +155,13 @@ def complete_call(supabase, business: dict, call_id: str, call_data: dict, trans
     whatever fails, the stub row stays as stored (needs_review). Returns a short
     status string for logs and tests."""
     try:
+        # the call start is labelled in the business's own timezone (businesses.timezone,
+        # else its country's usual one), so "tomorrow at three" is read against the right clock
+        tz = resolve_timezone(business_timezone(supabase, business["id"]), business.get("country")) or FALLBACK_TZ
         start_ts = call_data.get("start_timestamp")
         started_iso = (
-            datetime.fromtimestamp(start_ts / 1000, tz=BUSINESS_TZ).isoformat()
-            if start_ts else datetime.now(BUSINESS_TZ).isoformat()
+            datetime.fromtimestamp(start_ts / 1000, tz=tz).isoformat()
+            if start_ts else datetime.now(tz).isoformat()
         )
         extracted, raw_payload = extract_call_data(transcript, started_iso, business.get("language", "es"))
         country = business.get("country") or "ES"
@@ -164,6 +170,9 @@ def complete_call(supabase, business: dict, call_id: str, call_data: dict, trans
         supabase.table("calls").update(build_update(extracted, raw_payload, caller_phone)).eq("id", call_id).execute()
     except Exception as e:  # noqa: BLE001
         print(f"[call_ingest] extraction/update failed for call {call_id}, left as needs_review: {type(e).__name__}: {e}")
+        # nothing was read from this call, so the dashboard row alone would sit unnoticed:
+        # tell the owner a human has to open the transcript (never raises)
+        notify_owner_needs_review(business, call_id, call_data.get("from_number") if _is_real_phone(call_data.get("from_number")) else None)
         return "left_needs_review"
 
     try:
