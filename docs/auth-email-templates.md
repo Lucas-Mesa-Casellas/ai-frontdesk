@@ -11,6 +11,8 @@ How it works: Supabase Auth renders its email templates with Go templates and ex
 metadata as `{{ .Data }}` (the contents of `auth.users.raw_user_meta_data`). The login page calls
 `signInWithOtp({ email, options: { shouldCreateUser: false } })`, so every login uses the **Magic Link** template.
 
+**The link and the code.** The button points at the site's own page, `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email`, not at `{{ .ConfirmationURL }}`. That page only shows a *Continue* button and verifies the token when it is pressed, so a mail scanner that opens the link cannot use it up, and the link works from any browser or device (no PKCE verifier needed). The email also carries `{{ .Token }}`, the one-time code the login page accepts instead of the link. Link and code are the **same** token: whichever is used first kills the other, which is why the login page says "Use the link or the code, not both". Emails already sent with the old `{{ .ConfirmationURL }}` link keep working through `/auth/callback`.
+
 ## 1. Set the language on existing users (do not run until you have read it)
 
 `businesses.language` already holds `en`, `es` or `fr` for each client. Copy it onto the owner's auth user:
@@ -94,25 +96,25 @@ subject on one line.
         {{- if eq $l "fr" }}
         <tr><td style="font-size:22px;font-weight:600;line-height:1.25;padding-bottom:10px;">Connexion à votre espace client</td></tr>
         <tr><td style="font-size:15px;line-height:1.6;color:#33403b;padding-bottom:24px;">Cliquez sur le bouton ci-dessous pour vous connecter. Ce lien ne fonctionne qu’une fois et expire au bout de peu de temps.</td></tr>
-        <tr><td style="padding-bottom:24px;"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">Me connecter</a></td></tr>
-        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;">Le bouton ne fonctionne pas&nbsp;? Copiez ce lien dans votre navigateur&nbsp;:<br><a href="{{ .ConfirmationURL }}" style="color:#0a8f64;word-break:break-all;">{{ .ConfirmationURL }}</a></td></tr>
-        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">Ou saisissez ce code sur la page de connexion&nbsp;:<br><span style="display:inline-block;margin-top:6px;font-size:24px;font-weight:600;letter-spacing:0.18em;color:#0b1210;">{{ .Token }}</span></td></tr>
+        <tr><td style="padding-bottom:24px;"><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">Me connecter</a></td></tr>
+        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;">Le bouton ne fonctionne pas&nbsp;? Copiez ce lien dans votre navigateur&nbsp;:<br><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email" style="color:#0a8f64;word-break:break-all;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email</a></td></tr>
+        <tr><td style="padding-top:14px;font-size:13px;line-height:1.6;color:#66726d;">Ou saisissez ce code sur la page de connexion&nbsp;: <b>{{ .Token }}</b></td></tr>
         <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">Vous n’avez pas demandé ce lien&nbsp;? Ignorez simplement cet e-mail&nbsp;: personne ne peut se connecter sans lui.</td></tr>
 
         {{- else if eq $l "es" }}
         <tr><td style="font-size:22px;font-weight:600;line-height:1.25;padding-bottom:10px;">Entra en tu área de clientes</td></tr>
         <tr><td style="font-size:15px;line-height:1.6;color:#33403b;padding-bottom:24px;">Pulsa el botón de abajo para iniciar sesión. Este enlace solo funciona una vez y caduca en poco tiempo.</td></tr>
-        <tr><td style="padding-bottom:24px;"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">Iniciar sesión</a></td></tr>
-        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;">¿El botón no funciona? Copia este enlace en tu navegador:<br><a href="{{ .ConfirmationURL }}" style="color:#0a8f64;word-break:break-all;">{{ .ConfirmationURL }}</a></td></tr>
-        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">O introduce este código en la página de acceso:<br><span style="display:inline-block;margin-top:6px;font-size:24px;font-weight:600;letter-spacing:0.18em;color:#0b1210;">{{ .Token }}</span></td></tr>
+        <tr><td style="padding-bottom:24px;"><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">Iniciar sesión</a></td></tr>
+        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;">¿El botón no funciona? Copia este enlace en tu navegador:<br><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email" style="color:#0a8f64;word-break:break-all;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email</a></td></tr>
+        <tr><td style="padding-top:14px;font-size:13px;line-height:1.6;color:#66726d;">O escribe este código en la página de acceso: <b>{{ .Token }}</b></td></tr>
         <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">¿No lo has pedido tú? Ignora este correo: nadie puede entrar sin este enlace.</td></tr>
 
         {{- else }}
         <tr><td style="font-size:22px;font-weight:600;line-height:1.25;padding-bottom:10px;">Sign in to your client area</td></tr>
         <tr><td style="font-size:15px;line-height:1.6;color:#33403b;padding-bottom:24px;">Click the button below to sign in. This link works once and expires after a short time.</td></tr>
-        <tr><td style="padding-bottom:24px;"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">Sign in</a></td></tr>
-        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;">Button not working? Copy this link into your browser:<br><a href="{{ .ConfirmationURL }}" style="color:#0a8f64;word-break:break-all;">{{ .ConfirmationURL }}</a></td></tr>
-        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">Or enter this code on the sign-in page:<br><span style="display:inline-block;margin-top:6px;font-size:24px;font-weight:600;letter-spacing:0.18em;color:#0b1210;">{{ .Token }}</span></td></tr>
+        <tr><td style="padding-bottom:24px;"><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">Sign in</a></td></tr>
+        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;">Button not working? Copy this link into your browser:<br><a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email" style="color:#0a8f64;word-break:break-all;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email</a></td></tr>
+        <tr><td style="padding-top:14px;font-size:13px;line-height:1.6;color:#66726d;">Or type this code on the sign-in page: <b>{{ .Token }}</b></td></tr>
         <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">Didn’t ask for this? Just ignore this email: nobody can sign in without the link.</td></tr>
         {{- end }}
       </table>
@@ -135,7 +137,7 @@ LMC Agents
 Connexion à votre espace client
 Ouvrez ce lien pour vous connecter (il ne fonctionne qu’une fois et expire au bout de peu de temps) :
 
-{{ .ConfirmationURL }}
+{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
 
 Ou saisissez ce code sur la page de connexion : {{ .Token }}
 
@@ -146,9 +148,9 @@ LMC Agents
 Entra en tu área de clientes
 Abre este enlace para iniciar sesión (solo funciona una vez y caduca en poco tiempo):
 
-{{ .ConfirmationURL }}
+{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
 
-O introduce este código en la página de acceso: {{ .Token }}
+O escribe este código en la página de acceso: {{ .Token }}
 
 ¿No lo has pedido tú? Ignora este correo: nadie puede entrar sin este enlace.
 {{- else -}}
@@ -157,9 +159,9 @@ LMC Agents
 Sign in to your client area
 Open this link to sign in (it works once and expires after a short time):
 
-{{ .ConfirmationURL }}
+{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
 
-Or enter this code on the sign-in page: {{ .Token }}
+Or type this code on the sign-in page: {{ .Token }}
 
 Didn’t ask for this? Just ignore this email: nobody can sign in without the link.
 {{- end -}}
@@ -169,7 +171,7 @@ Notes on the text of the template:
 - Spanish uses *tú*, matching the dashboard; French uses *vous*; the French punctuation uses non-breaking spaces (`&nbsp;`) before `?` and `:`.
 - "Área de clientes" and "espace client" are the terms the site already uses for the client login ("Client access" in English).
 - The expiry is deliberately vague: the real value is the *Email OTP Expiration* setting (Authentication → Sign In / Providers → Email, default 1 hour).
-- The same link must work from a different device: *Authentication → URL Configuration* must have Site URL `https://lmcagents.app` and `https://lmcagents.app/auth/callback` in the redirect allow-list (the login page already sends `emailRedirectTo` there).
+- *Authentication → URL Configuration* must have Site URL `https://lmcagents.app` (it is what `{{ .SiteURL }}` expands to; if it still says `localhost` the link will point there) and `https://lmcagents.app/auth/callback` in the redirect allow-list for emails still using the old link.
 
 ## 3. Install it (dashboard steps)
 

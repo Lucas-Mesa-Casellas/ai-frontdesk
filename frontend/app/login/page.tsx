@@ -154,7 +154,7 @@ export default function LoginPage() {
               <h1 className="login-title">{t.loginSentTitle}</h1>
               <p className="login-sub">{t.loginSentSub(email)}</p>
               <form onSubmit={handleCode} className="login-form login-code">
-                <p className="login-hint">{t.loginCodeHint}</p>
+                <p className="login-hint">{t.loginCodeHint} {t.loginOnce}</p>
                 <Field label={t.loginCodeLabel} htmlFor="login-code">
                   <input
                     id="login-code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,10}" required
