@@ -58,7 +58,7 @@ export async function GET(request: Request) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<meta name="referrer" content="no-referrer">
+<meta name="referrer" content="same-origin">
 <title>${esc(t.title)} · LMC Agents</title>
 <style>
   *{box-sizing:border-box}
@@ -97,36 +97,49 @@ export async function GET(request: Request) {
   return new Response(html, {
     headers: {
       "content-type": "text/html; charset=utf-8",
-      // the token is in this URL: never cache the page or leak it in a Referer
+      // the token is in this URL: never cache the page, and never send it in a Referer to
+      // another site. "same-origin" (not "no-referrer", which makes browsers send
+      // "Origin: null" on this page's own POST) is enough: the page has no
+      // cross-origin links or resources.
       "cache-control": "no-store",
-      "referrer-policy": "no-referrer",
+      "referrer-policy": "same-origin",
       "x-robots-tag": "noindex, nofollow",
     },
   });
 }
 
 export async function POST(request: Request) {
+  // 303: the browser follows a POST's redirect with a GET. Every refusal logs a reason
+  // code (never the token or the address) so a failure in production can be told apart.
+  const fail = (reason: string, detail?: string) => {
+    console.error(`[auth/confirm] ${reason}${detail ? `: ${detail}` : ""}`);
+    return NextResponse.redirect(new URL("/login?error=link", request.url), 303);
+  };
+
+  // Only this site's own Continue button may spend a token: a form on another site that
+  // POSTs here is refused untouched. A same-origin POST is recognised by Sec-Fetch-Site,
+  // or by an Origin equal to this site's; Origin "null" or any other origin is refused.
+  const origin = request.headers.get("origin");
+  const sameOrigin =
+    request.headers.get("sec-fetch-site") === "same-origin" ||
+    (origin !== null && origin === new URL(request.url).origin);
+  if (!sameOrigin) return fail("origin_refused", `origin=${origin ?? "none"}, sec-fetch-site=${request.headers.get("sec-fetch-site") ?? "none"}`);
+
   let form: FormData;
   try {
     form = await request.formData();
   } catch {
-    return NextResponse.redirect(new URL("/login?error=link", request.url), 303);
+    return fail("bad_params", "unreadable form body");
   }
   const tokenHash = form.get("token_hash");
   const type = form.get("type");
   const next = safeNext(typeof form.get("next") === "string" ? (form.get("next") as string) : null);
-
-  // 303: the browser follows a POST's redirect with a GET
-  const fail = () => NextResponse.redirect(new URL("/login?error=link", request.url), 303);
-  // only this site's own Continue button may spend a token: a form on another site
-  // that POSTs here (browsers send Origin on cross-site POSTs) is refused untouched
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) return fail();
-  if (typeof tokenHash !== "string" || !tokenHash || type !== "email") return fail();
+  if (typeof tokenHash !== "string" || !tokenHash) return fail("bad_params", "missing token_hash");
+  if (type !== "email") return fail("bad_params", "type is not email");
 
   const supabase = await createClient();
   const { error } = await supabase.auth.verifyOtp({ type: "email", token_hash: tokenHash });
-  if (error) return fail();
+  if (error) return fail("verify_error", error.message);
 
   return NextResponse.redirect(new URL(next, request.url), 303);
 }
