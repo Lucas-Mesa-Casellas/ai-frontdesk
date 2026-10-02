@@ -11,6 +11,12 @@ client = OpenAI(api_key=settings.openai_api_key)
 
 LANGUAGE_NAMES = {"es": "Spanish", "fr": "French", "en": "English"}
 
+# The extraction runs after the call is already stored (see call_ingest.py), so it
+# can afford to wait, but not forever: past this the call is left as needs_review
+# for scripts/reprocess_needs_review.py instead of hanging a worker.
+EXTRACTION_TIMEOUT_SECONDS = 25
+EXTRACTION_MAX_RETRIES = 1
+
 _WEEKDAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]  # datetime.weekday() order
 
 
@@ -197,7 +203,7 @@ def extract_call_data(
     frontend/lib/dash-i18n.ts, never natural language.
     """
     try:
-        response = client.chat.completions.create(
+        response = client.with_options(timeout=EXTRACTION_TIMEOUT_SECONDS, max_retries=EXTRACTION_MAX_RETRIES).chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": build_system_prompt(business_language)},
