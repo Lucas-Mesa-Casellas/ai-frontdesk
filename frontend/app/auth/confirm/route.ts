@@ -22,8 +22,12 @@ const COPY: Record<Locale, { title: string; sub: string; cta: string; back: stri
   fr: { title: "Confirmez votre connexion", sub: "Encore une étape : continuez pour ouvrir votre tableau de bord.", cta: "Continuer", back: "Retour à lmcagents.app" },
 };
 
-// The language the visitor chose on the site, else the browser's, else English.
-function pickLocale(request: Request): Locale {
+const isLocale = (v: string | null | undefined): v is Locale => v === "en" || v === "es" || v === "fr";
+
+// The email carries the business's language (&lang=fr|es|en) and it wins when valid;
+// otherwise the language the visitor chose on the site, else the browser's, else English.
+function pickLocale(request: Request, lang?: string | null): Locale {
+  if (isLocale(lang)) return lang;
   const fromCookie = /(?:^|;\s*)lmc_locale=(en|es|fr)\b/.exec(request.headers.get("cookie") ?? "")?.[1];
   if (fromCookie) return fromCookie as Locale;
   const first = (request.headers.get("accept-language") ?? "").slice(0, 2).toLowerCase();
@@ -50,7 +54,8 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/login?error=link", request.url));
   }
 
-  const lang = pickLocale(request);
+  const langParam = searchParams.get("lang");
+  const lang = pickLocale(request, langParam);
   const t = COPY[lang];
   const html = `<!doctype html>
 <html lang="${lang}">
@@ -87,6 +92,7 @@ export async function GET(request: Request) {
     <input type="hidden" name="token_hash" value="${esc(tokenHash)}">
     <input type="hidden" name="type" value="${esc(type)}">
     <input type="hidden" name="next" value="${esc(next)}">
+    ${isLocale(langParam) ? `<input type="hidden" name="lang" value="${langParam}">` : ""}
     <button type="submit">${esc(t.cta)}</button>
   </form>
   <a href="/">← ${esc(t.back)}</a>
@@ -141,5 +147,13 @@ export async function POST(request: Request) {
   const { error } = await supabase.auth.verifyOtp({ type: "email", token_hash: tokenHash });
   if (error) return fail("verify_error", error.message);
 
-  return NextResponse.redirect(new URL(next, request.url), 303);
+  const response = NextResponse.redirect(new URL(next, request.url), 303);
+  // A first sign-in on a new device opens the dashboard in the business's language: the
+  // language from the email is stored only when no choice is stored yet (same cookie and
+  // options as the site's own language switch), and an existing choice is never overwritten.
+  const lang = form.get("lang");
+  if (typeof lang === "string" && isLocale(lang) && !/(?:^|;\s*)lmc_locale=/.test(request.headers.get("cookie") ?? "")) {
+    response.cookies.set("lmc_locale", lang, { maxAge: 60 * 60 * 24 * 365, path: "/", sameSite: "lax" });
+  }
+  return response;
 }
