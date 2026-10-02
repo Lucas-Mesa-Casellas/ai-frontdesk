@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { getLocale } from "@/lib/locale";
 import "./globals.css";
@@ -10,6 +10,9 @@ const inter = Inter({
   display: "swap",
 }); 
  
+// The page background, so the browser's own chrome matches it on phones.
+export const viewport: Viewport = { themeColor: "#08090C" };
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://lmcagents.app"),
   title: "LMC Agents",

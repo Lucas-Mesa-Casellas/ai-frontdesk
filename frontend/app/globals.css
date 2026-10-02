@@ -398,7 +398,9 @@ h1 .l>span{display:block}
 }
 @media (max-width:1000px){
   body{height:auto;min-height:100%}
-  .hero{grid-template-columns:1fr;gap:56px}
+  /* minmax(0,1fr), not 1fr: a plain 1fr cannot shrink below its widest child (the 340px
+     sphere), which made the headline's column wider than a 320px screen and clipped the text */
+  .hero{grid-template-columns:minmax(0,1fr);gap:56px}
   .nav-links{display:none}
   .nav-toggle{display:flex}
   .nav-grid{grid-template-columns:1fr auto}
