@@ -3,7 +3,7 @@ from fastapi import APIRouter, BackgroundTasks, Request, HTTPException
 from app.services import call_ingest
 from app.services.retell_security import verify_retell_signature
 from app.services.business_lookup import find_business
-from app.services.open_status import open_status, resolve_timezone
+from app.services.open_status import business_timezone, open_status, resolve_timezone
 from app.db.supabase_client import get_supabase_admin
 from app.config import get_settings
 from app.limiter import limiter
@@ -14,17 +14,6 @@ router = APIRouter()
 # conversation (per Retell's documented disconnection_reason values).
 FAILED_DISCONNECTION_REASONS = {"dial_failed", "dial_no_answer", "dial_busy"}
 MIN_MEANINGFUL_CALL_DURATION_MS = 5000
-
-def _business_timezone(supabase, business_id: str) -> str | None:
-    """businesses.timezone, read on its own so a missing column (migration 013
-    not applied yet) only costs the fallback to the country's usual timezone."""
-    try:
-        row = supabase.table("businesses").select("timezone").eq("id", business_id).limit(1).execute()
-        return (row.data[0].get("timezone") if row.data else None) or None
-    except Exception as e:  # noqa: BLE001
-        print(f"[retell-inbound] couldn't read businesses.timezone: {e}")
-        return None
-
 
 @router.post("/webhooks/retell-inbound")
 @limiter.limit("120/minute")
@@ -52,7 +41,7 @@ async def retell_inbound_webhook(request: Request):
         business = find_business(supabase, inbound)
         if not business:
             return empty
-        tz = resolve_timezone(_business_timezone(supabase, business["id"]), business.get("country"))
+        tz = resolve_timezone(business_timezone(supabase, business["id"]), business.get("country"))
         if tz is None:
             return empty
         is_open, status = open_status(business.get("opening_hours"), tz)

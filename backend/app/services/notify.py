@@ -21,6 +21,8 @@ _STRINGS = {
         "label_summary": "Resumen",
         "label_urgency": "Urgencia",
         "label_call_id": "ID de llamada",
+        "review_subject": "Llamada por revisar",
+        "review_body": "No hemos podido leer esta llamada automáticamente. La transcripción está guardada: ábrela en tu panel (Llamadas) para revisarla.",
         "urgency": {"low": "baja", "normal": "normal", "high": "alta"},
         "booking_type": {"appointment": "cita", "callback": "llamada de vuelta"},
     },
@@ -37,6 +39,8 @@ _STRINGS = {
         "label_summary": "Résumé",
         "label_urgency": "Urgence",
         "label_call_id": "ID d'appel",
+        "review_subject": "Appel à vérifier",
+        "review_body": "Nous n’avons pas pu analyser cet appel automatiquement. La transcription est enregistrée : ouvrez-la dans votre tableau de bord (Appels) pour la relire.",
         "urgency": {"low": "basse", "normal": "normale", "high": "élevée"},
         "booking_type": {"appointment": "rendez-vous", "callback": "rappel"},
     },
@@ -53,6 +57,8 @@ _STRINGS = {
         "label_summary": "Summary",
         "label_urgency": "Urgency",
         "label_call_id": "Call ID",
+        "review_subject": "Call needs review",
+        "review_body": "We couldn't read this call automatically. The transcript is saved: open it in your dashboard (Calls) to review it.",
         "urgency": {"low": "low", "normal": "normal", "high": "high"},
         "booking_type": {"appointment": "appointment", "callback": "callback"},
     },
@@ -113,3 +119,36 @@ def notify_owner(business: dict, extracted, call_id: str, caller_phone_override:
         })
     except Exception as e:
         print(f"[notify_owner] send failed for call {call_id}: {e}")
+
+
+def notify_owner_needs_review(business: dict, call_id: str, caller_phone: str | None = None) -> None:
+    """Email the owner that a call was stored but could not be read at all (the
+    extraction crashed or timed out), so a human has to open the transcript.
+    Same language and sender as notify_owner; never raises."""
+    to_email = business.get("notification_email")
+    if not to_email:
+        print(f"[notify_owner] no notification_email for business {business.get('id')}, skipping")
+        return
+
+    s = _STRINGS.get(business.get("language") or "es", _STRINGS["es"])
+    biz_name = _esc(business.get("name"))
+    html_body = f"""
+    <html lang="{s['html_lang']}">
+    <body>
+    <h2>{s['review_subject']} — {biz_name}</h2>
+    <p>{s['review_body']}</p>
+    <p><strong>{s['label_phone']}:</strong> {_esc(caller_phone)}</p>
+    <hr>
+    <p style="color:#888;font-size:12px;">{s['label_call_id']}: {_esc(call_id)}</p>
+    </body>
+    </html>
+    """
+    try:
+        resend.Emails.send({
+            "from": "LMC Agents <notificaciones@lmcagents.app>",
+            "to": to_email,
+            "subject": f"{s['review_subject']} — {business.get('name')}",
+            "html": html_body,
+        })
+    except Exception as e:
+        print(f"[notify_owner] review email failed for call {call_id}: {e}")

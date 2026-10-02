@@ -40,6 +40,17 @@ def resolve_timezone(tz_name: str | None, country: str | None) -> ZoneInfo | Non
     return None
 
 
+def business_timezone(supabase, business_id: str) -> str | None:
+    """businesses.timezone, read on its own so a missing column (migration 013
+    not applied yet) only costs the fallback to the country's usual timezone."""
+    try:
+        row = supabase.table("businesses").select("timezone").eq("id", business_id).limit(1).execute()
+        return (row.data[0].get("timezone") if row.data else None) or None
+    except Exception as e:  # noqa: BLE001
+        print(f"[open_status] couldn't read businesses.timezone: {e}")
+        return None
+
+
 def _hhmm(h: int, m: int) -> str:
     return f"{h:02d}:{m:02d}"
 

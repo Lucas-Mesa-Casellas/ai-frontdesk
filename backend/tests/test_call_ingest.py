@@ -64,11 +64,13 @@ class Harness(unittest.TestCase):
         self.client = TestClient(app)
         self.extract = mock.Mock(return_value=(booking_extraction(), RAW_OK))
         self.notify = mock.Mock()
+        self.review = mock.Mock()
         self.patches = [
             mock.patch.object(webhooks, "get_supabase_admin", return_value=self.db),
             mock.patch.object(webhooks, "find_business", return_value=BUSINESS),
             mock.patch.object(call_ingest, "extract_call_data", self.extract),
             mock.patch.object(call_ingest, "notify_owner", self.notify),
+            mock.patch.object(call_ingest, "notify_owner_needs_review", self.review),
         ]
         for p in self.patches:
             p.start()
@@ -171,6 +173,41 @@ class CallEnded(Harness):
             self.assertEqual(result, "left_needs_review")
             row = db.rows("calls")[0]
             self.assertEqual((row["status"], row["extraction_complete"], row.get("ai_extracted_at")), ("needs_review", False, None))
+        # a call nothing could be read from still reaches a human: the owner is emailed once per failure
+        self.assertEqual(self.review.call_count, 2)
+        business, call_id, phone = self.review.call_args.args
+        self.assertEqual((business["id"], phone), ("biz1", "+33600000001"))
+        self.notify.assert_not_called()
+
+    def test_a_call_that_reads_fine_sends_no_review_email(self):
+        self.post(call_ended())
+        self.review.assert_not_called()
+
+    def test_a_failed_update_still_tells_the_owner(self):
+        call = call_ended()["call"]
+        call_id, _ = call_ingest.store_stub(self.db, BUSINESS, call, call["transcript"])
+        with mock.patch.object(self.db, "table", side_effect=RuntimeError("db hiccup")), redirect_stdout(io.StringIO()):
+            call_ingest.complete_call(self.db, BUSINESS, call_id, call, call["transcript"])
+        self.review.assert_called_once()
+
+    def test_the_call_start_is_labelled_in_the_businesss_own_timezone(self):
+        # 1_760_000_000 s = 9 Oct 2025 08:53:20 UTC
+        def started_for(business, tz_row=None):
+            db = FakeSupabase()
+            if tz_row is not None:
+                db.tables["businesses"] = [{"id": business["id"], "timezone": tz_row}]
+            self.extract.reset_mock()
+            call = call_ended()["call"]
+            call_id, _ = call_ingest.store_stub(db, business, call, call["transcript"])
+            call_ingest.complete_call(db, business, call_id, call, call["transcript"])
+            return self.extract.call_args.args[1]
+
+        self.assertTrue(started_for(BUSINESS, "America/New_York").startswith("2025-10-09T04:53:20-04:00"))
+        self.assertTrue(started_for(BUSINESS, "Asia/Tokyo").startswith("2025-10-09T17:53:20+09:00"))
+        # no timezone of its own: its country's usual one (GB -> London, UTC+1 that day), not Madrid by default
+        self.assertTrue(started_for({**BUSINESS, "country": "GB"}).startswith("2025-10-09T09:53:20+01:00"))
+        # nothing known at all: the old Madrid label is only the last resort
+        self.assertTrue(started_for({**BUSINESS, "country": "ZZ"}).startswith("2025-10-09T10:53:20+02:00"))
 
     def test_a_failed_update_does_not_lose_the_call(self):
         call = call_ended()["call"]
@@ -293,6 +330,27 @@ class CallAnalyzed(Harness):
         self.assertEqual(asyncio.run(call_ingest.apply_sentiment(self.db, {"call_analysis": {"user_sentiment": "Neutral"}})), "ignored")
         with mock.patch.object(self.db, "table", side_effect=RuntimeError("down")), redirect_stdout(io.StringIO()):
             self.assertEqual(asyncio.run(call_ingest.apply_sentiment(self.db, self.analyzed()["call"])), "error")
+
+
+class ReviewEmail(unittest.TestCase):
+    def test_the_owner_is_told_in_their_language_with_the_call_id_and_number(self):
+        from app.services import notify
+        for lang, word in (("en", "Call needs review"), ("es", "Llamada por revisar"), ("fr", "Appel à vérifier")):
+            with mock.patch.object(notify.resend.Emails, "send") as send:
+                notify.notify_owner_needs_review({**BUSINESS, "language": lang}, "call-uuid-1", "+33600000001")
+            mail = send.call_args.args[0]
+            self.assertEqual(mail["to"], "owner@example.com")
+            self.assertIn(word, mail["subject"])
+            self.assertIn("call-uuid-1", mail["html"])
+            self.assertIn("+33600000001", mail["html"])
+
+    def test_no_address_or_a_failing_send_never_raises(self):
+        from app.services import notify
+        with mock.patch.object(notify.resend.Emails, "send") as send, redirect_stdout(io.StringIO()):
+            notify.notify_owner_needs_review({**BUSINESS, "notification_email": None}, "c", None)
+            send.assert_not_called()
+        with mock.patch.object(notify.resend.Emails, "send", side_effect=RuntimeError("smtp down")), redirect_stdout(io.StringIO()):
+            notify.notify_owner_needs_review(BUSINESS, "c", None)
 
 
 class ReprocessScript(unittest.TestCase):
