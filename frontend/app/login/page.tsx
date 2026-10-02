@@ -7,22 +7,28 @@ import type { Locale } from "@/lib/locale";
 import Card from "@/components/ui/Card";
 import Field from "@/components/ui/Field";
 
-type Status = "idle" | "sending" | "sent" | "err";
+type Status = "idle" | "sending" | "sent" | "err" | "rate" | "fail";
 const LANGS: Locale[] = ["en", "es", "fr"];
 
-// Whether the URL says the sign-in link was expired/used (?error=link).
+// Why the URL says the sign-in link failed: "link" (expired / already used) or
+// "browser" (opened in a different browser than it was requested in), else "".
 // Read through useSyncExternalStore so the server render and the first client
 // render agree (both "false"), and the real value is applied right after
 // hydration -- reading window.location directly during render made the two
 // disagree whenever the query string was present.
 const noopSubscribe = () => () => {};
-const readExpired = () => new URLSearchParams(window.location.search).get("error") === "link";
-const serverExpired = () => false;
+const readLinkError = () => {
+  const e = new URLSearchParams(window.location.search).get("error");
+  return e === "link" || e === "browser" ? e : "";
+};
+const serverLinkError = () => "";
 
 export default function LoginPage() {
   const [lang, setLang] = useState<Locale>("en");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [code, setCode] = useState("");
+  const [codeStatus, setCodeStatus] = useState<"idle" | "checking" | "err">("idle");
   const t = DASH_T[lang];
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -48,7 +54,7 @@ export default function LoginPage() {
     setMenuOpen(false);
   }
 
-  const expired = useSyncExternalStore(noopSubscribe, readExpired, serverExpired);
+  const linkError = useSyncExternalStore(noopSubscribe, readLinkError, serverLinkError);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -61,7 +67,23 @@ export default function LoginPage() {
         shouldCreateUser: false,
       },
     });
-    setStatus(error ? "err" : "sent");
+    if (!error) return setStatus("sent");
+    // Say what actually went wrong: asking again within a minute is a rate
+    // limit (429), not a wrong address; only a refused sign-up means "not linked".
+    const rateLimited = error.status === 429 || /rate_limit/.test(error.code ?? "");
+    const notLinked = error.status === 422 || error.code === "otp_disabled" || error.code === "signup_disabled";
+    setStatus(rateLimited ? "rate" : notLinked ? "err" : "fail");
+  }
+
+  // The same email also carries a one-time code: typing it signs in without the
+  // link, so it works when the link opens in another browser or on another
+  // device, or when a mail scanner already used the link.
+  async function handleCode(e: React.FormEvent) {
+    e.preventDefault();
+    setCodeStatus("checking");
+    const { error } = await createClient().auth.verifyOtp({ email, token: code.trim(), type: "email" });
+    if (error) return setCodeStatus("err");
+    window.location.assign("/dashboard");
   }
 
   return (
@@ -131,6 +153,20 @@ export default function LoginPage() {
               </span>
               <h1 className="login-title">{t.loginSentTitle}</h1>
               <p className="login-sub">{t.loginSentSub(email)}</p>
+              <form onSubmit={handleCode} className="login-form login-code">
+                <p className="login-hint">{t.loginCodeHint}</p>
+                <Field label={t.loginCodeLabel} htmlFor="login-code">
+                  <input
+                    id="login-code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,10}" required
+                    value={code} onChange={(e) => { setCode(e.target.value.replace(/\D/g, "")); setCodeStatus("idle"); }}
+                    className="ui-input login-input login-codeinput" placeholder="123456"
+                  />
+                </Field>
+                <button type="submit" disabled={codeStatus === "checking" || code.length < 6} className="ui-btn ui-btn--secondary login-btn">
+                  {t.loginCodeCta}
+                </button>
+                {codeStatus === "err" && <p className="login-msg" role="alert">{t.loginCodeErr}</p>}
+              </form>
             </div>
           ) : (
             <>
@@ -154,7 +190,10 @@ export default function LoginPage() {
                   {status === "sending" ? t.loginSending : t.loginCta}
                 </button>
                 {status === "err" && <p className="login-msg" role="alert">{t.loginErr}</p>}
-                {expired && status === "idle" && <p className="login-msg" role="alert">{t.loginExpired}</p>}
+                {status === "rate" && <p className="login-msg" role="alert">{t.loginRate}</p>}
+                {status === "fail" && <p className="login-msg" role="alert">{t.loginFail}</p>}
+                {status === "idle" && linkError === "link" && <p className="login-msg" role="alert">{t.loginExpired}</p>}
+                {status === "idle" && linkError === "browser" && <p className="login-msg" role="alert">{t.loginBrowser}</p>}
               </form>
 
               <a href="/" className="login-back">← {t.loginBack}</a>
@@ -181,6 +220,9 @@ export default function LoginPage() {
         .login-back { display: inline-flex; align-items: center; gap: 6px; margin-top: 22px; font-size: 13.5px; color: var(--text-3); text-decoration: none; transition: color .2s var(--e-out); }
         .login-back:hover { color: var(--text); }
         .login-sent { text-align: center; }
+        .login-code { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--hair); text-align: left; }
+        .login-hint { font-size: 13px; color: var(--text-3); line-height: 1.5; }
+        .login-codeinput { letter-spacing: .18em; font-variant-numeric: tabular-nums; }
         .login-sent .login-sub { margin-bottom: 0; }
         .login-ic {
           display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; margin-bottom: 20px;

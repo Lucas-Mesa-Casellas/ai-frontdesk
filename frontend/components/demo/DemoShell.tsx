@@ -237,6 +237,8 @@ export default function DemoShell({ locale }: { locale: "en" | "es" | "fr" }) {
           background: rgba(20,24,31,.97); border: 1px solid rgba(255,255,255,.14); box-shadow: 0 16px 40px -14px rgba(0,0,0,.9);
           animation: dhIn .18s var(--e-out);
         }
+        /* the open phone menu has the screen to itself */
+        body:has(.dash-aside.open) .dm-pill { display: none; }
         .dm-pill {
           position: fixed; left: 16px; bottom: 16px; z-index: 90; display: flex; align-items: center; gap: 12px;
           padding: 8px 10px 8px 14px; border-radius: 999px; font-size: 12.5px; color: var(--text-2);

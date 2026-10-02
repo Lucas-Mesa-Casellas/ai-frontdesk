@@ -18,6 +18,13 @@ export async function GET(request: Request) {
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`);
     }
+    // The link itself was fine (Supabase redirected here with a code) but this
+    // browser never asked for it: the PKCE verifier lives in the browser that
+    // requested the email, so a link opened from a mail app's own browser, or
+    // on another device, can't be exchanged. Say so instead of "expired".
+    if (/code verifier/i.test(`${error.name} ${error.message}`)) {
+      return NextResponse.redirect(`${origin}/login?error=browser`);
+    }
   }
 
   return NextResponse.redirect(`${origin}/login?error=link`);

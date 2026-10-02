@@ -7,6 +7,8 @@ export type DashDict = {
   loginCta: string; loginSending: string; loginErr: string;
   loginSentTitle: string; loginSentSub: (email: string) => string;
   loginBack: string; loginExpired: string;
+  loginRate: string; loginFail: string; loginBrowser: string;
+  loginCodeHint: string; loginCodeLabel: string; loginCodeCta: string; loginCodeErr: string;
 
   ovTitle: string; ovSub: string;
   statCalls: string; statBookings: string; statConv: string;
@@ -65,6 +67,11 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginSentSub: (email) => `We've sent a secure sign-in link to ${email}. It can only be used once and expires soon.`,
     loginBack: "Back to lmcagents.app",
     loginExpired: "That link has expired or was already used. Request a new one.",
+    loginRate: "Too many requests. Wait a minute, then try again.",
+    loginFail: "We couldn't send the link. Please try again in a moment.",
+    loginBrowser: "That link was opened in a different browser from the one you asked for it in. Request a new one and open it in the same browser, or type the code from the email.",
+    loginCodeHint: "Opened it somewhere else? Type the code from the email instead.",
+    loginCodeLabel: "Code from the email", loginCodeCta: "Sign in", loginCodeErr: "That code is wrong or has expired. Check it or request a new one.",
 
     ovTitle: "Overview", ovSub: "Your activity, live.",
     statCalls: "Calls answered", statBookings: "Booking requests", statConv: "Booking rate",
@@ -133,6 +140,11 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginSentSub: (email) => `Te hemos enviado un enlace de acceso seguro a ${email}. Solo se puede usar una vez y caduca en poco tiempo.`,
     loginBack: "Volver a lmcagents.app",
     loginExpired: "Ese enlace ha caducado o ya se ha usado. Pide uno nuevo.",
+    loginRate: "Demasiadas solicitudes. Espera un minuto y vuelve a intentarlo.",
+    loginFail: "No hemos podido enviar el enlace. Inténtalo de nuevo en un momento.",
+    loginBrowser: "Ese enlace se abrió en un navegador distinto al que usaste para pedirlo. Pide uno nuevo y ábrelo en el mismo navegador, o escribe el código del correo.",
+    loginCodeHint: "¿Lo has abierto en otro sitio? Escribe el código del correo.",
+    loginCodeLabel: "Código del correo", loginCodeCta: "Entrar", loginCodeErr: "El código es incorrecto o ha caducado. Compruébalo o pide uno nuevo.",
 
     ovTitle: "Resumen", ovSub: "Tu actividad, en directo.",
     statCalls: "Llamadas atendidas", statBookings: "Solicitudes de cita", statConv: "Tasa de reserva",
@@ -201,6 +213,11 @@ export const DASH_T: Record<Locale, DashDict> = {
     loginSentSub: (email) => `Nous avons envoyé un lien de connexion sécurisé à ${email}. Il n'est utilisable qu'une seule fois et expire rapidement.`,
     loginBack: "Retour à lmcagents.app",
     loginExpired: "Ce lien a expiré ou a déjà été utilisé. Demandez-en un nouveau.",
+    loginRate: "Trop de demandes. Patientez une minute, puis réessayez.",
+    loginFail: "Impossible d’envoyer le lien. Réessayez dans un instant.",
+    loginBrowser: "Ce lien a été ouvert dans un autre navigateur que celui où vous l’avez demandé. Demandez-en un nouveau et ouvrez-le dans le même navigateur, ou saisissez le code reçu par e-mail.",
+    loginCodeHint: "Ouvert ailleurs ? Saisissez plutôt le code reçu par e-mail.",
+    loginCodeLabel: "Code reçu par e-mail", loginCodeCta: "Se connecter", loginCodeErr: "Ce code est incorrect ou a expiré. Vérifiez-le ou demandez-en un nouveau.",
 
     ovTitle: "Aperçu", ovSub: "Votre activité, en direct.",
     statCalls: "Appels traités", statBookings: "Demandes de rendez-vous", statConv: "Taux de réservation",
