@@ -3,7 +3,9 @@
 Today every client gets the same Supabase Auth "Magic Link" email, whatever language they use.
 This page gives **one** Supabase template (subject + HTML body) that picks English, Spanish or French
 from the user's metadata (`user_metadata.language`) and falls back to English, the SQL that fills that
-metadata for existing users, and the exact dashboard steps. Nothing here has been applied.
+metadata for existing users, and the exact dashboard steps. Each language also shows the 6-digit code
+(`{{ .Token }}`) so a client can type it on `/login` when the link opens in the wrong browser.
+Nothing here has been applied until the checklist in section 3 is ticked.
 
 How it works: Supabase Auth renders its email templates with Go templates and exposes the user's
 metadata as `{{ .Data }}` (the contents of `auth.users.raw_user_meta_data`). The login page calls
@@ -94,6 +96,7 @@ subject on one line.
         <tr><td style="font-size:15px;line-height:1.6;color:#33403b;padding-bottom:24px;">Cliquez sur le bouton ci-dessous pour vous connecter. Ce lien ne fonctionne qu’une fois et expire au bout de peu de temps.</td></tr>
         <tr><td style="padding-bottom:24px;"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">Me connecter</a></td></tr>
         <tr><td style="font-size:13px;line-height:1.6;color:#66726d;">Le bouton ne fonctionne pas&nbsp;? Copiez ce lien dans votre navigateur&nbsp;:<br><a href="{{ .ConfirmationURL }}" style="color:#0a8f64;word-break:break-all;">{{ .ConfirmationURL }}</a></td></tr>
+        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">Ou saisissez ce code sur la page de connexion&nbsp;:<br><span style="display:inline-block;margin-top:6px;font-size:24px;font-weight:600;letter-spacing:0.18em;color:#0b1210;">{{ .Token }}</span></td></tr>
         <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">Vous n’avez pas demandé ce lien&nbsp;? Ignorez simplement cet e-mail&nbsp;: personne ne peut se connecter sans lui.</td></tr>
 
         {{- else if eq $l "es" }}
@@ -101,6 +104,7 @@ subject on one line.
         <tr><td style="font-size:15px;line-height:1.6;color:#33403b;padding-bottom:24px;">Pulsa el botón de abajo para iniciar sesión. Este enlace solo funciona una vez y caduca en poco tiempo.</td></tr>
         <tr><td style="padding-bottom:24px;"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">Iniciar sesión</a></td></tr>
         <tr><td style="font-size:13px;line-height:1.6;color:#66726d;">¿El botón no funciona? Copia este enlace en tu navegador:<br><a href="{{ .ConfirmationURL }}" style="color:#0a8f64;word-break:break-all;">{{ .ConfirmationURL }}</a></td></tr>
+        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">O introduce este código en la página de acceso:<br><span style="display:inline-block;margin-top:6px;font-size:24px;font-weight:600;letter-spacing:0.18em;color:#0b1210;">{{ .Token }}</span></td></tr>
         <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">¿No lo has pedido tú? Ignora este correo: nadie puede entrar sin este enlace.</td></tr>
 
         {{- else }}
@@ -108,6 +112,7 @@ subject on one line.
         <tr><td style="font-size:15px;line-height:1.6;color:#33403b;padding-bottom:24px;">Click the button below to sign in. This link works once and expires after a short time.</td></tr>
         <tr><td style="padding-bottom:24px;"><a href="{{ .ConfirmationURL }}" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">Sign in</a></td></tr>
         <tr><td style="font-size:13px;line-height:1.6;color:#66726d;">Button not working? Copy this link into your browser:<br><a href="{{ .ConfirmationURL }}" style="color:#0a8f64;word-break:break-all;">{{ .ConfirmationURL }}</a></td></tr>
+        <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">Or enter this code on the sign-in page:<br><span style="display:inline-block;margin-top:6px;font-size:24px;font-weight:600;letter-spacing:0.18em;color:#0b1210;">{{ .Token }}</span></td></tr>
         <tr><td style="font-size:13px;line-height:1.6;color:#66726d;padding-top:20px;">Didn’t ask for this? Just ignore this email: nobody can sign in without the link.</td></tr>
         {{- end }}
       </table>
@@ -132,6 +137,8 @@ Ouvrez ce lien pour vous connecter (il ne fonctionne qu’une fois et expire au 
 
 {{ .ConfirmationURL }}
 
+Ou saisissez ce code sur la page de connexion : {{ .Token }}
+
 Vous n’avez pas demandé ce lien ? Ignorez simplement cet e-mail : personne ne peut se connecter sans lui.
 {{- else if eq $l "es" -}}
 LMC Agents
@@ -141,6 +148,8 @@ Abre este enlace para iniciar sesión (solo funciona una vez y caduca en poco ti
 
 {{ .ConfirmationURL }}
 
+O introduce este código en la página de acceso: {{ .Token }}
+
 ¿No lo has pedido tú? Ignora este correo: nadie puede entrar sin este enlace.
 {{- else -}}
 LMC Agents
@@ -149,6 +158,8 @@ Sign in to your client area
 Open this link to sign in (it works once and expires after a short time):
 
 {{ .ConfirmationURL }}
+
+Or enter this code on the sign-in page: {{ .Token }}
 
 Didn’t ask for this? Just ignore this email: nobody can sign in without the link.
 {{- end -}}
@@ -167,15 +178,17 @@ Notes on the text of the template:
 3. Replace **Subject heading** with the subject block above (both lines, exactly as written).
 4. Replace **Message body** with the HTML block above. Keep the first `{{- $l := ... -}}` line at the very top.
 5. **Save changes**.
-6. Do the same for **Invite user** and **Confirm sign up** if you want first-time emails in the client's language too (same prelude, same branches; change the wording to "You've been invited to LMC Agents" etc.).
-7. Make sure the users have `language` metadata (step 1 above).
-8. Check each language: sign in once as a test client per language from `/login` (use an address you control). The email should arrive in that language, with that subject, and the button should land in `/dashboard`.
-9. Check the fallback: a user without `language` metadata should receive English.
+6. Check *Authentication → Sign In / Providers → Email → Email OTP Length*: it must equal the number of digits the `/login` code field expects (6).
+7. Do the same for **Invite user** and **Confirm sign up** if you want first-time emails in the client's language too (same prelude, same branches; change the wording to "You've been invited to LMC Agents" etc.).
+8. Make sure the users have `language` metadata (step 1 above).
+9. Check each language: sign in once as a test client per language from `/login` (use an address you control). The email should arrive in that language, with that subject, a visible 6-digit code, and the button should land in `/dashboard`. Also test the typed code: request a link, ignore the button, type the code on `/login`.
+10. Check the fallback: a user without `language` metadata should receive English.
 
 ## 4. Things to know
 
 - **Go template safety.** `{{ .Data.language }}` on a user with no metadata would error in some Go versions if compared directly, which is why the prelude tests `.Data` and `.Data.language` for presence first and then compares a plain variable. If the dashboard shows a template error on save, send me the message.
-- **Not rendered locally.** There is no Go toolchain on the machine this was written on, so the template has not been run through Go's template engine, only checked against Supabase's documented variables (`.Data`, `.ConfirmationURL`) and Go's template syntax rules. Step 8 above is the real test; do it with a throwaway user per language before telling clients.
+- **Not rendered locally.** There is no Go toolchain on the machine this was written on, so the template has not been run through Go's template engine, only checked against Supabase's documented variables (`.Data`, `.ConfirmationURL`, `.Token`) and Go's template syntax rules. Step 9 above is the real test; do it with a throwaway user per language before telling clients.
+- **The typed code.** `{{ .Token }}` is the same one-time password as the link, so it works from any browser or device. Without it in the template, the code field on `/login` has nothing to type.
 - **Other languages.** A value other than `en`, `es`, `fr` (for example `de`) falls through to English.
-- **Rate limits.** Supabase's built-in email service is limited to a few emails per hour per project; for real volume configure *Custom SMTP* (Resend is already in use) under Authentication → SMTP Settings. Templates are unaffected.
+- **Rate limits.** Supabase's built-in email service is limited to a few emails per hour per project, and a second request within about 30 seconds is refused ("you can only request this after 29 seconds"). For real volume configure *Custom SMTP* (Resend is already in use) under Authentication → SMTP Settings. Templates are unaffected.
 - **Rollback.** Keep a copy of the current subject and body (copy them from the dashboard before pasting) so the old template can be restored in one paste.
