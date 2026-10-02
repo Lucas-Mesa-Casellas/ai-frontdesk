@@ -24,6 +24,7 @@
  *   RESEND_API_KEY        - same key as /api/contact
  *   SUPPORT_NOTIFY_EMAIL  - optional override for the recipient
  */
+import { headers } from "next/headers";
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 
 const FROM = "LMC Agents Support <web@lmcagents.app>";
@@ -90,6 +91,11 @@ export async function POST(request: Request) {
   const origin = request.headers.get("origin");
   const host = request.headers.get("host");
   if (!origin || !host || new URL(origin).host !== host) {
+    return Response.json({ ok: false, error: "forbidden" }, { status: 403 });
+  }
+
+  // This route never runs in the demo: refuse anything carrying the demo switch.
+  if ((await headers()).get("x-lmc-demo")) {
     return Response.json({ ok: false, error: "forbidden" }, { status: 403 });
   }
 
