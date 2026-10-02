@@ -118,6 +118,10 @@ export async function POST(request: Request) {
 
   // 303: the browser follows a POST's redirect with a GET
   const fail = () => NextResponse.redirect(new URL("/login?error=link", request.url), 303);
+  // only this site's own Continue button may spend a token: a form on another site
+  // that POSTs here (browsers send Origin on cross-site POSTs) is refused untouched
+  const origin = request.headers.get("origin");
+  if (origin && origin !== new URL(request.url).origin) return fail();
   if (typeof tokenHash !== "string" || !tokenHash || type !== "email") return fail();
 
   const supabase = await createClient();
