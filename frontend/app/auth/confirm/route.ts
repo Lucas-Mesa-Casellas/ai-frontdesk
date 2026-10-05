@@ -70,15 +70,23 @@ export async function GET(request: Request) {
   body{margin:0;min-height:100svh;display:grid;place-items:center;padding:20px;background:#08090C;color:#FBFAF8;
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
   main{width:100%;max-width:420px;padding:36px 34px 30px;border-radius:20px;background:linear-gradient(180deg,#10141A,#0B0E12);
-    border:1px solid rgba(55,226,155,.22);box-shadow:0 40px 80px -40px rgba(0,0,0,.9)}
+    border:1px solid rgba(55,226,155,.22);box-shadow:0 40px 80px -40px rgba(0,0,0,.9);animation:in .25s cubic-bezier(.22,1,.36,1) both}
   .logo{display:flex;align-items:center;gap:11px;margin-bottom:26px;font-weight:600;font-size:17px}
   .mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(180deg,#5CEBAF,#12B981)}
   h1{margin:0 0 10px;font-size:26px;font-weight:600;letter-spacing:-.025em;line-height:1.15}
   p{margin:0 0 26px;font-size:14px;line-height:1.6;color:#B9BDC6}
-  button{width:100%;height:48px;border:0;border-radius:999px;font:600 15px system-ui,-apple-system,sans-serif;color:#04140D;cursor:pointer;
-    background:linear-gradient(180deg,#5CEBAF,#12B981)}
-  button:focus-visible{outline:2px solid #fff;outline-offset:3px}
-  a{display:inline-block;margin-top:22px;font-size:13.5px;color:#7C828F;text-decoration:none}
+  button{display:inline-flex;align-items:center;justify-content:center;gap:9px;width:100%;height:48px;border:0;border-radius:999px;
+    font:600 15px system-ui,-apple-system,sans-serif;color:#04140D;cursor:pointer;background:linear-gradient(180deg,#5CEBAF,#12B981);
+    transition:transform .18s cubic-bezier(.22,1,.36,1),filter .18s,box-shadow .2s}
+  button:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.05);box-shadow:0 14px 30px -14px rgba(18,185,129,.7)}
+  button:active:not(:disabled){transform:scale(.985);transition-duration:.08s}
+  button:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(55,226,155,.4)}
+  button:disabled{cursor:progress;opacity:.85}
+  button.busy::before{content:"";width:15px;height:15px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;opacity:.8;animation:spin .7s linear infinite}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){main,button.busy::before{animation:none}button{transition:none}button:hover:not(:disabled),button:active:not(:disabled){transform:none}}
+  a{display:inline-block;margin-top:22px;font-size:13.5px;color:#7C828F;text-decoration:none;transition:color .2s}
   a:hover{color:#FBFAF8}
   @media (max-width:480px){main{padding:28px 22px 24px}}
 </style>
@@ -97,6 +105,20 @@ export async function GET(request: Request) {
   </form>
   <a href="/">← ${esc(t.back)}</a>
 </main>
+<script>
+  // one press only: the button locks and shows a spinner while the request is out
+  (function () {
+    var f = document.querySelector("form"), b = f.querySelector("button");
+    f.addEventListener("submit", function (e) {
+      if (f.getAttribute("data-sent")) { e.preventDefault(); return; }
+      f.setAttribute("data-sent", "1"); b.disabled = true; b.classList.add("busy");
+    });
+    // coming back with the Back button must not leave a dead button
+    addEventListener("pageshow", function (e) {
+      if (e.persisted) { f.removeAttribute("data-sent"); b.disabled = false; b.classList.remove("busy"); }
+    });
+  })();
+</script>
 </body>
 </html>`;
 

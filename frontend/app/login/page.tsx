@@ -58,6 +58,7 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (status === "sending") return;
     setStatus("sending");
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithOtp({
@@ -80,6 +81,7 @@ export default function LoginPage() {
   // device, or when a mail scanner already used the link.
   async function handleCode(e: React.FormEvent) {
     e.preventDefault();
+    if (codeStatus === "checking") return;
     setCodeStatus("checking");
     const { error } = await createClient().auth.verifyOtp({ email, token: code.trim(), type: "email" });
     if (error) return setCodeStatus("err");
@@ -163,6 +165,7 @@ export default function LoginPage() {
                   />
                 </Field>
                 <button type="submit" disabled={codeStatus === "checking" || code.length < 6} className="ui-btn ui-btn--secondary login-btn">
+                  {codeStatus === "checking" && <span className="login-spin" aria-hidden="true" />}
                   {t.loginCodeCta}
                 </button>
                 {codeStatus === "err" && <p className="login-msg" role="alert">{t.loginCodeErr}</p>}
@@ -187,7 +190,7 @@ export default function LoginPage() {
                   />
                 </Field>
                 <button type="submit" disabled={status === "sending"} className="ui-btn ui-btn--primary login-btn">
-                  {status === "sending" ? t.loginSending : t.loginCta}
+                  {status === "sending" ? <><span className="login-spin" aria-hidden="true" />{t.loginSending}</> : t.loginCta}
                 </button>
                 {status === "err" && <p className="login-msg" role="alert">{t.loginErr}</p>}
                 {status === "rate" && <p className="login-msg" role="alert">{t.loginRate}</p>}
@@ -209,17 +212,24 @@ export default function LoginPage() {
         .login-ring { position: absolute; left: 50%; top: 44%; border-radius: 50%; border: 1px solid rgba(55,226,155,.08); transform: translate(-50%, -50%); }
         .login-ring-1 { width: 620px; height: 620px; }
         .login-ring-2 { width: 900px; height: 900px; border-color: rgba(55,226,155,.045); }
-        .login-card { position: relative; width: 100%; max-width: 420px; padding: 36px 34px 30px; }
+        .login-card { position: relative; width: 100%; max-width: 420px; padding: 36px 34px 30px; animation: login-in .25s var(--e-out) both; }
         .login-card:hover { transform: none; }
         .login-title { font-size: 26px; font-weight: 600; letter-spacing: -.025em; line-height: 1.15; margin: 0 0 10px; }
         .login-sub { font-size: 14px; line-height: 1.6; color: var(--text-2); margin-bottom: 26px; }
-        .login-form { display: flex; flex-direction: column; gap: 16px; }
-        .login-input { font-size: 15px; padding: 14px 15px; }
+        .login-form { display: flex; flex-direction: column; }
+        .login-form > * + * { margin-top: 16px; }
+        .login-input { font-size: 15px; padding: 14px 15px; transition: border-color .25s var(--e-out), background .25s var(--e-out), box-shadow .25s var(--e-out); }
         .login-btn { width: 100%; height: 48px; font-size: 15px; }
-        .login-msg { font-size: 13.5px; color: var(--warning); }
+        .login-btn.ui-btn--secondary:hover:not(:disabled) { transform: translateY(-1px); }
+        .login-btn:active:not(:disabled) { transform: translateY(0) scale(.985); transition-duration: .08s; }
+        .login-btn:disabled { cursor: progress; }
+        /* a small spinner while a request is out; the label next to it is unchanged */
+        .login-spin { width: 15px; height: 15px; border-radius: 50%; flex: none; border: 2px solid currentColor; border-right-color: transparent; opacity: .8; animation: login-spin .7s linear infinite; }
+        /* messages ease in (fade + the space opens smoothly), so nothing jumps */
+        .login-msg { font-size: 13.5px; line-height: 1.5; color: var(--warning); overflow: hidden; animation: login-msg-in .3s var(--e-out) both; }
         .login-back { display: inline-flex; align-items: center; gap: 6px; margin-top: 22px; font-size: 13.5px; color: var(--text-3); text-decoration: none; transition: color .2s var(--e-out); }
         .login-back:hover { color: var(--text); }
-        .login-sent { text-align: center; }
+        .login-sent { text-align: center; animation: login-fade .35s var(--e-out) both; }
         .login-code { margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--hair); text-align: left; }
         .login-hint { font-size: 13px; color: var(--text-3); line-height: 1.5; }
         .login-codeinput { letter-spacing: .18em; font-variant-numeric: tabular-nums; }
@@ -227,6 +237,16 @@ export default function LoginPage() {
         .login-ic {
           display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; margin-bottom: 20px;
           color: var(--jade); background: rgba(55,226,155,.09); border: 1px solid rgba(55,226,155,.24);
+          animation: login-pop .5s cubic-bezier(.2, .9, .3, 1.15) both;
+        }
+        @keyframes login-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        @keyframes login-fade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes login-pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+        @keyframes login-spin { to { transform: rotate(360deg); } }
+        @keyframes login-msg-in { from { opacity: 0; max-height: 0; margin-top: 0; } to { opacity: 1; max-height: 8em; margin-top: 16px; } }
+        @media (prefers-reduced-motion: reduce) {
+          .login-card, .login-sent, .login-ic, .login-msg, .login-spin { animation: none !important; }
+          .login-btn, .login-input { transition: none !important; transform: none !important; }
         }
         @media (max-width: 480px) {
           .login-shell { padding-top: 84px; }
