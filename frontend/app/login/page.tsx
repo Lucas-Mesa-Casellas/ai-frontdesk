@@ -141,7 +141,8 @@ export default function LoginPage() {
         {/* atmosphere: a soft jade glow, and a voice-waveform line passing behind the card */}
         <div className="login-atmos" aria-hidden="true">
           <span className="login-glow" />
-          <AuthWave />
+          {/* the wave answers while an address is being typed or sent */}
+          <AuthWave active={email.length > 0 || status === "sending"} />
         </div>
 
         <Card as="section" className="login-card">
