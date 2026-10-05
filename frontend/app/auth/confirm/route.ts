@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { authWaveMarkup, AUTH_WAVE_CSS } from "@/components/AuthWave";
 
 // The sign-in link in the email points here:
 //   /auth/confirm?token_hash=...&type=email[&next=/dashboard]
@@ -67,10 +68,13 @@ export async function GET(request: Request) {
 <title>${esc(t.title)} · LMC Agents</title>
 <style>
   *{box-sizing:border-box}
-  body{margin:0;min-height:100svh;display:grid;place-items:center;padding:20px;background:#08090C;color:#FBFAF8;
+  body{position:relative;overflow:hidden;margin:0;min-height:100svh;display:grid;place-items:center;padding:20px;background:#08090C;color:#FBFAF8;
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
-  main{width:100%;max-width:420px;padding:36px 34px 30px;border-radius:20px;background:linear-gradient(180deg,#10141A,#0B0E12);
+  main{position:relative;z-index:1;width:100%;max-width:420px;padding:36px 34px 30px;border-radius:20px;background:linear-gradient(180deg,#10141A,#0B0E12);
     border:1px solid rgba(55,226,155,.22);box-shadow:0 40px 80px -40px rgba(0,0,0,.9);animation:in .25s cubic-bezier(.22,1,.36,1) both}
+  main::after{content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;opacity:0;
+    box-shadow:0 0 0 1px rgba(55,226,155,.5),0 0 38px -4px rgba(55,226,155,.35);animation:glowpulse 1.8s ease-out .15s 1 both}
+  @keyframes glowpulse{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
   .logo{display:flex;align-items:center;gap:11px;margin-bottom:26px;font-weight:600;font-size:17px}
   .mark{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(180deg,#5CEBAF,#12B981)}
   h1{margin:0 0 10px;font-size:26px;font-weight:600;letter-spacing:-.025em;line-height:1.15}
@@ -85,13 +89,15 @@ export async function GET(request: Request) {
   button.busy::before{content:"";width:15px;height:15px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;opacity:.8;animation:spin .7s linear infinite}
   @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   @keyframes spin{to{transform:rotate(360deg)}}
-  @media (prefers-reduced-motion:reduce){main,button.busy::before{animation:none}button{transition:none}button:hover:not(:disabled),button:active:not(:disabled){transform:none}}
+  @media (prefers-reduced-motion:reduce){main,main::after,button.busy::before{animation:none}button{transition:none}button:hover:not(:disabled),button:active:not(:disabled){transform:none}}
   a{display:inline-block;margin-top:22px;font-size:13.5px;color:#7C828F;text-decoration:none;transition:color .2s}
   a:hover{color:#FBFAF8}
   @media (max-width:480px){main{padding:28px 22px 24px}}
+${AUTH_WAVE_CSS}
 </style>
 </head>
 <body>
+${authWaveMarkup()}
 <main>
   <div class="logo"><span class="mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17.6 5.6a9 9 0 1 0 2.2 3.6" stroke="#04140D" stroke-width="2.8" stroke-linecap="round"/><circle cx="18.6" cy="5.4" r="2.85" fill="#04140D"/></svg></span>LMC Agents</div>
   <h1>${esc(t.title)}</h1>

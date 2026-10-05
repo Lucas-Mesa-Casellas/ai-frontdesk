@@ -6,6 +6,7 @@ import { DASH_T } from "@/lib/dash-i18n";
 import type { Locale } from "@/lib/locale";
 import Card from "@/components/ui/Card";
 import Field from "@/components/ui/Field";
+import AuthWave from "@/components/AuthWave";
 
 type Status = "idle" | "sending" | "sent" | "err" | "rate" | "fail";
 const LANGS: Locale[] = ["en", "es", "fr"];
@@ -137,11 +138,10 @@ export default function LoginPage() {
       </nav>
 
       <div className="login-shell">
-        {/* atmosphere: a soft jade glow and two very faint orbit rings */}
+        {/* atmosphere: a soft jade glow, and a voice-waveform line passing behind the card */}
         <div className="login-atmos" aria-hidden="true">
           <span className="login-glow" />
-          <span className="login-ring login-ring-1" />
-          <span className="login-ring login-ring-2" />
+          <AuthWave />
         </div>
 
         <Card as="section" className="login-card">
@@ -209,11 +209,13 @@ export default function LoginPage() {
         .login-shell { position: relative; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 96px 20px 40px; background: var(--bg); overflow: hidden; }
         .login-atmos { position: absolute; inset: 0; pointer-events: none; }
         .login-glow { position: absolute; left: 50%; top: 42%; width: 760px; height: 520px; transform: translate(-50%, -50%); background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18,185,129,.11), transparent 68%); }
-        .login-ring { position: absolute; left: 50%; top: 44%; border-radius: 50%; border: 1px solid rgba(55,226,155,.08); transform: translate(-50%, -50%); }
-        .login-ring-1 { width: 620px; height: 620px; }
-        .login-ring-2 { width: 900px; height: 900px; border-color: rgba(55,226,155,.045); }
+        /* the card sits 28px below the shell's middle (96px of top padding, 40px of bottom), so the line does too */
+        .login-atmos .aw { --aw-offset: 28px; }
         .login-card { position: relative; width: 100%; max-width: 420px; padding: 36px 34px 30px; animation: login-in .25s var(--e-out) both; }
         .login-card:hover { transform: none; }
+        .login-card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; opacity: 0;
+          box-shadow: 0 0 0 1px rgba(55,226,155,.5), 0 0 38px -4px rgba(55,226,155,.35); animation: login-glow-pulse 1.8s ease-out .15s 1 both; }
+        @keyframes login-glow-pulse { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
         .login-title { font-size: 26px; font-weight: 600; letter-spacing: -.025em; line-height: 1.15; margin: 0 0 10px; }
         .login-sub { font-size: 14px; line-height: 1.6; color: var(--text-2); margin-bottom: 26px; }
         .login-form { display: flex; flex-direction: column; }
@@ -245,11 +247,12 @@ export default function LoginPage() {
         @keyframes login-spin { to { transform: rotate(360deg); } }
         @keyframes login-msg-in { from { opacity: 0; max-height: 0; margin-top: 0; } to { opacity: 1; max-height: 8em; margin-top: 16px; } }
         @media (prefers-reduced-motion: reduce) {
-          .login-card, .login-sent, .login-ic, .login-msg, .login-spin { animation: none !important; }
+          .login-card, .login-card::after, .login-sent, .login-ic, .login-msg, .login-spin { animation: none !important; }
           .login-btn, .login-input { transition: none !important; transform: none !important; }
         }
         @media (max-width: 480px) {
           .login-shell { padding-top: 84px; }
+          .login-atmos .aw { --aw-offset: 22px; }
           .login-card { padding: 28px 22px 24px; }
         }
       `}</style>
