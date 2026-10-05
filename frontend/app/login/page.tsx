@@ -6,7 +6,7 @@ import { DASH_T } from "@/lib/dash-i18n";
 import type { Locale } from "@/lib/locale";
 import Card from "@/components/ui/Card";
 import Field from "@/components/ui/Field";
-import AuthWave from "@/components/AuthWave";
+import AuthField from "@/components/AuthField";
 
 type Status = "idle" | "sending" | "sent" | "err" | "rate" | "fail";
 const LANGS: Locale[] = ["en", "es", "fr"];
@@ -28,6 +28,7 @@ export default function LoginPage() {
   const [lang, setLang] = useState<Locale>("en");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<Status>("idle");
+  const [keys, setKeys] = useState(0); // one per keystroke in the address field, for the background
   const [code, setCode] = useState("");
   const [codeStatus, setCodeStatus] = useState<"idle" | "checking" | "err">("idle");
   const t = DASH_T[lang];
@@ -141,8 +142,8 @@ export default function LoginPage() {
         {/* atmosphere: a soft jade glow, and a voice-waveform line passing behind the card */}
         <div className="login-atmos" aria-hidden="true">
           <span className="login-glow" />
-          {/* the wave answers while an address is being typed or sent */}
-          <AuthWave active={email.length > 0 || status === "sending"} />
+          {/* the pixel field answers to the form: keystrokes, sending, sent */}
+          <AuthField typing={email.length > 0} keys={keys} phase={status === "sending" ? "sending" : status === "sent" ? "sent" : "idle"} />
         </div>
 
         <Card as="section" className="login-card">
@@ -185,7 +186,7 @@ export default function LoginPage() {
                     required
                     autoFocus
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => { setEmail(e.target.value); setKeys((k) => k + 1); }}
                     placeholder={t.loginPh}
                     className="ui-input login-input"
                   />
@@ -210,8 +211,6 @@ export default function LoginPage() {
         .login-shell { position: relative; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 96px 20px 40px; background: var(--bg); overflow: hidden; }
         .login-atmos { position: absolute; inset: 0; pointer-events: none; }
         .login-glow { position: absolute; left: 50%; top: 42%; width: 760px; height: 520px; transform: translate(-50%, -50%); background: radial-gradient(ellipse 50% 50% at 50% 50%, rgba(18,185,129,.11), transparent 68%); }
-        /* the card sits 28px below the shell's middle (96px of top padding, 40px of bottom), so the line does too */
-        .login-atmos .aw { --aw-offset: 28px; }
         .login-card { position: relative; width: 100%; max-width: 420px; padding: 36px 34px 30px; animation: login-in .25s var(--e-out) both; }
         .login-card:hover { transform: none; }
         .login-card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; opacity: 0;
@@ -253,7 +252,6 @@ export default function LoginPage() {
         }
         @media (max-width: 480px) {
           .login-shell { padding-top: 84px; }
-          .login-atmos .aw { --aw-offset: 22px; }
           .login-card { padding: 28px 22px 24px; }
         }
       `}</style>

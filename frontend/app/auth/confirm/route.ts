@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
-import { authWaveMarkup, AUTH_WAVE_CSS } from "@/components/AuthWave";
+import { authFieldScript, AUTH_FIELD_CSS } from "@/lib/auth-field";
 
 // The sign-in link in the email points here:
 //   /auth/confirm?token_hash=...&type=email[&next=/dashboard]
@@ -93,11 +93,11 @@ export async function GET(request: Request) {
   a{display:inline-block;margin-top:22px;font-size:13.5px;color:#7C828F;text-decoration:none;transition:color .2s}
   a:hover{color:#FBFAF8}
   @media (max-width:480px){main{padding:28px 22px 24px}}
-${AUTH_WAVE_CSS}
+${AUTH_FIELD_CSS}
 </style>
 </head>
 <body>
-${authWaveMarkup()}
+<canvas id="af" class="af" aria-hidden="true"></canvas>
 <main>
   <div class="logo"><span class="mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M17.6 5.6a9 9 0 1 0 2.2 3.6" stroke="#04140D" stroke-width="2.8" stroke-linecap="round"/><circle cx="18.6" cy="5.4" r="2.85" fill="#04140D"/></svg></span>LMC Agents</div>
   <h1>${esc(t.title)}</h1>
@@ -111,6 +111,7 @@ ${authWaveMarkup()}
   </form>
   <a href="/">← ${esc(t.back)}</a>
 </main>
+<script>${authFieldScript("af")}</script>
 <script>
   // one press only: the button locks and shows a spinner while the request is out
   (function () {
@@ -118,6 +119,7 @@ ${authWaveMarkup()}
     f.addEventListener("submit", function (e) {
       if (f.getAttribute("data-sent")) { e.preventDefault(); return; }
       f.setAttribute("data-sent", "1"); b.disabled = true; b.classList.add("busy");
+      if (window.__af) __af.send();
     });
     // coming back with the Back button must not leave a dead button
     addEventListener("pageshow", function (e) {
