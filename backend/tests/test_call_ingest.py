@@ -353,6 +353,57 @@ class ReviewEmail(unittest.TestCase):
             notify.notify_owner_needs_review(BUSINESS, "c", None)
 
 
+class EmailLook(unittest.TestCase):
+    def test_every_language_uses_the_shared_card_and_prints_no_url(self):
+        import re
+        from app.services import notify
+        for lang in ("en", "es", "fr"):
+            biz = {**BUSINESS, "language": lang}
+            for subject, html in (
+                notify.render_owner_email(biz, booking_extraction(urgency="high"), "call-uuid-1", "+33600000001"),
+                notify.render_review_email(biz, "call-uuid-1", "+33600000001"),
+            ):
+                self.assertIn("#12b981", html)  # the button
+                self.assertIn(f'<html lang="{lang}">', html)
+                self.assertIn("/dashboard/calls/call-uuid-1", html)  # only inside the button's href
+                visible = re.sub(r"<[^>]+>", " ", html)
+                self.assertNotIn("http", visible)  # no raw URL shown
+                self.assertIn("call-uuid-1", visible)
+
+    def test_owner_email_keeps_every_field_and_escapes_caller_text(self):
+        from app.services import notify
+        ex = booking_extraction(summary="<b>hi</b> & <script>x</script>", urgency="high", party_size=3)
+        _, html = notify.render_owner_email(BUSINESS, ex, "c1", "+33600000001")
+        for needle in ("Sam", "+33600000001", "tomorrow at three", "appointment", "3", "high", "Client", "Phone", "Summary"):
+            self.assertIn(needle, html)
+        self.assertNotIn("<script>", html)
+        self.assertIn("&lt;script&gt;", html)
+
+
+class InboundLog(Harness):
+    def test_one_line_per_call_with_business_status_and_time_and_no_phone_number(self):
+        from app.routers import webhooks as wh
+        body = {"event": "call_inbound", "call_inbound": {"agent_id": "a", "from_number": "+33600000001", "to_number": "+33100000001"}}
+        raw, headers = signed(body)
+        with mock.patch.object(wh, "business_timezone", return_value="Europe/Paris"):
+            out = io.StringIO()
+            with redirect_stdout(out):
+                self.client.post("/webhooks/retell-inbound", content=raw, headers=headers)
+        lines = [l for l in out.getvalue().splitlines() if l.startswith("[retell-inbound] business=")]
+        self.assertEqual(len(lines), 1)
+        self.assertRegex(lines[0], r"^\[retell-inbound\] business=biz1 is_open_now=(yes|no) ms=\d+$")
+        self.assertNotIn("+33", out.getvalue())
+
+    def test_the_line_is_written_even_when_nothing_could_be_answered(self):
+        from app.routers import webhooks as wh
+        body = {"event": "call_inbound", "call_inbound": {"agent_id": "a"}}
+        raw, headers = signed(body)
+        out = io.StringIO()
+        with mock.patch.object(wh, "find_business", return_value=None), redirect_stdout(out):
+            self.client.post("/webhooks/retell-inbound", content=raw, headers=headers)
+        self.assertIn("business=unknown is_open_now=none ms=", out.getvalue())
+
+
 class ReprocessScript(unittest.TestCase):
     def test_dry_run_lists_only_unextracted_needs_review_rows_and_writes_nothing(self):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))

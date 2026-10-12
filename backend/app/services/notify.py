@@ -24,6 +24,8 @@ _STRINGS = {
         "label_summary": "Resumen",
         "label_urgency": "Urgencia",
         "label_call_id": "ID de llamada",
+        "open_cta": "Abrir en mi panel",
+        "preheader": "Una nueva llamada atendida por tu recepcionista.",
         "review_subject": "Llamada por revisar",
         "review_body": "No hemos podido leer esta llamada automáticamente. La transcripción está guardada: ábrela en tu panel (Llamadas) para revisarla.",
         "urgency": {"low": "baja", "normal": "normal", "high": "alta"},
@@ -44,6 +46,8 @@ _STRINGS = {
         "label_summary": "Résumé",
         "label_urgency": "Urgence",
         "label_call_id": "ID d'appel",
+        "open_cta": "Ouvrir dans mon tableau de bord",
+        "preheader": "Un nouvel appel pris par votre réceptionniste.",
         "review_subject": "Appel à vérifier",
         "review_body": "Nous n’avons pas pu analyser cet appel automatiquement. La transcription est enregistrée : ouvrez-la dans votre tableau de bord (Appels) pour la relire.",
         "urgency": {"low": "basse", "normal": "normale", "high": "élevée"},
@@ -64,6 +68,8 @@ _STRINGS = {
         "label_summary": "Summary",
         "label_urgency": "Urgency",
         "label_call_id": "Call ID",
+        "open_cta": "Open in my dashboard",
+        "preheader": "A new call answered by your receptionist.",
         "review_subject": "Call needs review",
         "review_body": "We couldn't read this call automatically. The transcript is saved: open it in your dashboard (Calls) to review it.",
         "urgency": {"low": "low", "normal": "normal", "high": "high"},
@@ -86,11 +92,98 @@ def maps_url(address: str) -> str:
 
 
 def _address_html(s: dict, address: str | None) -> str:
-    """The address as the caller said it, with a small 'Open in Maps' link after it;
-    a dash when none was given."""
+    """The address as the caller said it, with a small 'Open in Maps' link under it
+    (the link text is the label, no URL is printed); a dash when none was given."""
     if not address:
         return "—"
-    return f'{_esc(address)} &nbsp;<a href="{html.escape(maps_url(address), quote=True)}">{s["open_maps"]}</a>'
+    return (
+        f'{_esc(address)}<br><a href="{html.escape(maps_url(address), quote=True)}" '
+        f'style="font-size:13px;font-weight:600;color:#0a8f64;text-decoration:none;">{s["open_maps"]} →</a>'
+    )
+
+
+SITE = "https://www.lmcagents.app"
+_FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+
+
+def _row(label: str, value_html: str) -> str:
+    return (
+        f'<tr><td style="padding-bottom:14px;"><div style="font-size:12.5px;line-height:1.4;color:#66726d;padding-bottom:3px;">{label}</div>'
+        f'<div style="font-size:15px;line-height:1.55;color:#0b1210;">{value_html}</div></td></tr>'
+    )
+
+
+def _layout(s: dict, title: str, preheader: str, intro: str, rows: list[tuple[str, str]], call_id: str, urgent: bool = False) -> str:
+    """The shared look of every owner email: the same light card, type and #12b981
+    button as the Magic Link sign-in email. Values in `rows` are already escaped.
+    The button links to the call in the dashboard; no URL is ever printed."""
+    badge = ""
+    if urgent:
+        badge = (
+            '<tr><td style="padding-bottom:14px;"><span style="display:inline-block;background:#fdecea;color:#b3261e;border-radius:999px;'
+            f'padding:4px 12px;font-size:12px;font-weight:600;">{_esc(s["urgency"]["high"])}</span></td></tr>'
+        )
+    body = "".join(_row(label, value) for label, value in rows)
+    link = f"{SITE}/dashboard/calls/{html.escape(str(call_id), quote=True)}"
+    return f"""<!DOCTYPE html>
+<html lang="{s['html_lang']}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>LMC Agents</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f5;font-family:{_FONT};color:#0b1210;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{preheader}</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f5;padding:32px 16px;">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:16px;padding:32px;">
+        <tr><td style="font-size:15px;font-weight:600;letter-spacing:-0.01em;color:#0b1210;padding-bottom:20px;">LMC Agents</td></tr>
+        {badge}
+        <tr><td style="font-size:22px;font-weight:600;line-height:1.25;padding-bottom:10px;">{title}</td></tr>
+        <tr><td style="font-size:15px;line-height:1.6;color:#33403b;padding-bottom:24px;">{intro}</td></tr>
+        {body}
+        <tr><td style="padding-top:10px;padding-bottom:28px;"><a href="{link}" style="display:inline-block;background:#12b981;color:#04140d;font-size:15px;font-weight:600;text-decoration:none;padding:13px 24px;border-radius:999px;">{s['open_cta']}</a></td></tr>
+        <tr><td style="font-size:12px;line-height:1.6;color:#66726d;border-top:1px solid #e1e8e4;padding-top:14px;">{s['label_call_id']}: {_esc(call_id)}</td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+
+def render_owner_email(business: dict, extracted, call_id: str, caller_phone_override: str = None) -> tuple[str, str]:
+    """(subject, html) for a captured call or booking request."""
+    s = _STRINGS.get(business.get("language") or "es", _STRINGS["es"])
+    biz_name = _esc(business.get("name"))
+    caller_name = extracted.caller_name or s["no_name"]
+    subject = f"{s['subject_prefix']} — {business.get('name')} — {caller_name}"
+    urgency_display = s["urgency"].get(extracted.urgency, extracted.urgency)
+    booking_type_display = s["booking_type"].get(extracted.booking_type, extracted.booking_type)
+    rows = [
+        (s["label_client"], _esc(extracted.caller_name)),
+        (s["label_phone"], _esc(caller_phone_override or extracted.caller_phone)),
+        (s["label_address"], _address_html(s, getattr(extracted, "address", None))),
+        (s["label_time"], _esc(extracted.preferred_time)),
+        (s["label_type"], _esc(booking_type_display)),
+        (s["label_party_size"], _esc(extracted.party_size)),
+        (s["label_summary"], _esc(extracted.summary)),
+        (s["label_urgency"], _esc(urgency_display)),
+    ]
+    html_body = _layout(s, f"{s['heading']} — {biz_name}", _esc(s["preheader"]), "", rows, call_id, urgent=extracted.urgency == "high")
+    return subject, html_body
+
+
+def render_review_email(business: dict, call_id: str, caller_phone: str | None = None, address: str | None = None) -> tuple[str, str]:
+    """(subject, html) for a call that could not be read at all. Nothing was extracted, so
+    the address is normally a dash; the row is kept so both emails have the same fields."""
+    s = _STRINGS.get(business.get("language") or "es", _STRINGS["es"])
+    biz_name = _esc(business.get("name"))
+    html_body = _layout(
+        s, f"{s['review_subject']} — {biz_name}", _esc(s["review_subject"]), s["review_body"],
+        [(s["label_phone"], _esc(caller_phone)), (s["label_address"], _address_html(s, address))], call_id,
+    )
+    return f"{s['review_subject']} — {business.get('name')}", html_body
 
 
 def notify_owner(business: dict, extracted, call_id: str, caller_phone_override: str = None) -> None:
@@ -103,34 +196,7 @@ def notify_owner(business: dict, extracted, call_id: str, caller_phone_override:
         print(f"[notify_owner] no notification_email for business {business.get('id')}, skipping")
         return
 
-    lang = business.get("language") or "es"
-    s = _STRINGS.get(lang, _STRINGS["es"])
-
-    biz_name = _esc(business.get("name"))
-    caller_name = extracted.caller_name or s["no_name"]
-    subject = f"{s['subject_prefix']} — {business.get('name')} — {caller_name}"
-
-    urgency_display = s["urgency"].get(extracted.urgency, extracted.urgency)
-    booking_type_display = s["booking_type"].get(extracted.booking_type, extracted.booking_type)
-
-    html_body = f"""
-    <html lang="{s['html_lang']}">
-    <body>
-    <h2>{s['heading']} — {biz_name}</h2>
-    <p><strong>{s['label_client']}:</strong> {_esc(extracted.caller_name)}</p>
-    <p><strong>{s['label_phone']}:</strong> {_esc(caller_phone_override or extracted.caller_phone)}</p>
-    <p><strong>{s['label_address']}:</strong> {_address_html(s, getattr(extracted, "address", None))}</p>
-    <p><strong>{s['label_time']}:</strong> {_esc(extracted.preferred_time)}</p>
-    <p><strong>{s['label_type']}:</strong> {_esc(booking_type_display)}</p>
-    <p><strong>{s['label_party_size']}:</strong> {_esc(extracted.party_size)}</p>
-    <p><strong>{s['label_summary']}:</strong> {_esc(extracted.summary)}</p>
-    <p><strong>{s['label_urgency']}:</strong> {_esc(urgency_display)}</p>
-    <hr>
-    <p style="color:#888;font-size:12px;">{s['label_call_id']}: {_esc(call_id)}</p>
-    </body>
-    </html>
-    """
-
+    subject, html_body = render_owner_email(business, extracted, call_id, caller_phone_override)
     try:
         resend.Emails.send({
             "from": "LMC Agents <notificaciones@lmcagents.app>",
@@ -145,30 +211,18 @@ def notify_owner(business: dict, extracted, call_id: str, caller_phone_override:
 def notify_owner_needs_review(business: dict, call_id: str, caller_phone: str | None = None) -> None:
     """Email the owner that a call was stored but could not be read at all (the
     extraction crashed or timed out), so a human has to open the transcript.
-    Same language and sender as notify_owner; never raises."""
+    Same language, look and sender as notify_owner; never raises."""
     to_email = business.get("notification_email")
     if not to_email:
         print(f"[notify_owner] no notification_email for business {business.get('id')}, skipping")
         return
 
-    s = _STRINGS.get(business.get("language") or "es", _STRINGS["es"])
-    biz_name = _esc(business.get("name"))
-    html_body = f"""
-    <html lang="{s['html_lang']}">
-    <body>
-    <h2>{s['review_subject']} — {biz_name}</h2>
-    <p>{s['review_body']}</p>
-    <p><strong>{s['label_phone']}:</strong> {_esc(caller_phone)}</p>
-    <hr>
-    <p style="color:#888;font-size:12px;">{s['label_call_id']}: {_esc(call_id)}</p>
-    </body>
-    </html>
-    """
+    subject, html_body = render_review_email(business, call_id, caller_phone)
     try:
         resend.Emails.send({
             "from": "LMC Agents <notificaciones@lmcagents.app>",
             "to": to_email,
-            "subject": f"{s['review_subject']} — {business.get('name')}",
+            "subject": subject,
             "html": html_body,
         })
     except Exception as e:
