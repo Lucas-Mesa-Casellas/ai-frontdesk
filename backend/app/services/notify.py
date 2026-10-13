@@ -1,4 +1,5 @@
 import os
+import re
 import html
 import urllib.parse
 from datetime import datetime, timezone
@@ -97,18 +98,44 @@ def _esc(value) -> str:
     return html.escape(str(value)) if value is not None else ""
 
 
-def maps_url(address: str) -> str:
+# The caller's address usually has no country, so Maps may pick a namesake elsewhere: the
+# business's own country is added to the search unless the address already names it.
+_COUNTRY_NAMES = {
+    "ES": "Spain", "FR": "France", "GB": "United Kingdom", "PT": "Portugal", "IT": "Italy",
+    "DE": "Germany", "BE": "Belgium", "NL": "Netherlands", "CH": "Switzerland", "IE": "Ireland",
+}
+_COUNTRY_ALIASES = {
+    "ES": ["spain", "espana", "españa"], "FR": ["france"], "GB": ["united kingdom", "uk", "england", "scotland", "wales"],
+    "PT": ["portugal"], "IT": ["italy", "italia"], "DE": ["germany", "deutschland", "allemagne", "alemania"],
+    "BE": ["belgium", "belgique", "belgica", "bélgica"], "NL": ["netherlands", "nederland", "pays-bas"],
+    "CH": ["switzerland", "suisse", "schweiz", "suiza"], "IE": ["ireland", "irlande", "irlanda"],
+}
+
+
+def maps_query(address: str, country: str | None = None) -> str:
+    code = (country or "").strip().upper()
+    name = _COUNTRY_NAMES.get(code)
+    if not name:
+        return address
+    lowered = address.lower()
+    words = _COUNTRY_ALIASES.get(code, [name.lower()])
+    if any(re.search(rf"(^|[^a-zà-ÿ]){re.escape(w)}([^a-zà-ÿ]|$)", lowered) for w in words):
+        return address
+    return f"{address}, {name}"
+
+
+def maps_url(address: str, country: str | None = None) -> str:
     """Google Maps search for an address (the same link the dashboard uses)."""
-    return "https://www.google.com/maps/search/?api=1&query=" + urllib.parse.quote(address, safe="")
+    return "https://www.google.com/maps/search/?api=1&query=" + urllib.parse.quote(maps_query(address, country), safe="")
 
 
-def _address_html(s: dict, address: str | None) -> str:
+def _address_html(s: dict, address: str | None, country: str | None = None) -> str:
     """The address as the caller said it, with a small 'Open in Maps' link under it
     (the link text is the label, no URL is printed); empty when none was given."""
     if not address:
         return ""
     return (
-        f'{_esc(address)}<br><a href="{html.escape(maps_url(address), quote=True)}" '
+        f'{_esc(address)}<br><a href="{html.escape(maps_url(address, country), quote=True)}" '
         f'style="font-size:13px;font-weight:600;color:#0a8f64;text-decoration:none;">{s["open_maps"]} →</a>'
     )
 
@@ -203,7 +230,7 @@ def render_owner_email(business: dict, extracted, call_id: str, caller_phone_ove
     rows = [
         (s["label_client"], _esc(extracted.caller_name)),
         (s["label_phone"], _esc(caller_phone_override or extracted.caller_phone)),
-        (s["label_address"], _address_html(s, getattr(extracted, "address", None))),
+        (s["label_address"], _address_html(s, getattr(extracted, "address", None), business.get("country"))),
         # the formatted date when the ISO value parses, else the caller's own words; never both
         (s["label_time"], _esc(format_when(s, getattr(extracted, "preferred_time_iso", None), tz) or extracted.preferred_time)),
         (s["label_type"], _esc(booking_type_display)),

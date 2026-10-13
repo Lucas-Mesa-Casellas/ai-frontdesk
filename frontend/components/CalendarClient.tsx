@@ -24,7 +24,7 @@ type UndatedBooking = {
 
 export default function CalendarClient({
   cells, byDay, weekdayLabels, monthTitle, todayKey, year, month,
-  base, prevHref, nextHref, intlLocale, dashboardLocale, labels, legend, undated, stats, timeZone,
+  base, prevHref, nextHref, intlLocale, dashboardLocale, labels, legend, undated, stats, timeZone, country,
 }: {
   cells: (number | null)[];
   byDay: Record<number, Booking[]>;
@@ -43,6 +43,7 @@ export default function CalendarClient({
   undated: UndatedBooking[];
   stats: { total: number; confirmed: number };
   timeZone: string; // the business's (lib/tz.ts businessTimeZone)
+  country?: string | null; // the business's country, added to the Maps search for a visit address
 }) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const selected = selectedDay !== null ? byDay[selectedDay] || [] : null;
@@ -120,7 +121,7 @@ export default function CalendarClient({
         <p className="cal-req-addr">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" /><circle cx="12" cy="10" r="2.3" /></svg>
           <span className="cal-req-addr-t"><span className="sr-only">{labels.detailAddress}: </span>{b.address}</span>
-          <a href={mapsUrl(b.address)} target="_blank" rel="noopener noreferrer" className="cal-req-maps">{labels.openInMaps}<span aria-hidden="true"> ↗</span></a>
+          <a href={mapsUrl(b.address, country)} target="_blank" rel="noopener noreferrer" className="cal-req-maps">{labels.openInMaps}<span aria-hidden="true"> ↗</span></a>
         </p>
       )}
       <p className="cal-req-sum">

@@ -131,7 +131,7 @@ class AddressInTheEmail(unittest.TestCase):
             self.assertIn(f">{label}</div>", h)
             self.assertIn(ADDRESS, h)
             self.assertIn(maps, h)
-            self.assertIn("https://www.google.com/maps/search/?api=1&amp;query=12%20rue%20des%20Lilas%2C%20Lyon", h)
+            self.assertIn("https://www.google.com/maps/search/?api=1&amp;query=12%20rue%20des%20Lilas%2C%20Lyon%2C%20France", h)  # the business country (FR) is added
 
     def test_no_address_leaves_the_row_out_and_has_no_link(self):
         h = self.html("en", None)
@@ -152,6 +152,27 @@ class AddressInTheEmail(unittest.TestCase):
         h = self.html("en", '<script>alert(1)</script> "x"')
         self.assertNotIn("<script>", h)
         self.assertIn("&lt;script&gt;", h)
+
+
+class MapsSearchHasTheCountry(unittest.TestCase):
+    """Maps found a namesake elsewhere when the caller's address had no country: the business's own is added."""
+
+    def test_the_country_is_added_when_the_address_does_not_name_it(self):
+        self.assertEqual(notify.maps_query("Calle Mayor 5, Zaragoza", "ES"), "Calle Mayor 5, Zaragoza, Spain")
+        self.assertEqual(notify.maps_query("14 rue des Lilas, Lyon", "fr"), "14 rue des Lilas, Lyon, France")
+        self.assertEqual(notify.maps_query("14 Hawthorn Road, Leeds", "GB"), "14 Hawthorn Road, Leeds, United Kingdom")
+
+    def test_it_is_not_added_twice_or_when_unknown(self):
+        self.assertEqual(notify.maps_query("5 Calle Mayor, Zaragoza, España", "ES"), "5 Calle Mayor, Zaragoza, España")
+        self.assertEqual(notify.maps_query("3 rue Neuve, Bruxelles, Belgique", "BE"), "3 rue Neuve, Bruxelles, Belgique")
+        self.assertEqual(notify.maps_query("14 rue des Lilas, Lyon", None), "14 rue des Lilas, Lyon")
+        self.assertEqual(notify.maps_query("14 rue des Lilas, Lyon", "ZZ"), "14 rue des Lilas, Lyon")
+
+    def test_the_url_is_encoded(self):
+        self.assertEqual(
+            notify.maps_url("Calle Mayor 5, Zaragoza", "ES"),
+            "https://www.google.com/maps/search/?api=1&query=Calle%20Mayor%205%2C%20Zaragoza%2C%20Spain",
+        )
 
 
 class EmailsWithoutDashes(unittest.TestCase):
