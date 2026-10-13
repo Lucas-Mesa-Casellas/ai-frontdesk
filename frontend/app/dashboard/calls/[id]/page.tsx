@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { mapsUrl } from "@/lib/maps";
 import { IconArrowLeft, IconPhone } from "@/components/icons";
-import { BUSINESS_TZ } from "@/lib/tz";
+import { businessTimeZone } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import { formatDuration } from "@/lib/format-duration";
 import { dashBase } from "@/lib/demo/mode";
@@ -29,6 +29,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
   if (!call) notFound();
 
   const businessLanguage = business?.language ?? "es";
+  const tz = businessTimeZone(business);
   const summaryResolved = resolveTranslatable(call.summary, call.translations, "summary", locale, businessLanguage);
   const needsTranscriptTranslation = locale !== businessLanguage;
   const cachedTranscript: string | null = call.translations?.[locale]?.transcript ?? null;
@@ -70,9 +71,9 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
               <h1 className="cd-name">{call.caller_name || t.unknown}</h1>
               <p className="cd-phone">{call.caller_phone || t.noPhone}</p>
               <p className="cd-when">
-                {when.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", timeZone: BUSINESS_TZ })}
+                {when.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", timeZone: tz })}
                 {" · "}
-                {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
+                {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: tz })}
                 {duration && (
                   <span className="cd-dur" title={t.detailDuration}>
                     {" · "}<svg className="dur-ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 1.5M9.5 2.5h5" /></svg><span className="sr-only">{t.detailDuration} </span>{duration}
@@ -132,12 +133,12 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
             <dl className="cd-facts">
               <div>
                 <dt>{t.detailDate}</dt>
-                <dd>{when.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", timeZone: BUSINESS_TZ })}</dd>
+                <dd>{when.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", timeZone: tz })}</dd>
               </div>
               <div>
                 <dt>{t.detailTime}</dt>
                 <dd>
-                  {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
+                  {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: tz })}
                   {duration && (
                     <span className="cd-dur" title={t.detailDuration}>
                       {" · "}<svg className="dur-ic" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8" /><path d="M12 9v4l2.5 1.5M9.5 2.5h5" /></svg><span className="sr-only">{t.detailDuration} </span>{duration}
@@ -169,7 +170,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
                           const parts = new Intl.DateTimeFormat("en-GB", {
                             day: "2-digit", month: "2-digit", year: "numeric",
                             hour: "2-digit", minute: "2-digit", hour12: false,
-                            timeZone: BUSINESS_TZ,
+                            timeZone: tz,
                           }).formatToParts(new Date(call.preferred_time_iso));
                           const get = (t: string) => parts.find((p) => p.type === t)?.value;
                           return `${get("day")}/${get("month")}/${get("year")} - ${get("hour")}:${get("minute")}`;

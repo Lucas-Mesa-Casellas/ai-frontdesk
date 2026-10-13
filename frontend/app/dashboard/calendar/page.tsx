@@ -4,7 +4,7 @@ import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import CalendarClient from "@/components/CalendarClient";
-import { BUSINESS_TZ, madridYMD, zonedTimeToUtc } from "@/lib/tz";
+import { businessTimeZone, zonedYMD, zonedTimeToUtc } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import PageHeader from "@/components/ui/PageHeader";
 
@@ -23,10 +23,11 @@ export default async function CalendarPage({
   const t = DASH_T[locale];
   const base = await dashBase();
   const intlLocale = INTL_LOCALE[locale] || "en-US";
+  const tz = businessTimeZone(business);
 
   const sp = await searchParams;
   const now = new Date();
-  const [nowYear, nowMonth1, nowDay] = madridYMD(now);
+  const [nowYear, nowMonth1, nowDay] = zonedYMD(now, tz);
   let year = nowYear;
   let month = nowMonth1 - 1;
   if (sp.month && /^\d{4}-\d{2}$/.test(sp.month)) {
@@ -46,9 +47,9 @@ export default async function CalendarPage({
 
   // Unlike monthStart above (a UTC-native anchor used only for grid/label
   // arithmetic, where it doesn't matter), the query range must line up with
-  // Madrid's actual month boundary -- see zonedTimeToUtc's doc comment.
-  const queryStart = zonedTimeToUtc(year, month, 1);
-  const queryEnd = zonedTimeToUtc(year, month + 1, 1);
+  // the business's actual month boundary -- see zonedTimeToUtc's doc comment.
+  const queryStart = zonedTimeToUtc(year, month, 1, 0, 0, 0, tz);
+  const queryEnd = zonedTimeToUtc(year, month + 1, 1, 0, 0, 0, tz);
 
   // the month's bookings and the undated ones don't depend on each other:
   // fetched side by side, not one after the other
@@ -98,7 +99,7 @@ export default async function CalendarPage({
   const byDay: Record<number, any[]> = {};
   monthBookings.forEach((b) => {
     if (!b.start_time) return;
-    const [, , d] = madridYMD(new Date(b.start_time));
+    const [, , d] = zonedYMD(new Date(b.start_time), tz);
     (byDay[d] ||= []).push(b);
   });
 
@@ -112,10 +113,10 @@ export default async function CalendarPage({
 
   const weekdayLabels = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(Date.UTC(2024, 0, 1 + i));
-    return new Intl.DateTimeFormat(intlLocale, { weekday: "short", timeZone: BUSINESS_TZ }).format(d);
+    return new Intl.DateTimeFormat(intlLocale, { weekday: "short", timeZone: "UTC" }).format(d); // a calendar-day anchor, not an instant
   });
 
-  const monthTitle = new Intl.DateTimeFormat(intlLocale, { month: "long", year: "numeric", timeZone: BUSINESS_TZ }).format(monthStart);
+  const monthTitle = new Intl.DateTimeFormat(intlLocale, { month: "long", year: "numeric", timeZone: "UTC" }).format(monthStart);
   const todayKey = `${nowYear}-${nowMonth1 - 1}-${nowDay}`;
   const confirmedCount = monthBookings.filter((b: any) => b.status === "confirmed").length;
 
@@ -128,6 +129,7 @@ export default async function CalendarPage({
 
       <CalendarClient
         base={base}
+        timeZone={tz}
         cells={cells}
         byDay={byDay}
         weekdayLabels={weekdayLabels}

@@ -17,17 +17,13 @@ Everything here takes the Supabase client as an argument, so tests can pass a fa
 """
 import asyncio
 from datetime import datetime, timedelta, timezone
-from zoneinfo import ZoneInfo
 
 from app.services.ai import extract_call_data
 from app.services.notify import notify_owner, notify_owner_needs_review
-from app.services.open_status import business_timezone, resolve_timezone
+from app.services.open_status import business_timezone, business_zone
 from app.services.phone import to_e164
 from app.services.scheduling import DEFAULT_APPOINTMENT_MINUTES
 
-# Only the last resort for labelling the call start in the extraction prompt: a business
-# with neither a timezone of its own nor a known country.
-FALLBACK_TZ = ZoneInfo("Europe/Madrid")
 
 _NULLISH_PHONE_VALUES = {"null", "none", "n/a", "na", ""}
 
@@ -161,7 +157,7 @@ def complete_call(supabase, business: dict, call_id: str, call_data: dict, trans
     try:
         # the call start is labelled in the business's own timezone (businesses.timezone,
         # else its country's usual one), so "tomorrow at three" is read against the right clock
-        tz = resolve_timezone(business_timezone(supabase, business["id"]), business.get("country")) or FALLBACK_TZ
+        tz = business_zone(business_timezone(supabase, business["id"]), business.get("country"))
         start_ts = call_data.get("start_timestamp")
         started_iso = (
             datetime.fromtimestamp(start_ts / 1000, tz=tz).isoformat()

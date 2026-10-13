@@ -4,7 +4,7 @@ import { DASH_T } from "@/lib/dash-i18n";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { IconPhone } from "@/components/icons";
-import { BUSINESS_TZ, zonedTimeToUtc } from "@/lib/tz";
+import { businessTimeZone, zonedTimeToUtc } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
 import TranslatedField from "@/components/TranslatedField";
 import { formatDuration } from "@/lib/format-duration";
@@ -48,13 +48,14 @@ export default async function CallsPage({
     redirect(`${base}/calls?from=${sp.to}&to=${sp.from}`);
   }
 
-  // Bounds are Madrid calendar days, not UTC ones -- e.g. "to" must include
-  // the entirety of that day as observed in Madrid, so the exclusive upper
-  // bound is Madrid midnight of the *next* day (day+1 overflows correctly).
+  // Bounds are the business's calendar days, not UTC ones -- e.g. "to" must include
+  // the entirety of that day as observed there, so the exclusive upper
+  // bound is local midnight of the *next* day (day+1 overflows correctly).
+  const tz = businessTimeZone(business);
   const fromYmd = parseDateParam(sp.from);
   const toYmd = parseDateParam(sp.to);
-  const fromUtc = fromYmd ? zonedTimeToUtc(fromYmd[0], fromYmd[1], fromYmd[2]) : null;
-  const toUtcExclusive = toYmd ? zonedTimeToUtc(toYmd[0], toYmd[1], toYmd[2] + 1) : null;
+  const fromUtc = fromYmd ? zonedTimeToUtc(fromYmd[0], fromYmd[1], fromYmd[2], 0, 0, 0, tz) : null;
+  const toUtcExclusive = toYmd ? zonedTimeToUtc(toYmd[0], toYmd[1], toYmd[2] + 1, 0, 0, 0, tz) : null;
   const isFiltered = !!(fromUtc || toUtcExclusive);
 
   let callsQuery = supabase
@@ -143,9 +144,9 @@ export default async function CallsPage({
                   {c.intent && intentLabel[c.intent] && <Badge>{intentLabel[c.intent]}</Badge>}
                 </span>
                 <span className="cr-when">
-                  <b>{when.toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: BUSINESS_TZ })}</b>
+                  <b>{when.toLocaleDateString(locale, { day: "numeric", month: "short", timeZone: tz })}</b>
                   <span>
-                    {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ })}
+                    {when.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: tz })}
                     {formatDuration(c.duration_seconds) && (
                       <em className="cr-dur" title={t.detailDuration}>
                         <span aria-hidden="true"> · </span>
