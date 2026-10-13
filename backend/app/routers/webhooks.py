@@ -1,4 +1,5 @@
 import json
+import time
 from fastapi import APIRouter, BackgroundTasks, Request, HTTPException
 from app.services import call_ingest
 from app.services.retell_security import verify_retell_signature
@@ -33,6 +34,8 @@ async def retell_inbound_webhook(request: Request):
         raise HTTPException(status_code=401, detail="invalid signature")
 
     empty = {"call_inbound": {"dynamic_variables": {}}}
+    started = time.perf_counter()
+    biz_id, is_open_value = None, "none"
     try:
         payload = json.loads(raw_body)
         # Retell nests this event's data under "call_inbound" (not "call")
@@ -41,10 +44,12 @@ async def retell_inbound_webhook(request: Request):
         business = find_business(supabase, inbound)
         if not business:
             return empty
+        biz_id = business["id"]
         tz = resolve_timezone(business_timezone(supabase, business["id"]), business.get("country"))
         if tz is None:
             return empty
         is_open, status = open_status(business.get("opening_hours"), tz)
+        is_open_value = "yes" if is_open else "no"
         # system_timezone lets the Retell prompt use the unqualified {{current_time}} and
         # {{current_calendar}} (they follow this timezone) -- the business's own clock, by name
         return {"call_inbound": {"dynamic_variables": {
@@ -53,6 +58,9 @@ async def retell_inbound_webhook(request: Request):
     except Exception as e:  # noqa: BLE001 - never block a call
         print(f"[retell-inbound] failed, answering with no variables: {e}")
         return empty
+    finally:
+        # one line per call: which business, what we answered, how long it took (never a phone number)
+        print(f"[retell-inbound] business={biz_id or 'unknown'} is_open_now={is_open_value} ms={round((time.perf_counter() - started) * 1000)}")
 
 
 @router.post("/webhooks/retell")
