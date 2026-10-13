@@ -22,7 +22,7 @@
   "stub_output": {
     "caller_name": "Sophie Garnier",
     "intent": "book_appointment",
-    "address": "12 rue des Lilas à Versailles",
+    "address": "douze rue des Lilas à Versailles",
     "extraction_complete": true,
     "extraction_confidence": 0.8
   }
