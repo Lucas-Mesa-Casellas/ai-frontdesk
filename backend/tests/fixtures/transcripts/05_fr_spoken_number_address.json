@@ -4,7 +4,6 @@
   "country": "FR",
   "call_started_at": "2026-10-14T14:00:00+02:00",
   "from_number": "+33639982233",
-  "skip": "needs the address-digits change (branch overnight/address-digits-urgency); delete this line once it is merged",
   "transcript": [
     "Agent: Bonjour, LMC Agents, comment puis-je vous aider ?",
     "User: Bonjour, ma chaudière est en panne, il me faudrait quelqu'un jeudi.",

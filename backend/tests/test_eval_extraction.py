@@ -69,8 +69,10 @@ class TheShippedFixtures(unittest.TestCase):
         with redirect_stdout(out):
             code = ev.main(["--stub"])
         self.assertEqual(code, 0, out.getvalue())
-        self.assertIn("SKIP", out.getvalue())  # the spoken-number case waits for the address-digits branch
-        self.assertIn("15/15 checks passed", out.getvalue())
+        self.assertNotIn("SKIP", out.getvalue())  # the address-digits change is merged: case 5 runs too
+        self.assertIn("16/16 checks passed", out.getvalue())
+        # its stub returns the spoken form; the stored row has digits (the fallback in the model validator)
+        self.assertIn("'12 rue des Lilas", out.getvalue())
 
     def test_the_caller_id_fallback_and_missing_fields_clean_up_are_applied(self):
         # the stub for fr_this_number has caller_phone null and lists caller_phone as missing:
