@@ -32,7 +32,7 @@ def _day(*windows):
     return [{"open": o, "close": c} for o, c in windows]
 
 
-# Barazzetti Fils' schedule (see scheduling.py / migration 010)
+# the sample business's schedule (see scheduling.py / migration 010)
 OFFICE = {
     "is_24_7": False,
     "days": {
@@ -124,7 +124,7 @@ class Availability(unittest.TestCase):
             self.assertEqual(self.check("2026-10-01T16:45:00", dur)["reason"], "outside_business_hours", f"duration={dur!r}")
         self.assertTrue(self.check("2026-10-01T16:45:00", 30)["available"])  # a real 30 minutes does fit
 
-    # ---- the Barazzetti hours
+    # ---- the sample business's hours
     def test_thursday_1600_is_available(self):
         self.assertEqual(self.check("2026-10-01T16:00:00"), {"available": True, "message": "That time is available."})
 

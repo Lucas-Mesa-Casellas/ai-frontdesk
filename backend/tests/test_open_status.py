@@ -28,7 +28,7 @@ def _day(*windows):
     return [{"open": o, "close": c} for o, c in windows]
 
 
-# Barazzetti Fils' real schedule (see scheduling.py / migration 010)
+# the sample business's schedule (see scheduling.py / migration 010)
 OFFICE = {
     "is_24_7": False,
     "days": {

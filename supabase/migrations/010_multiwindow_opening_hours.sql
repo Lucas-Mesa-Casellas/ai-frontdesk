@@ -1,6 +1,6 @@
 -- AI Front Desk - convert opening_hours.days from a single {open, close}
 -- window per day into a LIST of windows, so a day can have a midday
--- closure instead of one continuous span (Barazzetti Fils actually needs
+-- closure instead of one continuous span (the sample business actually needs
 -- this: Mon-Thu 08:00-12:00 + 13:30-17:30, Fri 08:00-12:00 + 13:30-16:30 --
 -- see backend/app/services/scheduling.py). Wraps each existing
 -- single-window day into a one-element list, and turns the old "closed"
