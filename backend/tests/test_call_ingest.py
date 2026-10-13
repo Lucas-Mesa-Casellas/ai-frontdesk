@@ -374,7 +374,7 @@ class EmailLook(unittest.TestCase):
         from app.services import notify
         ex = booking_extraction(summary="<b>hi</b> & <script>x</script>", urgency="high", party_size=3)
         _, html = notify.render_owner_email(BUSINESS, ex, "c1", "+33600000001")
-        for needle in ("Sam", "+33600000001", "tomorrow at three", "appointment", "3", "high", "Client", "Phone", "Summary"):
+        for needle in ("Sam", "+33600000001", "Friday 2 October at 15:00", "appointment", "3", "high", "Client", "Phone", "Summary"):
             self.assertIn(needle, html)
         self.assertNotIn("<script>", html)
         self.assertIn("&lt;script&gt;", html)

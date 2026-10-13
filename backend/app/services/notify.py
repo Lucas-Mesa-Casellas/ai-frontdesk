@@ -1,7 +1,11 @@
 import os
 import html
 import urllib.parse
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 import resend
+
+from app.services.open_status import resolve_timezone
 
 resend.api_key = os.environ["RESEND_API_KEY"]
 
@@ -12,7 +16,9 @@ _STRINGS = {
     "es": {
         "html_lang": "es",
         "subject_prefix": "Nueva solicitud",
-        "no_name": "Sin nombre",
+        "weekdays": ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"],
+        "months": ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+        "datetime_fmt": "{weekday} {day} de {month} a las {time}",
         "heading": "Nueva solicitud",
         "label_client": "Cliente",
         "label_phone": "Teléfono",
@@ -34,7 +40,9 @@ _STRINGS = {
     "fr": {
         "html_lang": "fr",
         "subject_prefix": "Nouvelle demande",
-        "no_name": "Sans nom",
+        "weekdays": ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"],
+        "months": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+        "datetime_fmt": "{weekday} {day} {month} à {time}",
         "heading": "Nouvelle demande",
         "label_client": "Client",
         "label_phone": "Téléphone",
@@ -56,7 +64,9 @@ _STRINGS = {
     "en": {
         "html_lang": "en",
         "subject_prefix": "New request",
-        "no_name": "No name given",
+        "weekdays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+        "datetime_fmt": "{weekday} {day} {month} at {time}",
         "heading": "New request",
         "label_client": "Client",
         "label_phone": "Phone",
@@ -82,8 +92,9 @@ def _esc(value) -> str:
     """Escape a value for safe interpolation into an HTML email body.
     Everything in `extracted` originates from an AI's reading of a phone
     call — a caller could attempt to inject HTML/fake links into the
-    transcript. Never trust it unescaped in an email a client will open."""
-    return html.escape(str(value)) if value is not None else "—"
+    transcript. Never trust it unescaped in an email a client will open.
+    None gives "" (a row with an empty value is left out of the email, see _layout)."""
+    return html.escape(str(value)) if value is not None else ""
 
 
 def maps_url(address: str) -> str:
@@ -93,9 +104,9 @@ def maps_url(address: str) -> str:
 
 def _address_html(s: dict, address: str | None) -> str:
     """The address as the caller said it, with a small 'Open in Maps' link under it
-    (the link text is the label, no URL is printed); a dash when none was given."""
+    (the link text is the label, no URL is printed); empty when none was given."""
     if not address:
-        return "—"
+        return ""
     return (
         f'{_esc(address)}<br><a href="{html.escape(maps_url(address), quote=True)}" '
         f'style="font-size:13px;font-weight:600;color:#0a8f64;text-decoration:none;">{s["open_maps"]} →</a>'
@@ -115,7 +126,8 @@ def _row(label: str, value_html: str) -> str:
 
 def _layout(s: dict, title: str, preheader: str, intro: str, rows: list[tuple[str, str]], call_id: str, urgent: bool = False) -> str:
     """The shared look of every owner email: the same light card, type and #12b981
-    button as the Magic Link sign-in email. Values in `rows` are already escaped.
+    button as the Magic Link sign-in email. Values in `rows` are already escaped; a row
+    whose value is empty is left out (the owner never sees a placeholder dash).
     The button links to the call in the dashboard; no URL is ever printed."""
     badge = ""
     if urgent:
@@ -123,7 +135,7 @@ def _layout(s: dict, title: str, preheader: str, intro: str, rows: list[tuple[st
             '<tr><td style="padding-bottom:14px;"><span style="display:inline-block;background:#fdecea;color:#b3261e;border-radius:999px;'
             f'padding:4px 12px;font-size:12px;font-weight:600;">{_esc(s["urgency"]["high"])}</span></td></tr>'
         )
-    body = "".join(_row(label, value) for label, value in rows)
+    body = "".join(_row(label, value) for label, value in rows if value and value.strip())
     link = f"{SITE}/dashboard/calls/{html.escape(str(call_id), quote=True)}"
     return f"""<!DOCTYPE html>
 <html lang="{s['html_lang']}">
@@ -152,41 +164,70 @@ def _layout(s: dict, title: str, preheader: str, intro: str, rows: list[tuple[st
 </html>"""
 
 
-def render_owner_email(business: dict, extracted, call_id: str, caller_phone_override: str = None) -> tuple[str, str]:
-    """(subject, html) for a captured call or booking request."""
+def format_when(s: dict, iso: str | None, tz: ZoneInfo | None) -> str | None:
+    """preferred_time_iso as 'jeudi 15 octobre à 16:00' (per-language names from _STRINGS, no locale,
+    in the business timezone), or None when there is no ISO value or it does not parse."""
+    if not iso:
+        return None
+    try:
+        when = datetime.fromisoformat(iso.strip().replace("Z", "+00:00"))
+    except (ValueError, AttributeError):
+        return None
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=tz) if tz else when  # a naive time is already the business's local time
+    elif tz:
+        when = when.astimezone(tz)
+    return s["datetime_fmt"].format(
+        weekday=s["weekdays"][when.weekday()], day=when.day, month=s["months"][when.month - 1], time=when.strftime("%H:%M"),
+    )
+
+
+def _subject(prefix: str, business_name: str | None, caller_name: str | None = None) -> str:
+    """'Nouvelle demande : Clémence (Plomberie)', or 'Nouvelle demande : Plomberie' without a name."""
+    biz = (business_name or "").strip()
+    who = (caller_name or "").strip()
+    if who:
+        return f"{prefix} : {who} ({biz})" if biz else f"{prefix} : {who}"
+    return f"{prefix} : {biz}" if biz else prefix
+
+
+def render_owner_email(business: dict, extracted, call_id: str, caller_phone_override: str = None, tz: ZoneInfo | None = None) -> tuple[str, str]:
+    """(subject, html) for a captured call or booking request. `tz` is the business timezone
+    (call_ingest passes it); without it the business's own timezone, else its country's, is used."""
     s = _STRINGS.get(business.get("language") or "es", _STRINGS["es"])
     biz_name = _esc(business.get("name"))
-    caller_name = extracted.caller_name or s["no_name"]
-    subject = f"{s['subject_prefix']} — {business.get('name')} — {caller_name}"
+    tz = tz or resolve_timezone(business.get("timezone"), business.get("country"))
+    subject = _subject(s["subject_prefix"], business.get("name"), extracted.caller_name)
     urgency_display = s["urgency"].get(extracted.urgency, extracted.urgency)
     booking_type_display = s["booking_type"].get(extracted.booking_type, extracted.booking_type)
     rows = [
         (s["label_client"], _esc(extracted.caller_name)),
         (s["label_phone"], _esc(caller_phone_override or extracted.caller_phone)),
         (s["label_address"], _address_html(s, getattr(extracted, "address", None))),
-        (s["label_time"], _esc(extracted.preferred_time)),
+        # the formatted date when the ISO value parses, else the caller's own words; never both
+        (s["label_time"], _esc(format_when(s, getattr(extracted, "preferred_time_iso", None), tz) or extracted.preferred_time)),
         (s["label_type"], _esc(booking_type_display)),
         (s["label_party_size"], _esc(extracted.party_size)),
         (s["label_summary"], _esc(extracted.summary)),
         (s["label_urgency"], _esc(urgency_display)),
     ]
-    html_body = _layout(s, f"{s['heading']} — {biz_name}", _esc(s["preheader"]), "", rows, call_id, urgent=extracted.urgency == "high")
+    html_body = _layout(s, s["heading"], _esc(s["preheader"]), biz_name, rows, call_id, urgent=extracted.urgency == "high")
     return subject, html_body
 
 
 def render_review_email(business: dict, call_id: str, caller_phone: str | None = None) -> tuple[str, str]:
     """(subject, html) for a call that could not be read at all. Nothing was extracted, so
-    this email has no address row (it would always be a dash)."""
+    this email has no address row, and no phone row when there is no phone."""
     s = _STRINGS.get(business.get("language") or "es", _STRINGS["es"])
     biz_name = _esc(business.get("name"))
     html_body = _layout(
-        s, f"{s['review_subject']} — {biz_name}", _esc(s["review_subject"]), s["review_body"],
+        s, s["review_subject"], _esc(s["review_subject"]), f"{biz_name}<br>{s['review_body']}" if biz_name else s["review_body"],
         [(s["label_phone"], _esc(caller_phone))], call_id,
     )
-    return f"{s['review_subject']} — {business.get('name')}", html_body
+    return _subject(s["review_subject"], business.get("name")), html_body
 
 
-def notify_owner(business: dict, extracted, call_id: str, caller_phone_override: str = None) -> None:
+def notify_owner(business: dict, extracted, call_id: str, caller_phone_override: str = None, tz: ZoneInfo | None = None) -> None:
     """Email the business owner about a captured call/booking request, in
     the business's own language. Never raises -- a failed email must never
     block the webhook response or prevent the call record from having
@@ -196,7 +237,7 @@ def notify_owner(business: dict, extracted, call_id: str, caller_phone_override:
         print(f"[notify_owner] no notification_email for business {business.get('id')}, skipping")
         return
 
-    subject, html_body = render_owner_email(business, extracted, call_id, caller_phone_override)
+    subject, html_body = render_owner_email(business, extracted, call_id, caller_phone_override, tz)
     try:
         resend.Emails.send({
             "from": "LMC Agents <notificaciones@lmcagents.app>",

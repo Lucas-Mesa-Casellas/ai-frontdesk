@@ -132,9 +132,9 @@ class AddressInTheEmail(unittest.TestCase):
             self.assertIn(maps, h)
             self.assertIn("https://www.google.com/maps/search/?api=1&amp;query=12%20rue%20des%20Lilas%2C%20Lyon", h)
 
-    def test_no_address_shows_a_dash_and_no_link(self):
+    def test_no_address_leaves_the_row_out_and_has_no_link(self):
         h = self.html("en", None)
-        self.assertRegex(h, r">Address</div><div[^>]*>—</div>")
+        self.assertNotIn(">Address</div>", h)
         self.assertNotIn("google.com/maps", h)
 
     def test_the_extraction_failed_email_has_no_address_row(self):
@@ -151,6 +151,93 @@ class AddressInTheEmail(unittest.TestCase):
         h = self.html("en", '<script>alert(1)</script> "x"')
         self.assertNotIn("<script>", h)
         self.assertIn("&lt;script&gt;", h)
+
+
+class EmailsWithoutDashes(unittest.TestCase):
+    """The owner never sees a placeholder dash: empty rows are left out, subject and heading carry no em dash."""
+    LANGS = ("en", "es", "fr")
+
+    def biz(self, lang, **over):
+        return {**BUSINESS, "language": lang, "name": "Plomberie Lilas", **over}
+
+    def empty(self, **over):
+        base = dict(caller_name=None, caller_phone=None, preferred_time=None, preferred_time_iso=None, booking_type="appointment",
+                    party_size=None, summary=None, urgency="normal", address=None)
+        base.update(over)
+        return SimpleNamespace(**base)
+
+    def test_a_fully_empty_extraction_has_no_em_dash_in_subject_or_body(self):
+        for lang in self.LANGS:
+            subject, h = notify.render_owner_email(self.biz(lang), self.empty(), "c1")
+            self.assertNotIn("—", subject, lang)
+            self.assertNotIn("—", h, lang)
+            subject, h = notify.render_review_email(self.biz(lang), "c1", None)
+            self.assertNotIn("—", subject, lang)
+            self.assertNotIn("—", h, lang)
+
+    def test_empty_rows_are_left_out_and_type_and_urgency_stay(self):
+        labels = {"en": ("Client", "Phone", "Address", "Requested date/time", "Party size", "Summary", "Type", "Urgency"),
+                  "es": ("Cliente", "Teléfono", "Dirección", "Fecha/hora solicitada", "Personas", "Resumen", "Tipo", "Urgencia"),
+                  "fr": ("Client", "Téléphone", "Adresse", "Date/heure demandée", "Personnes", "Résumé", "Type", "Urgence")}
+        for lang in self.LANGS:
+            _, h = notify.render_owner_email(self.biz(lang), self.empty(), "c1")
+            for gone in labels[lang][:6]:
+                self.assertNotIn(f">{gone}</div>", h, f"{lang}: {gone}")
+            for kept in labels[lang][6:]:
+                self.assertIn(f">{kept}</div>", h, f"{lang}: {kept}")
+            # one row present when its value is there
+            _, h = notify.render_owner_email(self.biz(lang), self.empty(caller_name="Sam", party_size=2, summary="Fuite"), "c1")
+            for present in (labels[lang][0], labels[lang][4], labels[lang][5]):
+                self.assertIn(f">{present}</div>", h)
+
+    def test_the_review_email_omits_the_phone_row_without_a_phone(self):
+        labels = {"en": "Phone", "es": "Teléfono", "fr": "Téléphone"}
+        for lang in self.LANGS:
+            _, h = notify.render_review_email(self.biz(lang), "c1", None)
+            self.assertNotIn(f">{labels[lang]}</div>", h)
+            _, h = notify.render_review_email(self.biz(lang), "c1", "+33600000001")
+            self.assertIn(f">{labels[lang]}</div>", h)
+
+    def test_subjects_have_the_new_shape(self):
+        s, _ = notify.render_owner_email(self.biz("fr"), self.empty(caller_name="Clémence"), "c1")
+        self.assertEqual(s, "Nouvelle demande : Clémence (Plomberie Lilas)")
+        s, _ = notify.render_owner_email(self.biz("fr"), self.empty(), "c1")
+        self.assertEqual(s, "Nouvelle demande : Plomberie Lilas")
+        s, _ = notify.render_owner_email(self.biz("en"), self.empty(caller_name="Sam"), "c1")
+        self.assertEqual(s, "New request : Sam (Plomberie Lilas)")
+        s, _ = notify.render_owner_email(self.biz("es"), self.empty(), "c1")
+        self.assertEqual(s, "Nueva solicitud : Plomberie Lilas")
+        s, _ = notify.render_review_email(self.biz("fr"), "c1")
+        self.assertEqual(s, "Appel à vérifier : Plomberie Lilas")
+
+    def test_the_heading_is_just_the_heading_and_the_business_name_moves_to_the_intro(self):
+        _, h = notify.render_owner_email(self.biz("fr", name="Plomberie <b>Lilas</b>"), self.empty(), "c1")
+        self.assertIn(">Nouvelle demande</td>", h)
+        self.assertIn("Plomberie &lt;b&gt;Lilas&lt;/b&gt;</td>", h)  # escaped, in the cell under the heading
+        _, h = notify.render_review_email(self.biz("fr"), "c1")
+        self.assertIn(">Appel à vérifier</td>", h)
+        self.assertIn("Plomberie Lilas<br>", h)
+
+    def test_the_time_row_is_formatted_from_the_iso_value_in_the_business_timezone(self):
+        # 15 Oct 2026 is a Thursday; 14:00 UTC is 16:00 in Paris (UTC+2)
+        for lang, expected in (("fr", "jeudi 15 octobre à 16:00"), ("en", "Thursday 15 October at 16:00"), ("es", "jueves 15 de octubre a las 16:00")):
+            _, h = notify.render_owner_email(self.biz(lang), self.empty(preferred_time="jeudi vers 16 h", preferred_time_iso="2026-10-15T14:00:00+00:00"), "c1")
+            self.assertIn(expected, h, lang)
+            self.assertNotIn("vers 16 h", h)  # never both
+        # a naive ISO value is already local time; an explicit tz argument wins over the business country
+        _, h = notify.render_owner_email(self.biz("en"), self.empty(preferred_time_iso="2026-10-15T16:00:00"), "c1")
+        self.assertIn("Thursday 15 October at 16:00", h)
+        from zoneinfo import ZoneInfo
+        _, h = notify.render_owner_email(self.biz("en"), self.empty(preferred_time_iso="2026-10-15T14:00:00+00:00"), "c1", tz=ZoneInfo("America/New_York"))
+        self.assertIn("Thursday 15 October at 10:00", h)
+
+    def test_the_time_row_falls_back_to_the_raw_words(self):
+        _, h = notify.render_owner_email(self.biz("fr"), self.empty(preferred_time="demain vers 15 h"), "c1")
+        self.assertIn("demain vers 15 h", h)
+        _, h = notify.render_owner_email(self.biz("fr"), self.empty(preferred_time="demain vers 15 h", preferred_time_iso="not a date"), "c1")
+        self.assertIn("demain vers 15 h", h)  # an unparseable ISO value
+        _, h = notify.render_owner_email(self.biz("fr"), self.empty(), "c1")
+        self.assertNotIn(">Date/heure demandée</div>", h)
 
 
 if __name__ == "__main__":
