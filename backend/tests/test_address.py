@@ -127,15 +127,24 @@ class AddressInTheEmail(unittest.TestCase):
     def test_the_address_is_labelled_in_the_business_language_and_linked_to_maps(self):
         for lang, label, maps in (("en", "Address", "Open in Maps"), ("es", "Dirección", "Abrir en Maps"), ("fr", "Adresse", "Ouvrir dans Maps")):
             h = self.html(lang, ADDRESS)
-            self.assertIn(f"{label}:", h)
+            self.assertIn(f">{label}</div>", h)
             self.assertIn(ADDRESS, h)
             self.assertIn(maps, h)
             self.assertIn("https://www.google.com/maps/search/?api=1&amp;query=12%20rue%20des%20Lilas%2C%20Lyon", h)
 
     def test_no_address_shows_a_dash_and_no_link(self):
         h = self.html("en", None)
-        self.assertIn("Address:</strong> —", h)
+        self.assertRegex(h, r">Address</div><div[^>]*>—</div>")
         self.assertNotIn("google.com/maps", h)
+
+    def test_the_extraction_failed_email_keeps_the_same_row(self):
+        for lang, label, maps in (("en", "Address", "Open in Maps"), ("es", "Dirección", "Abrir en Maps"), ("fr", "Adresse", "Ouvrir dans Maps")):
+            _, h = notify.render_review_email({**BUSINESS, "language": lang}, "call-2", "+33600000001")
+            self.assertRegex(h, rf">{label}</div><div[^>]*>—</div>")  # nothing was extracted: a dash
+            _, h = notify.render_review_email({**BUSINESS, "language": lang}, "call-2", "+33600000001", address=ADDRESS)
+            self.assertIn(ADDRESS, h)
+            self.assertIn(maps, h)
+            self.assertIn("google.com/maps/search/?api=1&amp;query=12%20rue", h)
 
     def test_the_address_is_escaped(self):
         h = self.html("en", '<script>alert(1)</script> "x"')

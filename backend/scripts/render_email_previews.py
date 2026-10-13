@@ -14,14 +14,16 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file_
 os.makedirs(OUT, exist_ok=True)
 
 CALLERS = {
-    "en": dict(caller_name="Megan Pollard", caller_phone="07700 900123", preferred_time="Friday at 3 pm", summary="Blocked toilet overflowing, needs someone today. Access through the side gate."),
-    "es": dict(caller_name="Diego Salvatierra", caller_phone="+34 6•• ••• 482", preferred_time="el viernes a las 15:00", summary="Sin agua caliente en la vivienda desde ayer. Pide que alguien pase hoy si es posible."),
-    "fr": dict(caller_name="Clémence Guyot", caller_phone="06 39 98 12 34", preferred_time="vendredi à 15 h", summary="Chaudière en panne depuis ce matin, une fuite visible. Souhaite être rappelée rapidement."),
+    "en": dict(caller_name="Megan Pollard", caller_phone="07700 900123", address="14 Hawthorn Road, Leeds", preferred_time="Friday at 3 pm", summary="Blocked toilet overflowing, needs someone today. Access through the side gate."),
+    "es": dict(caller_name="Diego Salvatierra", caller_phone="+34 6•• ••• 482", address="Calle de los Olmos 14, Zaragoza", preferred_time="el viernes a las 15:00", summary="Sin agua caliente en la vivienda desde ayer. Pide que alguien pase hoy si es posible."),
+    "fr": dict(caller_name="Clémence Guyot", caller_phone="06 39 98 12 34", address="14 rue des Tilleuls, Lyon", preferred_time="vendredi à 15 h", summary="Chaudière en panne depuis ce matin, une fuite visible. Souhaite être rappelée rapidement."),
 }
 for lang, c in CALLERS.items():
     biz = {"id": "demo", "name": "LMC Agents", "language": lang, "notification_email": "hello@lmcagents.example"}
     for kind, urgency in (("urgent", "high"), ("routine", "normal")):
+        # the urgent email carries an address; the routine one shows the dash (no address given)
         ex = SimpleNamespace(caller_name=c["caller_name"], caller_phone=c["caller_phone"], preferred_time=c["preferred_time"],
+                             address=c["address"] if kind == "urgent" else None,
                              booking_type="appointment", party_size=None, summary=c["summary"], urgency=urgency)
         _, html = notify.render_owner_email(biz, ex, "5f1c2d3e-0000-4000-8000-000000000001", c["caller_phone"])
         open(os.path.join(OUT, f"{lang}-{kind}.html"), "w", encoding="utf-8").write(html)
