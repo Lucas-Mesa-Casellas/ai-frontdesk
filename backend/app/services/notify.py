@@ -209,7 +209,8 @@ def render_owner_email(business: dict, extracted, call_id: str, caller_phone_ove
         (s["label_type"], _esc(booking_type_display)),
         (s["label_party_size"], _esc(extracted.party_size)),
         (s["label_summary"], _esc(extracted.summary)),
-        (s["label_urgency"], _esc(urgency_display)),
+        # an urgent call already carries the red badge above the heading: no second Urgency row
+        (s["label_urgency"], "" if extracted.urgency == "high" else _esc(urgency_display)),
     ]
     html_body = _layout(s, s["heading"], _esc(s["preheader"]), biz_name, rows, call_id, urgent=extracted.urgency == "high")
     return subject, html_body
