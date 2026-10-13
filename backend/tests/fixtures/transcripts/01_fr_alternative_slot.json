@@ -1,0 +1,39 @@
+{
+  "name": "fr_alternative_slot",
+  "language": "fr",
+  "country": "FR",
+  "call_started_at": "2026-10-14T10:00:00+02:00",
+  "from_number": "+33639981234",
+  "transcript": [
+    "Agent: Bonjour, LMC Agents, comment puis-je vous aider ?",
+    "User: Bonjour, j'ai une fuite sous l'évier, je voudrais qu'un plombier passe après-demain à seize heures.",
+    "Agent: Je regarde. Après-demain à seize heures, ce n'est malheureusement pas possible. Vendredi, je peux vous proposer huit heures, neuf heures ou dix heures.",
+    "User: Alors vendredi à huit heures, ça me va.",
+    "Agent: C'est noté, je transmets votre demande pour vendredi à huit heures, l'équipe vous confirmera. Puis-je avoir votre nom ?",
+    "User: Hélène Marchal.",
+    "Agent: Merci madame Marchal. Et l'adresse de l'intervention ?",
+    "User: 14 rue des Tilleuls à Lyon.",
+    "Agent: Parfait, bonne journée."
+  ],
+  "expect": {
+    "preferred_time_iso": {
+      "datetime": "2026-10-16T08:00:00+02:00"
+    },
+    "intent": "book_appointment",
+    "outcome_reason": {
+      "not_matches": "(?i)(?<![a-zà-ÿ])(confirmed|booked|scheduled|reserved|confirmée?s?|réservée?s?|programmée?s?|planifiée?s?|confirmad[oa]s?|reservad[oa]s?|agendad[oa]s?|programad[oa]s?)(?![a-zà-ÿ])"
+    }
+  },
+  "stub_output": {
+    "caller_name": "Hélène Marchal",
+    "intent": "book_appointment",
+    "urgency": "normal",
+    "booking_type": "appointment",
+    "preferred_time": "vendredi à huit heures",
+    "preferred_time_iso": "2026-10-16T08:00:00+02:00",
+    "address": "14 rue des Tilleuls à Lyon",
+    "outcome_reason": "Demande de rendez-vous enregistrée",
+    "extraction_complete": true,
+    "extraction_confidence": 0.9
+  }
+}

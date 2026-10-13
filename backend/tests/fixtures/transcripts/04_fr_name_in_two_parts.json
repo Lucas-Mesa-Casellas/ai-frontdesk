@@ -1,0 +1,29 @@
+{
+  "name": "fr_name_in_two_parts",
+  "language": "fr",
+  "country": "FR",
+  "call_started_at": "2026-10-14T09:15:00+02:00",
+  "from_number": "+33639980011",
+  "transcript": [
+    "Agent: Bonjour, LMC Agents, comment puis-je vous aider ?",
+    "User: Oui bonjour, c'est Paul, j'ai un radiateur qui ne chauffe plus.",
+    "Agent: D'accord Paul. Vous souhaitez qu'un technicien passe ?",
+    "User: Oui, lundi matin si possible.",
+    "Agent: Je note lundi matin. Et votre nom de famille ?",
+    "User: Combe de force. C-O-M-B-E, de, force.",
+    "Agent: Merci monsieur Combe de force, l'équipe vous recontacte."
+  ],
+  "expect": {
+    "caller_name": {
+      "iequals": "Paul Combe de force"
+    }
+  },
+  "stub_output": {
+    "caller_name": "Paul Combe de force",
+    "intent": "book_appointment",
+    "booking_type": "appointment",
+    "preferred_time": "lundi matin",
+    "extraction_complete": true,
+    "extraction_confidence": 0.8
+  }
+}

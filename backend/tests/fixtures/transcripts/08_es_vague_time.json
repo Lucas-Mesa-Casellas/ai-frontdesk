@@ -1,0 +1,29 @@
+{
+  "name": "es_vague_time",
+  "language": "es",
+  "country": "ES",
+  "call_started_at": "2026-10-14T10:00:00+02:00",
+  "from_number": "+34 6•• ••• 482",
+  "transcript": [
+    "Agent: Hola, LMC Agents, ¿en qué puedo ayudarle?",
+    "User: Hola, se me ha roto la cisterna del baño. ¿Podrían venir el viernes por la tarde?",
+    "Agent: Anotado, paso su petición al equipo para el viernes por la tarde. ¿Me dice su nombre?",
+    "User: Diego Salvatierra.",
+    "Agent: Gracias, Diego. El equipo le llamará para concretar la hora."
+  ],
+  "expect": {
+    "preferred_time_iso": null,
+    "preferred_time": {
+      "matches": "viernes"
+    }
+  },
+  "stub_output": {
+    "caller_name": "Diego Salvatierra",
+    "intent": "book_appointment",
+    "booking_type": "appointment",
+    "preferred_time": "el viernes por la tarde",
+    "preferred_time_iso": null,
+    "extraction_complete": true,
+    "extraction_confidence": 0.7
+  }
+}

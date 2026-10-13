@@ -1,0 +1,32 @@
+{
+  "name": "fr_no_address",
+  "language": "fr",
+  "country": "FR",
+  "call_started_at": "2026-10-14T16:00:00+02:00",
+  "from_number": "+33639986677",
+  "transcript": [
+    "Agent: Bonjour, LMC Agents, comment puis-je vous aider ?",
+    "User: Bonjour, j'ai une question : vous intervenez le samedi ?",
+    "Agent: Je transmets votre question à l'équipe, qui vous répondra. Puis-je avoir votre nom ?",
+    "User: Claire Benoît.",
+    "Agent: Merci, bonne journée."
+  ],
+  "expect": {
+    "address": null,
+    "missing_fields": {
+      "includes": [
+        "address"
+      ]
+    }
+  },
+  "stub_output": {
+    "caller_name": "Claire Benoît",
+    "intent": "inquiry",
+    "address": null,
+    "missing_fields": [
+      "address"
+    ],
+    "extraction_complete": true,
+    "extraction_confidence": 0.8
+  }
+}

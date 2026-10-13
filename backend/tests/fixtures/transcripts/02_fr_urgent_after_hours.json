@@ -1,0 +1,37 @@
+{
+  "name": "fr_urgent_after_hours",
+  "language": "fr",
+  "country": "FR",
+  "call_started_at": "2026-10-15T19:30:00+02:00",
+  "from_number": "+33639984455",
+  "transcript": [
+    "Agent: Bonsoir, LMC Agents, comment puis-je vous aider ?",
+    "User: J'ai de l'eau partout dans la salle de bains, le tuyau sous le lavabo a éclaté !",
+    "Agent: Je comprends, c'est urgent. Coupez l'arrivée d'eau générale si vous pouvez. Le bureau est fermé ce soir ; la première disponibilité, c'est demain à huit heures.",
+    "User: D'accord, demain huit heures, je prends.",
+    "Agent: C'est noté, je transmets la demande en urgence pour demain huit heures, l'équipe vous rappellera pour confirmer. Votre nom ?",
+    "User: Julien Roussel, au 3 allée des Peupliers à Villeurbanne.",
+    "Agent: Merci, à demain."
+  ],
+  "expect": {
+    "urgency": "high",
+    "preferred_time_iso": {
+      "datetime": "2026-10-16T08:00:00+02:00"
+    },
+    "outcome_reason": {
+      "not_matches": "(?i)(?<![a-zà-ÿ])(confirmed|booked|scheduled|reserved|confirmée?s?|réservée?s?|programmée?s?|planifiée?s?|confirmad[oa]s?|reservad[oa]s?|agendad[oa]s?|programad[oa]s?)(?![a-zà-ÿ])"
+    }
+  },
+  "stub_output": {
+    "caller_name": "Julien Roussel",
+    "intent": "book_appointment",
+    "urgency": "high",
+    "booking_type": "appointment",
+    "preferred_time": "demain huit heures",
+    "preferred_time_iso": "2026-10-16T08:00:00+02:00",
+    "address": "3 allée des Peupliers à Villeurbanne",
+    "outcome_reason": "Demande urgente enregistrée, en attente de l'équipe",
+    "extraction_complete": true,
+    "extraction_confidence": 0.9
+  }
+}

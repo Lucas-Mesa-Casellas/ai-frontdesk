@@ -1,0 +1,29 @@
+{
+  "name": "fr_spoken_number_address",
+  "language": "fr",
+  "country": "FR",
+  "call_started_at": "2026-10-14T14:00:00+02:00",
+  "from_number": "+33639982233",
+  "skip": "needs the address-digits change (branch overnight/address-digits-urgency); delete this line once it is merged",
+  "transcript": [
+    "Agent: Bonjour, LMC Agents, comment puis-je vous aider ?",
+    "User: Bonjour, ma chaudière est en panne, il me faudrait quelqu'un jeudi.",
+    "Agent: C'est noté. À quelle adresse ?",
+    "User: Douze rue des Lilas à Versailles.",
+    "Agent: Et votre nom ?",
+    "User: Sophie Garnier.",
+    "Agent: Merci, l'équipe vous rappelle pour fixer l'heure."
+  ],
+  "expect": {
+    "address": {
+      "matches": "^12 rue des Lilas"
+    }
+  },
+  "stub_output": {
+    "caller_name": "Sophie Garnier",
+    "intent": "book_appointment",
+    "address": "12 rue des Lilas à Versailles",
+    "extraction_complete": true,
+    "extraction_confidence": 0.8
+  }
+}

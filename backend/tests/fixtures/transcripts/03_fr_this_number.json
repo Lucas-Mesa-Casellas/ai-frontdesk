@@ -1,0 +1,35 @@
+{
+  "name": "fr_this_number",
+  "language": "fr",
+  "country": "FR",
+  "call_started_at": "2026-10-14T11:00:00+02:00",
+  "from_number": "+33639987788",
+  "transcript": [
+    "Agent: Bonjour, LMC Agents, comment puis-je vous aider ?",
+    "User: Bonjour, je voudrais un devis pour changer mon chauffe-eau, vous pouvez me rappeler ?",
+    "Agent: Bien sûr. Sur quel numéro souhaitez-vous être rappelé ?",
+    "User: Sur ce numéro, celui avec lequel j'appelle.",
+    "Agent: Très bien. Votre nom ?",
+    "User: Marc Delorme.",
+    "Agent: Merci, l'équipe vous rappellera."
+  ],
+  "expect": {
+    "caller_phone": "+33639987788",
+    "missing_fields": {
+      "excludes": [
+        "caller_phone"
+      ]
+    }
+  },
+  "stub_output": {
+    "caller_name": "Marc Delorme",
+    "caller_phone": null,
+    "intent": "callback",
+    "booking_type": "callback",
+    "missing_fields": [
+      "caller_phone"
+    ],
+    "extraction_complete": true,
+    "extraction_confidence": 0.9
+  }
+}
