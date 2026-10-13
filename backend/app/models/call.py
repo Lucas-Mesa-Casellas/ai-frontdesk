@@ -45,10 +45,13 @@ class ExtractedCallData(BaseModel):
     # written in the business's language and stay null when nothing fits.
     topic: Optional[str] = None
     outcome_reason: Optional[str] = None
+    # Where the visit is: street and town exactly as the caller said it (never
+    # translated or reformatted), null when no address was given.
+    address: Optional[str] = None
 
     @field_validator(
         "caller_name", "caller_phone", "summary", "preferred_time",
-        "preferred_time_iso", "next_action", "notes", "topic", "outcome_reason",
+        "preferred_time_iso", "next_action", "notes", "topic", "outcome_reason", "address",
         mode="before",
     )
     @classmethod
@@ -56,6 +59,11 @@ class ExtractedCallData(BaseModel):
         if isinstance(v, str) and v.strip().lower() in _NULLISH_STRINGS:
             return None
         return v
+
+    @field_validator("address", mode="after")
+    @classmethod
+    def _trim_address(cls, v):
+        return v.strip() if isinstance(v, str) else v
 
     @field_validator("caller_name", mode="before")
     @classmethod

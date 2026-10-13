@@ -24,7 +24,7 @@ export type DashDict = {
   colCaller: string; colNumber: string; colSummary: string; colOutcome: string; colWhen: string;
 
   callsTitle: string; callsSub: string; callsEmptyTitle: string; callsEmptySub: string;
-  noPhone: string; back: string;
+  noPhone: string; back: string; detailAddress: string; openInMaps: string;
   callsFilterFrom: string; callsFilterTo: string; callsFilterApply: string; callsFilterClear: string; callsFilterDatePlaceholder: string;
   callsFilterEmptyTitle: string; callsFilterEmptySub: string;
   callStatusCaptured: string; callStatusReview: string;
@@ -91,7 +91,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     callsTitle: "Call history", callsSub: "Every call your AI receptionist has handled.",
     callsEmptyTitle: "No calls yet", callsEmptySub: "They'll appear here once your AI answers.",
-    noPhone: "Number not captured", back: "Back to calls",
+    noPhone: "Number not captured", back: "Back to calls", detailAddress: "Address", openInMaps: "Open in Maps",
     callsFilterFrom: "From", callsFilterTo: "To", callsFilterApply: "Filter", callsFilterClear: "Clear", callsFilterDatePlaceholder: "dd/mm/yyyy",
     callsFilterEmptyTitle: "No calls in this range", callsFilterEmptySub: "Try a different date range.",
     callStatusCaptured: "Request captured", callStatusReview: "Needs review",
@@ -165,7 +165,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     callsTitle: "Historial de llamadas", callsSub: "Todas las llamadas gestionadas por tu IA.",
     callsEmptyTitle: "Aún no hay llamadas", callsEmptySub: "Aparecerán aquí en cuanto tu IA conteste.",
-    noPhone: "Número no disponible", back: "Volver a llamadas",
+    noPhone: "Número no disponible", back: "Volver a llamadas", detailAddress: "Dirección", openInMaps: "Abrir en Maps",
     callsFilterFrom: "Desde", callsFilterTo: "Hasta", callsFilterApply: "Filtrar", callsFilterClear: "Quitar filtro", callsFilterDatePlaceholder: "dd/mm/aaaa",
     callsFilterEmptyTitle: "No hay llamadas en estas fechas", callsFilterEmptySub: "Prueba con otras fechas.",
     callStatusCaptured: "Solicitud registrada", callStatusReview: "Por revisar",
@@ -239,7 +239,7 @@ export const DASH_T: Record<Locale, DashDict> = {
 
     callsTitle: "Historique des appels", callsSub: "Tous les appels gérés par votre IA.",
     callsEmptyTitle: "Aucun appel pour l'instant", callsEmptySub: "Ils apparaîtront ici dès que votre IA répondra.",
-    noPhone: "Numéro non renseigné", back: "Retour aux appels",
+    noPhone: "Numéro non renseigné", back: "Retour aux appels", detailAddress: "Adresse", openInMaps: "Ouvrir dans Maps",
     callsFilterFrom: "Du", callsFilterTo: "Au", callsFilterApply: "Filtrer", callsFilterClear: "Effacer", callsFilterDatePlaceholder: "jj/mm/aaaa",
     callsFilterEmptyTitle: "Aucun appel sur cette période", callsFilterEmptySub: "Essayez une autre période.",
     callStatusCaptured: "Demande enregistrée", callStatusReview: "À vérifier",

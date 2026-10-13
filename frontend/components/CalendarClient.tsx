@@ -9,16 +9,17 @@ import Card from "./ui/Card";
 import Badge from "./ui/Badge";
 import { deleteBooking } from "@/lib/dash-actions";
 import { BUSINESS_TZ } from "@/lib/tz";
+import { mapsUrl } from "@/lib/maps";
 
 type Booking = {
-  id: string; customer_name: string | null; customer_phone: string | null;
+  id: string; customer_name: string | null; customer_phone: string | null; address?: string | null;
   party_size: number | null; notes: string | null; status: string;
   start_time: string | null; urgency: string | null; summary: string | null;
   summaryNeedsTranslation: boolean; call_id: string | null;
 };
 
 type UndatedBooking = {
-  id: string; customer_name: string | null; customer_phone: string | null;
+  id: string; customer_name: string | null; customer_phone: string | null; address?: string | null;
   summary: string | null; summaryNeedsTranslation: boolean; status: string; call_id: string | null;
 };
 
@@ -102,7 +103,7 @@ export default function CalendarClient({
   // One request, dated or undated: who, what they asked, its status, and the
   // actions. Hierarchy: customer -> summary -> status -> actions.
   const renderRequest = (
-    b: { id: string; customer_name: string | null; customer_phone: string | null; summary: string | null; summaryNeedsTranslation: boolean; call_id: string | null; status: string },
+    b: { id: string; customer_name: string | null; customer_phone: string | null; address?: string | null; summary: string | null; summaryNeedsTranslation: boolean; call_id: string | null; status: string },
     time: string | null,
     urgent: boolean,
   ) => (
@@ -115,6 +116,13 @@ export default function CalendarClient({
         </div>
         {urgent && <Badge tone="danger">{legend.urgency}</Badge>}
       </div>
+      {b.address && (
+        <p className="cal-req-addr">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z" /><circle cx="12" cy="10" r="2.3" /></svg>
+          <span className="cal-req-addr-t"><span className="sr-only">{labels.detailAddress}: </span>{b.address}</span>
+          <a href={mapsUrl(b.address)} target="_blank" rel="noopener noreferrer" className="cal-req-maps">{labels.openInMaps}<span aria-hidden="true"> ↗</span></a>
+        </p>
+      )}
       <p className="cal-req-sum">
         {b.summary ? (
           b.summaryNeedsTranslation && b.call_id ? (
@@ -320,6 +328,11 @@ export default function CalendarClient({
         .cal-req-who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; min-width: 0; }
         .cal-req-time { font-size: 12.5px; font-weight: 600; color: var(--jade); font-variant-numeric: tabular-nums; }
         .cal-req-who b { font-size: 14.5px; font-weight: 600; letter-spacing: -.01em; }
+        .cal-req-addr { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 4px 8px; margin: 2px 0 6px; font-size: 13px; line-height: 1.45; color: var(--text-2); }
+        .cal-req-addr svg { flex: none; margin-top: 2px; color: var(--jade); }
+        .cal-req-addr-t { min-width: 0; overflow-wrap: anywhere; }
+        .cal-req-maps { font-size: 12.5px; font-weight: 600; color: var(--jade); text-decoration: none; white-space: nowrap; }
+        .cal-req-maps:hover { color: var(--jade-bright); text-decoration: underline; text-underline-offset: 3px; }
         .cal-req-phone { font-size: 12.5px; color: var(--text-3); font-variant-numeric: tabular-nums; }
         .cal-req-sum { font-size: 13px; line-height: 1.55; color: var(--text-2); margin-bottom: 14px; }
         .cal-req-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 14px; padding-top: 14px; border-top: 1px solid var(--border); }

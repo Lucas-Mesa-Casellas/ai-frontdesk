@@ -171,7 +171,14 @@ Fields to extract:
   people; leave null for almost all trades and property calls)
 - extraction_complete: true if all critical info was captured, false otherwise
 - extraction_confidence: float 0.0 to 1.0
-- missing_fields: list of field names not mentioned in the transcript
+- address: where the visit or job is, the street (with number if given) and
+  the town, written EXACTLY as the caller said it -- do not translate, correct,
+  complete or reformat it, and never invent a part they did not say. Null if
+  the caller gave no address. A description like "at my place" or "the same
+  address as before" is not an address: null.
+- missing_fields: list of field names not mentioned in the transcript. The
+  caller's phone number is always known from the caller ID, so NEVER list
+  caller_phone here, even when the caller did not recite digits.
 - notes: any extra relevant detail, written in {language_name}, or null
 - topic: a short category (one to three words) for what the caller asked
   about, written in {language_name} -- e.g. a leak repair, a boiler service,
@@ -179,7 +186,11 @@ Fields to extract:
 - outcome_reason: one short phrase, written in {language_name}, saying why
   the call did or did not end in a booking or a transfer to a person --
   e.g. the caller only wanted information, no slot was agreed, the caller
-  hung up, a visit was requested. Null if unclear.
+  hung up, a visit was requested. A booking is never confirmed during the
+  call: the team confirms it afterwards. So when a visit or appointment was
+  asked for, say that the REQUEST WAS CAPTURED (a request was taken, awaiting
+  the team's confirmation) and NEVER write that it was "confirmed", "booked",
+  "scheduled" or "reserved". Null if unclear.
 """
 
 

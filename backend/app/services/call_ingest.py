@@ -92,6 +92,8 @@ def store_stub(supabase, business: dict, call_data: dict, transcript: str) -> tu
 # ---------------------------------------------------------------- stage 2
 def build_update(extracted, raw_payload: dict, caller_phone: str | None) -> dict:
     """The columns the extraction fills in on the stub row."""
+    # a number is stored (spoken or from the caller ID), so it is never "missing"
+    missing = [f for f in extracted.missing_fields if not (caller_phone and f == "caller_phone")]
     return {
         "caller_name": extracted.caller_name,
         "caller_phone": caller_phone,
@@ -105,10 +107,11 @@ def build_update(extracted, raw_payload: dict, caller_phone: str | None) -> dict
         "party_size": extracted.party_size,
         "extraction_complete": extracted.extraction_complete,
         "extraction_confidence": float(extracted.extraction_confidence),
-        "missing_fields": extracted.missing_fields,
+        "missing_fields": missing,
         "notes": extracted.notes,
         "topic": extracted.topic,
         "outcome_reason": extracted.outcome_reason,
+        "address": extracted.address,
         "raw_payload": raw_payload,
         "ai_extracted_at": datetime.now(timezone.utc).isoformat(),
         "status": "request_captured" if extracted.extraction_complete else "needs_review",
@@ -140,6 +143,7 @@ def ensure_booking(supabase, business: dict, call_id: str, extracted, caller_pho
         "booking_type": extracted.booking_type,
         "customer_name": extracted.caller_name,
         "customer_phone": caller_phone,
+        "address": extracted.address,
         "party_size": extracted.party_size,
         "notes": extracted.preferred_time,
         "start_time": start_iso,

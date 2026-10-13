@@ -146,7 +146,7 @@ export default async function CalendarPage({
         }}
         stats={{ total: monthBookings.length, confirmed: confirmedCount }}
         undated={undatedBookings.map((b: any) => ({
-          id: b.id, customer_name: b.customer_name, customer_phone: b.customer_phone,
+          id: b.id, customer_name: b.customer_name, customer_phone: b.customer_phone, address: b.address ?? null,
           summary: b.summary, summaryNeedsTranslation: b.summaryNeedsTranslation, status: b.status, call_id: b.call_id,
         }))}
         dashboardLocale={locale}
@@ -167,6 +167,8 @@ export default async function CalendarPage({
           statConfirmed: t.calConfirmed,
           calNoReason: t.calNoReason,
           calSeeCall: t.calSeeCall,
+          detailAddress: t.detailAddress,
+          openInMaps: t.openInMaps,
           calChange: t.calChange,
           calDelete: t.calDelete,
           calDeleteConfirm: t.calDeleteConfirm,

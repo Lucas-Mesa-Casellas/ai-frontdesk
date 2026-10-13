@@ -199,6 +199,7 @@ function build(locale: Locale, nowMs: number): DemoData {
       user_sentiment: unknown ? "Neutral" : pick(["Positive", "Positive", "Neutral", "Neutral", "Negative"]),
       disconnection_reason: unknown ? "user_hangup" : pick(["user_hangup", "agent_hangup", "agent_hangup"]),
       booking_type: kind === "book" ? "appointment" : null, party_size: null,
+      address: kind === "book" && !unknown ? S.addresses[n % S.addresses.length] : null,
     };
     calls.push(call);
     return call;
@@ -229,7 +230,7 @@ function build(locale: Locale, nowMs: number): DemoData {
     if (start) call.preferred_time_iso = new Date(start).toISOString();
     bookings.push({
       id: `00000000-0000-4000-9000-${String(bookings.length + 1).padStart(12, "0")}`, business_id: BIZ, call_id: call.id, booking_type: "appointment",
-      customer_name: call.caller_name, customer_phone: call.caller_phone, party_size: null, notes: call.preferred_time,
+      customer_name: call.caller_name, customer_phone: call.caller_phone, address: call.address, party_size: null, notes: call.preferred_time,
       start_time: start ? new Date(start).toISOString() : null, end_time: start ? new Date(start + 3600e3).toISOString() : null,
       status: e.status, created_at: new Date(new Date(call.created_at as string).getTime() + 30e3).toISOString(),
     });

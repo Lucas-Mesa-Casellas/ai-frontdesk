@@ -1,5 +1,6 @@
 import os
 import html
+import urllib.parse
 import resend
 
 resend.api_key = os.environ["RESEND_API_KEY"]
@@ -15,6 +16,8 @@ _STRINGS = {
         "heading": "Nueva solicitud",
         "label_client": "Cliente",
         "label_phone": "Teléfono",
+        "label_address": "Dirección",
+        "open_maps": "Abrir en Maps",
         "label_time": "Fecha/hora solicitada",
         "label_type": "Tipo",
         "label_party_size": "Personas",
@@ -33,6 +36,8 @@ _STRINGS = {
         "heading": "Nouvelle demande",
         "label_client": "Client",
         "label_phone": "Téléphone",
+        "label_address": "Adresse",
+        "open_maps": "Ouvrir dans Maps",
         "label_time": "Date/heure demandée",
         "label_type": "Type",
         "label_party_size": "Personnes",
@@ -51,6 +56,8 @@ _STRINGS = {
         "heading": "New request",
         "label_client": "Client",
         "label_phone": "Phone",
+        "label_address": "Address",
+        "open_maps": "Open in Maps",
         "label_time": "Requested date/time",
         "label_type": "Type",
         "label_party_size": "Party size",
@@ -71,6 +78,19 @@ def _esc(value) -> str:
     call — a caller could attempt to inject HTML/fake links into the
     transcript. Never trust it unescaped in an email a client will open."""
     return html.escape(str(value)) if value is not None else "—"
+
+
+def maps_url(address: str) -> str:
+    """Google Maps search for an address (the same link the dashboard uses)."""
+    return "https://www.google.com/maps/search/?api=1&query=" + urllib.parse.quote(address, safe="")
+
+
+def _address_html(s: dict, address: str | None) -> str:
+    """The address as the caller said it, with a small 'Open in Maps' link after it;
+    a dash when none was given."""
+    if not address:
+        return "—"
+    return f'{_esc(address)} &nbsp;<a href="{html.escape(maps_url(address), quote=True)}">{s["open_maps"]}</a>'
 
 
 def notify_owner(business: dict, extracted, call_id: str, caller_phone_override: str = None) -> None:
@@ -99,6 +119,7 @@ def notify_owner(business: dict, extracted, call_id: str, caller_phone_override:
     <h2>{s['heading']} — {biz_name}</h2>
     <p><strong>{s['label_client']}:</strong> {_esc(extracted.caller_name)}</p>
     <p><strong>{s['label_phone']}:</strong> {_esc(caller_phone_override or extracted.caller_phone)}</p>
+    <p><strong>{s['label_address']}:</strong> {_address_html(s, getattr(extracted, "address", None))}</p>
     <p><strong>{s['label_time']}:</strong> {_esc(extracted.preferred_time)}</p>
     <p><strong>{s['label_type']}:</strong> {_esc(booking_type_display)}</p>
     <p><strong>{s['label_party_size']}:</strong> {_esc(extracted.party_size)}</p>
