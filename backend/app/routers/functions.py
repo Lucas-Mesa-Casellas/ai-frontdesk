@@ -13,7 +13,7 @@ from app.services.scheduling import (
     overlaps,
     find_alternatives,
 )
-from app.services.open_status import business_timezone, resolve_timezone
+from app.services.open_status import business_timezone, business_zone
 from app.services.retell_security import verify_retell_signature
 from app.db.supabase_client import get_supabase_admin
 from app.config import get_settings
@@ -36,8 +36,6 @@ if not log.handlers:
 # hallucinating a date (2024-06-14 was once accepted silently), not a caller's wish.
 PAST_GRACE = timedelta(minutes=5)
 MAX_DAYS_AHEAD = 180
-# Only when a business has neither a timezone of its own nor a known country.
-FALLBACK_TZ = ZoneInfo("Europe/Madrid")
 INVALID_DATE = {
     "available": False,
     "reason": "invalid_date",
@@ -121,7 +119,7 @@ async def check_availability(request: Request):
 
     # Everything below happens on the business's own clock: a naive time is read as
     # local time there, an aware one is converted to it.
-    tz = resolve_timezone(business_timezone(supabase, business["id"]), business.get("country")) or FALLBACK_TZ
+    tz = business_zone(business_timezone(supabase, business["id"]), business.get("country"))
     requested_start = requested_start.replace(tzinfo=tz) if requested_start.tzinfo is None else requested_start.astimezone(tz)
 
     minutes = _duration_minutes(args.get("duration_minutes"))

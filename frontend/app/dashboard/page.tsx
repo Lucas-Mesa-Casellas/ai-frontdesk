@@ -1,7 +1,7 @@
 import { getAuthedBusiness } from "@/lib/dashboard-data";
 import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
-import { BUSINESS_TZ, madridHour, madridWeekday, zonedTimeToUtc } from "@/lib/tz";
+import { businessTimeZone, zonedHour, zonedWeekday, zonedTimeToUtc } from "@/lib/tz";
 import CallsChart from "@/components/CallsChart";
 import CountUp from "@/components/CountUp";
 import AutoRefresh from "@/components/AutoRefresh";
@@ -28,6 +28,7 @@ export default async function OverviewPage() {
   const t = DASH_T[locale];
 
   const businessId = business?.id;
+  const tz = businessTimeZone(business);
   const base = await dashBase();
 
   const [
@@ -68,11 +69,11 @@ export default async function OverviewPage() {
   const dayCounts: number[] = Array(7).fill(0);
   (allCallTimes || []).forEach((c) => {
     const d = new Date(c.created_at);
-    hourCounts[madridHour(d)]++;
-    dayCounts[madridWeekday(d)]++;
+    hourCounts[zonedHour(d, tz)]++;
+    dayCounts[zonedWeekday(d, tz)]++;
   });
   const hourLabel = (h: number) =>
-    zonedTimeToUtc(2024, 0, 1, h).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ });
+    zonedTimeToUtc(2024, 0, 1, h, 0, 0, tz).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", timeZone: tz });
   // 1 Jan 2024 was a Monday, so day i of the week is the (1 + i)th of January.
   const dayName = (i: number, width: "short" | "long") =>
     new Intl.DateTimeFormat(locale, { weekday: width, timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 1 + i, 12)));
@@ -83,7 +84,7 @@ export default async function OverviewPage() {
     count, tip: t.chartTooltip(dayName(i, "long"), count), tick: dayName(i, "short").replace(/\.$/, ""),
   }));
 
-  const hour = madridHour(new Date());
+  const hour = zonedHour(new Date(), tz);
   const greeting = hour < 12 ? t.greetMorning : hour < 20 ? t.greetAfternoon : t.greetEvening;
 
   return (
@@ -187,7 +188,7 @@ export default async function OverviewPage() {
                     </span>
                     <time
                       className="ov-latest-when" dateTime={c.created_at}
-                      title={when.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short", timeZone: BUSINESS_TZ })}
+                      title={when.toLocaleString(locale, { dateStyle: "medium", timeStyle: "short", timeZone: tz })}
                     >
                       {ago(when, locale)}
                     </time>

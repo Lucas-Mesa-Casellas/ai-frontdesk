@@ -40,6 +40,19 @@ def resolve_timezone(tz_name: str | None, country: str | None) -> ZoneInfo | Non
     return None
 
 
+# The last link of the chain, for a business with neither a timezone of its own nor a
+# known country. Same value as the frontend's FALLBACK_TZ (frontend/lib/tz.ts).
+FALLBACK_TIMEZONE = "Europe/Madrid"
+
+
+def business_zone(tz_name: str | None, country: str | None) -> ZoneInfo:
+    """THE timezone of a business, wherever a date or time is computed or shown:
+    businesses.timezone, else its country's usual one, else Europe/Madrid. Only the
+    retell-inbound endpoint uses resolve_timezone() alone, on purpose: there an
+    unknown timezone answers nothing rather than guess whether the office is open."""
+    return resolve_timezone(tz_name, country) or ZoneInfo(FALLBACK_TIMEZONE)
+
+
 def business_timezone(supabase, business_id: str) -> str | None:
     """businesses.timezone, read on its own so a missing column (migration 013
     not applied yet) only costs the fallback to the country's usual timezone."""

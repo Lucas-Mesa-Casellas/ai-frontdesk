@@ -84,6 +84,7 @@ function build(locale: Locale, nowMs: number): DemoData {
   const USER = "00000000-0000-0000-0000-000000000001";
   const business = {
     id: BIZ, owner_id: USER, name: S.business.name, language: S.business.language, country: S.business.country,
+    timezone: TZ, // the sample data is built on this clock (below), whatever the country
     notification_email: S.business.email, phone_number: null, opening_hours: null,
   };
 

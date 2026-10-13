@@ -54,8 +54,9 @@ in a client dashboard. **The repo is public**: nothing secret, no real customer 
 - **RLS without GRANT.** A policy does nothing if the role has no table privilege. `authenticated` once had no UPDATE on `businesses` (Settings could not save)
   and DELETE on `calls` needed migration 008. Check both when adding a write path.
 - **`.single()` in `dashboard-data.ts`.** It errors on zero or several rows, so an owner with no or two business rows silently gets `business = null`.
-- **Hardcoded timezones.** `BUSINESS_TZ = "Europe/Madrid"` (frontend `lib/tz.ts`, backend `call_ingest.py`) is wrong for other countries. `businesses.timezone`
-  (migration 013) exists and `open_status.py` uses it; migrate the rest before onboarding a non-Madrid business.
+- **Timezones.** Every date is computed and shown in the business's own timezone, decided in ONE place per side: `businessTimeZone()` in
+  `frontend/lib/tz.ts` and `business_zone()` in `backend/app/services/open_status.py` (businesses.timezone, then the country's, then Europe/Madrid).
+  Never hardcode a zone; calendar-day anchors built with `Date.UTC(...)` are formatted with `timeZone: "UTC"`.
 - **Prefetch overwrote the remembered page.** Next strips its RSC/prefetch headers before `proxy.ts` sees them, so the proxy records only real
   document loads (`Sec-Fetch-Dest != empty`) and `RememberPlace.tsx` records in-dashboard navigation.
 - **Trusted header.** `x-lmc-demo` switches the dashboard to fake data. It must be stripped on every route the proxy does not rewrite (the matcher covers

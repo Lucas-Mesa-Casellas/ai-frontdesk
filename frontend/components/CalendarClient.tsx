@@ -8,7 +8,6 @@ import TranslatedField from "./TranslatedField";
 import Card from "./ui/Card";
 import Badge from "./ui/Badge";
 import { deleteBooking } from "@/lib/dash-actions";
-import { BUSINESS_TZ } from "@/lib/tz";
 import { mapsUrl } from "@/lib/maps";
 
 type Booking = {
@@ -25,7 +24,7 @@ type UndatedBooking = {
 
 export default function CalendarClient({
   cells, byDay, weekdayLabels, monthTitle, todayKey, year, month,
-  base, prevHref, nextHref, intlLocale, dashboardLocale, labels, legend, undated, stats,
+  base, prevHref, nextHref, intlLocale, dashboardLocale, labels, legend, undated, stats, timeZone,
 }: {
   cells: (number | null)[];
   byDay: Record<number, Booking[]>;
@@ -43,6 +42,7 @@ export default function CalendarClient({
   legend: { pending: string; confirmed: string; cancelled: string; urgency: string };
   undated: UndatedBooking[];
   stats: { total: number; confirmed: number };
+  timeZone: string; // the business's (lib/tz.ts businessTimeZone)
 }) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const selected = selectedDay !== null ? byDay[selectedDay] || [] : null;
@@ -76,8 +76,8 @@ export default function CalendarClient({
   };
 
   const selectedDateLabel = selectedDay !== null
-    ? new Intl.DateTimeFormat(intlLocale, { weekday: "short", month: "short", day: "numeric", timeZone: BUSINESS_TZ })
-        .format(new Date(Date.UTC(year, month, selectedDay)))
+    ? new Intl.DateTimeFormat(intlLocale, { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" })
+        .format(new Date(Date.UTC(year, month, selectedDay))) // a calendar-day anchor, not an instant
     : null;
 
   const renderActions = (b: { id: string; status: string }) => (
@@ -237,7 +237,7 @@ export default function CalendarClient({
             ) : (
               selected.map((b) => {
                 const time = b.start_time
-                  ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit", timeZone: BUSINESS_TZ }).format(new Date(b.start_time))
+                  ? new Intl.DateTimeFormat(intlLocale, { hour: "2-digit", minute: "2-digit", timeZone }).format(new Date(b.start_time))
                   : null;
                 return renderRequest(b, time, b.urgency === "high" && b.status === "pending");
               })

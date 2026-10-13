@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 import resend
 
-from app.services.open_status import resolve_timezone
+from app.services.open_status import business_zone
 
 resend.api_key = os.environ["RESEND_API_KEY"]
 
@@ -196,7 +196,7 @@ def render_owner_email(business: dict, extracted, call_id: str, caller_phone_ove
     (call_ingest passes it); without it the business's own timezone, else its country's, is used."""
     s = _STRINGS.get(business.get("language") or "es", _STRINGS["es"])
     biz_name = _esc(business.get("name"))
-    tz = tz or resolve_timezone(business.get("timezone"), business.get("country"))
+    tz = tz or business_zone(business.get("timezone"), business.get("country"))
     subject = _subject(s["subject_prefix"], business.get("name"), extracted.caller_name)
     urgency_display = s["urgency"].get(extracted.urgency, extracted.urgency)
     booking_type_display = s["booking_type"].get(extracted.booking_type, extracted.booking_type)
