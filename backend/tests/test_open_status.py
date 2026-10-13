@@ -164,12 +164,12 @@ class InboundEndpoint(unittest.TestCase):
         biz = {"id": "b1", "opening_hours": OFFICE, "country": "FR"}
         r = self.post(FakeDb([{"timezone": "Europe/Paris"}]), biz, at(2026, 10, 1, 19, 30))
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.json(), {"call_inbound": {"dynamic_variables": {"is_open_now": "no", "open_status": "closed now, next opening Friday 08:00"}}})
+        self.assertEqual(r.json(), {"call_inbound": {"dynamic_variables": {"is_open_now": "no", "open_status": "closed now, next opening Friday 08:00", "system_timezone": "Europe/Paris"}}})
 
     def test_open_answer(self):
         biz = {"id": "b1", "opening_hours": OFFICE, "country": "FR"}
         r = self.post(FakeDb([{"timezone": "Europe/Paris"}]), biz, at(2026, 10, 1, 10, 0))
-        self.assertEqual(r.json()["call_inbound"]["dynamic_variables"], {"is_open_now": "yes", "open_status": "open now, until 12:00"})
+        self.assertEqual(r.json()["call_inbound"]["dynamic_variables"], {"is_open_now": "yes", "open_status": "open now, until 12:00", "system_timezone": "Europe/Paris"})
 
     def test_a_missing_timezone_column_falls_back_to_the_countrys(self):
         biz = {"id": "b1", "opening_hours": OFFICE, "country": "FR"}
