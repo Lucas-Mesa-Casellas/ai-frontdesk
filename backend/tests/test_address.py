@@ -137,14 +137,15 @@ class AddressInTheEmail(unittest.TestCase):
         self.assertRegex(h, r">Address</div><div[^>]*>—</div>")
         self.assertNotIn("google.com/maps", h)
 
-    def test_the_extraction_failed_email_keeps_the_same_row(self):
+    def test_the_extraction_failed_email_has_no_address_row(self):
+        # nothing was extracted, so the row would always be a dash: it is left out, in every language
         for lang, label, maps in (("en", "Address", "Open in Maps"), ("es", "Dirección", "Abrir en Maps"), ("fr", "Adresse", "Ouvrir dans Maps")):
             _, h = notify.render_review_email({**BUSINESS, "language": lang}, "call-2", "+33600000001")
-            self.assertRegex(h, rf">{label}</div><div[^>]*>—</div>")  # nothing was extracted: a dash
-            _, h = notify.render_review_email({**BUSINESS, "language": lang}, "call-2", "+33600000001", address=ADDRESS)
-            self.assertIn(ADDRESS, h)
-            self.assertIn(maps, h)
-            self.assertIn("google.com/maps/search/?api=1&amp;query=12%20rue", h)
+            self.assertNotIn(f">{label}</div>", h)
+            self.assertNotIn(maps, h)
+            self.assertNotIn("google.com/maps", h)
+            self.assertIn("+33600000001", h)  # the phone row and the dashboard button are still there
+            self.assertIn("/dashboard/calls/call-2", h)
 
     def test_the_address_is_escaped(self):
         h = self.html("en", '<script>alert(1)</script> "x"')

@@ -174,14 +174,14 @@ def render_owner_email(business: dict, extracted, call_id: str, caller_phone_ove
     return subject, html_body
 
 
-def render_review_email(business: dict, call_id: str, caller_phone: str | None = None, address: str | None = None) -> tuple[str, str]:
+def render_review_email(business: dict, call_id: str, caller_phone: str | None = None) -> tuple[str, str]:
     """(subject, html) for a call that could not be read at all. Nothing was extracted, so
-    the address is normally a dash; the row is kept so both emails have the same fields."""
+    this email has no address row (it would always be a dash)."""
     s = _STRINGS.get(business.get("language") or "es", _STRINGS["es"])
     biz_name = _esc(business.get("name"))
     html_body = _layout(
         s, f"{s['review_subject']} — {biz_name}", _esc(s["review_subject"]), s["review_body"],
-        [(s["label_phone"], _esc(caller_phone)), (s["label_address"], _address_html(s, address))], call_id,
+        [(s["label_phone"], _esc(caller_phone))], call_id,
     )
     return f"{s['review_subject']} — {business.get('name')}", html_body
 
