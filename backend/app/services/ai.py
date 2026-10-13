@@ -172,8 +172,12 @@ Fields to extract:
 - extraction_complete: true if all critical info was captured, false otherwise
 - extraction_confidence: float 0.0 to 1.0
 - address: where the visit or job is, the street (with number if given) and
-  the town, written EXACTLY as the caller said it -- do not translate, correct,
-  complete or reformat it, and never invent a part they did not say. Null if
+  the town, written as the caller said it -- do not translate, correct,
+  complete or reformat it, and never invent a part they did not say. One
+  exception: write the street number, "bis"/"ter" and the postal code as
+  DIGITS even when they were spoken as words ("douze rue des Lilas à
+  Versailles" -> "12 rue des Lilas à Versailles", "veintitrés calle Mayor" ->
+  "23 calle Mayor"); every other word stays exactly as spoken. Null if
   the caller gave no address. A description like "at my place" or "the same
   address as before" is not an address: null.
 - missing_fields: list of field names not mentioned in the transcript. The

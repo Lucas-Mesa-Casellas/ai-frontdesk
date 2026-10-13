@@ -52,7 +52,8 @@ class PromptRules(unittest.TestCase):
     def test_address_is_asked_for_verbatim_not_translated(self):
         p = self.prompt()
         self.assertIn("- address:", p)
-        self.assertIn("EXACTLY as the caller said it", p)
+        self.assertIn("written as the caller said it", p)
+        self.assertIn("DIGITS even when they were spoken as words", p)
         self.assertIn("do not translate", p)
         self.assertIn("Null if\n  the caller gave no address", p)
 

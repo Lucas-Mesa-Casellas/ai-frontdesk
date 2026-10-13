@@ -1,6 +1,8 @@
 from typing import Optional, Literal
 from pydantic import BaseModel, field_validator
 
+from app.services.address_numbers import digits_for_leading_number
+
 # gpt-4o-mini occasionally writes the literal word "null" (or "none"/"n/a")
 # into a JSON string field instead of an actual JSON null when nothing was
 # said -- e.g. a caller_phone of "null" is truthy, so the Caller-ID fallback
@@ -45,8 +47,9 @@ class ExtractedCallData(BaseModel):
     # written in the business's language and stay null when nothing fits.
     topic: Optional[str] = None
     outcome_reason: Optional[str] = None
-    # Where the visit is: street and town exactly as the caller said it (never
-    # translated or reformatted), null when no address was given.
+    # Where the visit is: street and town as the caller said it (never translated or
+    # reformatted, except a spoken leading street number written as digits, see
+    # services/address_numbers.py), null when no address was given.
     address: Optional[str] = None
 
     @field_validator(
@@ -63,7 +66,7 @@ class ExtractedCallData(BaseModel):
     @field_validator("address", mode="after")
     @classmethod
     def _trim_address(cls, v):
-        return v.strip() if isinstance(v, str) else v
+        return digits_for_leading_number(v.strip()) if isinstance(v, str) else v
 
     @field_validator("caller_name", mode="before")
     @classmethod
