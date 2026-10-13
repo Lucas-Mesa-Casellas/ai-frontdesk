@@ -20,6 +20,7 @@ export type LocaleScenarios = {
   cbClose: string;
   inqClose: string;
   nameLine: (name: string) => string;
+  addresses: string[]; // invented visit addresses, as a caller would say them
   bye: (first: string) => string;
   unknownLines: [string, string][];
   outcome: { book: string; bookHigh: string; cb: string; inq: string; other: string };
@@ -37,6 +38,7 @@ export const SCENARIOS: Record<Locale, LocaleScenarios> = {
     cbClose: "C'est noté, je transmets votre demande de rappel à l'équipe. Puis-je avoir votre nom ?",
     inqClose: "Je transmets votre question à l'équipe, qui reviendra vers vous si besoin. Puis-je avoir votre nom ?",
     nameLine: (n) => `${n}.`,
+    addresses: ["14 rue des Tilleuls, Lyon", "3 allée des Peupliers, Villeurbanne", "27 avenue du Parc, Caluire", "8 impasse des Lilas, Bron", "52 rue Victor Hugo, Lyon", "6 chemin des Vignes, Oullins"],
     bye: (f) => `Merci ${f}, c'est enregistré. Bonne journée.`,
     unknownLines: [["Agent", "Bonjour, vous êtes bien chez LMC Agents, comment puis-je vous aider ?"], ["User", "Allô ?"]],
     outcome: { book: "Rendez-vous demandé", bookHigh: "Intervention urgente demandée", cb: "Rappel demandé", inq: "Renseignement donné", other: "Appel interrompu" },
@@ -77,6 +79,7 @@ export const SCENARIOS: Record<Locale, LocaleScenarios> = {
     cbClose: "Anotado, paso su petición de llamada al equipo. ¿Me dice su nombre?",
     inqClose: "Paso su consulta al equipo, que le responderá si hace falta. ¿Me dice su nombre?",
     nameLine: (n) => `${n}.`,
+    addresses: ["Calle de los Olmos 14, Zaragoza", "Avenida del Parque 27, Zaragoza", "Calle Mayor 5, Utebo", "Plaza del Pilar 3, Zaragoza", "Camino de las Viñas 8, Cuarte", "Calle San Miguel 52, Zaragoza"],
     bye: (f) => `Gracias, ${f}, queda registrado. Que tenga un buen día.`,
     unknownLines: [["Agent", "Hola, ha llamado a LMC Agents, ¿en qué puedo ayudarle?"], ["User", "¿Hola?"]],
     outcome: { book: "Cita solicitada", bookHigh: "Visita urgente solicitada", cb: "Llamada solicitada", inq: "Consulta atendida", other: "Llamada interrumpida" },
@@ -117,6 +120,7 @@ export const SCENARIOS: Record<Locale, LocaleScenarios> = {
     cbClose: "Noted, I'll pass your callback request to the team. Can I take your name?",
     inqClose: "I'll pass your question on to the team, who'll get back to you if needed. Can I take your name?",
     nameLine: (n) => `It's ${n}.`,
+    addresses: ["14 Hawthorn Road, Leeds", "3 Poplar Close, Headingley", "27 Park Avenue, Leeds", "8 Lilac Mews, Chapel Allerton", "52 Victoria Street, Leeds", "6 Vineyard Lane, Roundhay"],
     bye: (f) => `Thank you, ${f}, that's all recorded. Have a good day.`,
     unknownLines: [["Agent", "Hello, you've reached LMC Agents, how can I help?"], ["User", "Hello?"]],
     outcome: { book: "Visit requested", bookHigh: "Urgent visit requested", cb: "Callback requested", inq: "Question answered", other: "Call cut off" },

@@ -3,6 +3,7 @@ import { getLocale } from "@/lib/locale";
 import { DASH_T } from "@/lib/dash-i18n";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { mapsUrl } from "@/lib/maps";
 import { IconArrowLeft, IconPhone } from "@/components/icons";
 import { BUSINESS_TZ } from "@/lib/tz";
 import { resolveTranslatable } from "@/lib/translate-helpers";
@@ -150,6 +151,15 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
                   <dd>{intentLabel[call.intent]}</dd>
                 </div>
               )}
+              {call.address && (
+                <div>
+                  <dt>{t.detailAddress}</dt>
+                  <dd className="cd-address">
+                    <span>{call.address}</span>
+                    <a className="cd-maps" href={mapsUrl(call.address)} target="_blank" rel="noopener noreferrer">{t.openInMaps}<span aria-hidden="true"> ↗</span></a>
+                  </dd>
+                </div>
+              )}
               {(call.preferred_time_iso || call.preferred_time) && (
                 <div className="cd-fact-accent">
                   <dt>{t.detailRequested}</dt>
@@ -230,6 +240,9 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
         /* shared block header + body (TranscriptPanel uses these too) */
         .cd-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
         .cd-title { font-size: 13px; font-weight: 600; letter-spacing: .02em; color: var(--text-2); }
+        .cd-address { display: flex; flex-direction: column; gap: 5px; align-items: flex-start; }
+        .cd-maps { font-size: 12.5px; font-weight: 600; color: var(--jade); text-decoration: none; transition: color .2s var(--e-out); }
+        .cd-maps:hover { color: var(--jade-bright); text-decoration: underline; text-underline-offset: 3px; }
         .cd-summary { font-size: 16px; line-height: 1.65; color: var(--text); letter-spacing: -.005em; }
         .cd-body { padding: 16px; border-radius: 14px; background: rgba(255,255,255,.022); border: 1px solid var(--border); }
         .cd-scroll { max-height: 460px; overflow-y: auto; }
