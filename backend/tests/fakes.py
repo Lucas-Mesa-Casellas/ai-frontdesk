@@ -8,6 +8,11 @@ from types import SimpleNamespace
 _ids = itertools.count(1)
 
 
+def _when(v):
+    from datetime import datetime
+    return datetime.fromisoformat(v) if isinstance(v, str) else v
+
+
 class FakeSupabase:
     def __init__(self, unique=(("calls", "retell_call_id"),)):
         self.tables: dict[str, list[dict]] = {"calls": [], "bookings": [], "businesses": []}
@@ -62,6 +67,18 @@ class _Query:
 
     def is_(self, col, value):
         self.filters.append(lambda r: (r.get(col) is None) if value == "null" else r.get(col) == value)
+        return self
+
+    def neq(self, col, value):
+        self.filters.append(lambda r: r.get(col) != value)
+        return self
+
+    def lt(self, col, value):
+        self.filters.append(lambda r: r.get(col) is not None and _when(r[col]) < _when(value))
+        return self
+
+    def gt(self, col, value):
+        self.filters.append(lambda r: r.get(col) is not None and _when(r[col]) > _when(value))
         return self
 
     def order(self, col, desc=False, **_k):

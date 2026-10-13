@@ -45,7 +45,11 @@ async def retell_inbound_webhook(request: Request):
         if tz is None:
             return empty
         is_open, status = open_status(business.get("opening_hours"), tz)
-        return {"call_inbound": {"dynamic_variables": {"is_open_now": "yes" if is_open else "no", "open_status": status}}}
+        # system_timezone lets the Retell prompt use the unqualified {{current_time}} and
+        # {{current_calendar}} (they follow this timezone) -- the business's own clock, by name
+        return {"call_inbound": {"dynamic_variables": {
+            "is_open_now": "yes" if is_open else "no", "open_status": status, "system_timezone": tz.key,
+        }}}
     except Exception as e:  # noqa: BLE001 - never block a call
         print(f"[retell-inbound] failed, answering with no variables: {e}")
         return empty

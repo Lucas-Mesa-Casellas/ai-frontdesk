@@ -109,7 +109,7 @@ def overlaps(supabase, business_id: str, start: datetime, end: datetime) -> bool
     return bool(result.data)
 
 
-def find_alternatives(supabase, business_id: str, opening_hours: dict, requested_start: datetime, duration: timedelta) -> list[str]:
+def find_alternatives(supabase, business_id: str, opening_hours: dict, requested_start: datetime, duration: timedelta, now: datetime | None = None) -> list[str]:
     """Up to MAX_ALTERNATIVES free slots within this business's hours,
     stepping forward from the requested time and rolling into later
     business days if needed. Naive fixed-step search -- fine for MVP call
@@ -120,9 +120,14 @@ def find_alternatives(supabase, business_id: str, opening_hours: dict, requested
     today) can't hand back slots that have already gone by -- this was
     checking business hours and existing bookings, but never the actual
     current time.
+
+    `now` should be timezone-aware in the business's timezone (functions.py passes
+    it); without it the clock is read in requested_start's own timezone, which for
+    a naive requested_start would be the server's local one.
     """
     alternatives = []
-    now = datetime.now(requested_start.tzinfo)
+    if now is None:
+        now = datetime.now(requested_start.tzinfo)
     candidate = _next_business_start(opening_hours, max(requested_start, now) + timedelta(minutes=SLOT_STEP_MINUTES))
     for _ in range(MAX_CANDIDATES_TO_CHECK):
         if len(alternatives) >= MAX_ALTERNATIVES:
