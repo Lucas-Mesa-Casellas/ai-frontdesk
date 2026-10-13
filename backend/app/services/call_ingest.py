@@ -188,7 +188,7 @@ def complete_call(supabase, business: dict, call_id: str, call_data: dict, trans
     # high-urgency calls and for failed extractions (a human must read the transcript).
     try:
         if extracted.urgency == "high" or not extracted.extraction_complete:
-            notify_owner(business, extracted, call_id, caller_phone_override=caller_phone)
+            notify_owner(business, extracted, call_id, caller_phone_override=caller_phone, tz=tz)
     except Exception as e:  # noqa: BLE001
         print(f"[call_ingest] owner notification failed for call {call_id}: {type(e).__name__}: {e}")
     return "completed" if extracted.extraction_complete else "needs_review"
