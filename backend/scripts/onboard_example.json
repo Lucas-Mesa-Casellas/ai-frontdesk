@@ -1,0 +1,21 @@
+{
+  "owner_email": "hello@lmcagents.example",
+  "user_language": "fr",
+  "business_name": "LMC Agents",
+  "business_type": "plumber",
+  "notification_email": "hello@lmcagents.example",
+  "language": "fr",
+  "country": "FR",
+  "timezone": "Europe/Paris",
+  "phone_number": "+33199001234",
+  "retell_agent_id": "agent_0123456789abcdef0123456789",
+  "opening_hours": {
+    "mon": [{"open": "08:00", "close": "12:00"}, {"open": "13:30", "close": "17:30"}],
+    "tue": [{"open": "08:00", "close": "12:00"}, {"open": "13:30", "close": "17:30"}],
+    "wed": [{"open": "08:00", "close": "12:00"}, {"open": "13:30", "close": "17:30"}],
+    "thu": [{"open": "08:00", "close": "12:00"}, {"open": "13:30", "close": "17:30"}],
+    "fri": [{"open": "08:00", "close": "12:00"}, {"open": "13:30", "close": "16:30"}],
+    "sat": [],
+    "sun": []
+  }
+}
