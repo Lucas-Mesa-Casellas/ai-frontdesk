@@ -25,8 +25,8 @@ in a client dashboard. **The repo is public**: nothing secret, no real customer 
 
 - Backend (from `backend/`): `pip install -r requirements.txt`, then `python -m unittest discover -s tests -v`
   (unittest, no network; fakes in `tests/fakes.py`). Run the API: `uvicorn app.main:app`.
-- Frontend (from `frontend/`): `npm install`, `npm run dev`, `npx tsc --noEmit`, `npm run lint` (baseline: 21 known problems),
-  `npm test`* (Node's built-in runner, `tests/*.test.ts`), `npm run build`.
+- Frontend (from `frontend/`): `npm install`, `npm run dev`, `npx tsc --noEmit`, `npm run lint` (baseline: 24 known problems,
+  21 errors and 3 warnings), `npm test` (Node's built-in runner, `tests/*.test.ts`), `npm run build`.
 - Local dashboard without Supabase: point `NEXT_PUBLIC_SUPABASE_URL` in an untracked `.env.local` at a throwaway mock server; a dummy
   `OPENAI_API_KEY` is needed or server actions fail to load. The public demo needs none of this (`/demo`).
 - Dev server serves **stale CSS**: stop it and `rm -rf .next` before trusting a screenshot. Remove `.env.local` and `.next` before committing.
@@ -41,11 +41,15 @@ in a client dashboard. **The repo is public**: nothing secret, no real customer 
   - `lib/dashboard-data.ts` `getAuthedBusiness()` (per-request cache; also returns the demo data in demo mode), `lib/dash-i18n.ts` all dashboard text (en/es/fr),
     `lib/dash-actions.ts` server actions (confirm, cancel, delete), `lib/translate*.ts` on-demand OpenAI translation, `lib/tz.ts` timezone helpers.
   - `lib/demo/*` + `components/demo/*`: the public demo = the real pages rendered from in-memory sample data (`/demo` rewrites to `/dashboard`
-    with a header only the proxy may set). `lib/tour-notes.ts`, `lib/tour-hotspots.ts`, `public/tour/*` tour screenshots and audio.
+    with a header only the proxy may set). `lib/tour-notes.ts` (the demo's hints), `public/tour/*` tour screenshots and audio.
   - `lib/notify-message.ts`* the SMS/WhatsApp texts offered after Confirm/Cancel (pure, tested).
-- `backend/` FastAPI on Railway. `app/routers/webhooks.py` Retell webhooks (`/webhooks/retell` call_ended + call_analyzed*, `/webhooks/retell-inbound`),
-  `functions.py` live availability check; `services/` `ai.py` (extraction, gpt-4o-mini), `call_ingest.py`* (store first, extract after), `scheduling.py`
-  (opening hours, multi-window days), `open_status.py` (is the office open now), `notify.py` (owner emails), `retell_security.py` (signature check).
+- `backend/` FastAPI on Railway. `app/routers/webhooks.py` Retell webhooks (`/webhooks/retell` call_ended + call_analyzed, `/webhooks/retell-inbound`
+  which returns the dynamic variables `is_open_now`, `open_status` and `system_timezone`), `functions.py` live availability check; `services/` `ai.py`
+  (extraction, gpt-4o-mini), `address_numbers.py` (a spoken leading street number written as digits), `call_ingest.py` (store first, extract after),
+  `scheduling.py` (opening hours, multi-window days), `open_status.py` (is the office open now; `business_zone()`), `notify.py` (owner emails),
+  `retell_security.py` (signature check). `scripts/`: `eval_extraction.py` (runs the production extraction over `tests/fixtures/transcripts/`;
+  needs OPENAI_API_KEY; `--stub` for a dry run), `reprocess_needs_review.py`, `render_email_previews.py`, `onboard_business.py`† (new client from a JSON
+  file; dry run unless `--apply`).
 - `supabase/migrations/` schema history. Tables: `businesses`, `calls`, `bookings`, `retention_job_log`; RLS on all; pg_cron anonymises data older than 90 days.
 - External: Retell (voice agent, **its prompt lives in Retell, not here, and is never edited from code**), Resend (mail), Twilio (numbers), OpenAI, Vercel (frontend), Railway (backend).
 
@@ -60,10 +64,10 @@ in a client dashboard. **The repo is public**: nothing secret, no real customer 
 - **Prefetch overwrote the remembered page.** Next strips its RSC/prefetch headers before `proxy.ts` sees them, so the proxy records only real
   document loads (`Sec-Fetch-Dest != empty`) and `RememberPlace.tsx` records in-dashboard navigation.
 - **Trusted header.** `x-lmc-demo` switches the dashboard to fake data. It must be stripped on every route the proxy does not rewrite (the matcher covers
-  all non-static paths*) and `/api/support` refuses it*; never read it anywhere a real session matters.
-- **Retell retries.** call_ended can arrive twice; store a stub row first and dedupe on `retell_call_id` (unique index, migration 014*).
+  all non-static paths) and `/api/support` refuses it; never read it anywhere a real session matters.
+- **Retell retries.** call_ended can arrive twice; store a stub row first and dedupe on `retell_call_id` (unique index, migration 014).
 - Server actions run one at a time per tab (batch work into one action). In component `<style>` blocks, media queries must come after the base rules.
 - `getLocale()` falls back to the business language; the landing language is the `lmc_locale` cookie (`?lang=` sets it).
 - The dashboard must never be framable (`X-Frame-Options: DENY`); only `/demo` allows `SAMEORIGIN`.
 
-\* exists only once the `overnight/*` branches (call-path, notify-links, hotfix-demo-header) are merged.
+\* exists only once `overnight/notify-links` is merged. † exists only once `overnight/onboard-script` is merged.
