@@ -48,7 +48,7 @@ in a client dashboard. **The repo is public**: nothing secret, no real customer 
   (extraction, gpt-4o-mini), `address_numbers.py` (a spoken leading street number written as digits), `call_ingest.py` (store first, extract after),
   `scheduling.py` (opening hours, multi-window days), `open_status.py` (is the office open now; `business_zone()`), `notify.py` (owner emails),
   `retell_security.py` (signature check). `scripts/`: `eval_extraction.py` (runs the production extraction over `tests/fixtures/transcripts/`;
-  needs OPENAI_API_KEY; `--stub` for a dry run), `reprocess_needs_review.py`, `render_email_previews.py`, `onboard_business.py`† (new client from a JSON
+  needs OPENAI_API_KEY; `--stub` for a dry run), `reprocess_needs_review.py`, `render_email_previews.py`, `onboard_business.py` (new client from a JSON
   file; dry run unless `--apply`).
 - `supabase/migrations/` schema history. Tables: `businesses`, `calls`, `bookings`, `retention_job_log`; RLS on all; pg_cron anonymises data older than 90 days.
 - External: Retell (voice agent, **its prompt lives in Retell, not here, and is never edited from code**), Resend (mail), Twilio (numbers), OpenAI, Vercel (frontend), Railway (backend).
@@ -70,4 +70,4 @@ in a client dashboard. **The repo is public**: nothing secret, no real customer 
 - `getLocale()` falls back to the business language; the landing language is the `lmc_locale` cookie (`?lang=` sets it).
 - The dashboard must never be framable (`X-Frame-Options: DENY`); only `/demo` allows `SAMEORIGIN`.
 
-\* exists only once `overnight/notify-links` is merged. † exists only once `overnight/onboard-script` is merged.
+\* exists only once `overnight/notify-links` is merged.
