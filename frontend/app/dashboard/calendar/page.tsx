@@ -130,6 +130,7 @@ export default async function CalendarPage({
       <CalendarClient
         base={base}
         timeZone={tz}
+        country={business?.country ?? null}
         cells={cells}
         byDay={byDay}
         weekdayLabels={weekdayLabels}

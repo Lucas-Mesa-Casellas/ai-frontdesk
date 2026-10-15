@@ -157,7 +157,7 @@ export default async function CallDetailPage({ params }: { params: Promise<{ id:
                   <dt>{t.detailAddress}</dt>
                   <dd className="cd-address">
                     <span>{call.address}</span>
-                    <a className="cd-maps" href={mapsUrl(call.address)} target="_blank" rel="noopener noreferrer">{t.openInMaps}<span aria-hidden="true"> ↗</span></a>
+                    <a className="cd-maps" href={mapsUrl(call.address, business?.country)} target="_blank" rel="noopener noreferrer">{t.openInMaps}<span aria-hidden="true"> ↗</span></a>
                   </dd>
                 </div>
               )}
