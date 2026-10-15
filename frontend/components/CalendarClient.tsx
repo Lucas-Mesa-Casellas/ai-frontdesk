@@ -284,6 +284,13 @@ export default function CalendarClient({
         @media (min-width: 1101px) {
           .cal-layout { flex: 1; min-height: 0; }
           .cal-card { align-self: stretch; display: flex; flex-direction: column; }
+          /* The month's size must not depend on what the side panel shows:
+             clicking a day swaps the panel's content (a different number of
+             cards), and when the panel's height set the row's height the whole
+             month grew or shrank with every click. contain: size gives the
+             panel no intrinsic height, so the row is as tall as the month needs
+             and the panel fills it, scrolling inside when it has more. */
+          .cal-side { position: static; align-self: stretch; contain: size; overflow-y: auto; padding-right: 2px; }
           .cal-grid { flex: 1; grid-auto-rows: auto; grid-template-rows: repeat(var(--weeks), minmax(52px, 1fr)); }
         }
         .cal-grid .cal-cell {
